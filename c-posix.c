@@ -251,6 +251,21 @@ void (*DUMMYFPTR) ();
  save_type(typename, sizeof(DUMMY), typekind, comps);\
  print_type_declaration(typename,fp);}
 
+/* gen_unchckd_conv
+   ----------------
+   generate an unchecked conversion FUNC from FROM to TO.
+ */
+#define gen_unchckd_conv(FUNC,FROM,TO)\
+ ifprintf(fp, "   function %s is new Unchecked_Conversion (%s, %s);\n",\
+          FUNC, FROM, TO);
+
+/* gen_renaming
+   ------------
+   generate a renaming ALIAS for ENT.
+*/
+#define gen_renaming(ALIAS,ENT)\
+ ifprintf(fp, "   %s renames %s;\n", ALIAS, ENT);
+
 /* other macros
    ------------
  */
@@ -4073,6 +4088,7 @@ void create_posix() {
   ifprintf(fp,"   type String_List;\n");
   ifprintf(fp,"   --  See package body for comments on String_List.\n");
   ifprintf(fp,"   type POSIX_String_List is access all String_List;\n");
+  ifprintf(fp,"   pragma No_Strict_Aliasing (POSIX_String_List);\n");
   ifprintf(fp,"   Empty_String_List : constant POSIX_String_List"
     " := null;\n\n");
 
@@ -4126,7 +4142,8 @@ void create_c() {
   }
 
   gheader("POSIX.C", FSU_Header);
-  ifprintf(fp,"with System;\n");
+  ifprintf(fp,"with System; use System;\n");
+  ifprintf(fp,"with Unchecked_Conversion;\n");
   ifprintf(fp,"package POSIX.C is\n");
   ifprintf(fp,"   pragma Elaborate_Body;\n");
 
@@ -4168,8 +4185,17 @@ void create_c() {
      ------------------
    */
   ifprintf(fp,"   subtype char is POSIX_Character;\n");
+
   gptrtp("char","char");
+  gen_unchckd_conv("To_Ptr", "Address", "char_ptr");
+  gen_renaming("function To_char_ptr (Addr : Address) return char_ptr",
+	       "To_Ptr");
+  gen_unchckd_conv("To_Address", "char_ptr", "Address");
+
   gptrtp("char_ptr","char_ptr");
+  gen_unchckd_conv("To_Ptr", "Address", "char_ptr_ptr");
+  gen_unchckd_conv("To_Address", "char_ptr_ptr", "Address");
+
   ifprintf(fp,"   type char_ptr_array is\n");
   ifprintf(fp,"     array (Positive range <>) of aliased char_ptr;\n");
 
@@ -5708,6 +5734,7 @@ void create_c() {
   g_struct_sched_param();
   ifprintf(fp,"   type cc_t_array is array (0 .. NCCS - 1) of cc_t;\n");
   g_struct_stat();
+  gen_unchckd_conv ("To_Stat_Ptr", "Address", "stat_ptr");
   g_struct_termios();
   gcmnt("timeval structure");
   g_struct_timeval();
