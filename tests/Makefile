@@ -8,12 +8,11 @@
 #
 .POSIX:
 #
-include ../Config
 MASTERDIR=/part1/florist/tests
 PAVT_VERSION=pavt-1.3
 GNATMAKEFLAGS1 = -g -A../floristlib -L../floristlib
-GNATMAKEFLAGS2= -cargs -gnatag -largs $(LIBS) -lflorist
-GNATMAKEFLAGS2a= -cargs -gnata -largs $(LIBS) -lflorist
+GNATMAKEFLAGS2= -cargs -gnatag -largs -lflorist
+GNATMAKEFLAGS2a= -cargs -gnata -largs -lflorist
 GNATPREPFLAGS = -r
 TOOLS =\
  renumber.adb\
