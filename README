@@ -30,7 +30,7 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.16 or 5.00 compiler to install and compile Florist.  
+You will need GNAT 3.17 or 5.01 to install and compile Florist.  
 
 ----------------
 --  WARNINGS  --
@@ -57,7 +57,7 @@ Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
 
 Sparc/Solaris 2.5.1, 2.6, 2.7, 8, 9
-Linux Redhat 7.x, 8
+Linux Redhat 7.x, 8, 9
 DEC Unix 4.0x
 Tru64 5.1a
 HP/UX 11.00
