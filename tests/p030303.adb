@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1998-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -44,14 +44,12 @@
 --  section 3.3 of POSIX.5b.  This test focusses on setups that are
 --  likely to kill the program if the test fails.
 
-with POSIX,
-     POSIX_Process_Identification,
+with POSIX_Process_Identification,
      POSIX_Report,
      POSIX_Signals;
 
 procedure p030303 is
-   use POSIX,
-       POSIX_Process_Identification,
+   use POSIX_Process_Identification,
        POSIX_Report,
        POSIX_Signals;
 
@@ -70,9 +68,9 @@ begin
       Send_Signal (Get_Process_ID, SIGSEGV);
       Expect_Exception ("A001");
    exception
-   when E : Program_Error =>
-      Check_Message (E, "Signal_Segmentation_Violation", "A002");
-   when E : others => Unexpected_Exception (E, "A003");
+   when E1 : Program_Error =>
+      Check_Message (E1, "Signal_Segmentation_Violation", "A002");
+   when E2 : others => Unexpected_Exception (E2, "A003");
    end;
 
    ---------------------------------------------------------------------
@@ -84,15 +82,14 @@ begin
       Send_Signal (Get_Process_ID, SIGBUS);
       Expect_Exception ("A004");
    exception
-   when E : Program_Error =>
-      Check_Message (E, "Signal_Bus_Error", "A005");
-   when E : others => Unexpected_Exception (E, "A006");
+   when E1 : Program_Error =>
+      Check_Message (E1, "Signal_Bus_Error", "A005");
+   when E2 : others => Unexpected_Exception (E2, "A006");
    end;
-   
+
    ---------------------------------------------------------------------
 
    Done;
 exception
-   when E : others => Fatal_Exception (E, "A008");
+when E : others => Fatal_Exception (E, "A007");
 end p030303;
-
