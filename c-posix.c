@@ -5925,7 +5925,7 @@ void create_c() {
    ----------------
  */
 
-  fprintf(fp,"package Sockets is\n");
+  fprintf(fp,"\n   package Sockets is\n");
   ghdrcmnt("socket.h");
 
 #ifdef HAVE_sa_family_t 
@@ -6286,13 +6286,13 @@ void create_c() {
   GFUNC(sockatmark, HAVE_sockatmark);
   GFUNC(socketpair, HAVE_socketpair);
 
-  fprintf(fp,"\nend Sockets;\n\n");
+  fprintf(fp,"\n   end Sockets;\n\n");
 
 /* c_xti
    ----------------
 */
 
-  fprintf(fp,"package XTI is\n");
+  fprintf(fp,"   package XTI is\n");
 
   ghdrcmnt("XTI structures");
   /* can't follow alphabetic ordering; e.g.
@@ -7011,13 +7011,13 @@ void create_c() {
   GFUNC(t_sync, HAVE_t_sync); 
   GFUNC(t_unbind, HAVE_t_unbind); 
 
-  fprintf(fp,"\nend XTI;\n");
+  fprintf(fp,"\n   end XTI;\n");
 
 /* netinet/in.h
    ----------------
 */
 
-  fprintf(fp,"package Netinet is\n");
+  fprintf(fp,"   package Netinet is\n");
 
    ghdrcmnt("From netinet/in.h");
 
@@ -7161,14 +7161,14 @@ void create_c() {
   GDFLT("IPTOS_RELIABILITY",0);
 #endif
 
-  fprintf(fp,"\nend Netinet;\n");
+  fprintf(fp,"\n   end Netinet;\n");
 
 
 /* netdb.h
    ----------------
 */
 
-  fprintf(fp,"package NetDB is\n");
+  fprintf(fp,"\n   package NetDB is\n");
   fprintf(fp,"   use Sockets;\n");
 
   g_struct_netent();
@@ -7204,7 +7204,7 @@ void create_c() {
   GFUNC(setprotoent, HAVE_setprotoent);
   GFUNC(setservent, HAVE_setservent);
 
-  fprintf(fp,"\nend NetDB;\n");
+  fprintf(fp,"\n   end NetDB;\n");
 
 /*
  * Poll/Select
