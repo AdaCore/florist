@@ -37,7 +37,6 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-
 with POSIX.C,
      POSIX.Implementation,
      POSIX.Process_Identification,
@@ -104,7 +103,7 @@ package body POSIX.Process_Scheduling is
    begin
       Check (sched_getparam
         (To_pid_t (Process), Params.Param'Unchecked_Access));
-      return Scheduling_Parameters (Params);
+      return Params;
    end Get_Scheduling_Parameters;
 
    -----------------------------

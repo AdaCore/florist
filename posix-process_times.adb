@@ -37,7 +37,6 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-
 with POSIX.C;
 package body POSIX.Process_Times is
 
@@ -64,7 +63,7 @@ package body POSIX.Process_Times is
       t : Process_Times;
    begin
       t.Elapsed_Real_Time := times (t.tms'Unchecked_Access);
-      return Process_Times (t);
+      return t;
    end Get_Process_Times;
 
    ----------------------------
