@@ -51,13 +51,6 @@ steps.
    process works correctly, the unsupported features will just
    raise POSIX_Error if you try to use them.
 
-   The POSIX.1g (sockets and XTI) interfaces are still very new, and
-   not supported.
-
-   NOTE:  Do not delete the empty file "florist_sources".  The configure
-   script checks for this file, to make sure it is in the right source
-   directory.
-
 2. Build and compile FLORIST by typing "make".  This will
    *automatically* perform many operations, including the following:
 
