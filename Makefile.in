@@ -298,7 +298,7 @@ c-posix: c-posix.c config.h pconfig.h
 # It is also supposed to be a "portable" POSIX C program.
 #
 c-posix-signals: c-posix-signals.c
-	gcc $(GCCFLAGS) $(GCC_ADDITIONAL_FLAGS) -o c-posix-signals \
+	gcc $(GCCFLAGS) -ansi -o c-posix-signals \
 	    c-posix-signals.c $(LIBS)
 #
 # generate Ada source files using "c-posix" program
