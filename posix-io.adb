@@ -206,6 +206,7 @@ package body POSIX.IO is
      (File   : File_Descriptor;
       Target : File_Descriptor := 0)
      return File_Descriptor is
+      pragma Unreferenced (Target);
    begin
       return File_Descriptor (Check (dup (int (File))));
    end Duplicate;
