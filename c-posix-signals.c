@@ -72,10 +72,11 @@
 
 */
 
+#include "pconfig.h"
+
 #define _POSIX_C_SOURCE 199506L
 #define _REENTRANT
 #define _POSIX_C_SIGNALS_C
-#include "pconfig.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
