@@ -89,12 +89,9 @@ with Ada_Task_Identification,
      System,
      System.Storage_Elements,
      System.Tasking,
-#    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupts,
      System.Interrupt_Management,
      System.Task_Primitives.Operations,
-#    else
-#    end if;
      Unchecked_Conversion;
 
 package body POSIX.Signals is
@@ -105,11 +102,8 @@ package body POSIX.Signals is
        System.Storage_Elements,
        System.Tasking;
 
-#  if HAVE_INTERRUPT_MANAGEMENT then
    package SI renames System.Interrupts;
    subtype SIID is SI.Interrupt_ID;
-#  else
-#  end if;
 
    package Bogus_Signal_Enum is
 
@@ -522,21 +516,13 @@ package body POSIX.Signals is
             --  interfaces of System.Interrupts.
             if sigismember
               (New_Mask.C'Unchecked_Access, int (Sig)) = 1 then
-#              if HAVE_INTERRUPT_MANAGEMENT
                if not SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Mask;
                end if;
-#              else
-               Raise_POSIX_Error (Operation_Not_Implemented);
-#              end if;
             else
-#              if HAVE_INTERRUPT_MANAGEMENT
                if SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Unmask;
                end if;
-#              else
-               Raise_POSIX_Error (Operation_Not_Implemented);
-#              end if;
             end if;
          end if;
       end loop;
@@ -545,23 +531,15 @@ package body POSIX.Signals is
          case Disposition (Sig) is
          when No_Change => null;
          when SI_To_Mask =>
-#           if HAVE_INTERRUPT_MANAGEMENT
             SI.Block_Interrupt (SIID (Sig));
             --  ???? Rely that no exception can be raised, due to previous
             --  checks?  Otherwise, we need to provide a handler to end the
             --  critical section.
-#           else
-            Raise_POSIX_Error (Operation_Not_Implemented);
-#           end if;
          when SI_To_Unmask =>
-#           if HAVE_INTERRUPT_MANAGEMENT
             SI.Unblock_Interrupt (SIID (Sig));
             --  ???? Rely that no exception can be raised, due to previous
             --  checks?  Otherwise, we need to provide a handler to end the
             --  critical section.
-#           else
-            Raise_POSIX_Error (Operation_Not_Implemented);
-#           end if;
          end case;
       end loop;
       End_Critical_Section;
@@ -589,13 +567,9 @@ package body POSIX.Signals is
             --  interfaces of System.Interrupts.
             if sigismember
               (Mask_to_Add.C'Unchecked_Access, int (Sig)) = 1 then
-#              if HAVE_INTERRUPT_MANAGEMENT
                if not SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Mask;
                end if;
-#              else
-               Raise_POSIX_Error (Operation_Not_Implemented);
-#              end if;
             else
                null;
             end if;
@@ -606,14 +580,10 @@ package body POSIX.Signals is
          case Disposition (Sig) is
          when No_Change => null;
          when SI_To_Mask =>
-#           if HAVE_INTERRUPT_MANAGEMENT
             SI.Block_Interrupt (SIID (Sig));
             --  ???? Rely that no exception can be raised, due to previous
             --  checks?  Otherwise, we need to provide a handler to end the
             --  critical section.
-#           else
-            Raise_POSIX_Error (Operation_Not_Implemented);
-#           end if;
          when SI_To_Unmask =>
             --  Should never get here!
             raise Program_Error;
@@ -647,13 +617,9 @@ package body POSIX.Signals is
             --  interfaces of System.Interrupts.
             if sigismember
               (Mask_to_Subtract.C'Unchecked_Access, int (Sig)) = 1 then
-#              if HAVE_INTERRUPT_MANAGEMENT
                if SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Unmask;
                end if;
-#              else
-               Raise_POSIX_Error (Operation_Not_Implemented);
-#              end if;
             end if;
          end if;
       end loop;
@@ -665,14 +631,10 @@ package body POSIX.Signals is
             raise Program_Error;
             --   Should never get here!
          when SI_To_Unmask =>
-#           if HAVE_INTERRUPT_MANAGEMENT
             SI.Unblock_Interrupt (SIID (Sig));
             --  ???? Rely that no exception can be raised, due to previous
             --  checks?  Otherwise, we need to provide a handler to end the
             --  critical section.
-#           else
-            Raise_POSIX_Error (Operation_Not_Implemented);
-#           end if;
          end case;
       end loop;
       End_Critical_Section;
@@ -694,7 +656,6 @@ package body POSIX.Signals is
         (SIG_BLOCK, null, Old_Mask.C'Unchecked_Access) = 0 then
          null;
       end if;
-#     if HAVE_INTERRUPT_MANAGEMENT
       --  Delete any ublocked signals from System.Interrupts.
       for Sig in Signal loop
          if not Reserved_Signal (Sig) then
@@ -709,8 +670,7 @@ package body POSIX.Signals is
             end if;
          end if;
       end loop;
-#     else
-#     end if;
+
       return Old_Mask;
    end Blocked_Signals;
 
@@ -728,11 +688,7 @@ package body POSIX.Signals is
       if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
       else
-#        if HAVE_INTERRUPT_MANAGEMENT
          SI.Ignore_Interrupt (SIID (Sig));
-#        else
-         Raise_POSIX_Error (Operation_Not_Implemented);
-#        end if;
       end if;
    end Ignore_Signal;
 
@@ -745,11 +701,7 @@ package body POSIX.Signals is
       if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
       else
-#        if HAVE_INTERRUPT_MANAGEMENT
-            SI.Unignore_Interrupt (SIID (Sig));
-#        else 
-         Raise_POSIX_Error (Operation_Not_Implemented);
-#        end if;
+         SI.Unignore_Interrupt (SIID (Sig));
       end if;
    end Unignore_Signal;
 
@@ -1248,7 +1200,6 @@ package body POSIX.Signals is
    end Interrupt_Task;
 
 begin
-
    Reserved_Signal := (others => False);
 
    for Sig in Signal loop
@@ -1263,7 +1214,6 @@ begin
       end case;
    end loop;
 
-#  if HAVE_INTERRUPT_MANAGEMENT
    --  Merge in signals that are reserved by the Ada runtime system.
    for Sig in Signal loop
       if SIID'Base (Sig) in SIID'Range then
@@ -1274,8 +1224,4 @@ begin
       else Reserved_Signal (Sig) := True;
       end if;
    end loop;
-#  else
-   Reserved_Signal := (others => True);
-#  end if;
-
 end POSIX.Signals;
