@@ -281,7 +281,8 @@ package body POSIX.Implementation is
    --  For RTS_Signals we mask all the signals identified as reserved
    --  by the tasking RTS. However, we leave SIGABRT alone since it is being
    --  used as the signal for abortion which needs to be invoked for
-   --  POSIX.Signals.Interrupt_Task.
+   --  POSIX.Signals.Interrupt_Task. Do not mask SIGTRAP either because
+   --  this signal is used by the debugger.
    --  ...Fix POSIX.5b????
    --  It seems we are deviating here from what the standard says, but for
    --  very good reasons.
@@ -302,7 +303,7 @@ package body POSIX.Implementation is
             SIMO.Copy_Interrupt_Mask (Old_Mask.all, New_Mask);
             if Masking = RTS_Signals then
                for J in 1 .. SIM.Interrupt_ID'Last loop
-                  if SIM.Reserve (J) and J /= SIGABRT then
+                  if SIM.Reserve (J) and J /= SIGABRT and J /= SIGTRAP then
                      SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, J);
                   end if;
                end loop;
