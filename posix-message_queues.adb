@@ -75,7 +75,7 @@ package body POSIX.Message_Queues is
       Masked_Signals : Signal_Masking;
       Old_Mask : access Signal_Mask) return Message_Queue_Descriptor is
    begin
-      if Result < 0 then
+      if Result = -(1) then
          Restore_Signals_And_Raise_POSIX_Error
            (Masked_Signals, Old_Mask);
       else
