@@ -82,9 +82,9 @@ package body POSIX.Terminal_Functions is
       return B38400;
    end To_Ada_Baud;
 
-   ------------------------------------
-   --  Get_Terminal_Characteristics  --
-   ------------------------------------
+   ----------------------------------
+   -- Get_Terminal_Characteristics --
+   ----------------------------------
 
    function tcgetattr (fd : int; pt : access struct_termios) return int;
    pragma Import (C, tcgetattr, tcgetattr_LINKNAME);
@@ -98,9 +98,9 @@ package body POSIX.Terminal_Functions is
       return Pt;
    end Get_Terminal_Characteristics;
 
-   ------------------------------------
-   --  Set_Terminal_Characteristics  --
-   ------------------------------------
+   ----------------------------------
+   -- Set_Terminal_Characteristics --
+   ----------------------------------
 
    To_C_Times : constant array (Terminal_Action_Times) of int :=
      (Immediately => TCSANOW,
@@ -126,9 +126,9 @@ package body POSIX.Terminal_Functions is
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Set_Terminal_Characteristics;
 
-   -------------------------
-   --  Terminal_Modes_Of  --
-   -------------------------
+   -----------------------
+   -- Terminal_Modes_Of --
+   -----------------------
 
    To_C_Terminal_Mode : constant array (Terminal_Modes) of tcflag_t :=
      (
@@ -206,9 +206,9 @@ package body POSIX.Terminal_Functions is
       return Modes;
    end Terminal_Modes_Of;
 
-   -----------------------------
-   --  Define_Terminal_Modes  --
-   -----------------------------
+   ---------------------------
+   -- Define_Terminal_Modes --
+   ---------------------------
 
    procedure Define_Terminal_Modes
      (Characteristics : in out Terminal_Characteristics;
@@ -250,9 +250,9 @@ package body POSIX.Terminal_Functions is
         (Characteristics.termios.c_lflag and not l_mask) or Tmp;
    end Define_Terminal_Modes;
 
-   -----------------------------
-   --  Bits_Per_Character_Of  --
-   -----------------------------
+   ---------------------------
+   -- Bits_Per_Character_Of --
+   ---------------------------
 
    function Bits_Per_Character_Of (Characteristics : Terminal_Characteristics)
      return Bits_Per_Character is
@@ -269,9 +269,9 @@ package body POSIX.Terminal_Functions is
       return 8;
    end Bits_Per_Character_Of;
 
-   ---------------------------------
-   --  Define_Bits_Per_Character  --
-   ---------------------------------
+   -------------------------------
+   -- Define_Bits_Per_Character --
+   -------------------------------
 
    To_C_Bits : constant array (Bits_Per_Character) of tcflag_t :=
      (5 => CS5, 6 => CS6, 7 => CS7, 8 => CS8);
@@ -285,9 +285,9 @@ package body POSIX.Terminal_Functions is
         (Characteristics.termios.c_cflag and not CSIZE) or To_C_Bits (Bits);
    end Define_Bits_Per_Character;
 
-   --------------------------
-   --  Input_Baud_Rate_Of  --
-   --------------------------
+   ------------------------
+   -- Input_Baud_Rate_Of --
+   ------------------------
 
    function cfgetispeed (termios_p : termios_ptr) return speed_t;
    pragma Import (C, cfgetispeed, cfgetispeed_LINKNAME);
@@ -300,9 +300,9 @@ package body POSIX.Terminal_Functions is
         (cfgetispeed (Characteristics.termios'Unchecked_Access));
    end Input_Baud_Rate_Of;
 
-   ------------------------------
-   --  Define_Input_Baud_Rate  --
-   ------------------------------
+   ----------------------------
+   -- Define_Input_Baud_Rate --
+   ----------------------------
 
    To_C_Baud : constant array (Baud_Rate) of speed_t :=
      (B0 => POSIX.C.B0,
@@ -337,9 +337,9 @@ package body POSIX.Terminal_Functions is
              To_C_Baud (Input_Baud_Rate)));
    end Define_Input_Baud_Rate;
 
-   ----------------------------
-   --   Output_Baud_Rate_Of  --
-   ----------------------------
+   -------------------------
+   -- Output_Baud_Rate_Of --
+   -------------------------
 
    function cfgetospeed (termios_p : termios_ptr) return speed_t;
    pragma Import (C, cfgetospeed, cfgetospeed_LINKNAME);
@@ -352,9 +352,9 @@ package body POSIX.Terminal_Functions is
         (cfgetospeed (Characteristics.termios'Unchecked_Access));
    end Output_Baud_Rate_Of;
 
-   -------------------------------
-   --  Define_Output_Baud_Rate  --
-   -------------------------------
+   -----------------------------
+   -- Define_Output_Baud_Rate --
+   -----------------------------
 
    function cfsetospeed
      (termios_p : termios_ptr;
@@ -371,9 +371,9 @@ package body POSIX.Terminal_Functions is
              To_C_Baud (Output_Baud_Rate)));
    end Define_Output_Baud_Rate;
 
-   ------------------------------------
-   --  Special_Control_Character_Of  --
-   ------------------------------------
+   ----------------------------------
+   -- Special_Control_Character_Of --
+   ----------------------------------
 
    To_Integer : constant
      array (Control_Character_Selector) of Integer :=
@@ -396,9 +396,10 @@ package body POSIX.Terminal_Functions is
         (Characteristics.termios.c_cc (To_Integer (Selector)));
    end Special_Control_Character_Of;
 
-   ----------------------------------------
-   --  Define_Special_Control_Character  --
-   ----------------------------------------
+   --------------------------------------
+   -- Define_Special_Control_Character --
+
+   --------------------------------------
    procedure Define_Special_Control_Character
       (Characteristics : in out Terminal_Characteristics;
        Selector        : in Control_Character_Selector;
@@ -409,9 +410,9 @@ package body POSIX.Terminal_Functions is
             cc_t (POSIX.POSIX_Character'Pos (Char));
    end Define_Special_Control_Character;
 
-   ---------------------------------
-   --  Disable_Control_Character  --
-   ---------------------------------
+   -------------------------------
+   -- Disable_Control_Character --
+   -------------------------------
 
    procedure Disable_Control_Character
       (Characteristics : in out Terminal_Characteristics;
@@ -420,9 +421,9 @@ package body POSIX.Terminal_Functions is
       Characteristics.termios.c_cc (To_Integer (Selector)) := 0;
    end Disable_Control_Character;
 
-   ---------------------
-   --  Input_Time_Of  --
-   ---------------------
+   -------------------
+   -- Input_Time_Of --
+   -------------------
 
    function Input_Time_Of (Characteristics : Terminal_Characteristics)
       return Duration is
@@ -431,9 +432,9 @@ package body POSIX.Terminal_Functions is
       return Duration (Characteristics.termios.c_cc (VTIME)) / 10.0;
    end Input_Time_Of;
 
-   -------------------------
-   --  Define_Input_Time  --
-   -------------------------
+   -----------------------
+   -- Define_Input_Time --
+   -----------------------
 
    procedure Define_Input_Time
       (Characteristics : in out Terminal_Characteristics;
@@ -441,35 +442,28 @@ package body POSIX.Terminal_Functions is
    begin
       Validate (Characteristics);
       if Input_Time < 0.0
---       or else Input_Time > Duration (cc_t'Last) / 10.0 then
---  The above fixed-point division causes a "Gigi abort"
---  with GNAT v3.03.
---  For now, we have a stop-gap:
-         or else Input_Time > Duration (cc_t'Last / 10) then
---  .... When can we fix this????
+        or else Input_Time > Duration (cc_t'Last) / 10.0
+      then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
-      --  asssume inaccuracy introduced by division in range test above
-      --  is rounded away by Integer conversion in conversion below;
-      --  assume cc_t'Last is small enough that no overflow is possible
-      --  on fixed-point multiplication by 10
+
       Characteristics.termios.c_cc (VTIME) := cc_t (Input_Time * 10);
    end Define_Input_Time;
 
-   ------------------------------
-   --  Minimum_Input_Count_Of  --
-   ------------------------------
+   ----------------------------
+   -- Minimum_Input_Count_Of --
+   ----------------------------
 
    function Minimum_Input_Count_Of (Characteristics : Terminal_Characteristics)
      return Natural is
    begin
       Validate (Characteristics);
-      return Natural (Characteristics.termios.c_cc (VEOF));
+      return Natural (Characteristics.termios.c_cc (VMIN));
    end Minimum_Input_Count_Of;
 
-   ----------------------------------
-   --  Define_Minimum_Input_Count  --
-   ----------------------------------
+   --------------------------------
+   -- Define_Minimum_Input_Count --
+   --------------------------------
 
    procedure Define_Minimum_Input_Count
       (Characteristics     : in out Terminal_Characteristics;
@@ -479,12 +473,12 @@ package body POSIX.Terminal_Functions is
       Check
         (Minimum_Input_Count in Natural (cc_t'First) .. Natural (cc_t'Last),
          Invalid_Argument);
-      Characteristics.termios.c_cc (VEOF) := cc_t (Minimum_Input_Count);
+      Characteristics.termios.c_cc (VMIN) := cc_t (Minimum_Input_Count);
    end Define_Minimum_Input_Count;
 
-   ------------------
-   --  Send_Break  --
-   ------------------
+   ----------------
+   -- Send_Break --
+   ----------------
 
    function tcsendbreak (fd : int; dur : int) return int;
    pragma Import (C, tcsendbreak, tcsendbreak_LINKNAME);
@@ -498,9 +492,9 @@ package body POSIX.Terminal_Functions is
       Check (tcsendbreak (int (File), int (Num / 0.25)));
    end Send_Break;
 
-   -------------
-   --  Drain  --
-   -------------
+   -----------
+   -- Drain --
+   -----------
 
    function tcdrain (fd : int) return int;
    pragma Import (C, tcdrain, tcdrain_LINKNAME);
@@ -518,9 +512,9 @@ package body POSIX.Terminal_Functions is
       Check (Result);
    end Drain;
 
-   --------------------
-   --  Discard_Data  --
-   --------------------
+   ------------------
+   -- Discard_Data --
+   ------------------
 
    To_C_Queue : constant array (Queue_Selector) of int :=
      (Received_But_Not_Read => TCIFLUSH,
@@ -537,9 +531,9 @@ package body POSIX.Terminal_Functions is
       Check (tcflush (int (File), To_C_Queue (Selector)));
    end Discard_Data;
 
-   ------------
-   --  Flow  --
-   ------------
+   ----------
+   -- Flow --
+   ----------
 
    To_C_Flow_Action : constant array (Flow_Action) of int :=
      (Suspend_Output => TCOOFF,
@@ -557,9 +551,9 @@ package body POSIX.Terminal_Functions is
       Check (tcflow (int (File), To_C_Flow_Action (Action)));
    end Flow;
 
-   ----------------------------
-   --  Get_Process_Group_ID  --
-   ----------------------------
+   --------------------------
+   -- Get_Process_Group_ID --
+   --------------------------
 
    function tcgetpgrp (fd : int) return pid_t;
    pragma Import (C, tcgetpgrp, tcgetpgrp_LINKNAME);
@@ -577,9 +571,9 @@ package body POSIX.Terminal_Functions is
       return To_Process_Group_ID (Result);
    end Get_Process_Group_ID;
 
-   ----------------------------
-   --  Set_Process_Group_ID  --
-   ----------------------------
+   --------------------------
+   -- Set_Process_Group_ID --
+   --------------------------
 
    function tcsetpgrp (fd : int; pgrp : pid_t) return int;
    pragma Import (C, tcsetpgrp, tcsetpgrp_LINKNAME);
@@ -594,9 +588,9 @@ package body POSIX.Terminal_Functions is
       Check (tcsetpgrp (int (File), To_pid_t (Group_ID)));
    end Set_Process_Group_ID;
 
-   -------------------------------------
-   --  Get_Controlling_Terminal_Name  --
-   -------------------------------------
+   -----------------------------------
+   -- Get_Controlling_Terminal_Name --
+   -----------------------------------
 
    function ctermid (s : char_ptr) return char_ptr;
    pragma Import (C, ctermid, ctermid_LINKNAME);
