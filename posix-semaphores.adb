@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998             Florida  State  University  (FSU),  --
+--  Copyright (c) 1996-1999             Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -69,6 +69,15 @@ package body POSIX.Semaphores is
          Restore_Signals (Masked_Signals, Old_Mask);
       end if;
    end Check_And_Restore_Signals;
+
+   procedure Validate (Sem : Semaphore_Descriptor);
+   pragma Inline (Validate);
+   procedure Validate (Sem : Semaphore_Descriptor) is
+   begin
+      if Sem = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
+   end Validate;
 
    ---------------------------------
    --        Initialize           --
@@ -207,6 +216,7 @@ package body POSIX.Semaphores is
       Result : int;
       Old_Mask : aliased Signal_Mask;
    begin
+      Validate (Sem);
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := sem_wait (Sem);
       Check_NNeg_And_Restore_Signals
@@ -223,6 +233,7 @@ package body POSIX.Semaphores is
    function Try_Wait (Sem : Semaphore_Descriptor) return Boolean is
       Result : int;
    begin
+      Validate (Sem);
       Result := sem_trywait (Sem);
       if Result = 0 then return True;
       elsif Fetch_Errno = EAGAIN then return False;
@@ -241,6 +252,7 @@ package body POSIX.Semaphores is
 
    procedure Post (Sem : in Semaphore_Descriptor) is
    begin
+      Validate (Sem);
       Check (sem_post (Sem));
    end Post;
 
@@ -256,6 +268,7 @@ package body POSIX.Semaphores is
    function Get_Value (Sem : Semaphore_Descriptor) return Integer is
       Value : aliased int;
    begin
+      Validate (Sem);
       Check (sem_getvalue (Sem, Value'Unchecked_Access));
       return Integer (Value);
    end Get_Value;
