@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1999             Florida  State  University  (FSU),  --
+--  Copyright (c) 1996-2002             Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -55,7 +55,6 @@ package body POSIX is
    -----------------------------
 
    type String_Ptr is access all String;
-   type Wide_String_Ptr is access all Wide_String;
    type Stream_Element_Array_Ptr is
       access all Ada_Streams.Stream_Element_Array;
 
@@ -132,11 +131,6 @@ package body POSIX is
    begin
       return psptr_to_smelmptr (Buffer'Unrestricted_Access).all;
    end To_Stream_Element_Array;
-
-   --  This is only going to work if the sizes of
-   --  Stream_Element and Character are the same.
-   Assert_1 : constant := Boolean'Pos (Boolean'Pred
-     (Ada_Streams.Stream_Element'Size = Character'Size));
 
    -----------------------
    --  To_POSIX_String  --
