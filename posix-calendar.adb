@@ -45,6 +45,11 @@
 --  the precision of the C type time_t.  That is, all times must be
 --  truncated to the nearest second.
 
+--  At one point we used gettimeofday, on systems where that
+--  function is supported, to provide more accurate time.
+--  As mentioned above, that created inconsistencies in file
+--  access times versus clock values.
+
 with POSIX.C,
      Unchecked_Conversion;
 package body POSIX.Calendar is
