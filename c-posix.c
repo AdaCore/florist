@@ -112,7 +112,7 @@ int  max_GCST2;
 
 #define GUFLT(name, value) \
   NON_SUPPORT_MESSAGE(name)\
-  fprintf(fp,"   %s : constant := %u;\n", name, value);
+  my_fprintf(fp,"   %s : constant := %u;\n", name, value);
 
 #define GDFLT2(name, name2) \
   NON_SUPPORT_MESSAGE(name)\
@@ -1538,38 +1538,38 @@ void print_type_declaration(char const name[], FILE *fp) {
   case RECURSIVE_STRUCT_TYPE:
   { component_t * p;
     int prev_offset = -1;
-    fprintf(fp,"   type %s;\n", extended_name);
+    my_fprintf(fp,"   type %s;\n", extended_name);
     gptrtp(type->typename, extended_name);
-    fprintf(fp,"   type %s is record\n", extended_name);
+    my_fprintf(fp,"   type %s is record\n", extended_name);
     for (p = type->comps; p && p->typename; p++) {
-      fprintf(fp,"      %s : ", p->compname);
+      my_fprintf(fp,"      %s : ", p->compname);
       print_ada_type(p->typename);
-      fprintf(fp,";\n");
-      if (p->is_volatile) fprintf(fp,"      pragma Volatile (%s);\n",
+      my_fprintf(fp,";\n");
+      if (p->is_volatile) my_fprintf(fp,"      pragma Volatile (%s);\n",
          p->compname);
     }    
-    fprintf(fp,"   end record;\n   for %s use record\n", extended_name);
+    my_fprintf(fp,"   end record;\n   for %s use record\n", extended_name);
     for (p = type->comps; p && p->compname; p++) {
       /* GNAT isn't able to handle overlapping components, so we add a simple
          minded test to prevent the most common cases */
       if (p->offset == prev_offset) 
-        fprintf(fp,"      --  *** OVERLAPPING component ***\n"
+        my_fprintf(fp,"      --  *** OVERLAPPING component ***\n"
                    "      --  %s at %d range 0 .. %d;\n", p->compname,
                    p->offset, p->size*bits_per_byte-1);
       else         
-        fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
+        my_fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
           p->offset, p->size*bits_per_byte-1);
       prev_offset = p->offset;
     } 
-    fprintf(fp,"   end record;\n");
-    fprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
-    fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
-    fprintf(fp,"   pragma Warnings (Off);\n");
-    fprintf(fp,"   --  There may be holes in the record, due to\n");
-    fprintf(fp,"   --  components not defined by POSIX standard.\n");
-    fprintf(fp,"   for %s'Size use %d;\n",
+    my_fprintf(fp,"   end record;\n");
+    my_fprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
+    my_fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
+    my_fprintf(fp,"   pragma Warnings (Off);\n");
+    my_fprintf(fp,"   --  There may be holes in the record, due to\n");
+    my_fprintf(fp,"   --  components not defined by POSIX standard.\n");
+    my_fprintf(fp,"   for %s'Size use %d;\n",
       extended_name, type->typesize*bits_per_byte);
-    fprintf(fp,"   pragma Warnings (On);\n");
+    my_fprintf(fp,"   pragma Warnings (On);\n");
     break;
   } 
 
