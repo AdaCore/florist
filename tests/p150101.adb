@@ -43,7 +43,7 @@
 --  Test package POSIX_Message_Queues
 --  in IEEE Std 1003.5b Section 15.1.
 
---  This is an test of Message Queues based on a possible
+--  This is a test of Message Queues based on a possible
 --  application usage model.  It does not try to exercise the whole
 --  package.  It just checks that Message Queues can be used to
 --  communicate between tasks.
@@ -56,11 +56,6 @@
 --  Message Queues are used to enforce an orderly service discipline,
 --  so that each teller serves one customer at a time.
 
---  .... This test is currently not working with Florist.
---  The behavior is that messages seem to be lost.
---  We have not yet determined whether the fault is in Florist
---  or in the test.
-
 with Ada_Streams,
      POSIX,
      POSIX_IO,
@@ -68,7 +63,6 @@ with Ada_Streams,
      POSIX_Message_Queues,
      POSIX_Permissions,
      POSIX_Report,
-     POSIX_Semaphores,
      System,
      Test_Parameters,
      Unchecked_Conversion;
@@ -80,8 +74,7 @@ procedure p150101 is
        POSIX_IO,
        POSIX_Message_Queues,
        POSIX_Permissions,
-       POSIX_Report,
-       POSIX_Semaphores;
+       POSIX_Report;
 
    package TP renames Test_Parameters;
 
@@ -117,15 +110,13 @@ procedure p150101 is
 
    --  In case we can't open enough queues for all the
    --  players, we scale back to Last_Queue.
-   Last_Queue : Player_ID;
+   Last_Queue : Integer := 0;
+   Last_Player : Player_ID := 0;
 
    Teller_Queue : Message_Queue_Descriptor;
    Exit_Queue   : Message_Queue_Descriptor;
    Player_Waits :
     array (Teller_ID'First .. Customer_ID'Last) of Message_Queue_Descriptor;
-
-   Wait_QID         : constant Integer := 1;
-   Finish_QID       : constant Integer := 4;
 
    -----------------------------------
    -- Player_ID_Message_Conversions --
@@ -207,12 +198,16 @@ procedure p150101 is
 
       procedure Serve (CID : Customer_ID; TID : Teller_ID) is
       begin
-         Assert (Serving (TID) = CID, "A003: wrong customer");
+         Assert (Serving (TID) = CID, "A003: wrong customer" &
+         Player_ID'Image (CID) & ":" &
+         Player_ID'Image (Serving (TID)));
       end Serve;
 
       procedure End_Serve (CID : Customer_ID; TID : Teller_ID) is
       begin
-         Assert (Serving (TID) = CID, "A004: wrong customer");
+         Assert (Serving (TID) = CID, "A004: wrong customer" &
+           Player_ID'Image (CID) & ":" &
+           Player_ID'Image (Serving (TID)));
          Serving (TID) := Null_Player;
       end End_Serve;
 
@@ -292,8 +287,8 @@ procedure p150101 is
       Send (Exit_Queue, To_Stream_Element_Array (Self), 1);
    exception
    when E : others =>
+      Unexpected_Exception (E, "A006: in Customer" & Player_ID'Image (Self));
       Shutdown (Self);
-      Fatal_Exception (E, "A006: in Customer" & Player_ID'Image (Self));
    end Customer;
 
    ------------
@@ -319,20 +314,22 @@ procedure p150101 is
          Cmmnt (Self, "waits for a customer to show up");
          Receive (My_Wait_Queue, Buffer, Last, Prio);
          My_Customer := To_Player_ID (Buffer (1 .. Last));
+         Cmmnt (Self, "Last=" & Stream_Element_Offset'Image (Last));
+         Cmmnt (Self, "My_Customer=" & Player_ID'Image (My_Customer));
          exit when My_Customer = Null_Player;
-         P.Serve (Self, My_Customer);
+         P.Serve (My_Customer, Self);
          Cmmnt (Self, "delays, serving Customer"
            & Player_ID'Image (My_Customer));
          delay Duration (Self) * Duration'(0.001);
-         P.End_Serve (Self, My_Customer);
+         P.End_Serve (My_Customer, Self);
          Cmmnt (Self, "wakes up the customer");
          Send (Player_Waits (My_Customer),
           To_Stream_Element_Array ("Go Ahead"), 1);
       end loop;
    exception
    when E : others =>
+      Unexpected_Exception (E, "A007: in Teller" & Player_ID'Image (Self));
       Shutdown (Self);
-      Fatal_Exception (E, "A007: in Teller" & Player_ID'Image (Self));
    end Teller;
 
    --------------
@@ -360,25 +357,28 @@ begin
    begin
       Comment ("Initialize message queues");
       Set_Message_Length (Attr, 8);
---      Set_Max_Messages (Attr, Integer (Num_Tellers));
       Set_Max_Messages (Attr, 200);
-      Teller_Queue := Open_Or_Create (TP.Valid_MQ_Name (Wait_QID),
+      Comment ("Opening teller queue (1)");
+      Last_Queue := Last_Queue + 1;
+      Teller_Queue := Open_Or_Create (TP.Valid_MQ_Name (Last_Queue),
         Read_Write, Owner_Permission_Set,
         POSIX_IO.Empty_Set,
         Attr, POSIX.RTS_Signals);
---      Set_Max_Messages (Attr, Integer (Num_Customers));
-      Exit_Queue := Open_Or_Create (TP.Valid_MQ_Name (Finish_QID),
+      Comment ("Opening exit queue (2)");
+      Last_Queue := Last_Queue + 1;
+      Exit_Queue := Open_Or_Create (TP.Valid_MQ_Name (Last_Queue),
         Read_Write,
         Owner_Permission_Set,
         POSIX_IO.Empty_Set,
         Attr, POSIX.RTS_Signals);
---      Set_Max_Messages (Attr, 1);
+      Last_Player := Tellers'First - 1;
       begin
-         Last_Queue := Player_Waits'First - 1;
-         while Last_Queue < Player_Waits'Last loop
+         while Last_Player < Customer_ID'Last loop
+            Last_Player := Last_Player + 1;
             Last_Queue := Last_Queue + 1;
-            Player_Waits (Last_Queue) := Open_Or_Create
-             (TP.Valid_MQ_Name (Finish_QID + Integer (Last_Queue)),
+            Comment ("Opening queue" & Integer'Image (Last_Queue));
+            Player_Waits (Last_Player) := Open_Or_Create
+             (TP.Valid_MQ_Name (Last_Queue),
               Read_Write, Owner_Permission_Set,
               POSIX_IO.Empty_Set,
               Attr, POSIX.RTS_Signals);
@@ -390,10 +390,12 @@ begin
             EC = Too_Many_Open_Files or
             EC = No_Space_Left_On_Device then
             Comment ("Failed to create queue");
-            Assert (Integer (Last_Queue) + 2 >
+            Assert (Integer (Last_Queue) >
               POSIX_Limits.Portable_Open_Message_Queues_Maximum, "A009");
          else raise;
          end if;
+         Last_Player := Last_Player - 1;
+         Last_Queue := Last_Queue - 1;
       end;
    exception
    when E1 : POSIX_Error =>
@@ -404,6 +406,8 @@ begin
       Fatal_Exception (E2, "A011: Queue creation");
    end;
 
+   Comment ("Last_Queue = " & Integer'Image (Last_Queue));
+
    -----------------------------------------------------------------------
 
    begin
@@ -411,16 +415,18 @@ begin
       for I in Teller_ID'Range loop
          Tellers (I).Start (I);
       end loop;
-      for I in Customer_ID'First .. Last_Queue loop
+      for I in Customer_ID'First .. Last_Player loop
          Customers (I).Start (I);
          Customer_Count := Customer_Count + 1;
          Comment ("Customer arrived. Customer count ="
           & Integer'Image (Customer_Count));
       end loop;
-      if Last_Queue < Customer_ID'Last then
-         Comment ("Send away" & Player_ID'Image (Customer_ID'Last - Last_Queue)
+      if Last_Player < Customer_ID'Last then
+         Comment ("Send away"
+           & Player_ID'Image (Customer_ID'Last - Last_Player)
            & " extra customers");
-         for I in Last_Queue + 1 .. Customer_ID'Last loop
+         for I in Last_Player + 1 .. Customer_ID'Last loop
+            Comment ("aborting customer " & Customer_ID'Image (I));
             abort Customers (I);
             Customer_Count := Customer_Count - 1;
             Comment ("Customer gave up. Customer count ="
@@ -440,7 +446,7 @@ begin
 
    begin
       Comment ("Wait for all customers to finish");
-      for I in Customer_ID'First .. Last_Queue loop
+      for I in Customer_ID'First .. Last_Player loop
          Receive (Exit_Queue, Buffer, Last, Prio);
          Assert (Last = Player_ID_Length, "A014");
          Customer_Count := Customer_Count - 1;
@@ -502,7 +508,8 @@ begin
 
    begin
       Comment ("Unlink message queues");
-      for I in Wait_QID .. Integer (Last_Queue) loop
+      for I in 1 .. Last_Queue loop
+         Comment ("Unlinking queue" & Integer'Image (I));
          Unlink_Message_Queue (TP.Valid_MQ_Name (I));
       end loop;
    exception
