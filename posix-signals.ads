@@ -45,8 +45,7 @@ with Ada_Task_Identification,
      System.Interrupt_Management,
 #    else
 #    end if;
-     System.Storage_Elements,
-     Unchecked_Conversion;
+     System.Storage_Elements;
 package POSIX.Signals is
 
    --  Signal Type

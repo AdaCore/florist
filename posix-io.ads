@@ -40,7 +40,6 @@
 with Ada.Streams,
      POSIX,
      POSIX.C,
-     POSIX.Implementation,
      POSIX.Permissions,
      POSIX.Process_Identification,
      System;
