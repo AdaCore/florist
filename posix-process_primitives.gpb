@@ -101,7 +101,7 @@ package body POSIX.Process_Primitives is
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
    begin
-      if Directory = "" then return File; end if;
+      if Directory = "" then return File & NUL; end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File & NUL;
       end if;
