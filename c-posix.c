@@ -110,6 +110,10 @@ int  max_GCST2;
   NON_SUPPORT_MESSAGE(name)\
   my_fprintf(fp,"   %s : constant := %d;\n", name, value);
 
+#define GUFLT(name, value) \
+  NON_SUPPORT_MESSAGE(name)\
+  fprintf(fp,"   %s : constant := %u;\n", name, value);
+
 #define GDFLT2(name, name2) \
   NON_SUPPORT_MESSAGE(name)\
   GCST2(name, name2, -1);
@@ -151,6 +155,21 @@ void g_##TYPENAME(){\
  TYPENAME DUMMY;\
  char const typename [] = #TYPENAME;\
  int typekind = TYPEDEF_STRUCT_TYPE;\
+ component_t comps [] = {\
+
+/* GT1R
+   --- 
+   start of code to generate a struct/record declaration for structs
+   that have a pointer to the struct type as a component.
+   C type name is struct TYPENAME
+   Ada type name is struct_TYPENAME
+ */
+#define GT1R(TYPENAME,WE_HAVE_IT)\
+void g_struct_##TYPENAME(){\
+ int we_have_it = WE_HAVE_IT;\
+ struct TYPENAME DUMMY;\
+ char const typename [] = #TYPENAME;\
+ int typekind = RECURSIVE_STRUCT_TYPE;\
  component_t comps [] = {\
 
 /* GT2
@@ -262,6 +281,7 @@ typedef struct component {
 #define TYPEDEF_STRUCT_TYPE 4
 #define OPAQUE_TYPE 5
 #define CHAR_ARRAY_TYPE 6
+#define RECURSIVE_STRUCT_TYPE 7
 /* .... may need to also define a case for union types
    .... may not need to distinquish struct from typedef */
 
@@ -978,7 +998,7 @@ struct linger {
   GT1(msghdr, 1)
 #else
 struct msghdr {
-    char * msg_name;
+    struct sockaddr * msg_name;
     size_t msg_namelen;
     struct iovec * msg_iov;
     size_t msg_iovlen;
@@ -993,7 +1013,7 @@ struct msghdr {
   };
   GT1(msghdr, 0)
 #endif
-  GT2(msg_name, char *)
+  GT2(msg_name, struct sockaddr *)
   GT2(msg_namelen, size_t)
   GT2(msg_iov, struct iovec *)
   GT2(msg_iovlen, size_t)
@@ -1115,7 +1135,7 @@ struct servent {
   GT3
 
 #ifdef HAVE_struct_addrinfo
-  GT1(addrinfo, 1)
+  GT1R(addrinfo, 1)
 #else
 struct addrinfo {
   int ai_flags;
@@ -1125,9 +1145,9 @@ struct addrinfo {
   size_t ai_addrlen;
   struct sockaddr * ai_addr;
   char * ai_canonname;
-  char * ai_next;
+  struct addrinfo * ai_next;
   };
-  GT1(addrinfo, 0)
+  GT1R(addrinfo, 0)
 #endif
   GT2(ai_flags, int)
   GT2(ai_family, int)
@@ -1136,7 +1156,7 @@ struct addrinfo {
   GT2(ai_addrlen, size_t)
   GT2(ai_addr, struct sockaddr *)
   GT2(ai_canonname, char *)
-  GT2(ai_next, char *)
+  GT2(ai_next, struct addrinfo *)
   GT3
 
 /* XTI structs */
@@ -1449,7 +1469,8 @@ void print_type_declaration(char const name[], FILE *fp) {
 
   if (type->is_printed) ("TYPE ALREADY DECLARED",name);
 
-  if (type->typekind == STRUCT_TYPE) {
+  if (type->typekind == STRUCT_TYPE ||
+      type->typekind == RECURSIVE_STRUCT_TYPE) {
     if (strlen(type->typename)>=sizeof(extended_name)) {
        quit("type name too long",type->typename);
     }
@@ -1514,6 +1535,44 @@ void print_type_declaration(char const name[], FILE *fp) {
     gptrtp(type->typename, extended_name);
     break;
   }
+  case RECURSIVE_STRUCT_TYPE:
+  { component_t * p;
+    int prev_offset = -1;
+    fprintf(fp,"   type %s;\n", extended_name);
+    gptrtp(type->typename, extended_name);
+    fprintf(fp,"   type %s is record\n", extended_name);
+    for (p = type->comps; p && p->typename; p++) {
+      fprintf(fp,"      %s : ", p->compname);
+      print_ada_type(p->typename);
+      fprintf(fp,";\n");
+      if (p->is_volatile) fprintf(fp,"      pragma Volatile (%s);\n",
+         p->compname);
+    }    
+    fprintf(fp,"   end record;\n   for %s use record\n", extended_name);
+    for (p = type->comps; p && p->compname; p++) {
+      /* GNAT isn't able to handle overlapping components, so we add a simple
+         minded test to prevent the most common cases */
+      if (p->offset == prev_offset) 
+        fprintf(fp,"      --  *** OVERLAPPING component ***\n"
+                   "      --  %s at %d range 0 .. %d;\n", p->compname,
+                   p->offset, p->size*bits_per_byte-1);
+      else         
+        fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
+          p->offset, p->size*bits_per_byte-1);
+      prev_offset = p->offset;
+    } 
+    fprintf(fp,"   end record;\n");
+    fprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
+    fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
+    fprintf(fp,"   pragma Warnings (Off);\n");
+    fprintf(fp,"   --  There may be holes in the record, due to\n");
+    fprintf(fp,"   --  components not defined by POSIX standard.\n");
+    fprintf(fp,"   for %s'Size use %d;\n",
+      extended_name, type->typesize*bits_per_byte);
+    fprintf(fp,"   pragma Warnings (On);\n");
+    break;
+  } 
+
   case CHAR_ARRAY_TYPE:
     my_fprintf(fp,"   type %s is\n", extended_name);
     my_fprintf(fp,"     array (1 .. %d) of char;\n", type->typesize);
@@ -7085,7 +7144,7 @@ void create_c() {
 #ifdef INADDR_NONE
   GUCST("INADDR_NONE", INADDR_NONE);
 #else
-  GDFLT("INADDR_NONE", 0);
+  GDFLT("INADDR_NONE", 0xffffffff);
 #endif
 #ifdef INADDR_ANY
   GUCST("INADDR_ANY",INADDR_ANY);
