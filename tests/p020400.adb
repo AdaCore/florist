@@ -182,6 +182,7 @@ begin
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ" &
         "abcdefghijklmnopqrstuvwxyz" &
         "._-/" & '"' & "#&'*)*+,:;<=>|";
+      pragma Warnings (Off, S);
    begin
       null;
    exception when E : others => Unexpected_Exception (E, "A033");
@@ -222,7 +223,7 @@ begin
 
    Test ("POSIX_String_List type [2.4.4]");
    declare
-      X, Y : POSIX_String_List;
+      X : POSIX_String_List;
       N : Integer;
       procedure Never (Item : in POSIX_String; Quit : in out Boolean);
       procedure Never (Item : in POSIX_String; Quit : in out Boolean) is
@@ -243,7 +244,6 @@ begin
          N := N + 1;
          if N = 5 then Quit := True; end if;
       end Check;
-      procedure Check_Sequence is new For_Every_Item (Never);
    begin
       Assert (Length (Empty_String_List) = 0, "A048");
       Check_Empty (X);
@@ -335,6 +335,8 @@ begin
       declare
          Dummy1 : constant String := Image (Uninitialized);
          Dummy2 : constant String := Image (No_Error);
+         pragma Warnings (Off, Dummy1);
+         pragma Warnings (Off, Dummy2);
       begin null;
       end;
       Set_Error_Code (ENAMETOOLONG);
