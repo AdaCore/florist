@@ -43,7 +43,6 @@ with POSIX.C,
      POSIX.File_Status,
      POSIX.Permissions,
      POSIX.Permissions.Implementation,
-     System,
      Unchecked_Conversion;
 package body POSIX.Files is
 
@@ -292,9 +291,6 @@ package body POSIX.Files is
    -------------------
    --  Filename_Of  --
    -------------------
-
-   function To_char_ptr is
-     new Unchecked_Conversion (System.Address, char_ptr);
 
    function Filename_Of (D_Entry : Directory_Entry)
       return Filename is

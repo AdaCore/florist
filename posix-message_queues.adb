@@ -272,9 +272,6 @@ package body POSIX.Message_Queues is
       msg_prio : unsigned) return int;
    pragma Import (C, mq_send, mq_send_LINKNAME);
 
-   function To_char_ptr is
-     new Unchecked_Conversion (System.Address, char_ptr);
-
    procedure Send
      (MQ             : in Message_Queue_Descriptor;
       Message        : in Ada_Streams.Stream_Element_Array;
