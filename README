@@ -7,8 +7,9 @@ BELOW IN THIS FILE.
 FLORIST:
 
 This directory contains the components of FLORIST, an
-implementation of the IEEE Standards 1003.5: 1992 and IEEE STD
-1003.5b: 1996, also known as the POSIX Ada Bindings.
+implementation of the IEEE Standards 1003.5: 1992, IEEE STD
+1003.5b: 1996, and parts of IEEE STD 1003.5c: 1998, also known as
+the POSIX Ada Bindings.
 
 All the code in this directory is copyrighted by the Florida
 State University (FSU), except for any files that contain
@@ -63,9 +64,9 @@ example, Florist relies that Duration and Calendar.Time are both
 represented as a 64-bit count of nanoseconds, so as to simplify
 conversions between these types and POSIX.Timespec.
 
----------------
---  WARNINGS --
----------------
+----------------
+--  WARNINGS  --
+----------------
 
 This Ada binding implementation depends on your underlying OS
 having C header-files and libraries that conform to the POSIX
@@ -76,13 +77,23 @@ to the POSIX.5 and POSIX.5b standards will be limited by how well
 your OS conforms to the corresponding C API's.
 
 So far, we have not found any operating system that fully supports
-the POSIX.1b and POSIX.1c standards, though they are getting
-better.  Generally, you will get better results with newer OS
-releases, since their C API's are closer to the POSIX standards.
-It is also a good idea to make sure that your installation
-includes the header files and libraries needed for the real-time
-and threads extensions.  (The default "end user" OS installation
-may try to save you disk space by not installing them.)
+POSIX.1c and POSIX.1g though they are getting better.  Generally,
+you will get better results with newer OS releases, since their C
+API's are closer to the POSIX standards.  It is also a good idea
+to make sure that your installation includes the header files and
+libraries needed for the real-time and threads extensions.  (The
+default "end user" OS installation may try to save you disk space
+by not installing them.)
+
+Beware of the packages POSIX_Sockets, POSIX_Sockets.Internet,
+POSIX_Sockets.Local, POSIX_Sockets.ISO, POSIX_XTI,
+POSIX_XTI.Internet, POSIX_XTI.ISO, POSIX_XTI.MOSI,
+POSIX_Event_Management.  These are parts of a POSIX.5c prototype
+effort that stalled during the ballot/revision process.  We have
+since made some improvements, notably in the socket interfaces,
+but this is far from a finished work.  These package interfaces
+SHOULD NOT BE ASSUMED TO CONFORM to the approved POSIX.5c
+standard, nor are they fully implemented.
 
 Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
@@ -160,7 +171,7 @@ steps.
    not supported widely; the configure stage will attempt to work around
    missing features.  If it fails badly, you can still build the rest of
    Florist.  (One should not be using the POSIX.5c interfaces anyway,
-   except for balloters, who are using them to evaluate the draft standard.)
+   as explained above.)
 
    NOTE:  If you change versions of GNAT, you will need to re-run the
    "configure" script, and recompile Florist, since the
