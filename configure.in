@@ -259,7 +259,8 @@ AC_POSIX_LIB(pthread, pthread_self,,
 AC_POSIX_LIB(pthread, __pthread_self,,
 AC_POSIX_LIB(pthreads, pthread_self,,
 AC_POSIX_LIB(dce, pthread_self,,
-AC_POSIX_LIB(:libdce.a, pthread_self)))))
+AC_POSIX_LIB(:libdce.a, pthread_self,,
+AC_POSIX_LIB(thread, pthread_self))))))
 
 AC_POSIX_LIB(aio, aio_read)
 
