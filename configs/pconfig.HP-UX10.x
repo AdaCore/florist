@@ -1,4 +1,5 @@
 #define _XOPEN_SOURCE_EXTENDED
+#define _INCLUDE_HPUX_SOURCE
 #define _REENTRANT
 /* For HP-UX with DCE threads,
    we need pthread.h first, to get the desired
