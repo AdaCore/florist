@@ -45,10 +45,7 @@ with POSIX,
      POSIX.Process_Identification,
      POSIX.Signals,
      POSIX.Unsafe_Process_Primitives,
-#    if  HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupts,
-#    else
-#    end if;
      Unchecked_Conversion,
      Unchecked_Deallocation;
 package body POSIX.Process_Primitives is
@@ -58,11 +55,8 @@ package body POSIX.Process_Primitives is
        POSIX.Process_Identification,
        POSIX.Process_Environment;
 
-#  if  HAVE_INTERRUPT_MANAGEMENT then
    package SI renames System.Interrupts;
    subtype SIID is System.Interrupts.Interrupt_ID;
-#  else
-#  end if;
 
    C_File_Mode : constant array (POSIX.IO.File_Mode) of Bits :=
      (POSIX.IO.Read_Only  => O_RDONLY,
@@ -270,7 +264,6 @@ package body POSIX.Process_Primitives is
          end case;
          Cur := Cur.Next;
       end loop;
-#     if HAVE_INTERRUPT_MANAGEMENT then
       Void (sigemptyset (New_Mask'Unchecked_Access));
       for Sig in 1 .. POSIX.Signals.Signal'Last loop
          if POSIX.Signals.Is_Member (Template.Sig_Set, Sig) then
@@ -284,8 +277,6 @@ package body POSIX.Process_Primitives is
       --  the fork() call we are effectively in a single-threaded process,
       --  so it might be better to use sigprocmask?
       --  Void (sigprocmask (SIG_SETMASK, New_Mask'Unchecked_Access, null));
-#     else
-#     end if;
    exception when others =>
       Exit_Process (Failed_Creation_Exit);
    --  Since this may not work, we have tried to avoid raising
