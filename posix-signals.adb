@@ -287,7 +287,7 @@ package body POSIX.Signals is
      (POSIX.Process_Identification.Process_Group_ID, pid_t);
 
    function Convert_Ids is new Unchecked_Conversion
-     (Ada_Task_Identification.Task_Id, System.Tasking.Task_ID);
+     (Ada_Task_Identification.Task_Id, System.Tasking.Task_Id);
 
    function To_Signal_Data is new Unchecked_Conversion (sigval, Signal_Data);
    function To_sigval is new Unchecked_Conversion (Signal_Data, sigval);
