@@ -48,8 +48,11 @@ package body POSIX.Process_Identification is
    --  Get_Process_ID --
    ---------------------
 
+#  if HAVE_Leroy_Threads then
+#  else
    function getpid return pid_t;
    pragma Import (C, getpid, getpid_LINKNAME);
+#  end if;
 
    function Get_Process_ID return Process_ID is
    begin
