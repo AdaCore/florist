@@ -50,7 +50,8 @@
 --  at least two distinct names, for N=0 and N=1.
 
 with POSIX,
-     POSIX_Signals;
+     POSIX_Signals,
+     POSIX_Timers;
 package Test_Parameters is
 
    use POSIX;
@@ -116,5 +117,8 @@ package Test_Parameters is
 
    function Unused_Group_Name return POSIX_String;
    --  A string that has no corresponding group.
+
+   function Invalid_Clock_ID return POSIX_Timers.Clock_ID;
+   --  An invalid clock ID.
 
 end Test_Parameters;
