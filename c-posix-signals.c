@@ -73,7 +73,7 @@
 
 */
 
-#define _C_POSIX_SIGNALS_C
+#define _POSIX_C_SIGNALS_C
 #include "pconfig.h"
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -82,6 +82,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <pthread.h>
+
+/* Uncomment the following only for debugging. */
+/* #define DEBUG */
 
 int sigs [] = {
    0,
