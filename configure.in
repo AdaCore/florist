@@ -239,9 +239,8 @@ AC_POSIX5C_HEADERS(
 AC_POSIX_LIB(pthread, pthread_self,,
 AC_POSIX_LIB(pthread, __pthread_self,,
 AC_POSIX_LIB(pthreads, pthread_self,,
-AC_POSIX_LIB(cma, pthread_self,,
 AC_POSIX_LIB(dce, pthread_self,,
-AC_POSIX_LIB(:libdce.a, pthread_self))))))
+AC_POSIX_LIB(:libdce.a, pthread_self)))))
 
 AC_POSIX_LIB(aio, aio_read)
 
