@@ -52,27 +52,23 @@
 --  Consider splitting this test further, to separate checks that
 --  require signal entries from those that do not.
 
-with Ada_Task_Identification,
-     p030300a,
+with p030300a,
      POSIX,
      POSIX_IO,
      POSIX_Process_Identification,
      POSIX_Report,
      POSIX_Signals,
      System,
-     System.Interrupts,
-     System.Storage_Elements,
      Test_Parameters;
 
 procedure p030305 is
-   use  Ada_Task_Identification,
-        p030300a,
-        POSIX,
-        POSIX_Process_Identification,
-        POSIX_Report,
-        POSIX_Signals,
-        Test_Parameters,
-        System;
+   use p030300a,
+       POSIX,
+       POSIX_Process_Identification,
+       POSIX_Report,
+       POSIX_Signals,
+       Test_Parameters,
+       System;
 
    Old_Mask : Signal_Set;
 
@@ -107,7 +103,7 @@ begin
          Set : Signal_Set := Blocked_Signals;
       begin
          for Sig in Signal loop
-            if not Is_Reserved (Sig)
+            if not Cannot_Be_Blocked (Sig)
               and then not Is_Member (Set, Sig)
               and then not Signal_Mask_Is_Process_Wide then
                Add_Signal (Not_Initially_Masked, Sig);
@@ -123,7 +119,6 @@ begin
 
    Test ("Block and Unblock Signals [3.3.8]");
    declare
-      N : constant Integer := 3;
       New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
@@ -172,15 +167,14 @@ begin
       if Default_Action (Sig) /= Termination
         or else Action_Cannot_Be_Set (Sig)
         or else Is_Member (Not_Initially_Masked, Sig)
-        or else Is_Reserved (Sig) then
-         Add_Signal (Do_Not_Test, Sig);
+        or else Is_Reserved_Signal (Sig) then
+         Do_Not_Test (Sig) := True;
       end if;
    end loop;
 
    declare
 
       N : constant Integer := 3;
-      New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
@@ -198,7 +192,7 @@ begin
          task body T is
             Count : Integer := 0;
          begin
-            if not Is_Member (Do_Not_Test, Sig) then
+            if not Do_Not_Test (Sig) then
                loop
                   select
                      accept Signal do
@@ -210,7 +204,7 @@ begin
                         Count := 0;
                      end Reset_Count;
                   or
-                     accept Current_Count (X : out integer) do
+                     accept Current_Count (X : out Integer) do
                         X := Count;
                      end Current_Count;
                   or terminate;
@@ -235,7 +229,7 @@ begin
          --  cause the handler to execute.
 
          Assert (not Is_Ignored (Sig), "A008");
-         if not Is_Member (Do_Not_Test, Sig) then
+         if not Do_Not_Test (Sig) then
             T.Reset_Count;
             for I in 1 .. N loop
                --  give T a chance to accept the signal
@@ -261,7 +255,7 @@ begin
 
          Ignore_Signal (Sig);
          Assert (Is_Ignored (Sig), "A010");
-         if not Is_Member (Do_Not_Test, Sig) then
+         if not Do_Not_Test (Sig) then
             T.Reset_Count;
             for I in 1 .. N loop
                --  give T a chance to accept the signal
@@ -289,25 +283,16 @@ begin
          Assert (not Is_Ignored (Sig), "A012");
 
          --------------------------------------------------------------------
-         --  Now make sure any pending occurrences of the signal will be
-         --  cleared out safely when we next unblock signals.
+         --  Clear out any pending occurrences of the signal.
 
-         Ignore_Signal (Sig);
+         Clear_Signal (Sig, "A013");
 
       exception
-      when E1 : others => Unexpected_Exception (E1, "A013");
+      when E1 : others => Unexpected_Exception (E1, "A014");
       end Test_Signal;
 
    begin
 
-      for Sig in Signal loop
-         if Default_Action (Sig) /= Termination
-           or else Action_Cannot_Be_Set (Sig)
-           or else Is_Member (Not_Initially_Masked, Sig)
-           or else Is_Reserved (Sig) then
-            Add_Signal (Do_Not_Test, Sig);
-         end if;
-      end loop;
       for Sig in Signal loop
          begin
             Test_Signal (Sig);
@@ -316,9 +301,9 @@ begin
             if Is_Supported (Signal_Entries_Option)
               and then Get_Error_Code /= Invalid_Argument
             then
-               Unexpected_Exception (E1, "A014");
+               Unexpected_Exception (E1, "A015");
             end if;
-         when E2 : others => Unexpected_Exception (E2, "A015");
+         when E2 : others => Unexpected_Exception (E2, "A016");
          end;
       end loop;
    end;
@@ -350,7 +335,7 @@ begin
                select
                   accept E2;
                or delay DU;
-                  Fail ("A016: " & Image (Sig));
+                  Fail ("A017: " & Image (Sig));
                end select;
                --  Then arrange for signal to arrive before the accept.
                accept E1;
@@ -358,9 +343,9 @@ begin
                select
                   accept E2;
                or delay DU;
-                  Fail ("A017: " & Image (Sig));
+                  Fail ("A018: " & Image (Sig));
                end select;
-            exception when E : others => Unexpected_Exception (E, "A018");
+            exception when E : others => Unexpected_Exception (E, "A019");
             end T;
          begin
             Block_Signals (All_Signal_Mask, Old_Mask);
@@ -376,15 +361,17 @@ begin
            Expected_If_Not_Supported => Invalid_Argument,
            Expected_If_Supported => Invalid_Argument,
            E => E1,
-           Message => "A019");
-      when E2 : others => Unexpected_Exception (E2, "A020");
+           Message => "A020");
+      when E2 : others => Unexpected_Exception (E2, "A021");
       end Test_Signal;
    begin
       for Sig in Signal loop
-         Test_Signal (Sig);
+         if not Default_Is_Ignore (Sig) then
+            Test_Signal (Sig);
+         end if;
       end loop;
    exception
-   when E : others => Unexpected_Exception (E, "A021");
+   when E : others => Unexpected_Exception (E, "A022");
    end;
 
    ---------------------------------------------------------------------
@@ -408,21 +395,21 @@ begin
          POSIX_IO.Read (POSIX_IO.Standard_Input, Buffer, Last);
          Comment ("system call aborted OK");
       exception
-      when E1 : POSIX_Error =>
-         Check_Error_Code (Interrupted_Operation, "A022");
-      when E2 : others => Unexpected_Exception (E2, "A023");
+      when POSIX_Error =>
+         Check_Error_Code (Interrupted_Operation, "A023");
+      when E : others => Unexpected_Exception (E, "A024");
       end T;
    begin
       delay 3*DU;
       Comment ("interrupting task");
       Interrupt_Task (T'Identity);
    exception
-   when E : others => Unexpected_Exception (E, "A024");
+   when E : others => Unexpected_Exception (E, "A025");
    end;
 
    ---------------------------------------------------------------------
 
    Done;
 exception
-   when E : others => Fatal_Exception (E, "A025");
+   when E : others => Fatal_Exception (E, "A026");
 end p030305;

@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998                Florida State University (FSU).  --
+--  Copyright (c) 1996-2002                Florida State University (FSU).  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -45,11 +45,6 @@ with POSIX,
      POSIX.Process_Identification,
      POSIX.Signals,
      POSIX.Unsafe_Process_Primitives,
-#    if HAVE_INTERRUPT_MANAGEMENT then
-     System.Interrupt_Management,
-     System.Interrupt_Management.Operations,
-#    else
-#    end if;
      Unchecked_Conversion,
      Unchecked_Deallocation;
 package body POSIX.Process_Primitives is
@@ -78,8 +73,6 @@ package body POSIX.Process_Primitives is
 
    function To_Process_ID is new
       Unchecked_Conversion (pid_t, Process_ID);
-   function To_Process_ID is new
-      Unchecked_Conversion (Process_Group_ID, Process_ID);
    function To_pid_t is new
       Unchecked_Conversion (Process_Group_ID, pid_t);
    function To_pid_t is new
@@ -102,7 +95,7 @@ package body POSIX.Process_Primitives is
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
    begin
-      if Directory = "" then return File; end if;
+      if Directory = "" then return File & NUL; end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File & NUL;
       end if;
@@ -119,8 +112,31 @@ package body POSIX.Process_Primitives is
 
    procedure Execute_Template (Template : Process_Template);
 
-   function sigemptyset (set : access sigset_t) return int;
+   procedure Void (Ignore : int);
+   pragma Inline (Void);
+   procedure Void (Ignore : int) is
+      pragma Warnings (Off, Ignore);
+   begin
+      null;
+   end Void;
+
+   function sigemptyset (set : sigset_t_ptr) return int;
    pragma Import (C, sigemptyset, sigemptyset_LINKNAME);
+   function sigfillset (set : sigset_t_ptr) return int;
+   pragma Import (C, sigfillset, sigfillset_LINKNAME);
+   function sigaddset (set : sigset_t_ptr; sig : POSIX.Signals.Signal)
+     return int;
+   pragma Import (C, sigaddset, sigaddset_LINKNAME);
+   function pthread_sigmask
+     (how : int;
+      set : sigset_t_ptr;
+      oset : sigset_t_ptr) return int;
+   pragma Import (C, pthread_sigmask, pthread_sigmask_LINKNAME);
+   function sigprocmask
+     (how : int;
+      set : sigset_t_ptr;
+      oset : sigset_t_ptr) return int;
+   pragma Import (C, sigprocmask, sigprocmask_LINKNAME);
 
    procedure Check_Fatal (Result : int);
    --  See comments in Execute_Template, below.
@@ -145,7 +161,6 @@ package body POSIX.Process_Primitives is
    pragma Import (C, close, close_LINKNAME);
 
    function open (path : char_ptr; oflag : int) return int;
-   function open (path : char_ptr; oflag : int; mode : mode_t) return int;
    pragma Import (C, open, open_LINKNAME);
 
    function fcntl (fildes : int; cmd : int; arg : int) return int;
@@ -157,12 +172,8 @@ package body POSIX.Process_Primitives is
    procedure Execute_Template (Template : Process_Template) is
       FD1, FD2 : int;
       Cur : FD_Set_Ptr := Template.FD_Set;
-#     if HAVE_INTERRUPT_MANAGEMENT then
-      package SIM renames System.Interrupt_Management;
-      package SIMO renames System.Interrupt_Management.Operations;
-      New_Mask : aliased SIM.Interrupt_Mask;
-#     else
-#     end if;
+      New_Mask, Old_Mask : aliased sigset_t;
+
    begin
       if not Template.Keep_Effective_IDs then
          --  See note below why we do not call operations from
@@ -172,6 +183,7 @@ package body POSIX.Process_Primitives is
          Check_Fatal (setuid (getuid));
          Check_Fatal (setgid (getgid));
       end if;
+
       --  We cannot use signal masking operations from
       --  POSIX.Signals, since they are implemented as
       --  virtual operations, relative to the Ada task's
@@ -182,50 +194,25 @@ package body POSIX.Process_Primitives is
       --  and we hope|expect there are no other threads active
       --  in the new (child) process.  Under these conditions
       --  (only) it should be safe to use the raw signal masking
-      --  operations.  In this case, we use the almost-raw
+      --  operations.  In earlier versions, we used the almost-raw
       --  versions, from System.Interrupt_Management.Operations.
-      --  These have the advantage that the Ada RTS has already
+      --  These had the advantage that the Ada RTS has already
       --  taken care of mapping to any nonstandard functions,
       --  such as the Solaris 2.x thr_sigmask, versus the
-      --  POSIX.1c pthread_sigmask.
+      --  POSIX.1c pthread_sigmask.  However, more recent versions
+      --  of Unix operating systems do support the standard,
+      --  and in posi-signals.gpb we have already used some of
+      --  the raw C interfaces.  In the current version, we have
+      --  gone over to completely avoiding calls to the Ada tasking
+      --  runtime system.
 
---  ?????
---  Consider phasing out use of System.Interrupt_Managment and
---  System.Interrupt_Management.Operations, in favor of direct
---  calls to the POSIX C interface. It should be more efficient.
---  The only reason for the present scheme is compatibility with
---  systems that do not support the standard POSIX thread operations,
---  such as earlier versions of Solaris (e.g., thr_sigmask
---  instead of pthread_sigmask).  We have already broken from that,
---  though in posix-signals.gpb.
-
-      --  ....  We should worry, though.  If this process
-      --  raises an exception during this time, the tasking
+      --  If an exception is raised during this time, the tasking
       --  runtime system's data structures may "lie" about there
-      --  possibly being other tasks active.  This could prevent
+      --  being other tasks active.  This could prevent
       --  orderly shutdown of the process.  Hence, we use
       --  Check_Fatal instead of the usual Check, and generally
       --  try to avoid calling anything that could raise an
       --  exception.
-
-#     if HAVE_INTERRUPT_MANAGEMENT then
-      SIMO.Empty_Interrupt_Mask (New_Mask'Unchecked_Access);
-      case Template.Masked_Sig is
-      when No_Signals => null;
-      when RTS_Signals =>
-         for I in 1 .. SIM.Interrupt_ID'Last loop
-            if SIM.Reserve (I) then
-               SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, I);
-            end if;
-         end loop;
-         SIMO.Delete_From_Interrupt_Mask
-           (New_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
-      when All_Signals =>
-         SIMO.Fill_Interrupt_Mask (New_Mask'Unchecked_Access);
-      end case;
-      SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
-#     else
-#     end if;
 
       --  .... ????
       --  The code below may not be robust against exceptions
@@ -235,7 +222,7 @@ package body POSIX.Process_Primitives is
       --  process exceptions.
       --  The present approach is to avoid exceptions, by calling the
       --  "raw" C interfaces below, and to replace the soft-links that are
-      --  used to set up exception-handling frames, to use the nontasking
+      --  used to set up exception-handling frames to use the nontasking
       --  versions, since we may not be able to avoid those routines being
       --  called.  The soft links are switched inside the version of Fork
       --  that we import from POSIX.Unsafe_Process_Primitives.
@@ -271,12 +258,21 @@ package body POSIX.Process_Primitives is
          end case;
          Cur := Cur.Next;
       end loop;
-#     if HAVE_INTERRUPT_MANAGEMENT then
-      SIMO.Empty_Interrupt_Mask (New_Mask'Unchecked_Access);
-      SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
-#     else
-#     end if;
-   exception when others => Exit_Process (Failed_Creation_Exit);
+      Void (sigemptyset (New_Mask'Unchecked_Access));
+      for Sig in 1 .. POSIX.Signals.Signal'Last loop
+         if POSIX.Signals.Is_Member (Template.Sig_Set, Sig) then
+            Void (sigaddset (New_Mask'Unchecked_Access, Sig));
+         end if;
+      end loop;
+      Void (pthread_sigmask (SIG_SETMASK, New_Mask'Unchecked_Access,
+        Old_Mask'Unchecked_Access));
+      --  ???? is pthread_sigmask OK after a fork?
+      --  sigprocmask is not safe in a multithreaded process, but after
+      --  the fork() call we are effectively in a single-threaded process,
+      --  so it might be better to use sigprocmask?
+      --  Void (sigprocmask (SIG_SETMASK, New_Mask'Unchecked_Access, null));
+   exception when others =>
+      Exit_Process (Failed_Creation_Exit);
    --  Since this may not work, we have tried to avoid raising
    --  any exceptions.  However, in case we have missed something
    --  and an exception is raised, we leave the handler here,
@@ -360,25 +356,26 @@ package body POSIX.Process_Primitives is
 
    procedure Set_File_Action_To_Close
      (Template : in out Process_Template;
-      File : in POSIX.IO.File_Descriptor) is
-      tmp : FD_Set_Ptr;
+      File : in POSIX.IO.File_Descriptor)
+   is
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if Template.FD_Set = null then
+
+      if Tmp = null then
          Template.FD_Set := new FD_Set_Element (Close, 1);
-         Template.FD_Set.FD := File;
-         Template.FD_Set.Next := null;
-         Template.FD_Set.Action := Close;
-         return;
+         Tmp := Template.FD_Set;
+      else
+         while (Tmp.Next /= null) loop
+            Tmp := Tmp.Next;
+         end loop;
+         Tmp.Next := new FD_Set_Element (Close, 1);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (Close, 1);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Close;
+
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Close;
    end Set_File_Action_To_Close;
 
    -------------------------------
@@ -389,36 +386,32 @@ package body POSIX.Process_Primitives is
      (Template : in out Process_Template;
       File : in POSIX.IO.File_Descriptor;
       Name : in POSIX.Pathname;
-      Mode : in POSIX.IO.File_Mode
-           := POSIX.IO.Read_Only;
-      Options : in POSIX.IO.Open_Option_Set
-         --  := POSIX.IO.Empty_Set) is
-         := POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set)) is
-         --  Conversion is only to work around a GNAT3.09 problem.
-      tmp : FD_Set_Ptr;
+      Mode : in POSIX.IO.File_Mode := POSIX.IO.Read_Only;
+      Options : in POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set)
+   is
+      Name_With_NUL : POSIX_String := Name & NUL;
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if Template.FD_Set = null then
-         Template.FD_Set := new FD_Set_Element (Open, Name'Length);
-         Template.FD_Set.FD := File;
-         Template.FD_Set.Next := null;
-         Template.FD_Set.Action := Open;
-         Template.FD_Set.File_Name := Name;
-         Template.FD_Set.File_Mode := Mode;
-         Template.FD_Set.File_Options := Options;
-         return;
+
+      if Tmp = null then
+         Template.FD_Set := new FD_Set_Element (Open, Name_With_NUL'Length);
+         Tmp := Template.FD_Set;
+      else
+         while Tmp.Next /= null loop
+            Tmp := Tmp.Next;
+         end loop;
+
+         Tmp.Next := new FD_Set_Element (Open, Name_With_NUL'Length);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (Open, Name'Length);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Open;
-      tmp.Next.File_Name := Name;
-      tmp.Next.File_Mode := Mode;
-      tmp.Next.File_Options := Options;
+
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Open;
+      Tmp.File_Name := Name_With_NUL;
+      Tmp.File_Mode := Mode;
+      Tmp.File_Options := Options;
    end Set_File_Action_To_Open;
 
    ------------------------------------
@@ -428,27 +421,28 @@ package body POSIX.Process_Primitives is
    procedure Set_File_Action_To_Duplicate
      (Template : in out Process_Template;
       File : in POSIX.IO.File_Descriptor;
-      From_File : in POSIX.IO.File_Descriptor) is
-      tmp : FD_Set_Ptr;
+      From_File : in POSIX.IO.File_Descriptor)
+   is
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if tmp = null then
-         tmp := new FD_Set_Element (duplicate, 1);
-         tmp.FD := File;
-         tmp.Next := null;
-         tmp.Action := Duplicate;
-         tmp.Dup_From := From_File;
-         return;
+
+      if Tmp = null then
+         Template.FD_Set := new FD_Set_Element (Duplicate, 1);
+         Tmp := Template.FD_Set;
+      else
+         while Tmp.Next /= null loop
+            Tmp := Tmp.Next;
+         end loop;
+
+         Tmp.Next := new FD_Set_Element (Duplicate, 1);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (duplicate, 1);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Duplicate;
-      tmp.Next.Dup_From := From_File;
+
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Duplicate;
+      Tmp.Dup_From := From_File;
    end Set_File_Action_To_Duplicate;
 
    ---------------------
@@ -494,12 +488,15 @@ package body POSIX.Process_Primitives is
       Result : int;
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
+      Old_Mask : aliased Signal_Mask;
    begin
       if Arg = null then Arg := Null_String_List_Ptr;
       end if;
       Validate (Template);
       --  .... Consider trying to "quiesce" the tasking system
       --  before doing the fork.  It is probably not feasible.
+      Mask_Signals
+        (Template.Masked_Sig, Old_Mask'Unchecked_Access);
       pid := To_pid_t (UFork); Check (int (pid));
       if pid = 0 then  --  child process
          Execute_Template (Template);
@@ -508,6 +505,8 @@ package body POSIX.Process_Primitives is
             Arg.Char (1)'Unchecked_Access);
          Exit_Process (Failed_Creation_Exit);
       else Child := To_Process_ID (pid);
+         Restore_Signals
+           (Template.Masked_Sig, Old_Mask'Unchecked_Access);
       end if;
    end Start_Process;
 
@@ -655,7 +654,7 @@ package body POSIX.Process_Primitives is
    begin
 #     if HAVE_Leroy_Threads then
       c_exit (int (Status));
-#     end if;      
+#     end if;
       sys_exit (int (Status));
    end Exit_Process;
 
@@ -784,6 +783,7 @@ package body POSIX.Process_Primitives is
       Trace_Stopped  : in Boolean := True;
       Masked_Signals : in POSIX.Signal_Masking
                      := POSIX.RTS_Signals) is
+      pragma Warnings (Off, Masked_Signals);
       Options : Bits := 0;
    begin
       if Trace_Stopped then

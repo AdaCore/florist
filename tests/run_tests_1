@@ -1,11 +1,18 @@
 #!/bin/sh
-# Archive version is already corrected for some of these errors.
+# run all the tests that can reasonably run in a batch
+# 
+# FLAGS determines the degree of verbosity of the output.
+# Setting it to "-t" give the tersest form of output.
 FLAGS="-t"
 
-RUN='rlimit 20'
+RUN=
 
-# run all the simple tests
+# remove the old log file
+#
 rm -f run_tests_1.log
+#
+# run the tests
+#
 $RUN ../p020400 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p021000 ${FLAGS} >> run_tests_1.log 2>&1
 if [ ! -h bin ]
@@ -16,14 +23,12 @@ ln -fs ../p030100b
 $RUN ../p030100 ${FLAGS} >> run_tests_1.log 2>&1
 ln -fs ../p030101b
 $RUN ../p030101 ${FLAGS} >> run_tests_1.log 2>&1
+ln -fs ../p030102
 $RUN ../p030102 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030200 ${FLAGS} >> run_tests_1.log 2>&1
-# ........p030300 hangs on Linux????????
 $RUN ../p030300 ${FLAGS} >> run_tests_1.log 2>&1
 ln -fs ../p030301b
-# ........p030301 hangs on Linux????????
 $RUN ../p030301 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p030302 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030303 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030304 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030305 ${FLAGS} >> run_tests_1.log 2>&1
@@ -38,21 +43,33 @@ $RUN ../p040300 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p040301 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p050100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p050200 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p050201 ${FLAGS} >> run_tests_1.log 2>&1
-# p050300 requires BLOCK_DEV to be set to a block device
+umask 033
 $RUN ../p050300 ${FLAGS} >> run_tests_1.log 2>&1
 # p060100 requires Standard_Error to be a terminal device
 $RUN ../p060100 ${FLAGS} >> run_tests_1.log
 $RUN ../p060200 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p060300 ${FLAGS} >> run_tests_1.log 2>&1
-# p070200 requires Standard_Error to be a terminal device
-$RUN ../p070200 ${FLAGS} >> run_tests_1.log
 $RUN ../p090100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p090200 ${FLAGS} >> run_tests_1.log 2>&1
-# p110101 required raising ulimit -v to 20000
+# ../p060100 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p060200 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p060300 ${FLAGS} >> run_tests_1.log 2>&1
+# p070200 requires Standard_Error to be a terminal device
+# and (apparently) cannot be run in background without hanging
+# on attempt to set terminal characteristics "after output"
+# or "after input and output".  
+$RUN ../p070200 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p090100 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p090200 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p110100 ${FLAGS} >> run_tests_1.log 2>&1
+#   p110101 required raising ulimit -v to 20000
 $RUN ../p110101 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p110200 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p110201 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p110300 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p120100 ${FLAGS} >> run_tests_1.log 2>&1
+#  p120101 should really be run without resource limits
+ln -fs ../p120101
 $RUN ../p120101 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p120200 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p120300 ${FLAGS} >> run_tests_1.log 2>&1
@@ -63,9 +80,19 @@ ln -fs ../p120502a
 $RUN ../p120502 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p140100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p140101 ${FLAGS} >> run_tests_1.log 2>&1
+ln -fs ../p150100b
 $RUN ../p150100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p150101 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p990010 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p990020 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p990030 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p990040 ${FLAGS} >> run_tests_1.log 2>&1
+# Run the following tests by hand, since they take a very long
+# time to run and generally exceed the resource and time limits set
+# in this script to catch infinite loops.
+# ../p990010 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990011 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990020 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990030 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990040 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990050 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990060 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990070 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990080 ${FLAGS} >> run_tests_1.log 2>&1
+# ../p990090 ${FLAGS} >> run_tests_1.log 2>&1

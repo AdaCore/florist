@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -34,7 +34,7 @@
 --  AVAILABLE OR DISCLOSED ARE AS IS.   THE GOVERNMENT MAKES NO EXPRESS OR  --
 --  IMPLIED WARRANTY AS TO ANY MATTER WHATSOEVER, INCLUDING THE CONDITIONS  --
 --  OF THE SOFTWARE,  DOCUMENTATION  OR  OTHER INFORMATION RELEASED,  MADE  --
---  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP,  MERCHANTABILITY, OR FITNESS  --
+--  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP, MERCHANTABILITY, OR FITNESS  --
 --  FOR A PARTICULAR PURPOSE OF SAID MATERIAL.                              --
 --                                                                          --
 ------------------------------------------------------------------------------
@@ -47,24 +47,21 @@
 --  Setup: Before running this test set PWD to the current working
 --  directory, (PWD=`pwd`) and export PWD.
 
---  ....To Do: add checking for null environ validity. clear_environment,
---  .... Copy_to, from, Copy_(EnvA, EnvB)....
-
-with POSIX;
-with POSIX_Files;
-with POSIX_Permissions;
-with POSIX_Process_Environment;
-with POSIX_Report;
-with POSIX_Configurable_File_Limits;
-with Ada.Command_Line;
+with POSIX,
+     POSIX_Files,
+     POSIX_Permissions,
+     POSIX_Process_Environment,
+     POSIX_Report,
+     POSIX_Configurable_File_Limits,
+     Ada.Command_Line;
 
 procedure p040301 is
 
-   use POSIX;
-   use POSIX_Files;
-   use POSIX_Permissions;
-   use POSIX_Process_Environment;
-   use POSIX_Report;
+   use POSIX,
+       POSIX_Files,
+       POSIX_Permissions,
+       POSIX_Process_Environment,
+       POSIX_Report;
 
 begin
 
@@ -129,11 +126,11 @@ begin
                                    Quit     : in out Boolean) is
       begin
          if Quit then
-            Fail ("Either 'Quit' is initialized as false or it does not work");
+            Fail ("Either 'Quit' is initialized as False or it does not work");
          elsif Variable = "PATH" then
-            Quit := true;
+            Quit := True;
          elsif Variable = "Quit_Trigger" then
-            Quit := true;
+            Quit := True;
          end if;
       end Check_Action_Quit;
       procedure Check_Table_Action_Quit is new For_Every_Environment_Variable
@@ -165,36 +162,32 @@ begin
               = "Undefined_Value", "A005");
       Assert (Environment_Value_Of ("Undefined_Env_Var") = "", "A006");
       Comment ("Testing Is_Environment_Variable(an undefined env variable)");
-      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = false,
+      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = False,
                  "A007");
-      Assert (Is_Environment_Variable ("Undefined_Env_Var") = false, "A008");
+      Assert (Is_Environment_Variable ("Undefined_Env_Var") = False, "A008");
       Set_Environment_Variable ("Undefined_Env_Var", "Defined_Now", EnvA);
       Set_Environment_Variable ("Undefined_Env_Var", "Defined_Now");
-      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = true,
+      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = True,
               "A009");
-      Assert (Is_Environment_Variable ("Undefined_Env_Var") = true, "A010");
+      Assert (Is_Environment_Variable ("Undefined_Env_Var") = True, "A010");
       Comment ("Testing case significance of environment variables");
       --  Test the case of characters in the environment variable name
       --   are significant
-      Assert (Is_Environment_Variable ("undefined_env_var", EnvA) = false,
+      Assert (Is_Environment_Variable ("undefined_env_var", EnvA) = False,
                   "A011");
-      Assert (Is_Environment_Variable ("undefined_env_var") = false, "A012");
+      Assert (Is_Environment_Variable ("undefined_env_var") = False, "A012");
       Assert (Environment_Value_Of ("undefined_env_var", EnvA) =
                   "", "A013");
       Assert (Environment_Value_Of ("undefined_env_var", " ") = " ", "A014");
       Clear_Environment (EnvA);
       Comment ("Testing validity of a null environment");
-      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = false,
+      Assert (Is_Environment_Variable ("Undefined_Env_Var", EnvA) = False,
                   "A015");
---      To be added after Copy_To_Current_Environment fixed
---      *** ***
       Comment ("Clear_Environment");
       Clear_Environment;
-      Assert (Is_Environment_Variable ("Undefined_Env_Var") = false, "A016");
+      Assert (Is_Environment_Variable ("Undefined_Env_Var") = False, "A016");
       Comment ("Copy_To_Current_Environment (EnvB)");
       Copy_To_Current_Environment (EnvB);
---      *** ***
-
       Assert (Environment_Value_Of ("New_Variable_For_Test", EnvA) = "",
               "A017");
       Assert (Environment_Value_Of ("New_Variable_For_Test", EnvA,
@@ -208,10 +201,10 @@ begin
       Assert (Environment_Value_Of ("New_Variable_For_Test") =
                "New_Variable=Value", "A020");
       Delete_Environment_Variable ("New_Variable_For_Test", EnvA);
-      Assert (Is_Environment_Variable ("New_Variable_For_Test", EnvA) = false,
+      Assert (Is_Environment_Variable ("New_Variable_For_Test", EnvA) = False,
                "A021");
       Delete_Environment_Variable ("New_Variable_For_Test");
-      Assert (Is_Environment_Variable ("New_Variable_For_Test") = false,
+      Assert (Is_Environment_Variable ("New_Variable_For_Test") = False,
                "A022");
       Copy_Environment (EnvB, EnvA);
       Assert (Length (EnvB) = Length (EnvA), "A023");
@@ -261,7 +254,7 @@ begin
       end;
       Comment ("Testing Error Handling for Is_Environment_Variable");
       begin
-         if Is_Environment_Variable ("", EnvA) = false then
+         if Is_Environment_Variable ("", EnvA) = False then
             Assert (False, "A035");
          end if;
          Assert (False, "A036");
@@ -269,7 +262,7 @@ begin
                  "A037");
       end;
       begin
-         if Is_Environment_Variable ("") = false then
+         if Is_Environment_Variable ("") = False then
             Assert (False, "A038");
          end if;
          Assert (False, "A039");
@@ -277,7 +270,7 @@ begin
                 "A040");
       end;
       begin
-         if Is_Environment_Variable ("Contain=Symbol", EnvA) = false then
+         if Is_Environment_Variable ("Contain=Symbol", EnvA) = False then
             Assert (False, "A041");
          end if;
          Assert (False, "A042");
@@ -285,7 +278,7 @@ begin
                  "A043");
       end;
       begin
-         if Is_Environment_Variable ("Contain=Symbol") = false then
+         if Is_Environment_Variable ("Contain=Symbol") = False then
             Assert (False, "A044");
          end if;
          Assert (False, "A045");
@@ -373,7 +366,7 @@ begin
       Comment ("Testing Get_Working_Directory");
       Assert (DirA'First = 1, "A068");
       Comment ("Get_Working_Directory returns " & To_String (DirA));
-      Create_Directory ("Unlikely_Exist_Dir", (others => true));
+      Create_Directory ("Unlikely_Exist_Dir", (others => True));
       Comment ("Testing Change_Working_Directory");
       Change_Working_Directory ("Unlikely_Exist_Dir");
       Assert (Get_Working_Directory = DirA & "/Unlikely_Exist_Dir", "A069");
@@ -387,10 +380,10 @@ begin
       Test ("Error Handling for Process Working Directory [4.3.3]");
       Comment ("Testing Handling of Permission_Denied");
       begin
-         Create_Directory ("Unlikely_Exist_Dir", (Owner_Write => true,
-                     others => false));
+         Create_Directory ("Unlikely_Exist_Dir", (Owner_Write => True,
+                     others => False));
          Change_Working_Directory ("Unlikely_Exist_Dir");
-         Assert (false, "A071");
+         Assert (False, "A071");
       exception when POSIX_Error => Check_Error_Code (Permission_Denied,
                        "A072");
       end;
@@ -412,16 +405,16 @@ begin
             Over_Long_Name := new String'(Over_Long_Name.all & "L");
          end loop;
          Change_Working_Directory (To_POSIX_String (Over_Long_Name.all));
-         Assert (false, "A073");
+         Assert (False, "A073");
       exception
       when POSIX_Error => Check_Error_Code (Filename_Too_Long, "A074");
       end;
 
       Comment ("Testing Handling of Not_A_Directory <try a FIFO:->");
       begin
-         Create_FIFO ("FIFO_Not_A_Directory", (others => true));
+         Create_FIFO ("FIFO_Not_A_Directory", (others => True));
          Change_Working_Directory ("FIFO_Not_A_Directory");
-         Assert (false, "A075");
+         Assert (False, "A075");
       exception when POSIX_Error => Check_Error_Code (Not_A_Directory,
                        "A076");
       end;
@@ -430,7 +423,7 @@ begin
       Comment ("Testing Handling of No_Such_File_Or_Directory");
       begin
          Change_Working_Directory ("Unlikely_Exist_Dir");
-         Assert (false, "A077");
+         Assert (False, "A077");
       exception when POSIX_Error =>
          Check_Error_Code (No_Such_File_Or_Directory, "A078");
       end;

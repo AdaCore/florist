@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU).     All Rights  --
+--  Copyright (c) 1996-1999 Florida State University (FSU).     All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -39,22 +39,35 @@
 
 with Ada.Exceptions,
      POSIX.C,
+#    if HAVE_Safe_Errno then
+#    else
      POSIX.Error_Codes,
-#    if HAVE_INTERRUPT_MANAGEMENT then
+#    end if;
      System.Interrupt_Management,
      System.Interrupt_Management.Operations,
-#    else
-#    end if;
-     System.Tasking_Soft_Links,
+     GNAT.Task_Lock,
+     System.Soft_Links,
      Unchecked_Conversion;
 package body POSIX.Implementation is
 
    use POSIX.C;
 
-#  if HAVE_INTERRUPT_MANAGEMENT then
    package SIM renames System.Interrupt_Management;
    package SIMO renames System.Interrupt_Management.Operations;
+
+#  if HAVE_Safe_Errno then
 #  else
+
+   procedure Set_Ada_Error_Code (Error : Error_Code) is
+   begin
+      POSIX.Error_Codes.Set_Value (Error);
+   end Set_Ada_Error_Code;
+
+   function Get_Ada_Error_Code return Error_Code is
+   begin
+      return POSIX.Error_Codes.Value;
+   end Get_Ada_Error_Code;
+
 #  end if;
 
    --  .... It would be nice if we had a way to check whether we
@@ -69,7 +82,7 @@ package body POSIX.Implementation is
 
    procedure Begin_Critical_Section is
    begin
-      System.Tasking_Soft_Links.Lock_Task.all;
+      GNAT.Task_Lock.Lock;
    end Begin_Critical_Section;
 
    ----------------------------
@@ -78,7 +91,7 @@ package body POSIX.Implementation is
 
    procedure End_Critical_Section is
    begin
-      System.Tasking_Soft_Links.Unlock_Task.all;
+      GNAT.Task_Lock.Unlock;
    end End_Critical_Section;
 
 
@@ -88,11 +101,7 @@ package body POSIX.Implementation is
 
    procedure Defer_Abortion is
    begin
-#     if HAVE_Soft_Abort_Defer
-      System.Tasking_Soft_Links.Abort_Defer.all;
-#     else
-      System.Tasking_Soft_Links.Abort_Defer;
-#     end if;
+      System.Soft_Links.Abort_Defer.all;
    end Defer_Abortion;
 
 
@@ -102,11 +111,7 @@ package body POSIX.Implementation is
 
    procedure Undefer_Abortion is
    begin
-#     if HAVE_Soft_Abort_Defer
-      System.Tasking_Soft_Links.Abort_Undefer.all;
-#     else
-      System.Tasking_Soft_Links.Abort_Undefer;
-#     end if;
+      System.Soft_Links.Abort_Undefer.all;
    end Undefer_Abortion;
 
    -------------------------
@@ -118,7 +123,7 @@ package body POSIX.Implementation is
    begin
       --  .... see note on critical sections above
       if Error = No_Error then Tmp := Fetch_Errno; end if;
-      POSIX.Error_Codes.Set_Value (Tmp);
+      Set_Ada_Error_Code (Tmp);
       Ada.Exceptions.Raise_Exception
            (POSIX_Error'Identity, Image (Tmp));
    end Raise_POSIX_Error;
@@ -263,72 +268,60 @@ package body POSIX.Implementation is
    --  Signal Masking  --
    ----------------------
 
-   --  .... For RTS_Signals we mask all the signals identified as reserved
-   --  by the tasking RTS. However, we leave SIGABRT along since it is being
+   --  For RTS_Signals we mask all the signals identified as reserved
+   --  by the tasking RTS. However, we leave SIGABRT alone since it is being
    --  used as the signal for abortion which needs to be invoked for
    --  POSIX.Signals.Interrupt_Task.
+   --  ...Fix POSIX.5b????
+   --  It seems we are deviating here from what the standard says, but for
+   --  very good reasons.
 
    procedure Mask_Signals
      (Masking  : in Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : access Signal_Mask)
+   is
+      use type SIM.Interrupt_ID;
    begin
-#     if HAVE_INTERRUPT_MANAGEMENT then
       if Masking /= No_Signals then
          declare
             New_Mask : aliased Signal_Mask;
          begin
             Begin_Critical_Section;
+
             SIMO.Get_Interrupt_Mask (New_Mask'Unchecked_Access);
-            case Masking is
-            when No_Signals => null;
-            when RTS_Signals =>
-               for I in 1 .. SIM.Interrupt_ID'Last loop
-                  if SIM.Reserve (I) then
-                     SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, I);
+            SIMO.Copy_Interrupt_Mask (Old_Mask.all, New_Mask);
+            if Masking = RTS_Signals then
+               for J in 1 .. SIM.Interrupt_ID'Last loop
+                  if SIM.Reserve (J) and J /= SIGABRT then
+                     SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, J);
                   end if;
                end loop;
-               SIMO.Delete_From_Interrupt_Mask
-                 (New_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
-            when All_Signals =>
+            else --  All_Signals
                SIMO.Fill_Interrupt_Mask (New_Mask'Unchecked_Access);
-            end case;
-            SIMO.Get_Interrupt_Mask (Old_Mask);
+            end if;
             SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
---            SIMO.Set_Interrupt_Mask
---              (New_Mask'Unchecked_Access, Old_Mask);
             End_Critical_Section;
          end;
       end if;
-#     else
-      null;
-#     end if;
    end Mask_Signals;
 
    procedure Restore_Signals
       (Masking : in Signal_Masking;
        Old_Mask : access Signal_Mask) is
    begin
-#     if HAVE_INTERRUPT_MANAGEMENT then
       if Masking /= No_Signals then
          Begin_Critical_Section;
          SIMO.Set_Interrupt_Mask (Old_Mask);
          End_Critical_Section;
       end if;
-#     else
-      null;
-#     end if;
    end Restore_Signals;
 
    procedure Restore_Signals
        (Old_Mask : access Signal_Mask) is
    begin
-#     if HAVE_INTERRUPT_MANAGEMENT then
       Begin_Critical_Section;
       SIMO.Set_Interrupt_Mask (Old_Mask);
       End_Critical_Section;
-#     else
-      null;
-#     end if;
    end Restore_Signals;
 
    -------------------------------------
@@ -370,7 +363,7 @@ package body POSIX.Implementation is
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
       if F < 0.0 then S := S - 1; F := F + 1.0; end if;
-      return struct_timespec' (tv_sec => S,
+      return struct_timespec'(tv_sec => S,
         tv_nsec => long (Long_Long_Integer (F * NS_per_S)));
    end To_Struct_Timespec;
 
@@ -420,8 +413,19 @@ package body POSIX.Implementation is
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
       if F < 0.0 then S := S - 1; F := F + 1.0; end if;
-      return struct_timeval' (tv_sec => S,
+      return struct_timeval'(tv_sec => S,
         tv_usec => suseconds_t (Long_Long_Integer (F * MS_per_S)));
    end To_Struct_Timeval;
 
+   -------------------------
+   --  Current Process ID --
+   -------------------------
+
+#if HAVE_Leroy_Threads then
+   function getpid return pid_t;
+   pragma Import (C, getpid, getpid_LINKNAME);
+
+begin
+   This_Process := getpid;
+#end if;
 end POSIX.Implementation;

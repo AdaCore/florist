@@ -46,12 +46,13 @@
 with P9900doc,
      P9900x0,
      P990001a,  --  protected objects
-     P990002a,  --  Calendar and delay
+     P990002a,  --  clock and delay
      P990003a;  --  locally shared data
 package P990010a is new P9900x0
   (Version => "10",
    Needs_Clock_Realtime => False,
    Jobs_Are_Processes => False,
+   Initialize_Sync => P990001a.Initialize,
    Do_Input => P990001a.Do_Input,
    Do_Output => P990001a.Do_Output,
    Start_All_Jobs => P990001a.Start_All_Jobs,

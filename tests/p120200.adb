@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -61,7 +61,7 @@ procedure p120200 is
 
 begin
 
-   Header ("p120200");
+   Header ("p120200", Root_OK => True);
 
    -----------------------------------------------------------------------
 

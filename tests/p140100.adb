@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -34,7 +34,7 @@
 --  AVAILABLE OR DISCLOSED ARE AS IS.   THE GOVERNMENT MAKES NO EXPRESS OR  --
 --  IMPLIED WARRANTY AS TO ANY MATTER WHATSOEVER, INCLUDING THE CONDITIONS  --
 --  OF THE SOFTWARE,  DOCUMENTATION  OR  OTHER INFORMATION RELEASED,  MADE  --
---  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP,  MERCHANTABILITY, OR FITNESS  --
+--  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP, MERCHANTABILITY, OR FITNESS  --
 --  FOR A PARTICULAR PURPOSE OF SAID MATERIAL.                              --
 --                                                                          --
 ------------------------------------------------------------------------------
@@ -51,28 +51,27 @@
 --  See other tests for uses of this package in combination
 --  with optional features, signals, and tasking.
 
---  ....We still need to test  periodic timers.
+--  ....This does not cover periodic timers.
 
 with Calendar,
      POSIX,
      POSIX_Limits,
      POSIX_Report,
      POSIX_Signals,
-     POSIX_Timers;
+     POSIX_Timers,
+     Test_Parameters;
 
 procedure p140100 is
 
    use POSIX,
        POSIX_Report,
        POSIX_Signals,
-       POSIX_Timers;
+       POSIX_Timers,
+       Test_Parameters;
 
    Clock_Realtime_Supported : Boolean := False;
    Clock_Realtime_Moves : Boolean := False;
    Interval_Roundup : Boolean := False;
-
-   Uninitialized_Clock : Clock_ID;  --  never initialized
-   Uninitialized_Works : Boolean := False;
 
    Timer : Timer_ID;
    Zero_Timespec : constant Timespec := To_Timespec (0, 0);
@@ -86,24 +85,20 @@ procedure p140100 is
       Event : Signal_Event;
       State : Timer_State;
    begin
-      begin
-         Set_Signal (Event, SIGUSR1);
-         Set_Notification (Event, No_Notification);
-         Timer := Create_Timer (Clock_Realtime, Event);
-      exception
-      when E1 : POSIX_Error =>
-         Optional (Timers_Option, Operation_Not_Implemented, E1, "A001");
-      when E2 : others => Unexpected_Exception (E2, "A002");
-      end;
+
+      Test ("Timer in mode " & Timer_Mode'Image (Mode));
+
+      Set_Signal (Event, SIGUSR1);
+      Set_Notification (Event, No_Notification);
+      Timer := Create_Timer (Clock_Realtime, Event);
 
       ----------------------------------------------------------
       --  The timer returned by create_Timer should be in the
       --  disarmed state
 
       State := Get_Timer_State (Timer);
-      Assert (Get_Initial (State) = Zero_Timespec, "A005");
-      Assert (Get_Interval (State) = Zero_Timespec, "A006");
-
+      Assert (Get_Initial (State) = Zero_Timespec, "A001");
+      Assert (Get_Interval (State) = Zero_Timespec, "A002");
 
       ---------------------------------------------------------
       --  It is possible to arm a timer
@@ -118,9 +113,9 @@ procedure p140100 is
       Disarm_Timer (Timer);
       State := Get_Timer_State (Timer);
       Assert (Get_Initial (State) = Zero_Timespec,
-        "A007: Get_Initial after disarm /= 0");
+        "A003: Get_Initial after disarm /= 0");
       Assert (Get_Interval (State) <= To_Timespec (1, 0),
-        "A008: Get_Interval after disarm > initial value");
+        "A004: Get_Interval after disarm > initial value");
 
       --------------------------------------------------------------
       --  Arming timer with zero initial value
@@ -130,14 +125,14 @@ procedure p140100 is
          Set_Initial (State, Zero_Timespec);
          Set_Interval (State, Zero_Timespec);
          Arm_Timer (Timer, Absolute_Timer, State);
-         Assert (False, "A009: zero initial value not detected");
+         Assert (False, "A005: zero initial value not detected");
          Disarm_Timer (Timer);
       exception
       when E1 : POSIX_Error =>
          if Get_Error_Code /= Invalid_Argument then
-            Optional (Timers_Option, Operation_Not_Supported, E1, "A010");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A006");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A011");
+      when E2 : others => Unexpected_Exception (E2, "A007");
       end;
 
       if Mode = Relative then
@@ -150,14 +145,14 @@ procedure p140100 is
             Set_Initial (State, To_Timespec (-1, 0));
             Set_Interval (State, Zero_Timespec);
             Arm_Timer (Timer, Absolute_Timer, State);
-            Assert (False, "A012: negative initial value not detected");
+            Assert (False, "A008: negative initial value not detected");
             Disarm_Timer (Timer);
          exception
          when E1 : POSIX_Error =>
             if Get_Error_Code /= Invalid_Argument then
-               Optional (Timers_Option, Operation_Not_Supported, E1, "A013");
+               Optional (Timers_Option, Operation_Not_Implemented, E1, "A009");
             end if;
-         when E2 : others => Unexpected_Exception (E2, "A014");
+         when E2 : others => Unexpected_Exception (E2, "A010");
          end;
       else -- absolute timer
 
@@ -172,15 +167,15 @@ procedure p140100 is
             Arm_Timer (Timer, Absolute_Timer, State);
             State := Get_Timer_State (Timer);
             Assert (Get_Initial (State) = Zero_Timespec,
-              "A015: Get_Initial after expiration /= 0");
+              "A011: Get_Initial after expiration /= 0");
             Assert (Get_Interval (State) = Zero_Timespec,
-              "A016: Get_Interval after expiration /= 0");
+              "A012: Get_Interval after expiration /= 0");
             Assert (Get_Timer_Overruns (Timer) = 0,
-              "A017: nonzero overruns");
+              "A013: nonzero overruns");
          exception
          when E1 : POSIX_Error =>
-            Optional (Timers_Option, Operation_Not_Implemented, E1, "A018");
-         when E2 : others => Unexpected_Exception (E2, "A019");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A014");
+         when E2 : others => Unexpected_Exception (E2, "A015");
          end;
 
       end if;
@@ -210,23 +205,24 @@ procedure p140100 is
             Start_Time := Get_Time (Clock_Realtime);
             if Mode = Relative then
                Initial := PDelta;
+               Set_Initial (State, Initial);
+               Set_Interval (State, Zero_Timespec);
+               Arm_Timer (Timer, Empty_Set, State);
             else -- absolute
                Initial := Start_Time + PDelta;
+               Set_Initial (State, Initial);
+               Set_Interval (State, Zero_Timespec);
+               Arm_Timer (Timer, Absolute_Timer, State);
             end if;
-            Set_Initial (State, Initial);
-            Set_Interval (State, Zero_Timespec);
-            Arm_Timer (Timer, Empty_Set, State);
             NowState := Get_Timer_State (Timer);
             NowInitial := Get_Initial (NowState);
             Temp := NowInitial - PDelta;
             if Temp > Zero_Timespec then
                Comment ("observed interval roundup", Temp);
-               if Get_Seconds (Temp) > 10 then
-                  if not Interval_Roundup then
-                     Assert (False,
-                       "A020: unbelievable interval roundup: "
-                       & Image (Temp));
-                  end if;
+               if Get_Seconds (Temp) > 1 then
+                  Assert (Interval_Roundup,
+                    "A016: unbelievable interval roundup: "
+                    & Image (Temp));
                   Interval_Roundup := True;
                   Failed := True;
                end if;
@@ -237,20 +233,20 @@ procedure p140100 is
                NowInitial := Get_Initial (NowState);
                exit when NowInitial = Zero_Timespec;
                if NowInitial >= LastInitial then
-                  Assert (False, "A021: timer value nondecreasing");
+                  Assert (False, "A017: timer value nondecreasing");
                   Comment ("request", PDelta);
                   Comment ("current", NowInitial);
                   Failed := True;
                end if;
             end loop;
             if not Failed then
-               Comment ("request", PDelta);
                Stop_Time := Get_Time (Clock_Realtime);
+               Comment ("request", PDelta);
                Temp := Stop_Time - Start_Time;
                if Temp < PDelta then
-                  Assert (False, "A022: early expiration: "
+                  Assert (False, "A018: early timer expiration: "
                     & Image (PDelta - Temp));
-                  Comment ("under  ", PDelta - Temp);
+                  Comment ("UNDER  ", PDelta - Temp);
                else
                   Comment ("over   ", Temp - PDelta);
                end if;
@@ -259,19 +255,19 @@ procedure p140100 is
          end loop;
       exception
       when E1 : POSIX_Error =>
-         Optional (Timers_Option, Operation_Not_Implemented, E1, "A023");
-      when E2 : others => Unexpected_Exception (E2, "A024");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A019");
+      when E2 : others => Unexpected_Exception (E2, "A020");
       end;
       Delete_Timer (Timer);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A025");
-   when E2 : others => Unexpected_Exception (E2, "A026");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A021");
+   when E2 : others => Unexpected_Exception (E2, "A022");
    end Test_Timer;
 
 begin
 
-   Header ("A027100", Root_OK => True);
+   Header ("p140100");
 
    -----------------------------------------------------------------------
 
@@ -284,65 +280,44 @@ begin
       PDelta : Timespec := To_Timespec (0, 1);
       N : Nanoseconds_Base := 1;
    begin
-      Assert (To_Timespec (0, 1) > Zero_Timespec, "A028");
-      Assert (To_Timespec (-1, 0) < Zero_Timespec, "A029");
-      Assert (To_Timespec (0, 0) = Zero_Timespec, "A030");
+      Assert (To_Timespec (0, 1) > Zero_Timespec, "A023");
+      Assert (To_Timespec (-1, 0) < Zero_Timespec, "A024");
+      Assert (To_Timespec (0, 0) = Zero_Timespec, "A025");
       Assert (To_Timespec (0, 1) + To_Timespec (0, 1)
-        = To_Timespec (0, 2), "A031");
+        = To_Timespec (0, 2), "A026");
       Assert (To_Timespec (0, Nanoseconds'Last) + To_Timespec (0, 1)
-        = To_Timespec (1, 0), "A032");
+        = To_Timespec (1, 0), "A027");
       Assert (To_Timespec (0, Nanoseconds'Last) - To_Timespec (0, 1)
-        = To_Timespec (0, Nanoseconds'Last - 1), "A033");
+        = To_Timespec (0, Nanoseconds'Last - 1), "A028");
       while PDelta < To_Timespec (2, 0) loop
          if PDelta < One_Second then
-            Assert (PDelta = To_Timespec (0, N), "A034");
-            Assert (N = Get_Nanoseconds (PDelta), "A035");
+            Assert (PDelta = To_Timespec (0, N), "A029");
+            Assert (N = Get_Nanoseconds (PDelta), "A030");
          end if;
-         Assert (Get_Seconds (PDelta) < 2, "A036");
-         Assert (PDelta > Zero_Timespec, "A037");
+         Assert (Get_Seconds (PDelta) < 2, "A031");
+         Assert (PDelta > Zero_Timespec, "A032");
          PDelta := PDelta * 2;  N := N * 2;
       end loop;
       Assert (To_Timespec (987_654_321, 87_654_321) +
         To_Timespec (100_000_000, 10_000_000) =
-        To_Timespec (1_087_654_321, 97_654_321), "A038");
+        To_Timespec (1_087_654_321, 97_654_321), "A033");
       Assert (To_Timespec (987_654_321, 87_654_321) -
         To_Timespec (100_000_000, 10_000_000) =
-        To_Timespec (887_654_321, 77_654_321), "A039");
-      Assert (To_Timespec (0, 955_899) > Zero_Timespec, "A040");
+        To_Timespec (887_654_321, 77_654_321), "A034");
+      Assert (To_Timespec (0, 955_899) > Zero_Timespec, "A035");
       Assert (To_Timespec (0, 955_899) -
-        To_Timespec (0, 955_900) = To_Timespec (-1, 1E9 - 1), "A041");
+        To_Timespec (0, 955_900) = To_Timespec (-1, 1E9 - 1), "A036");
    exception
-   when E : others => Unexpected_Exception (E, "A042");
+   when E : others => Unexpected_Exception (E, "A037");
    end;
 
    --------------------------------------------------------
    --  Testing the validity of variables of type Timer_ID will be
-   --  done with testing sections of [14.1.5] and [14.1.6].
+   --  done with testing of sections [14.1.5] and [14.1.6].
 
    ---------------------------------------------------------
    --  Testing the resolution of the identifier Clock_Realtime
    --  will be done with testing of section [14.1.4].
-
-   ------------------------------------------------------------
-   --  Clock_Realtime can support up to at least Seconds'Last.
-
-   Test ("Clock_Realtime can be set to Seconds'Last [14.1.2]");
-   Comment ("This test can be performed only by the system adminstrator");
-   declare
-      Time_Restore : Timespec;
-
-   begin
-      Time_Restore := Get_Time (Clock_Realtime);
-      Set_Time (Clock_Realtime, To_Timespec (Seconds'Last, 0));
-      Assert (Get_Time (Clock_Realtime) = To_Timespec (
-              Seconds'Last, 0), "A003");
-      Set_Time (Clock_Realtime, Time_Restore);
-   exception
-   when E1 : POSIX_Error =>
-      Privileged (Set_Time_Privilege,
-        Timers_Option, Operation_Not_Implemented,
-        E1, "A004");
-   end;
 
    -----------------------------------------------------------------------
 
@@ -370,8 +345,8 @@ begin
 
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A043");
-   when E2 : others => Unexpected_Exception (E2, "A044");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A038");
+   when E2 : others => Unexpected_Exception (E2, "A039");
    end;
 
    -----------------------------------------------------------------------
@@ -390,8 +365,8 @@ begin
       Assert (Options /= Empty_Set, "Absolute_Timer value");
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A045");
-   when E2 : others => Unexpected_Exception (E2, "A046");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A040");
+   when E2 : others => Unexpected_Exception (E2, "A041");
    end;
 
    -----------------------------------------------------------------------
@@ -412,12 +387,12 @@ begin
 
       Split (Resolution, S, NS);
       Assert (S = 0
-        and NS <= POSIX_Limits.Portable_Clock_Resolution_Minimum, "A047");
+        and NS <= POSIX_Limits.Portable_Clock_Resolution_Minimum, "A042");
       Comment ("Clock_Realtime reported resolution", Resolution);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A048");
-   when E2 : others => Unexpected_Exception (E2, "A049");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A043");
+   when E2 : others => Unexpected_Exception (E2, "A044");
    end;
 
    -----------------------------------------------------------------------
@@ -429,12 +404,12 @@ begin
       Time := Get_Time (Clock_Realtime);
       Assert (Clock_Realtime_Supported, "inconsistent support");
       Clock_Realtime_Supported := True;
-      Assert (Get_Seconds (Time) /= -1, "A050");
+      Assert (Get_Seconds (Time) /= -1, "A045");
       Comment ("current time", Time);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A051");
-   when E2 : others => Unexpected_Exception (E2, "A052");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A046");
+   when E2 : others => Unexpected_Exception (E2, "A047");
    end;
 
    -----------------------------------------------------------------------
@@ -482,7 +457,7 @@ begin
          Pdif := PTime - Get_Time (Clock_Realtime);
          Clock_Realtime_Moves := True;
          if Adif > 2.0 then
-            Fail ("A053: Clock_Realtime does not move");
+            Fail ("A048: Clock_Realtime does not move");
             Clock_Realtime_Moves := False;
             exit;
          end if;
@@ -508,7 +483,7 @@ begin
          end loop;
          Split (Pmin, S, NS);
          Assert (S = 0 and
-           NS <= POSIX_Limits.Portable_Clock_Resolution_Minimum, "A054");
+           NS <= POSIX_Limits.Portable_Clock_Resolution_Minimum, "A049");
          Comment ("Clock_Realtime apparent resolution + overhead", Pmin);
       end if;
 
@@ -530,8 +505,8 @@ begin
         Integer'Image (Integer (Amin * 1E9)));
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A055");
-   when E2 : others => Unexpected_Exception (E2, "A056");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A050");
+   when E2 : others => Unexpected_Exception (E2, "A051");
    end;
 
    -----------------------------------------------------------------------
@@ -544,46 +519,25 @@ begin
       Time : Timespec;
    begin
       begin
-         Resolution := Get_Resolution (Uninitialized_Clock);
-         Comment ("Uninitialized Clock_ID has Resolution");
-         Uninitialized_Works := True;
+         Resolution := Get_Resolution (Invalid_Clock_ID);
+         Expect_Exception ("A052: Invalid Clock_ID has Resolution");
       exception
       when E1 : POSIX_Error =>
          if Get_Error_Code /= Invalid_Argument then
-            Optional (Timers_Option, Operation_Not_Implemented, E1, "A057");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A053");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A058");
+      when E2 : others => Unexpected_Exception (E2, "A054");
       end;
       begin
-         Time := Get_Time (Uninitialized_Clock);
-         Comment ("Uninitialized Clock_ID has Get_Time");
-         Assert (Uninitialized_Works, "inconsistent notion of validity");
-         Uninitialized_Works := True;
+         Time := Get_Time (Invalid_Clock_ID);
+         Expect_Exception ("Invalid Clock_ID has Get_Time");
       exception
       when E1 : POSIX_Error =>
          if Get_Error_Code /= Invalid_Argument then
-            Optional (Timers_Option, Operation_Not_Implemented, E1, "A059");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A055");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A060");
+      when E2 : others => Unexpected_Exception (E2, "A056");
       end;
-   end;
-
-   -----------------------------------------------------------------------
-   --  Set_Time can be used to set the clock to a valid
-   --  value, unless the calling process lacks sufficient privilege.
-
-   Test ("Set_Time [14.1.4]");
-   declare
-      Time : Timespec;
-   begin
-      Time := Get_Time (Clock_Realtime);
-      Set_Time (Clock_Realtime, Time);
-      Assert (Time = Get_Time (Clock_Realtime), "A061");
-   exception
-   when E1 : POSIX_Error =>
-      Privileged (Set_Time_Privilege,
-        Timers_Option, Operation_Not_Implemented, E1, "A062");
-   when E2 : others => Unexpected_Exception (E2, "A063");
    end;
 
    -----------------------------------------------------------------------
@@ -608,8 +562,8 @@ begin
       Set_Notification (Event, Signal_Notification);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Implemented, E1, "A064");
-   when E2 : others => Unexpected_Exception (E2, "A065");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A057");
+   when E2 : others => Unexpected_Exception (E2, "A058");
    end;
 
    -----------------------------------------------------------------------
@@ -622,21 +576,19 @@ begin
       Event : Signal_Event;
    begin
       Set_Notification (Event, No_Notification);
-      Timer := Create_Timer (Uninitialized_Clock, Event);
-      Assert (Uninitialized_Works, "inconsistent notion of validity");
-      Comment ("Uninitialized Clock_ID can create timer");
-      Uninitialized_Works := True;
+      Timer := Create_Timer (Invalid_Clock_ID, Event);
+      Expect_Exception ("A059: Invalid Clock_ID can create timer");
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A066");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A060");
       end if;
-   when E2 : others => Unexpected_Exception (E2, "A067");
+   when E2 : others => Unexpected_Exception (E2, "A061");
    end;
 
    -----------------------------------------------------------------------
    --  An attempt to delete a timer that was not initialized
-   --  should either fail, or fail with Operation_Not_Supported.
+   --  should either fail, or fail with Operation_Not_Implemented.
 
    Test ("Delete_Timer [4.1.6], invalid timer ID");
    declare
@@ -645,17 +597,17 @@ begin
       Delete_Timer (Timer);
       Comment ("Uninitialized Timer_ID can be deleted");
       Delete_Timer (Timer);
-      Fail ("A068: deleted Timer_ID can be deleted");
+      Fail ("A062: deleted Timer_ID can be deleted");
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A069");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A063");
       end if;
-   when E2 : others => Unexpected_Exception (E2, "A070");
+   when E2 : others => Unexpected_Exception (E2, "A064");
    end;
 
    -----------------------------------------------------------------------
-   --  An attemp to arm a timer with invalid timer ID should fail
+   --  An attempt to arm a timer with invalid timer ID should fail
 
    Test ("Arm_Timer, Invalid timer ID");
    declare
@@ -668,61 +620,68 @@ begin
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A071");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A065");
+      end if;
+   when E2 : others => Unexpected_Exception (E2, "A066");
+   end;
+
+   -----------------------------------------------------------------------
+   --  An attempt to Get_Timer_State a timer that was not initialized
+   --  should either fail, or fail with Operation_Not_Implemented.
+
+   Test ("Get_Timer_State, invalid timer ID");
+   declare
+      Uninitialized_Timer : Timer_ID;
+      pragma Warnings (Off, Uninitialized_Timer);
+      State : Timer_State;
+   begin
+      State := Get_Timer_State (Uninitialized_Timer);
+      Assert (False,
+        "A067: can Get_Timer_State from Uninitialized Timer_ID");
+   exception
+   when E1 : POSIX_Error =>
+      if Get_Error_Code /= Invalid_Argument then
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A068");
+      end if;
+   when E2 : others => Unexpected_Exception (E2, "A069");
+   end;
+
+   -----------------------------------------------------------------------
+   --  An attempt to Get_Timer_Overruns a timer that was not initialized
+   --  should either fail, or fail with Operation_Not_Implemented.
+
+   Test ("Get_Timer_Overruns, invalid timer ID");
+   declare
+      Uninitialized_Timer : Timer_ID;
+      pragma Warnings (Off, Uninitialized_Timer);
+      Runs  : Integer;
+   begin
+      Runs := Get_Timer_Overruns (Uninitialized_Timer);
+      Assert (False,
+        "A070: can Get_Time_Overruns from uninitialized Timer_ID");
+   exception
+   when E1 : POSIX_Error =>
+      if Get_Error_Code /= Invalid_Argument then
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A071");
       end if;
    when E2 : others => Unexpected_Exception (E2, "A072");
    end;
 
    -----------------------------------------------------------------------
-   --  An attempt to Get_Timer_State a timer that was not initialized
-   --  should either fail, or fail with Operation_Not_Supported.
-
-   --  Test ("Get_Timer_State, invalid timer ID");
-   --  declare
-   --   Timer : Timer_ID;  --  uninitialized
-   --  begin
-   --   Get_Timer_State (Timer);
-   --   Assert (False,
-   --     "A073: can Get_Timer_State from Uninitialized Timer_ID");
-   --  exception
-   --  when E1 : POSIX_Error =>
-   --   if Get_Error_Code /= Invalid_Argument then
-   --      Optional (Timers_Option, Operation_Not_Supported, E1, "A074");
-   --   end if;
-   --  when E2 : others => Unexpected_Exception (E2, "A075");
-   --  end;
-
-   -----------------------------------------------------------------------
-   --  An attempt to Get_Timer_Overruns a timer that was not initialized
-   --  should either fail, or fail with Operation_Not_Supported.
-
-   --  Test ("Get_Timer_Overruns, invalid timer ID");
-   --  declare
-   --   Timer : Timer_ID;  --  uninitialized
-   --  begin
-   --   Get_Timer_Overruns (Timer);
-   --   Assert (False, "A076: can get overruns from Uninitialized Timer_ID");
-   --  exception
-   --  when E1 : POSIX_Error =>
-   --   if Get_Error_Code /= Invalid_Argument then
-   --      Optional (Timers_Option, Operation_Not_Supported, E1, "A077");
-   --   end if;
-   --  when E2 : others => Unexpected_Exception (E2, "A078");
-   --  end;
-
-   -----------------------------------------------------------------------
    --  It should be possible to create a timer.
-   --  Since the clock ID is valid and this is the only timer we create
-   --  in this process, it should succeed.
+   --  Since the clock ID is valid and we only create one timer at a
+   --  time in this process, it should succeed.
    --  This should work both with and without signal notification.
 
-   Test ("Create_Timer [4.1.5], valid clock ID");
+   Test ("Create_Timer [14.1.5], valid clock ID");
    declare
       Event : Signal_Event;
    begin
+      Comment ("Set_Notification");
       Set_Notification (Event, No_Notification);
+      Comment ("Create_Timer");
       Timer := Create_Timer (Clock_Realtime, Event);
-      Test ("Delete_Timer [4.1.6], valid timer ID");
+      Test ("Delete_Timer [14.1.6], valid timer ID");
       Delete_Timer (Timer);
       Set_Signal (Event, SIGUSR1);
       Set_Notification (Event, Signal_Notification);
@@ -730,7 +689,67 @@ begin
       Delete_Timer (Timer);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Supported, E1, "A079");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A073");
+   when E2 : others => Unexpected_Exception (E2, "A074");
+   end;
+
+   -----------------------------------------------------------------------
+   --  Time values between two consecutive multiples of the resolution
+   --  of the specified clock shall be rounded up to the next larger
+   --  multiple of the resolution (Arm_Timer).
+
+   Test ("Arm_Timer [14.1.7] Time rounded up to the higher resolution");
+   declare
+      Event : Signal_Event;
+      Sample_Timer : Timer_ID;
+      Target_1, Target_2 : Timer_State;
+      Result_1, Result_2 : Timer_State;
+      Diff_1, Diff_2 : Timespec;
+      Resolution : Timespec;
+   begin
+      Set_Signal (Event, SIGUSR1);
+      Set_Notification (Event, No_Notification);
+      Resolution := Get_Resolution (Clock_Realtime);
+      Sample_Timer := Create_Timer (Clock_Realtime, Event);
+      Set_Initial (Target_1, To_Timespec (100.0));
+      Set_Interval (Target_1, To_Timespec (0.0));
+      Target_2 := Target_1;
+      Set_Initial (Target_2, To_Timespec (100.0) + Resolution / 2);
+      Arm_Timer (Sample_Timer, Empty_Set, Target_1);
+      Result_1 := Get_Timer_State (Sample_Timer);
+      Arm_Timer (Sample_Timer, Empty_Set, Target_2);
+      Result_2 := Get_Timer_State (Sample_Timer);
+      Diff_1 := Get_Initial (Result_1);
+      Diff_2 := Get_Initial (Result_2);
+      Comment ("Resolution", Resolution);
+      Comment ("Diff_1", Diff_1);
+      Comment ("Diff_2", Diff_2);
+      if Diff_1 > Resolution then
+         Comment ("Timer-setting overhead exceeds resolution");
+      else
+         Assert (Diff_2 - Diff_1 > (Resolution * 3) / 4,
+           "A075: time apparently not rounded up");
+      end if;
+      Delete_Timer (Timer);
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A076");
+   when E2 : others => Unexpected_Exception (E2, "A077");
+   end;
+
+   -----------------------------------------------------------------------
+   --  An attempt to delete a timer that was previously deleted
+   --  should either fail, or fail with Operation_Not_Implemented.
+
+   Test ("Delete_Timer [4.1.6], previously deleted timer ID");
+   begin
+      Delete_Timer (Timer);
+      Expect_Exception ("A078: deleted Timer_ID can be deleted");
+   exception
+   when E1 : POSIX_Error =>
+      if Get_Error_Code /= Invalid_Argument then
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A079");
+      end if;
    when E2 : others => Unexpected_Exception (E2, "A080");
    end;
 
@@ -743,6 +762,8 @@ begin
 
    Test ("Operations on relative one-shot timer [14.1.7]");
    Test_Timer (Relative);
+
+   -----------------------------------------------------------------------
 
    Done;
 

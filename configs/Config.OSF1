@@ -1,2 +1,0 @@
-#OSF1 (DEC UNIX)
-LIBS = -lresolv -lbsd -lrt -laio -lpthread

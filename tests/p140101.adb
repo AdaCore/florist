@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1998-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -45,83 +45,41 @@
 
 --  This test covers features that require special privilege.
 
-with Calendar,
-     POSIX,
-     POSIX_Limits,
+with POSIX,
      POSIX_Report,
-     POSIX_Signals,
      POSIX_Timers,
-     Unchecked_Conversion;
+     Test_Parameters;
 
 procedure p140101 is
 
    use POSIX,
        POSIX_Report,
-       POSIX_Signals,
-       POSIX_Timers;
+       POSIX_Timers,
+       Test_Parameters;
 
-   --  Later, move the following to Test_Parameters package:
-
-   function Invalid_Clock_ID return Clock_ID;
-   function Invalid_Clock_ID return Clock_ID is
-      type Char_Array is array (1 .. 20) of aliased Character;
-      type Clock_ID_Ptr is access all Clock_ID;
-      type Char_Ptr is access all Character;
-      function To_Clock_ID_Ptr is new
-        Unchecked_Conversion (Char_Ptr, Clock_ID_Ptr);
-      F : aliased Char_Array := "not a valid clock ID";
-   begin
-      return To_Clock_ID_Ptr (F (1)'Access).all;
-   end Invalid_Clock_ID;
+   Time_Restore : Timespec;
+   --  Used to restore clock value.
 
 begin
 
-   Header ("A001101", Root_OK => True);
-
-   ------------------------------------------------------------
-   --  Try to find an invalid Clock_ID value.
-
-   ------------------------------------------------------------
-   --  Testing to see if the Clock_Realtime can support up to
-   --  at least Seconds'Last.
-
-   Test ("Clock_Realtime can be set to Seconds'Last [14.1.2]");
-   Comment ("This test can be performed only by the system adminstrator");
-   declare
-      Time_Restore : Timespec;
-      Time_After : Timespec;
-   begin
-      Time_Restore := Get_Time (Clock_Realtime);
-      Set_Time (Clock_Realtime, To_Timespec (Seconds'Last, 0));
-      Time_After := Get_Time (Clock_Realtime);
-      Assert (Get_Seconds (Time_After) = Seconds'Last,
-        "A000: " & Image (Time_After));
-      Set_Time (Clock_Realtime, Time_Restore);
-   exception
-   when E1 : POSIX_Error =>
-      Privileged (Set_Time_Privilege,
-        Timers_Option, Operation_Not_Implemented,
-        E1, "A000");
-   end;
+   Header ("p140101", Root_OK => True);
 
    -----------------------------------------------------------------------
    --  Set_Time can be used to set the clock to a valid
    --  value, unless the calling process lacks sufficient privilege.
 
    Test ("Set_Time [14.1.4] all valid data");
-   declare
-      Time : Timespec;
    begin
-      Time := Get_Time (Clock_Realtime);
-      Set_Time (Clock_Realtime, Time);
-      Assert (Time <= Get_Time (Clock_Realtime), "A000");
-      Assert (Get_Seconds (Time)
-        <= Get_Seconds (Get_Time (Clock_Realtime)), "A000");
+      Time_Restore := Get_Time (Clock_Realtime);
+      Set_Time (Clock_Realtime, Time_Restore);
+      Assert (Time_Restore <= Get_Time (Clock_Realtime), "A001");
+      Assert (Get_Seconds (Time_Restore)
+        <= Get_Seconds (Get_Time (Clock_Realtime)), "A002");
    exception
    when E1 : POSIX_Error =>
       Privileged (Set_Time_Privilege,
-        Timers_Option, Operation_Not_Implemented, E1, "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        Timers_Option, Operation_Not_Implemented, E1, "A003");
+   when E2 : others => Unexpected_Exception (E2, "A004");
    end;
 
    -----------------------------------------------------------------------
@@ -151,14 +109,14 @@ begin
             Invalid_ID_Found := True;
          else
             Optional (Timers_Option,
-              Operation_Not_Implemented, E1, "A000");
+              Operation_Not_Implemented, E1, "A005");
          end if;
       when E2 : others =>
-         Unexpected_Exception (E2, "A000");
+         Unexpected_Exception (E2, "A006");
       end;
       if Invalid_ID_Found then
          Set_Time (Invalid, To_Timespec (0.1));
-         Expect_Exception ("A000");
+         Expect_Exception ("A007");
       end if;
    exception
    when E1 : POSIX_Error =>
@@ -166,203 +124,181 @@ begin
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A008");
+   when E2 : others => Unexpected_Exception (E2, "A009");
+   end;
+
+   ------------------------------------------------------------
+   --  Testing to see if the Clock_Realtime can support up to
+   --  at least Seconds'Last.
+
+   Test ("Clock_Realtime can be set to Seconds'Last [14.1.2]");
+   Comment ("This test can be performed only by the system adminstrator");
+   declare
+      Time_After : Timespec;
+   begin
+      Time_Restore := Get_Time (Clock_Realtime);
+      Set_Time (Clock_Realtime, To_Timespec (Seconds'Last, 0));
+      Time_After := Get_Time (Clock_Realtime);
+      Assert (Get_Seconds (Time_After) = Seconds'Last,
+        "A010: " & Image (Time_After));
+      Set_Time (Clock_Realtime, Time_Restore);
+   exception
+   when E1 : POSIX_Error =>
+      Privileged (Set_Time_Privilege,
+        Timers_Option, Operation_Not_Implemented,
+        E1, "A011");
    end;
 
    -----------------------------------------------------------------------
-   --  Ahmed
    --  POSIX_Error is raised with error code Invalid_Argument if
    --  the Value parameter for Set_Time is outside
    --  the range allowed for the specified Clock.
 
-   Test ("Set_Time [14.1.4] Valid Range (<0)");
-   declare
-      Valid : Clock_ID;
+   Test ("Set_Time [14.1.4] negative Timespec");
    begin
-      Set_Time (Valid, To_Timespec (-5.0));
-         Expect_Exception ("A000");
+      Set_Time (Clock_Realtime, To_Timespec (-5.0));
+      --  This may or may not raise an exception.
+      Set_Time (Clock_Realtime, Time_Restore);
    exception
+   when Constraint_Error =>
+      --  Value might simply be out of range.
+      null;
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A012");
+   when E2 : others => Unexpected_Exception (E2, "A013");
    end;
 
-   Test ("Set_Time [14.1.4] Valid Range (=0)");
-   declare
-      Valid : Clock_ID;
+   Test ("Set_Time [14.1.4] zero Timespec");
    begin
-      Set_Time (Valid, To_Timespec (-0.0));
-         Expect_Exception ("A000");
+      Set_Time (Clock_Realtime, To_Timespec (0.0));
+      --  This may or may not raise an exception.
+      Set_Time (Clock_Realtime, Time_Restore);
    exception
+   when Constraint_Error =>
+      --  Value might simply be out of range.
+      null;
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A014");
+   when E2 : others => Unexpected_Exception (E2, "A015");
    end;
 
-   Test ("Set_Time [14.1.4] Valid Range (=1000_000_000)");
-   declare
-      Valid : Clock_ID;
+   Test ("Set_Time [14.1.4] large positive Timespec");
    begin
-      Set_Time (Valid, To_Timespec (1000_000_000.0));
-         Expect_Exception ("A000");
+      Set_Time (Clock_Realtime, To_Timespec (1000_000_000.0));
+      --  This may or may not raise an exception.
+      Set_Time (Clock_Realtime, Time_Restore);
    exception
+   when Constraint_Error =>
+      --  Value might simply be out of range.
+      null;
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
-   end;
-
-   Test ("Set_Time [14.1.4] Valid Range (>1000_000_000)");
-   declare
-      Valid : Clock_ID;
-   begin
-      Set_Time (Valid, To_Timespec (1000_000_001.0));
-         Expect_Exception ("A000");
-   exception
-   when E1 : POSIX_Error =>
-      Privileged (Privilege => Set_Time_Privilege,
-        Option => Timers_Option,
-        Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A016");
+   when E2 : others => Unexpected_Exception (E2, "A017");
    end;
 
    -----------------------------------------------------------------------
-   --  Ahmed
    --  POSIX_Error is raised with error code Invalid_Argument if
    --  the argument of type Timespec cannot not be interpreted
    --  as a valid time.
 
-   Test ("Set_Time [14.1.4] Valid Time");
+   Test ("Set_Time [14.1.4] Invalid Timespec");
    declare
-      Value : Clock_ID;
-      Time : Timespec;
+      Time : Timespec := Invalid_Timespec;
    begin
-      Set_Time (Value, Time);
+      Set_Time (Clock_Realtime, Time);
+      Expect_Exception ("A018");
+      Set_Time (Clock_Realtime, Time_Restore);
    exception
+   when Constraint_Error =>
+      --  Value might simply be out of range.
+      null;
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A019");
+   when E2 : others => Unexpected_Exception (E2, "A020");
    end;
+
+   Test ("Set_Time [14.1.4] uninitialized Timespec");
+   declare
+      Uninitialized_Time : Timespec;
+   begin
+      Set_Time (Clock_Realtime, Uninitialized_Time);
+      --  No exception will be raised if the value happens to
+      --  be in range, by accident.
+      Set_Time (Clock_Realtime, Time_Restore);
+   exception
+   when Constraint_Error =>
+      --  Value might simply be out of range.
+      null;
+   when E1 : POSIX_Error =>
+      Privileged (Privilege => Set_Time_Privilege,
+        Option => Timers_Option,
+        Expected_If_Not_Supported => Operation_Not_Implemented,
+        Expected_If_Supported => Invalid_Argument,
+        E => E1, Message => "A021");
+   when E2 : others => Unexpected_Exception (E2, "A022");
+   end;
+
    -----------------------------------------------------------------------
-   --  Ahmed
    --  Time values between two consecutive multiples of the resolution
    --  of the specified clock shall be truncated down to the smaller
    --  multiple of the resolution (Set_Time).
 
    Test ("Set_Time [14.1.4] Time truncated to the smaller resolution");
-   Comment ("This test asserts that a time value between two" &
-            " consecutive multiples of the resolution is" &
-            " truncated down to the smaller one");
    declare
-      Sample_Clock : Clock_ID;
-      Value1 : Timespec;
-      Value2 : Timespec;
-      Value3 : Timespec;
-      Time : Timespec;
+      Clock : constant Clock_ID := Clock_Realtime;
+      Resolution : Timespec;
+      Diff_1, Diff_2 : Timespec;
+      Target_1, Target_2 : Timespec;
+
    begin
-      Value3 := Get_Resolution (Sample_Clock);
-      Set_Time (Sample_Clock, Value3 + To_Timespec (100.0));
-      Value1 := Get_Time (Sample_Clock);
-      Set_Time (Sample_Clock, (Value3 * 3 / 2) + To_Timespec (100.0));
-      Value2 := Get_Time (Sample_Clock);
-      Set_Time (Sample_Clock, (Value3 * 3) + To_Timespec (100.0));
-      Value3 := Get_Time (Sample_Clock);
-      Assert ((Value3 - Value2) > (Value2 - Value1), "A000");
+      Resolution := Get_Resolution (Clock);
+      Time_Restore := Get_Time (Clock_Realtime);
+      Target_1 := Time_Restore;
+      Target_2 := Time_Restore + Resolution / 2;
+      Set_Time (Clock, Target_1);
+      Diff_1 := Get_Time (Clock) - Target_1;
+      Set_Time (Clock, Target_2);
+      Diff_2 := Get_Time (Clock) - Target_2;
+      Set_Time (Clock, Time_Restore);
+      Comment ("Resolution", Resolution);
+      Comment ("Diff_1", Diff_1);
+      Comment ("Diff_2", Diff_2);
+      Assert (Diff_1 - Diff_2 < Resolution / 4,
+        "A023: time apparently not truncated");
    exception
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
         Option => Timers_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A000");
-   when E2 : others => Unexpected_Exception (E2, "A000");
+        E => E1, Message => "A024");
+   when E2 : others => Unexpected_Exception (E2, "A025");
    end;
-   Comment ("BOBOBO BABA BEEBEE");
 
    -----------------------------------------------------------------------
-   --  Ahmed
-   --  Time values between two consecutive multiples of the resolution
-   --  of the specified clock shall be rounded up to the next larger
-   --  multiple of the resolution (Arm_Timer).
 
-   Test ("Arm_Timer [14.1.7] Time rounded up to the higher resolution");
-   declare
-      Event : Signal_Event;
-      Sample_Timer : Timer_ID;
-      New_State : Timer_State;
-      Old_State : Timer_State;
-      Value1 : Timespec;
-      Value2 : Timespec;
-      Value3 : Timespec;
-      Resolution : Timespec;
-   begin
-      Set_Signal (Event, SIGUSR1);
-      Set_Notification (Event, No_Notification);
-      Comment ("Passed 1");
-      Resolution := Get_Resolution (Clock_Realtime);
-      Comment ("Passed 2");
-      Sample_Timer := Create_Timer (Clock_Realtime, Event);
-      Comment ("Passed 3");
-      Set_Initial (New_State, To_Timespec (100.0));
-      Set_Interval (New_State, To_Timespec (0.0));
-      Value1 := Get_Initial (New_State);
-      Comment ("Initial value = ", Value1);
-      Arm_Timer (Sample_Timer, Absolute_Timer, New_State);
-      Value1 := Get_Initial (New_State);
-      Comment ("Value1 = ", Value1);
-      Set_Initial (New_State, (Resolution * 3 / 2) + To_Timespec (100.0));
-      Arm_Timer (Sample_Timer, Absolute_Timer, New_State);
-      Value2 := Get_Initial (New_State);
-      Comment ("Value2 = ", Value2);
-      Set_Initial (New_State, (Resolution * 3) + To_Timespec (100.0));
-      Arm_Timer (Sample_Timer, Absolute_Timer, New_State);
-      Value3 := Get_Initial (New_State);
-      Comment ("Value3 = ", Value3);
-      Assert ((Value3 - Value2) < (Value2 - Value1),
-         "A000: Time was not rounded up to" &
-         " the higher multiple of resolution");
-   end;
-   -----------------------------------------------------------------------
    Done;
 
 exception
 when E1 : POSIX_Error =>
-   Optional (Timers_Option, Operation_Not_Implemented, E1, "A000");
+   Optional (Timers_Option, Operation_Not_Implemented, E1, "A026");
    Done;
-when E2 : others => Fatal_Exception (E2, "A000");
+when E2 : others => Fatal_Exception (E2, "A027");
 end p140101;
-
-
-----------------------
--- REVISION HISTORY --
-----------------------
-
---  ----------------------------
---  revision 1.1
---  date: 1998/06/09 20:28:40;  author: moussa;  state: Exp;
---  Initial revision
---  =============================================================================
---  ----------------------------
---  revision 1.2
---  date: 1998/06/22 14:46:08;  author: moussa;  state: Exp;  lines: +81 -27
---  *** empty log message ***
---  ----------------------------
---  New changes after this line.  Each line starts with: "--  "

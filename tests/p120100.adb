@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -130,7 +130,7 @@ begin
    begin
       Test ("Lock_All (Empty_Set [12.1.1])");
       Lock_All (Options);
-      Expect_Exception ("A000");
+      Expect_Exception ("A011");
    exception
    when E1 : POSIX.POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then

@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -39,7 +39,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 --  [$Revision$]
---  Test for POSIX_Generic_Shared_Memory_Test package
+--  Test of package POSIX_Generic_Shared_Memory
 
 with POSIX,
      POSIX_IO,
@@ -73,6 +73,9 @@ begin
    Header ("p120500", True);
 
    ------------------------------------------------------------------------
+   --  A shared memory object can be created.
+   --  If the value of Protection is set to Allow_Write,
+   --  Mode is Read_Write.
 
    declare
       Shmd : File_Descriptor;
@@ -85,24 +88,28 @@ begin
          Shmd := Open_Or_Create_And_Map_Shared_Memory
            (Object_Name, Allow_Write, Test_perm);
       exception
-         when E1 : POSIX_Error =>
-            if POSIX.Get_Error_Code = No_Space_Left_On_Device then
-               Comment ("insufficient space left to create a new object");
-            elsif POSIX.Get_Error_Code = Not_Enough_Space then
-               Comment ("insufficient room to effect mapping");
-            elsif POSIX.Get_Error_Code = Operation_Not_Implemented then
-               Optional (Shared_Memory_Objects_Option,
-                         Operation_Not_Implemented, E1, "A001");
-            else Unexpected_Exception (E1, "A002");
-            end if;
-            raise Local_Failure;
-         when E2 : others => Unexpected_Exception (E2, "A003");
-            raise Local_Failure;
+      when E1 : POSIX_Error =>
+         if POSIX.Get_Error_Code = No_Space_Left_On_Device then
+            Comment ("insufficient space left to create a new object");
+         elsif POSIX.Get_Error_Code = Not_Enough_Space then
+            Comment ("insufficient room to effect mapping");
+         elsif POSIX.Get_Error_Code = Operation_Not_Implemented then
+            Optional (Shared_Memory_Objects_Option,
+                      Operation_Not_Implemented, E1, "A001");
+         else Unexpected_Exception (E1, "A002");
+         end if;
+         raise Local_Failure;
+      when E2 : others => Unexpected_Exception (E2, "A003");
+         raise Local_Failure;
       end;
 
       Get_File_Control (Shmd, Mode, Option);
-
       Assert (Mode = Read_Write, "A004");
+
+      -------------------------------------------------------------
+      --  If Exclusive is set, Open_Or_Create_And_Map_Shared_Memory
+      --  shall fail if the shared memory object exists, and
+      --  POSIX_Error is raised with File_Exists.
 
       begin
          Shmd := Open_Or_Create_And_Map_Shared_Memory
@@ -110,10 +117,13 @@ begin
          Fail ("A005: Exclusive option improperly implemented");
       exception
          when E1 : POSIX_Error =>
-
             Check_Error_Code (File_Exists, E1, "A006");
          when E2 : others => Unexpected_Exception (E2, "A007");
       end;
+
+      -------------------------------------------------------------
+      --  After the shared memory object is unmapped, closed,
+      --  and unlinked, it no longer exists.
 
       Unmap_And_Close_Shared_Memory (Shmd);
       Unlink_Shared_Memory (Object_Name);
@@ -127,6 +137,11 @@ begin
    end;
 
    -----------------------------------------------------------------------
+   --  After a shared memory object is created, mapped,
+   --  unmapped and closed, it can be reopened and mapped again.
+   --  If it was possible to do the mapping once before without
+   --  encountering permission or resource limits, it should be
+   --  possible to do it once again.
 
    declare
       Shmd : File_Descriptor;
@@ -143,24 +158,21 @@ begin
 
       begin
          Shmd := Open_And_Map_Shared_Memory
-                 (Object_Name, Allow_Write);
+           (Object_Name, Allow_Write);
       exception
-
       when E1 : POSIX_Error =>
-            if POSIX.Get_Error_Code = No_Space_Left_On_Device then
-               Unexpected_Exception (E1, "A010");
-            elsif POSIX.Get_Error_Code = Not_Enough_Space then
-               Unexpected_Exception (E1, "A011");
-            else Optional (Shared_Memory_Objects_Option,
-                           Operation_Not_Implemented, E1, "A012");
-            end if;
-         when E2 : others =>
-            Unexpected_Exception (E2, "A013");
+         if POSIX.Get_Error_Code = No_Space_Left_On_Device then
+            Unexpected_Exception (E1, "A010");
+         elsif POSIX.Get_Error_Code = Not_Enough_Space then
+            Unexpected_Exception (E1, "A011");
+         else Optional (Shared_Memory_Objects_Option,
+                        Operation_Not_Implemented, E1, "A012");
+         end if;
+      when E2 : others =>
+         Unexpected_Exception (E2, "A013");
       end;
 
       Get_File_Control (Shmd, Mode, Option);
-
-
       Assert (Mode = Read_Write, "A014");
 
       Unmap_And_Close_Shared_Memory (Shmd);
@@ -175,10 +187,11 @@ begin
    end;
 
    -----------------------------------------------------------------------
+   --  Attempting to create a shared memory object with an invalid name
+   --  raises POSIX_Error with Invalid_Argument.
 
    declare
       Shmd : File_Descriptor;
-      Option : Open_Option_Set;
       Test_perm : Permission_Set := Owner_Permission_Set;
    begin
       Test ("creation with invalid name");
@@ -196,11 +209,12 @@ begin
    end;
 
    -----------------------------------------------------------------------
+   --  Access_Shared_Memory can be called and returns normally,
+   --  for an open and mapped shared memory object.
 
    declare
       Shmd : File_Descriptor;
       acc : Shared_Access;
-      Option : Open_Option_Set;
    begin
       Test ("Access Shared Memory [12.5.2]");
       Shmd := Open_Or_Create_And_Map_Shared_Memory
@@ -228,6 +242,8 @@ begin
    end;
 
    -----------------------------------------------------------------------
+   --  With appropriate privilege, a shared memory object can be locked.
+   --  Once locked, it can be unlocked.
 
    declare
       Shmd : File_Descriptor;
@@ -237,32 +253,26 @@ begin
            (Object_Name, Allow_Write, Owner_Permission_Set);
       begin
          Lock_Shared_Memory (Shmd);
-
+         begin
+            Unlock_Shared_Memory (Shmd);
+         exception
+         when E : others => Unexpected_Exception (E, "A023");
+         end;
       exception
       when E1 : POSIX_Error =>
-         if POSIX.Get_Error_Code = Operation_Not_Permitted then
-            Unexpected_Exception (E1, "A023");
-         elsif POSIX.Get_Error_Code = Not_Enough_Space then
-            Unexpected_Exception (E1, "A024");
-         elsif POSIX.Get_Error_Code =  Operation_Not_Implemented then
-            Optional (Shared_Memory_Objects_Option,
-                    Operation_Not_Implemented, E1, "A025");
-         else Unexpected_Exception (E1, "A026");
+         if POSIX.Get_Error_Code = Not_Enough_Space then
+            Comment ("insufficient room to effect mapping");
+         elsif POSIX.Get_Error_Code = Operation_Not_Permitted then
+            Privileged
+              (Memory_Locking_Privilege, E1, "A024");
+         else
+            Optional
+              (Shared_Memory_Objects_Option,
+               Memory_Range_Locking_Option,
+               Operation_Not_Implemented, E1, "A025");
          end if;
       when E2 : others =>
-         Unexpected_Exception (E2, "A027");
-      end;
-
-      begin
-         Unlock_Shared_Memory (Shmd);
-      exception
-      when E1 : POSIX_Error =>
-         if POSIX.Get_Error_Code = Operation_Not_Permitted then
-            Unexpected_Exception (E1, "A028");
-         else Optional (Shared_Memory_Objects_Option,
-                      Operation_Not_Implemented, E1, "A029");
-         end if;
-      when E2 : others => Unexpected_Exception (E2, "A030");
+         Unexpected_Exception (E2, "A026");
       end;
 
       Unmap_And_Close_Shared_Memory (Shmd);
@@ -272,13 +282,13 @@ begin
    when Local_Failure => null;
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-                Operation_Not_Implemented, E1, "A031");
-   when E2 : others => Unexpected_Exception (E2, "A032");
+                Operation_Not_Implemented, E1, "A027");
+   when E2 : others => Unexpected_Exception (E2, "A028");
    end;
 
    -----------------------------------------------------------------------
 
    Done;
 exception
-when E : others => Fatal_Exception (E, "A033");
+when E : others => Fatal_Exception (E, "A029");
 end p120500;

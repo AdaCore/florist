@@ -40,8 +40,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  Test package POSIX,
---  in IEEE Std 1003.5b Section 2.4.
+--  Test package POSIX, defined in IEEE Std 1003.5b Section 2.4.
 
 with POSIX,
      POSIX_Report;
@@ -329,6 +328,7 @@ begin
    Test ("Error_Code type [2.4.6]");
    declare
       Uninitialized : Error_Code;
+      pragma Warnings (Off, Uninitialized);
    begin
       declare
          Dummy1 : constant String := Image (Uninitialized);

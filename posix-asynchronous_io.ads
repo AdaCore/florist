@@ -35,8 +35,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with Ada.Streams,
-     POSIX.C,
+with POSIX.C,
      POSIX.IO,
      POSIX.Signals;
 package POSIX.Asynchronous_IO is

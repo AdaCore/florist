@@ -35,9 +35,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with Ada.Streams,
-     POSIX.C,
-     POSIX.Implementation,
+with POSIX.C,
      POSIX.IO,
      POSIX.Configurable_System_Limits,
      POSIX.Permissions,
@@ -53,6 +51,19 @@ package POSIX.Message_Queues is
    subtype Message_Priority is
      Integer range 0 ..
        POSIX.Configurable_System_Limits.Message_Priority_Maximum;
+
+   --  ?????
+   --  POSIX.5b may need revision here.  By definining the range
+   --  of Message_Priority sufficiently precisely, we end up raising
+   --  Constraint_Error in all situations where the priority is out
+   --  of the supported range, but the standard says we should raise
+   --  POSIX_Error with Invalid_Argument in these situations.  In
+   --  particular, see the procedure Send.  Technically, it is not
+   --  necessary to list Constraint_Error as a possibility in the
+   --  Error Handling section of the standard, since it follows from
+   --  the Ada language definition that Constraint_Error is raised
+   --  under such circumstances, but it might be better if there were
+   --  an explicit note pointing this out.
 
    procedure Set_Max_Messages
      (Attrs : in out Attributes;

@@ -57,6 +57,7 @@ package P990040a is new P9900x0
   (Version => "40",
    Needs_Clock_Realtime => False,
    Jobs_Are_Processes => True,
+   Initialize_Sync => P990001c.Initialize,
    Do_Input => P990001c.Do_Input,
    Do_Output => P990001c.Do_Output,
    Start_All_Jobs => P990001c.Start_All_Jobs,

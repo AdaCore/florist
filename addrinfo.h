@@ -1,10 +1,13 @@
-#ifndef	__addrinfo_h
+#if ! defined (__addrinfo_h) && ! defined (AI_PASSIVE)
 #define	__addrinfo_h
 
 /*
  * Everything here really belongs in <netdb.h>.
  * These defines are separate for now, to avoid having to modify the
  * system's header.
+ * The test for AI_PASSIVE in the first line will prevent compilation
+ * of this file on any system where these defines ARE included in
+ * <netdb.h>, e.g. Solaris 2.8
  */
 
 struct addrinfo {
@@ -40,15 +43,3 @@ void freeaddrinfo(struct addrinfo *);
 int getnameinfo(const struct sockaddr *, size_t, char *, size_t,
 				     char *, size_t);
 #endif	/* __addrinfo_h */
-#if 0
-----------------------
--- REVISION HISTORY --
-----------------------
-
-----------------------------
-revision 1.1  locked by: baker;
-date: 1997/11/03 12:16:58;  author: baker;  state: Exp;
-Integrated
----------------------------------
-** New changes after this line and before endif. **
-#endif

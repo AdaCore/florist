@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997            Florida  State  University  (FSU),  --
+--  Copyright (c) 1996, 2002            Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -371,10 +371,5 @@ package body POSIX.Configurable_System_Limits is
      (PL.Socket_IO_Vector_Maxima, SC_UIO_MAXIOV);
    function Socket_IO_Vector_Maximum
      return POSIX.Limits.Socket_IO_Vector_Maxima renames SIOVM;
-
-   function XIOVM is new Limit
-     (PL.XTI_IO_Vector_Maxima, SC_T_IOV_MAX);
-   function XTI_IO_Vector_Maximum
-     return POSIX.Limits.XTI_IO_Vector_Maxima renames XIOVM;
 
 end  POSIX.Configurable_System_Limits;

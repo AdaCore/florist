@@ -1,0 +1,72 @@
+/* Begin pconfig.LynxOS  */
+
+
+#define _POSIX_C_SOURCE 199506L
+#define _REENTRANT
+#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 1
+
+/* 
+   Work around header file problems:
+
+   These should be addressed by the configure script, but 
+   for the time being the following directives explicitly 
+   include and tag undetected but available declarations.
+*/
+
+/* socket.h related. */
+#include <socket.h>
+#define sa_family_t unsigned char
+#define HAVE_sa_family_t 1
+
+/* Required for AF_UNIX domain sockets: The sockaddr_un 
+   structure is not defined in or included by socket.h. */
+
+#include <un.h>
+#define HAVE_sockaddr_un 1
+
+/* signal.p4.h related */
+
+#define HAVE_sigset_t  1
+#define HAVE_sigval    1
+#define HAVE_siginfo_t 1
+
+/* types.h related. */
+#define HAVE_fd_set    1
+
+/* termio.h / termios.h related. */
+
+#define HAVE_cc_t      1
+#define HAVE_tcflag_t  1
+#define HAVE_speed_t   1
+
+
+
+/* 
+   The LynxOS BSD interfaces are closer to version 4.4
+   than to 4.3.
+*/
+
+#ifdef  _BSD4_3_
+#undef  _BSD4_3_ 
+#endif  /* _BSD4_3_ */
+
+
+#ifndef _BSD4_4_
+#define _BSD4_4_
+#endif  /* _BSD4_4_ */
+
+
+/* 
+   Work around for SIGTHREADKILL issues:
+
+   LynxOS reserves signal 24 (aka SIGUDEF24) to the user 
+   space-portion of the pthreads implementation. 
+*/
+
+#define LYNX_SIGTHREADKILL_HACK
+#define SIGTHREADKILL 24
+
+
+/* End pconfig.LynxOS */
+

@@ -38,11 +38,11 @@
 ------------------------------------------------------------------------------
 
 with POSIX.C; use POSIX.C;
-with GNAT.IO; use GNAT.IO;
 with POSIX.Implementation; use POSIX.Implementation;
 with Unchecked_Conversion;
 with System;
-with Text_IO;
+--   with Ada.Text_IO; use Ada.Text_IO;
+--   with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 package body POSIX.Sockets.Internet is
 
    use POSIX.C.Sockets;
@@ -58,20 +58,11 @@ package body POSIX.Sockets.Internet is
 
    type IP_Ancillary_Data_Access is access all IP_Ancillary_Data;
 
-   function To_ADA is new Unchecked_Conversion
-      (char_ptr, IP_Ancillary_Data_Access);
-
    function To_sockaddr_var_ptr is new Unchecked_Conversion
       (System.Address, sockaddr_var_ptr);
 
    function To_sockaddr_in_var_ptr is new Unchecked_Conversion
       (System.Address, sockaddr_in_var_ptr);
-
-   function To_sockaddr_in_var_ptr is new Unchecked_Conversion
-      (char_ptr, sockaddr_in_var_ptr);
-
-   function To_sockaddr_in_ptr is new Unchecked_Conversion
-      (char_ptr, sockaddr_in_ptr);
 
    function To_sockaddr_in_ptr is new Unchecked_Conversion
       (sockaddr_ptr, sockaddr_in_ptr);
@@ -116,9 +107,9 @@ package body POSIX.Sockets.Internet is
 
    procedure Set_Internet_Port
       (Name  : in out Internet_Socket_Address;
-       Value : in     Internet_Port) is
+       Port  : in     Internet_Port) is
    begin
-      Name.C.sin_port := in_port_t (Value);
+      Name.C.sin_port := in_port_t (Port);
    end Set_Internet_Port;
 
    function Get_Internet_Address (Name : Internet_Socket_Address)
@@ -182,11 +173,17 @@ package body POSIX.Sockets.Internet is
    function c_inet_ntoa (addr : System.Address) return char_ptr;
    pragma Import (C, c_inet_ntoa, "c_inet_ntoa");
 
+
+   function strlen (str : in char_ptr) return size_t;
+   pragma Import (C, strlen, "strlen");
+
+
+
    function Internet_Address_To_String (Address : Internet_Address)
      return POSIX.POSIX_String is
    begin
       return Form_POSIX_String
-           (c_inet_ntoa (Address.C.s_addr'Address));
+         (c_inet_ntoa (Address.C.s_addr'Address));
    end Internet_Address_To_String;
 
    --  Network Database Functions
@@ -223,8 +220,8 @@ package body POSIX.Sockets.Internet is
    end Get_Network_Number;
 
    function c_getnetbyaddr_r
-      (net : unsigned;
-       typ : int;
+      (net    : unsigned;
+       typ    : int;
        result : netent_var_ptr;
        buffer : char_ptr;
        buflen : int)
@@ -232,28 +229,39 @@ package body POSIX.Sockets.Internet is
    pragma Import (C, c_getnetbyaddr_r, getnetbyaddr_r_LINKNAME);
 
    function Get_Network_Info_By_Address
-      (Number : Network_Number;
+      (Number  : Network_Number;
        Family  : Protocol_Family;
        Storage : Database_Array_Pointer)
      return Network_Info is
       netent : aliased POSIX.C.NetDB.struct_netent;
       Result : POSIX.C.NetDB.netent_ptr;
+      Temp   : Error_Code;
    begin
+      --  Since the error is only caused under special conditions
+      --  we have to make sure an old one is not left in the error
+      --  number.
+      if Fetch_Errno = ERANGE then
+         Store_Errno (No_Error);
+      end if;
       Result := c_getnetbyaddr_r
       (unsigned (Number), int (Family), netent'Unchecked_Access,
-       To_char_ptr (Storage (Storage'First)'Address), Storage'Length);
+        To_char_ptr (Storage (Storage'First)'Address), Storage'Length);
       if Result /= null then
          return (C => netent);
       else
-         return (C => (n_name     => null,
-                       n_aliases  => null,
-                       n_addrtype => 0,
-                       n_net      => 0));
+         Temp := Fetch_Errno;
+         if Temp = ERANGE then
+            raise Constraint_Error;
+         else return (C => (n_name     => null,
+                      n_aliases  => null,
+                      n_addrtype => 0,
+                      n_net      => 0));
+         end if;
       end if;
    end Get_Network_Info_By_Address;
 
    function c_getnetbyname_r
-      (name : char_ptr;
+      (name   : char_ptr;
        result : netent_var_ptr;
        buffer : char_ptr;
        buflen : int)
@@ -264,19 +272,32 @@ package body POSIX.Sockets.Internet is
       (Name    : POSIX.POSIX_String;
        Storage : Database_Array_Pointer)
      return Network_Info is
-      netent : aliased POSIX.C.NetDB.struct_netent;
-      Result : POSIX.C.NetDB.netent_ptr;
+      netent   : aliased POSIX.C.NetDB.struct_netent;
+      Result   : POSIX.C.NetDB.netent_ptr;
+      Name_NUL : POSIX_String := Name & NUL;
+      Temp     : POSIX.Error_Code;
    begin
+      --  Since the error is only caused under special conditions
+      --  we have to make sure an old one is not left in the error
+      --  number.
+      if Fetch_Errno = ERANGE then
+         Store_Errno (No_Error);
+      end if;
       Result := c_getnetbyname_r
-      (Name (Name'First)'Unchecked_Access, netent'Unchecked_Access,
+      (Name_NUL (Name_NUL'First)'Unchecked_Access, netent'Unchecked_Access,
        To_char_ptr (Storage (Storage'First)'Address), Storage'Length);
       if Result /= null then
          return (C => netent);
       else
-         return (C => (n_name => null,
-                       n_aliases => null,
-                       n_addrtype => 0,
-                       n_net => 0));
+         Temp := Fetch_Errno;
+         if Temp = ERANGE then
+            raise Constraint_Error;
+         else
+            return (C => (n_name => null,
+                          n_aliases => null,
+                          n_addrtype => 0,
+                          n_net => 0));
+         end if;
       end if;
    end Get_Network_Info_By_Name;
 
@@ -337,21 +358,33 @@ package body POSIX.Sockets.Internet is
    pragma Import (C, c_getprotobynumber_r, getprotobynumber_r_LINKNAME);
 
    function Get_Protocol_Info_By_Number
-      (Number : Protocol_Number;
+      (Number  : Protocol_Number;
        Storage : Database_Array_Pointer)
      return Protocol_Info is
       protoent : aliased struct_protoent;
-      Result : protoent_ptr;
+      Result   : protoent_ptr;
+      Temp     : POSIX.Error_Code;
    begin
+      --  Since the error is only caused under special conditions
+      --  we have to make sure an old one is not left in the error
+      --  number.
+      if Fetch_Errno = ERANGE then
+         Store_Errno (No_Error);
+      end if;
       Result := c_getprotobynumber_r
       (int (Number), protoent'Unchecked_Access,
        To_char_ptr (Storage (Storage'First)'Address), Storage'Length);
       if Result /= null then
          return (C => protoent);
       else
-         return (C => (p_name => null,
-                       p_aliases => null,
-                       p_proto => 0));
+         Temp := Fetch_Errno;
+         if Temp = ERANGE then
+            raise Constraint_Error;
+         else
+            return (C => (p_name => null,
+                          p_aliases => null,
+                          p_proto => 0));
+         end if;
       end if;
    end Get_Protocol_Info_By_Number;
 
@@ -364,21 +397,35 @@ package body POSIX.Sockets.Internet is
    pragma Import (C, c_getprotobyname_r, getprotobyname_r_LINKNAME);
 
    function Get_Protocol_Info_By_Name
-      (Name : POSIX.POSIX_String;
+      (Name    : POSIX.POSIX_String;
        Storage : Database_Array_Pointer)
      return Protocol_Info is
       protoent : aliased struct_protoent;
-      Result : protoent_ptr;
+      Result   : protoent_ptr;
+      Name_NUL : POSIX.POSIX_String := Name & NUL;
+      Temp     : POSIX.Error_Code;
    begin
+      --  Since the error is only caused under special conditions
+      --  we have to make sure an old one is not left in the error
+      --  number.
+      if Fetch_Errno = ERANGE then
+         Store_Errno (No_Error);
+      end if;
       Result := c_getprotobyname_r
-      (Name (Name'First)'Unchecked_Access, protoent'Unchecked_Access,
+      (Name_NUL (Name_NUL'First)'Unchecked_Access,
+       protoent'Unchecked_Access,
        To_char_ptr (Storage (Storage'First)'Address), Storage'Length);
       if Result /= null then
          return (C => protoent);
       else
-         return (C => (p_name => null,
-                       p_aliases => null,
-                       p_proto => 0));
+         Temp := Fetch_Errno;
+         if Temp = ERANGE then
+            raise Constraint_Error;
+         else
+            return (C => (p_name => null,
+                          p_aliases => null,
+                          p_proto => 0));
+         end if;
       end if;
    end Get_Protocol_Info_By_Name;
 
@@ -663,7 +710,7 @@ package body POSIX.Sockets.Internet is
       optval : aliased int;
       optlen : aliased size_t := optval'Size / char'Size;
    begin
-      Check (c_getsockopt (int (Socket), int (IPPROTO_UDP),
+      Check (c_getsockopt (int (Socket), int (IPPROTO_IP),
         int (IP_RECVDSTADDR), To_char_var_ptr (optval'Address),
         optlen'Unchecked_Access));
       if optval = 0 then
@@ -680,13 +727,13 @@ package body POSIX.Sockets.Internet is
       optlen : size_t := optval'Size / char'Size;
    begin
       if To = Enabled then optval := 1; end if;
-      Check (c_setsockopt (int (Socket), int (IPPROTO_UDP),
+      Check (c_setsockopt (int (Socket), int (IPPROTO_IP),
         int (IP_RECVDSTADDR), To_char_ptr (optval'Address), optlen));
    end Set_Receive_Destination_Address;
 
    procedure Set_Ancillary_Data
       (Message : in out Socket_Message;
-       Data    : in     IP_Ancillary_Data) is
+       Data    : in     IP_Ancillary_Data_Pointer) is
    begin
 #     if BSD4_3 then
          null;
@@ -696,18 +743,17 @@ package body POSIX.Sockets.Internet is
 #     end if;
    end Set_Ancillary_Data;
 
-   function Get_Ancillary_Data
-      (Message : Socket_Message)
+   function Get_Destination_Address
+      (Data : IP_Ancillary_Data)
       return Internet_Address is
 # if BSD4_3 then
    begin
       return (C => (s_addr => 0));
 # else
-      Data : IP_Ancillary_Data_Access := To_ADA (Message.C.msg_control);
    begin
-      return (C => Data.all.C2);
+      return (C => Data.C2);
 # end if;
-   end Get_Ancillary_Data;
+   end Get_Destination_Address;
 
    --  IP Header Included with Outgoing Datagram  --
 
@@ -758,7 +804,8 @@ package body POSIX.Sockets.Internet is
       if c_address_len /= struct_sockaddr_in'Size / char'Size then
          raise Constraint_Error;
       end if;
-      return (C => c_address);
+      return (C      => c_address,
+              Length => c_address_len);
    end Get_Peer_Name;
 
    -----------------------
@@ -782,7 +829,8 @@ package body POSIX.Sockets.Internet is
       if c_address_len /= struct_sockaddr_in'Size / char'Size then
          raise Constraint_Error;
       end if;
-      return (C => c_address);
+      return (C      => c_address,
+              Length => c_address_len);
    end Get_Socket_Name;
 
    -----------------------
@@ -795,7 +843,8 @@ package body POSIX.Sockets.Internet is
       --  cast the generic address pointer to an internet socket
       --  address pointer and dereference it. Note that dot1g uses
       --  void* for these. Solaris uses typedef caddr_t which is char*.
-      return (C => To_sockaddr_in_ptr (Handle.C.msg_name).all);
+      return (C => To_sockaddr_in_ptr (Handle.C.msg_name).all,
+              Length => Handle.C.msg_namelen);
    end Get_Socket_Name;
 
    -------------------
@@ -807,7 +856,8 @@ package body POSIX.Sockets.Internet is
    begin
       --  cast the generic socket address pointer to an internet socket
       --  address pointer and dereference it
-      return (C => To_sockaddr_in_ptr (Info_Item.C.ai_addr).all);
+      return (C => To_sockaddr_in_ptr (Info_Item.C.ai_addr).all,
+              Length => Info_Item.C.ai_addrlen);
    end Get_Address;
 
    function To_Socket_Address is new Unchecked_Conversion
@@ -823,7 +873,9 @@ package body POSIX.Sockets.Internet is
    function "+" (Ptr : Socket_Address_Pointer)
      return Internet_Socket_Address_Pointer is
    begin
-      if (Ptr.C.sa_family = POSIX.C.Sockets.AF_INET) then
+      if Ptr = null then
+         return null;
+      elsif (Ptr.C.sa_family = POSIX.C.Sockets.AF_INET) then
          return To_Internet_Socket_Address (Ptr);
       else
          --  Need to find out exact error ??
@@ -835,7 +887,9 @@ package body POSIX.Sockets.Internet is
    function Is_Internet_Socket_Address (Ptr : Socket_Address_Pointer)
      return Boolean is
    begin
-      if (Ptr.C.sa_family = POSIX.C.Sockets.AF_INET) then
+      if Ptr = null then
+         return false;
+      elsif (Ptr.C.sa_family = POSIX.C.Sockets.AF_INET) then
          return true;
       else
          return false;

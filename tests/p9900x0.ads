@@ -51,6 +51,7 @@ generic
    Version : String;
    Needs_Clock_Realtime : Boolean;
    Jobs_Are_Processes : Boolean;
+   with procedure Initialize_Sync;
    with procedure Do_Input (Load : Natural);
    with procedure Do_Output (Load : Natural);
    with procedure Start_All_Jobs;

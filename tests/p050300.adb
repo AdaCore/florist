@@ -40,13 +40,15 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  .... A legacy test, not in real-time area; could be improved.
+--  Setup:  This test should be run with umask "022", i.e.,
+--  POSIX_Permissions.Get_Allowed_Process_Permissions" should
+--  return (Owner_Read | Owner_Write | Owner_Execute |
+--          Group_Read | Others_Read => True, others => False);
 
 with POSIX,
      POSIX_Calendar,
      POSIX_Files,
      POSIX_File_Status,
-     POSIX_IO,
      POSIX_Permissions,
      POSIX_Process_Identification,
      POSIX_Report,
@@ -59,14 +61,11 @@ procedure p050300 is
        POSIX_Calendar,
        POSIX_Files,
        POSIX_File_Status,
-       POSIX_IO,
        POSIX_Permissions,
        POSIX_Process_Identification,
        POSIX_Report,
        Test_Parameters,
        Text_IO;
-
-   --  Process is Run with "Umask 022"
 
    type File_Types is
      (Unknown,
@@ -104,7 +103,7 @@ procedure p050300 is
         and then Last_Access_Time_Of (S) <= Now
         and then Last_Modification_Time_Of (S) <= Now,
         "A001: time stamp on this file is newer than current time");
-   exception when E : others => Unexpected_Exception (E, "A005");
+   exception when E : others => Unexpected_Exception (E, "A002");
    end Check_Status;
 
 begin
@@ -112,6 +111,13 @@ begin
    Header ("p050300");
    Test ("package POSIX_File_Status [5.3]");
    ---------------------------------------------------------------------
+
+   if POSIX_Permissions.Get_Allowed_Process_Permissions /=
+      POSIX_Permissions.Permission_Set'
+        (Owner_Read | Owner_Write | Owner_Execute |
+         Group_Read | Others_Read => True, others => False) then
+      Fatal ("A003: Incorrect test setup");
+   end if;
 
    declare
       --  Tests require us to have a file called "The_Test_File" with
@@ -150,16 +156,16 @@ begin
       Dev := Device_ID_Of (The_Status);
       Ino := File_ID_Of (The_Status);
       --  Check if permissions are 4700
-      Assert (Permission_Set_Of (The_Status) = Test_File_Perm, "A005");
+      Assert (Permission_Set_Of (The_Status) = Test_File_Perm, "A004");
 
       --  Check if Link count is 1
-      Assert (Link_Count_Of (The_Status) = 1, "A006");
+      Assert (Link_Count_Of (The_Status) = 1, "A005");
       --  Check Uid
-      Assert (Owner_Of (The_Status) = My_Uid, "A007");
+      Assert (Owner_Of (The_Status) = My_Uid, "A006");
       --  Check Gid
-      Assert (Group_Of (The_Status) = My_Gid, "A008");
+      Assert (Group_Of (The_Status) = My_Gid, "A007");
       --  Check Size is 6
-      Assert (Size_Of (The_Status) = 6, "A009");
+      Assert (Size_Of (The_Status) = 6, "A008");
 
    ---------------------------------------------------------------------
 
@@ -168,15 +174,15 @@ begin
       --  Check access time
       Assert (Last_Access_Time_Of (The_Status) =
          To_POSIX_Time (To_Time
-           (Last_Access_Time_Of (The_Status))), "A010");
+           (Last_Access_Time_Of (The_Status))), "A009");
       --  Check mod time
       Assert (Last_Modification_Time_Of (The_Status) =
          To_POSIX_Time (To_Time
-           (Last_Modification_Time_Of (The_Status))), "A011");
+           (Last_Modification_Time_Of (The_Status))), "A010");
       --  Check change time
       Assert (Last_Status_Change_Time_Of (The_Status) =
          To_POSIX_Time (To_Time
-           (Last_Status_Change_Time_Of (The_Status))), "A012");
+           (Last_Status_Change_Time_Of (The_Status))), "A011");
 
    ---------------------------------------------------------------------
 
@@ -189,13 +195,13 @@ begin
       Check_Status (The_Status, Directory);
       begin
          Size := Size_Of (The_Status);
-         Expect_Exception ("A013");
+         Expect_Exception ("A012");
       exception
       when POSIX_Error =>
-         Check_Error_Code (Invalid_Argument, "A014");
+         Check_Error_Code (Invalid_Argument, "A013");
       end;
       Assert (Dev /= Device_ID_Of (The_Status)
-        or Ino /= File_ID_Of (The_Status), "A015");
+        or Ino /= File_ID_Of (The_Status), "A014");
 
    ---------------------------------------------------------------------
 
@@ -211,7 +217,7 @@ begin
          Check_Status (The_Status, Block_Special);
          exception
       when E : POSIX_Error =>
-         Unexpected_Exception (E, "A016");
+         Unexpected_Exception (E, "A015");
       end;
 
    ---------------------------------------------------------------------
@@ -219,12 +225,12 @@ begin
       Comment ("status of nonexistent file");
       begin
          The_Status := Get_File_Status (Valid_Nonexistent_File_Name);
-         Expect_Exception ("A017");
+         Expect_Exception ("A016");
       exception
       when POSIX_Error =>
-         Check_Error_Code (No_Such_File_Or_Directory, "A018");
+         Check_Error_Code (No_Such_File_Or_Directory, "A017");
       end;
-   exception when E : others => Unexpected_Exception (E, "A019");
+   exception when E : others => Unexpected_Exception (E, "A018");
    end;
 
    --  remove the file created for this test.
@@ -235,5 +241,5 @@ begin
    Done;
 exception when E : others =>
    Unlink ("The_Test_File");
-   Fatal_Exception (E, "A020");
+   Fatal_Exception (E, "A019");
 end p050300;

@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -40,10 +40,9 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  .... A legacy test, not in real-time area; could be improved.
-
 --  Setup:  This test requires that Standard_Error correspond to a
---  terminal device.
+--  terminal device, and it must be run interactively, not in background.
+--  Otherwise, it will hang waiting for output to be permitted.
 
 with POSIX,
      POSIX_Files,

@@ -1,5 +1,21 @@
 #define _POSIX_C_SOURCE 199506L
 #define _XOPEN_SOURCE 500
-#define _XOPEN_SOURCE_EXTENDED_
+#define _XOPEN_SOURCE_EXTENDED 1
 #define __EXTENSIONS__
 #define _REENTRANT
+
+/* SOLARIS_HACK activates a workaround for a trick that appeared
+   in the Solaris 2.6 header files, of defining local function bodies
+   for certain POSIX function names, which are wrappers that in turn
+   call a real library function whose name is of the form __posix_XXX.
+ 
+   ....We need to fix the configuration process to auto-detect this!
+ 
+ */
+#define SOLARIS_HACK
+
+/* Need to include stdarg.h first to ensure that the GNU stdarg will be
+   used. Defining _VA_LIST ensures that no further definition of va_list will
+   be attempted. */
+#include <stdarg.h>
+#define _VA_LIST

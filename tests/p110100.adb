@@ -43,14 +43,13 @@
 --  Test package POSIX_Semaphores,
 --  in IEEE Std 1003.5b Section 11.1.
 
---  This test is a type A test for Semaphores
-
 with POSIX,
      POSIX_Report,
      POSIX_Configurable_System_Limits,
      POSIX_Permissions,
      POSIX_IO,
-     POSIX_Semaphores;
+     POSIX_Semaphores,
+     Test_Parameters;
 
 procedure p110100 is
 
@@ -59,110 +58,128 @@ procedure p110100 is
        POSIX_Configurable_System_Limits,
        POSIX_Permissions,
        POSIX_IO,
-       POSIX_Semaphores;
-
-   Masking : constant Signal_Masking := No_Signals;
+       POSIX_Semaphores,
+       Test_Parameters;
 
 begin
 
    Header ("p110100");
-   --  This test is designed as follows:
-   --  First the procedure/function is tested to see if it works
-   --  Second the procedure/function is programmed to fail and subsequently
-   --  the proper Error Handling exceptions should be invoked
-
 
    ----------------------------------------------------------------------
-
    --  1.1.1
-   --  Need to test that type Semaphore is limited, i.e. there
-   --  is no assignment or "=" operator on it; that is a compile-time
-   --  check, so it must be done in a separate test.
+   --  There should be a test that type Semaphore is limited, i.e., there
+   --  is no assignment or "=" operator on it, but that would need to be
+   --  a compile-time check, so it must be done in a separate test.
 
    ----------------------------------------------------------------------
+
+   ----------------------------------------------------------------------
+   --  Tests of anonymous semaphores
+   ----------------------------------------------------------------------
+
+   ----------------------------------------------------------------------
+   --  Semaphore can be created and used with normal arguments.
 
    declare
-      Sem_A : Semaphore;
-
+      Sem : Semaphore;
+      Semd : Semaphore_Descriptor;
    begin
       Test ("Initialize for Valid_Arguments [11.2.2]");
-      Initialize (Sem_A, 0);
-
+      Initialize (Sem, 0);
+      Semd := Descriptor_Of (Sem);
+      Assert (Get_Value (Semd) = 0, "A001");
+      Assert (not Try_Wait (Semd), "A002");
+      Post (Semd);
+      Assert (Get_Value (Semd) = 1, "A003");
+      Post (Semd);
+      Assert (Get_Value (Semd) = 2, "A004");
+      Assert (Try_Wait (Semd), "A005");
+      Assert (Get_Value (Semd) = 1, "A006");
+      Wait (Semd);
+      Assert (Get_Value (Semd) = 0, "A007");
+      Finalize (Sem);
    exception
    when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A001");
+      Optional (Semaphores_Option,
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A008");
    when E2 : others =>
-      Unexpected_Exception (E2, "A002");
+      Unexpected_Exception (E2, "A009");
    end;
 
    -----------------------------------------------------------------------
 
    declare
-      Sem_A : Semaphore;
+      Sem : Semaphore;
+      Semd : Semaphore_Descriptor;
       Sem_Value_Max : Integer := 0;
-      Max_Possible : Integer := 0;
-
    begin
       Test ("Initialize with an over-large value [11.2.2]");
 
       Sem_Value_Max :=
         POSIX_Configurable_System_Limits.Semaphores_Value_Maximum;
-      Max_Possible := Natural'Last;
-
-      if Sem_Value_Max < Max_Possible then
-         Initialize (Sem_A, Sem_Value_Max + 1);
-         --  Fail because Initialize DID NOT FAIL, Invalid_Argument expected
-         Assert (False, "A003");
+      if Sem_Value_Max < Natural'Last then
+         Initialize (Sem, Sem_Value_Max + 1);
+         Expect_Exception ("A010");
+         Finalize (Sem);
       else
-         Comment ("unable to test Initialize for Invalid_Argument");
+         begin
+            Initialize (Sem, Natural'Last);
+            Semd := Descriptor_Of (Sem);
+            Assert (Get_Value (Semd) = Natural'Last, "A011");
+            Finalize (Sem);
+            Comment ("Natural'Last is a valid semaphore value");
+         exception
+         when E1 : POSIX_Error =>
+            Optional (Semaphores_Option,
+              Expected => Operation_Not_Implemented,
+              E => E1, Message => "A012");
+         when E2 : others =>
+            Unexpected_Exception (E2, "A013");
+         end;
       end if;
-
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A004");
+        E => E1, Message => "A014");
    when E2 : others =>
-      Unexpected_Exception (E2, "A005");
+      Unexpected_Exception (E2, "A015");
    end;
 
    -----------------------------------------------------------------------
 
    declare
-      Sem_A : Semaphore;
-
+      Sem : Semaphore;
    begin
-      Test ("Initialize with Is_Shared := True [11.2.2]");
-      Initialize (Sem_A, 1, True);
-
+      Test ("Initialize with Is_Shared => True [11.2.2]");
+      Initialize (Sem, 1, True);
+      Finalize (Sem);
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
-        Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => Operation_Not_Implemented,
-        E => E1, Message => "A006");
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A016");
    when E2 : others =>
-      Unexpected_Exception (E2, "A007");
+      Unexpected_Exception (E2, "A017");
    end;
 
    ----------------------------------------------------------------------
 
    declare
-      Sem_A : Semaphore;
-
+      Sem : Semaphore;
    begin
-      Test ("Initialize with Is_Shared := False [11.2.2]");
-      Initialize (Sem_A, 1, False);
-
+      Test ("Initialize with Is_Shared =>False [11.2.2]");
+      Initialize (Sem, 1, False);
+      Finalize (Sem);
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
-        Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => Operation_Not_Implemented,
-        E => E1, Message => "A008");
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A018");
    when E2 : others =>
-      Unexpected_Exception (E2, "A009");
+      Unexpected_Exception (E2, "A019");
    end;
 
    ---------------------------------------------------------------------
@@ -170,26 +187,24 @@ begin
    declare
       Sem_A : Semaphore;
       Sem_B : Semaphore;
-      Sem_C : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-
+      Semd_A : Semaphore_Descriptor;
+      Semd_B : Semaphore_Descriptor;
    begin
       Test ("Descriptor_Of [11.2.2]");
       Initialize (Sem_A, 1);
-      Initialize (Sem_B, 2, True);
-      Initialize (Sem_C, 3, False);
-      Sem_Def := Descriptor_Of (Sem_A);
-      Sem_Def := Descriptor_Of (Sem_B);
-      Sem_Def := Descriptor_Of (Sem_C);
-
+      Initialize (Sem_B, 2);
+      Semd_A := Descriptor_Of (Sem_A);
+      Semd_B := Descriptor_Of (Sem_B);
+      Assert (Semd_A /= Semd_B, "A020");
+      Finalize (Sem_A);
+      Finalize (Sem_B);
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
-        Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => Operation_Not_Implemented,
-        E => E1, Message => "A010");
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A021");
    when E2 : others =>
-      Unexpected_Exception (E2, "A011");
+      Unexpected_Exception (E2, "A022");
    end;
 
    -----------------------------------------------------------------------
@@ -201,187 +216,50 @@ begin
    ----------------------------------------------------------------------
 
    declare
-      Sem_A : Semaphore;
-
+      Uninitialized_Descriptor : Semaphore_Descriptor;
    begin
-      Test ("Finalize an initialized semaphore [11.2.2]");
-      Initialize (Sem_A, 1);
-      Finalize (Sem_A);
-   exception
-   when E1 : POSIX_Error =>
-      Optional (Semaphores_Option,
-        Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => Operation_Not_Implemented,
-        E => E1, Message => "A012");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A013");
-   end;
-
-   ----------------------------------------------------------------------
-
-   declare
-      Sem_A : Semaphore;
-   begin
-      Test ("Finalize an uninitialized semaphore [11.1.3]");
-      Finalize (Sem_A);
-      --  Fail because Finalize DID NOT FAIL, Invalid_Argument expected
-      Assert (False, "A014");
+      Test ("Wait for an invalid argument [11.1.7]");
+      Wait (Uninitialized_Descriptor, No_Signals);
+      Assert (False, "A023");
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
         Expected_If_Supported => Invalid_Argument,
-        E => E1, Message => "A015");
+        E => E1, Message => "A024");
    when E2 : others =>
-      Unexpected_Exception (E2, "A016");
-   end;
-
-   -----------------------------------------------------------------------
-
-   --  ????
-   --  Move any tests for "undefined" situations to one or more
-   --  separate test programs, so that if the case causes a crash
-   --  (which in this case would not be a failure!)
-   --  get meaningful results for the rest of the test.
-   --  Alternatively, leave out such cases, since they are of marginal
-   --  value.
-
-   Test ("Finalize of busy semaphore [11.1.3]");
-   declare
-      Sem_A : Semaphore;
-
-      task Simple_Task is
-        entry Start_Running;
-      end Simple_Task;
-
-      task body Simple_Task is
-      begin
-         accept Start_Running;
-         Wait (Descriptor_Of (Sem_A), Masking);
-      exception
-      when E : others =>
-         Fatal_Exception (E, "A017");
-      end Simple_Task;
-
-   begin
-      Initialize (Sem_A, 0);
-      Simple_Task.Start_Running;
-      delay 0.2;
-      Finalize (Sem_A);
-      --  Fail because Finalize DID NOT FAIL, Resource_Busy expected
-      Assert (false, "A018");
-      abort Simple_Task;
-   exception
-   when E1 : POSIX_Error =>
-      if POSIX.Get_Error_Code /= Resource_Busy then
-         Optional (Semaphores_Option,
-           Expected_If_Not_Supported => Operation_Not_Implemented,
-           Expected_If_Supported => Invalid_Argument,
-           E => E1, Message => "A019");
-      end if;
-      abort Simple_Task;
-   when E2 : others =>
-      Unexpected_Exception (E2, "A020");
-      abort Simple_Task;
+      Unexpected_Exception (E2, "A025");
    end;
 
    ----------------------------------------------------------------------
 
-   --  Try to create a semaphore that does not exist.
-
    declare
-      Name : POSIX_String := "nonexistent";
-      Sem_Def : Semaphore_Descriptor;
-
+      Uninitialized_Descriptor : Semaphore_Descriptor;
+      Result : Boolean;
    begin
-      Test ("Create a nonexistent semaphore [11.1.4]");
-      Sem_Def := Open_Or_Create (Name, Owner_Permission_Set, 1,
-                                 Exclusive, Masking);
-   exception
-   when E1 : POSIX_Error =>
-      --  Fail because Open_Or_Create failed
-      Assert (False, "A021");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A022");
-   end;
-
-   ----------------------------------------------------------------------
-
-   --  Try to open a semaphore that does not exist.
-   --  First, create a semaphore; then, create another with the same name.
-   --  The second create should fail, with error code File_Exists
-
-   declare
-      Name : POSIX_String := "nonexistent";
-      Sem_Def : Semaphore_Descriptor;
-
-   begin
-      Test ("Open of nonexistent semaphore [11.1.4]");
-      Sem_Def := Open (Name, Masking);
-
+      Test ("Try_Wait for an invalid argument [11.1.7]");
+      Result := Try_Wait (Uninitialized_Descriptor);
+      Expect_Exception ("A026");
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
         Expected_If_Not_Supported => Operation_Not_Implemented,
-        Expected_If_Supported => No_Such_File_Or_Directory,
-        E => E1, Message => "A023");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A024");
-   end;
-
-   ----------------------------------------------------------------------
-
-
-   --  Try to open a semaphore that does exist.
-
-   declare
-      Name : POSIX_String := "nonexistent";
-      Sem_Def : Semaphore_Descriptor;
-
-   begin
-      Test ("Open of existent semaphore [11.1.4]");
-      Sem_Def := Open_Or_Create (Name, Owner_Permission_Set, 1,
-                                 Exclusive, Masking);
-      Sem_Def := Open (Name, Masking);
-   exception
-   when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A025");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A026");
-   end;
-
-   ----------------------------------------------------------------------
-
-   --  Close [11.1.5] and Unlink_Semaphore [11.1.6] are not tested
-   --  as named semaphores are unable to be created
-
-   ----------------------------------------------------------------------
-   declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-
-   begin
-      Test ("Wait for a Valid_Argument [11.1.7]");
-      Initialize (Sem_A, 1);
-      Sem_Def := Descriptor_Of (Sem_A);
-      Wait (Sem_Def, Masking);
-   exception
-   when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A027");
+        Expected_If_Supported => Invalid_Argument,
+        E => E1, Message => "A027");
    when E2 : others =>
       Unexpected_Exception (E2, "A028");
    end;
 
    ----------------------------------------------------------------------
+   --  Post raises POSIX_Error with EINVAL if argument does not refer
+   --  to a valid semaphore.
 
    declare
-      Sem_Def : Semaphore_Descriptor;
-
+      Uninitialized_Descriptor : Semaphore_Descriptor;
    begin
-      Test ("Wait for an Invalid_Argument [11.1.7]");
-      Wait (Sem_Def, Masking);
-      --  Fail because Wait DID NOT FAIL, Invalid_Argument expected
-      Assert (false, "A029");
+      Test ("Post for invalid argument [11.1.8]");
+      Post (Uninitialized_Descriptor);
+      Expect_Exception ("A029");
    exception
    when E1 : POSIX_Error =>
       Optional (Semaphores_Option,
@@ -393,114 +271,184 @@ begin
    end;
 
    ----------------------------------------------------------------------
+   --  Get_Value raises POSIX_Error with EINVAL if argument does not refer
+   --  to a valid semaphore.
 
    declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-      result : boolean;
-
-   begin
-      Test ("TryWait for a Valid_Argument [11.1.7]");
-      Initialize (Sem_A, 1);
-      Sem_Def := Descriptor_Of (Sem_A);
-      result := Try_Wait (Sem_Def);
-   exception
-   when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A032");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A033");
-   end;
-
-   ----------------------------------------------------------------------
-
-   begin
-      Test ("Try_Wait for an Invalid_Argument [11.1.7]");
-      --  Fail because Try_Wait for Invalid_Argument causes Segmentation Faults
-      Assert (false, "A034");
-   end;
-
-   ----------------------------------------------------------------------
-   declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-   begin
-      Test ("Post for Valid_Argument [11.1.8]");
-      Initialize (Sem_A, 1);
-      Sem_Def := Descriptor_Of (Sem_A);
-      Post (Sem_Def);
-   exception
-   when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A035");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A036");
-   end;
-
-   ----------------------------------------------------------------------
-
-   --  Post for Invalid_Argument not tested as any Invalid_Argument
-   --  causes a Segmentation Fault
-
-   begin
-      Test ("Post for Invalid_Argument [11.1.8]");
-      --  Fail because Post for Invalid_Argument causes Segmentation Faults
-      Assert (False, "A037");
-   end;
-
-   ----------------------------------------------------------------------
-   declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-      Temp_Int : Integer;
-   begin
-      Test ("Get_Value for Valid_Argument [11.1.9]");
-      Initialize (Sem_A, 2);
-      Sem_Def := Descriptor_Of (Sem_A);
-      Temp_Int := Get_Value (Sem_Def);
-      if Temp_Int /= 2 then
-         --  Fail because Get_Value DID NOT Retrieve correct value
-         Assert (False, "A038");
-      end if;
-   exception
-   when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A039");
-   when E2 : others =>
-      Unexpected_Exception (E2, "A040");
-   end;
-
-   ----------------------------------------------------------------------
-
-   declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
+      Uninitialized_Descriptor : Semaphore_Descriptor;
       Temp_Int : Integer;
    begin
       Test ("Get_Value for Invalid_Argument [11.1.9]");
-      --  Temp_Int := Get_Value (Sem_Def);
-      --  Fail because Get_Value for Invalid_Argument causes
-      --    Segmentation Faults
-      Assert (false, "A041");
+      Temp_Int := Get_Value (Uninitialized_Descriptor);
+      Expect_Exception ("A032");
    exception
    when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A042");
+      Optional (Semaphores_Option,
+        Expected_If_Not_Supported => Operation_Not_Implemented,
+        Expected_If_Supported => Invalid_Argument,
+        E => E1, Message => "A033");
    when E2 : others =>
-      Unexpected_Exception (E2, "A043");
+      Unexpected_Exception (E2, "A034");
    end;
 
    ----------------------------------------------------------------------
+   --  Tests of named semaphores
+   ----------------------------------------------------------------------
+
+   ----------------------------------------------------------------------
+   --  Clear out any junk semaphores left from previous tests.
+
+   for I in 1 .. 5 loop
+      begin
+         Comment ("Unlinking Semaphore");
+         Unlink_Semaphore (Valid_Semaphore_Name (I));
+         Comment ("Cleared out semaphore " &
+           To_String (Valid_Semaphore_Name (I)));
+      exception
+      when E1 : POSIX_Error =>
+         Optional (Semaphores_Option,
+           Expected_If_Not_Supported => Operation_Not_Implemented,
+           Expected_If_Supported => No_Such_File_Or_Directory,
+           E => E1, Message => "A033");
+      when E2 : others => Unexpected_Exception (E2, "A036");
+      end;
+   end loop;
+
+   ----------------------------------------------------------------------
+   --  Create a named semaphore that does previously exist, use it,
+   --  close it, and then unlink it.
 
    declare
+      Name : POSIX_String := Valid_Semaphore_Name (1);
+      Semd : Semaphore_Descriptor;
    begin
-      Test ("Next Test");
+      Test ("Create a nonexistent semaphore [11.1.4]");
+      Semd := Open_Or_Create
+        (Name, Owner_Permission_Set, 1, Exclusive, No_Signals);
+      Assert (Get_Value (Semd) = 1, "A037");
+      Post (Semd);  --  should set value to 2
+      Assert (Get_Value (Semd) = 2, "A038");
+      Wait (Semd);  --  should not block
+      Assert (Get_Value (Semd) = 1, "A039");
+      Assert (Try_Wait (Semd), "A040");
+      Assert (Get_Value (Semd) = 0, "A041");
+      Assert (not Try_Wait (Semd), "A042");
+      Close (Semd);
+      Unlink_Semaphore (Name);
    exception
    when E1 : POSIX_Error =>
-      Unexpected_Exception (E1, "A044");
+      Optional (Semaphores_Option,
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A043");
    when E2 : others =>
-      Unexpected_Exception (E2, "A045");
+      Unexpected_Exception (E2, "A044");
+   end;
+
+   ----------------------------------------------------------------------
+   --  Try to open a nonexistent semaphore.
+
+   declare
+      Name : POSIX_String := Valid_Semaphore_Name (2);
+      Semd : Semaphore_Descriptor;
+   begin
+      Test ("Open of nonexistent semaphore [11.1.4]");
+      Semd := Open (Name, No_Signals);
+      Expect_Exception ("A045");
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Semaphores_Option,
+        Expected_If_Not_Supported => Operation_Not_Implemented,
+        Expected_If_Supported => No_Such_File_Or_Directory,
+        E => E1, Message => "A046");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A047");
+   end;
+
+   ----------------------------------------------------------------------
+   --  Try to open a named semaphore that is already open.
+   --  If a process makes multiple calls (even from different
+   --  tasks within the same process) to Open or Open_Or_Create
+   --  with the same value for Name, the same Semaphore_Descriptor
+   --  value shall be returned for each such call ... [11.1.4]
+
+   declare
+      Name : POSIX_String := Valid_Semaphore_Name (3);
+      Semd_1, Semd_2 : Semaphore_Descriptor;
+   begin
+      Test ("Open of already-open semaphore [11.1.4]");
+      Semd_1 := Open_Or_Create
+        (Name, Owner_Permission_Set, 1, Exclusive, No_Signals);
+      Semd_2 := Open (Name, No_Signals);
+      Assert (Semd_1 = Semd_2, "A048");
+      Close (Semd_1);
+      Unlink_Semaphore (Name);
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Semaphores_Option,
+        Expected => Operation_Not_Implemented,
+        E => E1, Message => "A049");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A050");
+   end;
+
+   ----------------------------------------------------------------------
+   --  Try to create a named semaphore that already exists.
+   --  First, create a semaphore; then, create another with the same name.
+   --  The second create should fail, with error code File_Exists.
+
+   declare
+      Name : POSIX_String := Valid_Semaphore_Name (4);
+      Semd_1, Semd_2 : Semaphore_Descriptor;
+   begin
+      Test ("Create of existing semaphore [11.1.4]");
+      Semd_1 := Open_Or_Create
+        (Name, Owner_Permission_Set, 1, Exclusive, No_Signals);
+      Semd_2 := Open_Or_Create
+        (Name, Owner_Permission_Set, 1, Exclusive, No_Signals);
+      Expect_Exception ("A051");
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Semaphores_Option,
+        Expected_If_Not_Supported => Operation_Not_Implemented,
+        Expected_If_Supported => File_Exists,
+        E => E1, Message => "A052");
+      --  Clean up first semaphore
+      begin
+         Close (Semd_1);
+         Unlink_Semaphore (Name);
+      exception when others => null;
+      end;
+   when E2 : others =>
+      Unexpected_Exception (E2, "A053");
+   end;
+
+   ----------------------------------------------------------------------
+   --  Try to create a named semaphore with an invalid name.
+
+   declare
+      Name : POSIX_String := Invalid_Semaphore_Name (5);
+      Semd : Semaphore_Descriptor;
+   begin
+      Test ("Create of semaphore with invalid name [11.1.4]");
+      Semd := Open_Or_Create
+        (Name, Owner_Permission_Set, 1, Exclusive, No_Signals);
+      Expect_Exception ("A054");
+      Comment ("Invalid name not detected");
+      Close (Semd);
+      Unlink_Semaphore (Name);
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Semaphores_Option,
+        Expected_If_Not_Supported => Operation_Not_Implemented,
+        Expected_If_Supported => Invalid_Argument,
+        E => E1, Message => "A055");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A056");
    end;
 
    Done;
 
 exception
 when E : others =>
-   Fatal_Exception (E, "A046");
+   Fatal_Exception (E, "A057");
 end p110100;

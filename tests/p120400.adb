@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -67,7 +67,7 @@ procedure p120400 is
 
 begin
 
-   Header ("p120400");
+   Header ("p120400", Root_OK => True);
 
    ------------------------------------------------------------------
    --  Trying to open non-existent shared memory object
@@ -82,12 +82,10 @@ begin
         Open_Shared_Memory (Valid_Name_1, test_mode);
    exception
    when E1 : POSIX_Error =>
-      if Get_Error_Code /= No_Such_File_Or_Directory then
-         Optional (Shared_Memory_Objects_Option,
-           Operation_Not_Implemented, E1, "A001");
-      end if;
-      Check_Error_Code (No_Such_File_Or_Directory, "A002");
-   when E2 : others => Unexpected_Exception (E2, "A003");
+      Optional (Shared_Memory_Objects_Option,
+        Operation_Not_Implemented,
+        No_Such_File_Or_Directory, E1, "A001");
+   when E2 : others => Unexpected_Exception (E2, "A002");
    end;
 
    ------------------------------------------------------------------
@@ -99,12 +97,10 @@ begin
       Unlink_Shared_Memory (Valid_Name_1);
    exception
    when E1 : POSIX_Error =>
-      if Get_Error_Code /= No_Such_File_Or_Directory then
-         Optional (Shared_Memory_Objects_Option,
-           Operation_Not_Implemented, E1, "A004");
-      end if;
-      Check_Error_Code (No_Such_File_Or_Directory, "A005");
-   when E2 : others => Unexpected_Exception (E2, "A006");
+      Optional (Shared_Memory_Objects_Option,
+        Operation_Not_Implemented,
+        No_Such_File_Or_Directory, E1, "A001");
+   when E2 : others => Unexpected_Exception (E2, "A005");
    end;
 
    ------------------------------------------------------------------
@@ -157,8 +153,8 @@ begin
    exception
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-        Operation_Not_Implemented, E1, "A007");
-   when E2 : others => Unexpected_Exception (E2, "A008");
+        Operation_Not_Implemented, E1, "A006");
+   when E2 : others => Unexpected_Exception (E2, "A007");
    end;
 
    -----------------------------------------------------------------------
@@ -184,8 +180,8 @@ begin
    exception
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-        Operation_Not_Implemented, E1, "A009");
-   when E2 : others => Unexpected_Exception (E2, "A010");
+        Operation_Not_Implemented, E1, "A008");
+   when E2 : others => Unexpected_Exception (E2, "A009");
    end;
 
    -----------------------------------------------------------------------
@@ -215,16 +211,16 @@ begin
       object_groupID := Group_Of (file_status);
       object_permissions :=  Permission_Set_Of (file_status);
 
-      Assert (userID = object_userID, "A011");
-      Assert (groupID = object_groupID, "A012");
-      Assert (test_perm = object_permissions, "A013");
+      Assert (userID = object_userID, "A010");
+      Assert (groupID = object_groupID, "A011");
+      Assert (test_perm = object_permissions, "A012");
 
       Unlink_Shared_Memory (Valid_Name_1);
    exception
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-        Operation_Not_Implemented, E1, "A014");
-   when E2 : others => Unexpected_Exception (E2, "A015");
+        Operation_Not_Implemented, E1, "A013");
+   when E2 : others => Unexpected_Exception (E2, "A014");
    end;
 
    -----------------------------------------------------------------------
@@ -266,8 +262,8 @@ begin
    exception
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-        Operation_Not_Implemented, E1, "A016");
-   when E2 : others => Unexpected_Exception (E2, "A017");
+        Operation_Not_Implemented, E1, "A015");
+   when E2 : others => Unexpected_Exception (E2, "A016");
    end;
 
    -----------------------------------------------------------------------
@@ -295,15 +291,15 @@ begin
       when E1 : POSIX_Error =>
          if Get_Error_Code /= No_Such_File_Or_Directory then
             Optional (Shared_Memory_Objects_Option,
-              Operation_Not_Implemented, E1, "A018");
+              Operation_Not_Implemented, E1, "A017");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A019");
+      when E2 : others => Unexpected_Exception (E2, "A018");
       end;
    exception
    when E1 : POSIX_Error =>
       Optional (Shared_Memory_Objects_Option,
-        Operation_Not_Implemented, E1, "A020");
-   when E2 : others => Unexpected_Exception (E2, "A021");
+        Operation_Not_Implemented, E1, "A019");
+   when E2 : others => Unexpected_Exception (E2, "A020");
    end;
 
    -----------------------------------------------------------------------
@@ -311,5 +307,5 @@ begin
    Done;
 
 exception
-when E : others => Fatal_Exception (E, "A022");
+when E : others => Fatal_Exception (E, "A021");
 end p120400;

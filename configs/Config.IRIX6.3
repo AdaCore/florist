@@ -1,1 +1,0 @@
-LIBS = -lresolv -lsocket -lnsl

@@ -6,13 +6,11 @@
  */
 
 #include "pconfig.h"
+#include "config.h"
 
-#ifdef OPT_NEXTHDR
-struct t_opthdr *c_OPT_NEXTHDR ( char *pbuf, unsigned int buflen,
-		      struct t_opthdr *poption ){
-   return OPT_NEXTHDR(pbuf, buflen, poption);
-#else
+#ifndef OPT_NEXTHDR
 
+#ifndef HAVE_struct_t_opthdr
 struct t_opthdr {
      unsigned long   len;    /* total length of option; i.e.         */
                              /* sizeof(struct t_opthdr) + length of  */
@@ -22,9 +20,10 @@ struct t_opthdr {
      unsigned long   status; /* status value                         */
      /* followed by the option value(s)                              */
 };
+#endif
 
-#define T_ALIGN(p)      (((unsigned long)(p) + (sizeof(unsigned long) - 1)) \
-					     & ~(sizeof(unsigned long) - 1))
+#define T_ALIGN(p) (((unsigned long)(p) + (sizeof(unsigned long) - 1)) \
+					& ~(sizeof(unsigned long) - 1)) 
 
 #define OPT_NEXTHDR(pbuf, buflen, popt) \
   (((char *)(popt) + T_ALIGN((popt)->len) <  \
@@ -32,11 +31,11 @@ struct t_opthdr {
     (struct t_opthdr *)((char *)(popt) + T_ALIGN((popt)->len)) : \
     (struct t_opthdr *) 0)
 
+#endif
+
 struct t_opthdr *c_OPT_NEXTHDR ( char *pbuf, unsigned int buflen,
 		                 struct t_opthdr *poption ){ 
    return OPT_NEXTHDR(pbuf, buflen, poption); 
-
-#endif
 
 }
 

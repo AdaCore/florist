@@ -97,25 +97,25 @@ package POSIX.Memory_Mapping is
 
 private
    Allow_Read             : constant Protection_Options :=
-     Protection_Options (Option_Set' (Option => POSIX.C.PROT_READ));
+     Protection_Options (Option_Set'(Option => POSIX.C.PROT_READ));
    Allow_Write            : constant Protection_Options :=
-     Protection_Options (Option_Set' (Option => POSIX.C.PROT_WRITE));
+     Protection_Options (Option_Set'(Option => POSIX.C.PROT_WRITE));
    Allow_Execute          : constant Protection_Options :=
-     Protection_Options (Option_Set' (Option => POSIX.C.PROT_EXEC));
+     Protection_Options (Option_Set'(Option => POSIX.C.PROT_EXEC));
    Map_Shared             : constant Mapping_Options :=
-     Mapping_Options (Option_Set' (Option => POSIX.C.MAP_SHARED));
+     Mapping_Options (Option_Set'(Option => POSIX.C.MAP_SHARED));
    Map_Private            : constant Mapping_Options :=
-     Mapping_Options (Option_Set' (Option => POSIX.C.MAP_PRIVATE));
+     Mapping_Options (Option_Set'(Option => POSIX.C.MAP_PRIVATE));
    Exact_Address          : constant Location_Options :=
-     Location_Options (Option_Set' (Option => POSIX.C.MAP_FIXED));
+     Location_Options (Option_Set'(Option => POSIX.C.MAP_FIXED));
    Nearby_Address         : constant Location_Options :=  --  Empty_Set;
       Location_Options (POSIX.Empty_Set);
       --  Conversion is only to work around a GNAT3.09 problem.
    Wait_For_Completion    : constant Synchronize_Memory_Options :=
-     Synchronize_Memory_Options (Option_Set' (Option => POSIX.C.MS_SYNC));
+     Synchronize_Memory_Options (Option_Set'(Option => POSIX.C.MS_SYNC));
    No_Wait_For_Completion : constant Synchronize_Memory_Options :=
-     Synchronize_Memory_Options (Option_Set' (Option => POSIX.C.MS_ASYNC));
+     Synchronize_Memory_Options (Option_Set'(Option => POSIX.C.MS_ASYNC));
    Invalidate_Cached_Data : constant Synchronize_Memory_Options :=
      Synchronize_Memory_Options
-       (Option_Set' (Option => POSIX.C.MS_INVALIDATE));
+       (Option_Set'(Option => POSIX.C.MS_INVALIDATE));
 end POSIX.Memory_Mapping;

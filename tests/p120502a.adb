@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1997-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1997-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -58,8 +58,6 @@ with POSIX,
      POSIX_Shared_Memory_Objects,
      Test_Parameters;
 
-with Ada.Text_IO; use Ada.Text_IO; --  debug only
-
 procedure p120502a is
    use POSIX,
        POSIX_IO,
@@ -72,9 +70,9 @@ procedure p120502a is
 
    type Window is
       record
-        A : integer;
-        B : integer;
-        Done : integer;
+        A : Integer;
+        B : Integer;
+        Done : Integer;
         pragma Volatile (A);
         pragma Volatile (B);
         pragma Volatile (Done);
@@ -92,27 +90,27 @@ procedure p120502a is
 
 begin
 
-   Put_Line ("p120502a Child =" & Integer'Image (Child));
-   Put_Line ("p120502a Verbose =" & Boolean'Image (Verbose));
-
+   Comment ("child: 120502a");
    Assert (Child = 1 or Child = 2,
      "A001: Child =" & Integer'Image (Child));
 
    begin
-      Comment ("Try to create a new shared memory object");
+      Comment ("child: try to create a new shared memory object");
       Shmd := P.Open_Or_Create_And_Map_Shared_Memory
            (Object_Name, Allow_Write, Test_Perm, Exclusive);
    exception
       when E1 : POSIX_Error =>
          if POSIX.Get_Error_Code = File_Exists then
-            Comment ("Object already exists; try to open it");
+            Comment ("child: object already exists; try to open it");
             Shmd := P.Open_And_Map_Shared_Memory (Object_Name, Allow_Write);
          else Optional (Shared_Memory_Objects_Option,
-                   Operation_Not_Implemented, E1, "A002");
+                   Operation_Not_Implemented, E1, "A002: child");
          end if;
       when E2 : others =>
-         Fatal_Exception (E2, "A003");
+         Fatal_Exception (E2, "A003: child");
    end;
+
+   Optional (Shared_Memory_Objects_Option, "A004: child");
 
    Obj := P.Access_Shared_Memory (Shmd);
    Obj.Done := 0;
@@ -146,15 +144,15 @@ begin
    if Obj.Done = 0 then
       Obj.Done := 1;
       --  The two counters should stop at the same value.
-      Assert (Obj.A = Obj.B, "A004: values do not match");
+      Assert (Obj.A = Obj.B, "A005: child, values do not match");
    end if;
 
    begin
       P.Unmap_And_Close_Shared_Memory (Shmd);
       Unlink_Shared_Memory (Object_Name);
    exception
-   when E1 : POSIX_Error =>
-      Check_Error_Code (No_Such_File_Or_Directory, "A005");
+   when POSIX_Error =>
+      Check_Error_Code (No_Such_File_Or_Directory, "A006: child");
    end;
 
    Done;
@@ -163,13 +161,13 @@ exception
 when Access_Failed =>
    --  The other process may not be executing,
    --  or shared memory may not be working correctly.
-   Assert (False, "A006: other counter is not changing");
+   Assert (False, "A007: child, other counter is not changing");
    Done;
 when E1 : POSIX_Error =>
    Optional (Shared_Memory_Objects_Option,
-     Operation_Not_Implemented, E1, "A007");
+     Operation_Not_Implemented, E1, "A008: child");
    Done;
 when E2 : others =>
-   Unexpected_Exception (E2, "A008");
+   Unexpected_Exception (E2, "A009: child");
    Done;
 end p120502a;

@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1997-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1997-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -49,6 +49,9 @@
 --  has caught up.  They quit after a fixed number of
 --  iterations.
 
+--  Setup: The executable file for program p120502a
+--  must be accessible via the path ``./p120502a''.
+
 with POSIX,
      POSIX_Files,
      POSIX_Process_Identification,
@@ -74,7 +77,7 @@ procedure p120502 is
 
 begin
 
-   Header ("p120501.adb", true);
+   Header ("p120501.adb", True);
 
    declare
    begin
@@ -92,12 +95,12 @@ begin
 
    Open_Template (Template);
    Make_Empty (Args);
-   POSIX.Append (Args, "");
+   POSIX.Append (Args, Child_Pathname);
    Pass_Through_Verbosity (Args);
    POSIX.Append (Args, "-child 1");
    Start_Process (Child_1, Child_Pathname, Template, Args);
    Make_Empty (Args);
-   POSIX.Append (Args, "");
+   POSIX.Append (Args, Child_Pathname);
    Pass_Through_Verbosity (Args);
    POSIX.Append (Args, "-child 2");
    Start_Process (Child_2, Child_Pathname, Template, Args);

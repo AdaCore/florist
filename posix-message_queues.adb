@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU),                 --
+--  Copyright (c) 1996-2002 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -47,16 +47,13 @@ with Ada.Streams,
      POSIX.Signals,
      System,
      Unchecked_Conversion;
+
 package body POSIX.Message_Queues is
 
    use Ada.Streams;
    use POSIX.C;
    use POSIX.Implementation;
    use POSIX.Permissions.Implementation;
-
-   --  check that Stream_Element and char are the same size
-   Assertion : constant := Boolean'Pos
-     (Boolean'Pred (Stream_Element'Size = char'Size));
 
    function To_int is new Unchecked_Conversion (Bits, int);
    function To_Bits is new Unchecked_Conversion (int, Bits);
@@ -78,6 +75,7 @@ package body POSIX.Message_Queues is
       if Result < 0 then
          Restore_Signals_And_Raise_POSIX_Error
            (Masked_Signals, Old_Mask);
+         return Result;
       else
          Restore_Signals (Masked_Signals, Old_Mask);
          return Result;
@@ -143,6 +141,14 @@ package body POSIX.Message_Queues is
    begin
       return Message_Queue_Options
         (Option_Set '(Option => To_Bits (int (Attrs.Attrs.mq_flags))));
+      --  ????
+      --  The above conversion of long value to int is risky.
+      --  If the high-order bits are used, we may need to consider
+      --  reimplementing Option_Set as long, or changing the POSIX.5b spec.
+      --  .... Change POSIX.5b?
+      --  It was a mistake to use Option_Set here for a value that the
+      --  C-language interface says is a "long".  Option_Set in other places
+      --  is only used to map bit-vectors of type "int".
    end Get_Options;
 
    -------------------------
@@ -179,7 +185,8 @@ package body POSIX.Message_Queues is
    begin
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := mq_open (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
-        To_int (C_File_Mode (Mode)), 0, null);
+        To_int (Option_Set (Options).Option or C_File_Mode (Mode)),
+        0, null);
       return Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Open;
@@ -203,7 +210,7 @@ package body POSIX.Message_Queues is
    begin
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := mq_open (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
-        To_int (C_File_Mode (Mode) or O_CREAT),
+        To_int (Option_Set (Options).Option or C_File_Mode (Mode) or O_CREAT),
         Form_C_Permission (Permissions), null);
       return Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);

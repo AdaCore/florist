@@ -323,7 +323,7 @@ begin
       end if;
       --  give child time to try to lock the file
       Comment ("we just hope the child gets time to run");
-      --      delay 0.1;
+      delay 0.1;
       --  make sure the child is still there
       Comment ("checking child status");
       Wait_For_Child_Process (Status, Child, Block => False);

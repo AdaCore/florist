@@ -186,7 +186,7 @@ private
 
    type Terminal_Characteristics is
       record
-         Valid : Boolean := false;
+         Valid : Boolean := False;
          termios : aliased POSIX.C.struct_termios;
       end record;
 

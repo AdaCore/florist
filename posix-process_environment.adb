@@ -421,6 +421,7 @@ package body POSIX.Process_Environment is
         (Name : POSIX_String;
          Value : POSIX_String;
          Quit : in out Boolean) is
+         pragma Warnings (Off, Quit);
       begin Set_Environment_Variable (Name, Value);
       end Copy_One;
       procedure Copy_All is
@@ -446,6 +447,7 @@ package body POSIX.Process_Environment is
       T_Target : POSIX_String_List;
       procedure Copy_One (Str : POSIX_String; Done : in out Boolean);
       procedure Copy_One (Str : POSIX_String; Done : in out Boolean) is
+         pragma Warnings (Off, Done);
       begin Append (T_Target, Str);
       end Copy_One;
       procedure Copy_All is new For_Every_Item (Copy_One);
@@ -511,6 +513,7 @@ package body POSIX.Process_Environment is
         (Name : POSIX_String;
          Value : POSIX_String;
          Done : in out Boolean) is
+         pragma Warnings (Off, Value);
       begin
          if Name = Is_Environment_Variable.Name then
             Result := True;
@@ -556,6 +559,7 @@ package body POSIX.Process_Environment is
       Strings : POSIX_String_List;
       procedure Clear_One (Str : POSIX_String; Done : in out Boolean);
       procedure Clear_One (Str : POSIX_String; Done : in out Boolean) is
+         pragma Warnings (Off, Done);
       begin Check (Unsetenv (Str (Str'First)'Unchecked_Access));
       end Clear_One;
       procedure Clear_All is new For_Every_Item (Clear_One);
@@ -603,14 +607,14 @@ package body POSIX.Process_Environment is
             if J /= 0 then
                Free (Env.List (I));
                Env.List (I) :=
-                  new POSIX_String' (Name & "=" & Value & NUL);
+                  new POSIX_String'(Name & "=" & Value & NUL);
                Env.Char (I) := Env.List (I)(1)'Unchecked_Access;
                return;
             end if;
          end loop;
          pragma Assert (L /= 0);
          if L < Env.Length then
-            Env.List (L) := new POSIX_String' (Name & "=" & Value & NUL);
+            Env.List (L) := new POSIX_String'(Name & "=" & Value & NUL);
             Env.Char (L) := Env.List (L)(1)'Unchecked_Access;
             return;
          end if;
@@ -778,7 +782,7 @@ package body POSIX.Process_Environment is
       pragma Import (C, chdir, chdir_LINKNAME);
       c_name : POSIX_String := Directory_Name & NUL;
    begin
-      Check (chdir (c_name (c_name'First)' Unchecked_Access));
+      Check (chdir (c_name (c_name'First)'Unchecked_Access));
    end Change_Working_Directory;
 
    -----------------------------

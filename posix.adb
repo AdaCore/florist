@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997            Florida  State  University  (FSU),  --
+--  Copyright (c) 1996-2002             Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -37,16 +37,18 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with POSIX.Error_Codes,
+with Ada.Streams,
      POSIX.C,
      POSIX.Implementation,
+     System,
      Unchecked_Conversion,
      Unchecked_Deallocation;
+
 pragma Elaborate (POSIX.C);
-pragma Elaborate (POSIX.Error_Codes);
 pragma Elaborate (POSIX.Implementation);
 package body POSIX is
 
+   use Ada.Streams;
    use POSIX.C;
    use POSIX.Implementation;
 
@@ -56,19 +58,18 @@ package body POSIX is
    --  Unchecked Conversions  --
    -----------------------------
 
-   type String_Ptr is access all String;
-   type Wide_String_Ptr is access all Wide_String;
-   type Stream_Element_Array_Ptr is
-      access all Ada_Streams.Stream_Element_Array;
+   type Big_POSIX_String_Ptr is access all POSIX_String (Positive'Range);
+   type Big_String_Ptr is access all String (Positive'Range);
+   type Big_Stream_Element_Array_Ptr is access all
+     Ada_Streams.Stream_Element_Array
+     (Ada_Streams.Stream_Element_Offset'Range);
 
-   function sptr_to_psptr is new Unchecked_Conversion
-      (String_Ptr, POSIX_String_Ptr);
-   function psptr_to_sptr is new Unchecked_Conversion
-      (POSIX_String_Ptr, String_Ptr);
-   function smelmptr_to_psptr is new Unchecked_Conversion
-      (Stream_Element_Array_Ptr, POSIX_String_Ptr);
-   function psptr_to_smelmptr is new Unchecked_Conversion
-      (POSIX_String_Ptr, Stream_Element_Array_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_String_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_POSIX_String_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_Stream_Element_Array_Ptr);
 
    -----------------------
    --  To_POSIX_String  --
@@ -77,17 +78,16 @@ package body POSIX is
    function To_POSIX_String (Str : String)
       return POSIX_String is
    begin
-      return sptr_to_psptr (Str'Unrestricted_Access).all;
+      return From_Address (Str'Address) (Str'Range);
    end To_POSIX_String;
 
    -----------------
    --  To_String  --
    -----------------
 
-   function To_String (Str : POSIX_String)
-      return string is
+   function To_String (Str : POSIX_String) return String is
    begin
-      return psptr_to_sptr (Str'Unrestricted_Access).all;
+      return From_Address (Str'Address) (Str'Range);
    end To_String;
 
    ----------------------
@@ -131,24 +131,27 @@ package body POSIX is
    -------------------------------
 
    function To_Stream_Element_Array (Buffer : POSIX_String)
-      return Ada_Streams.Stream_Element_Array is
+      return Ada_Streams.Stream_Element_Array
+   is
+      subtype Offset is Stream_Element_Offset;
    begin
-      return psptr_to_smelmptr (Buffer'Unrestricted_Access).all;
+      return From_Address (Buffer'Address)
+        ((Offset (Buffer'First) + Offset'First - 1) ..
+         (Offset (Buffer'Last) + Offset'First - 1));
    end To_Stream_Element_Array;
-
-   --  This is only going to work if the sizes of
-   --  Stream_Element and Character are the same.
-   Assert_1 : constant := Boolean'Pos (Boolean'Pred
-     (Ada_Streams.Stream_Element'Size = Character'Size));
 
    -----------------------
    --  To_POSIX_String  --
    -----------------------
 
    function To_POSIX_String
-     (Buffer : Ada_Streams.Stream_Element_Array) return POSIX_String is
+     (Buffer : Ada_Streams.Stream_Element_Array) return POSIX_String
+   is
+      subtype Offset is Stream_Element_Offset;
    begin
-      return smelmptr_to_psptr (Buffer'Unrestricted_Access).all;
+      return From_Address (Buffer'Address)
+        (Positive (Buffer'First - Offset'First + 1) ..
+         Positive (Buffer'Last - Offset'First + 1));
    end To_POSIX_String;
 
    -------------------
@@ -160,7 +163,7 @@ package body POSIX is
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
          if Str (I) = '/' or Str (I) = NUL or Str (I) = ' ' then
-            return false;
+            return False;
          end if;
       end loop;
       return True;
@@ -181,7 +184,7 @@ package body POSIX is
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
          if Str (I) = NUL or Str (I) = ' ' then
-            return false;
+            return False;
          end if;
       end loop;
       return True;
@@ -217,16 +220,16 @@ package body POSIX is
       Start : Positive;
       P : Positive;
    begin
-      if To_String (Str)'Length = 0 then return false; end if;
+      if To_String (Str)'Length = 0 then return False; end if;
       Start := Str'First;
       P := Str'First;
       loop
          if P > Str'Last or else Str (P) = '/' then
             if Start < P and then not
                Is_Portable_Filename (Str (Start .. P - 1)) then
-               return false;
+               return False;
             end if;
-            if P > Str'Last then return true; end if;
+            if P > Str'Last then return True; end if;
             Start := P + 1;
          end if;
          P := P + 1;
@@ -258,10 +261,10 @@ package body POSIX is
    --------------
 
    procedure Append
-     (List   : in out POSIX_String_List;
-      In_Str : in POSIX_String) is
-      Tmp : POSIX_String_List;
-      Len : constant Integer := In_Str'Length;
+     (List : in out POSIX_String_List;
+      Str  : in POSIX_String) is
+      Tmp  : POSIX_String_List;
+      Len  : constant Integer := Str'Length;
    begin
       if List = null then
          List := new String_List (Min_String_List_Length);
@@ -276,7 +279,7 @@ package body POSIX is
                Free (List); List := Tmp;
             end if;
             List.List (I) := new POSIX_String (1 .. Len + 1);
-            List.List (I)(1 .. Len) := In_Str;
+            List.List (I)(1 .. Len) := Str;
             List.List (I)(Len + 1) := NUL;
             List.Char (I) := List.List (I)(1)'Unchecked_Access;
             return;
@@ -414,7 +417,7 @@ package body POSIX is
 
    function Get_Error_Code return Error_Code is
    begin
-      return POSIX.Error_Codes.Value;
+      return POSIX.Implementation.Get_Ada_Error_Code;
    end Get_Error_Code;
 
    ----------------------
@@ -423,7 +426,7 @@ package body POSIX is
 
    procedure Set_Error_Code (Error : in Error_Code) is
    begin
-      POSIX.Error_Codes.Set_Value (Error);
+      POSIX.Implementation.Set_Ada_Error_Code (Error);
    end Set_Error_Code;
 
    ----------------------
@@ -626,7 +629,7 @@ package body POSIX is
 
    function "+" (Left, Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => Left.Val + Right.Val);
+      return Timespec'(Val => Left.Val + Right.Val);
    end "+";
 
    -----------
@@ -646,7 +649,7 @@ package body POSIX is
 
    function "-" (Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => -Right.Val);
+      return Timespec'(Val => -Right.Val);
    end "-";
 
    -----------
@@ -655,7 +658,7 @@ package body POSIX is
 
    function "-" (Left, Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => Left.Val - Right.Val);
+      return Timespec'(Val => Left.Val - Right.Val);
    end "-";
 
    -----------
@@ -665,7 +668,7 @@ package body POSIX is
    function "-" (Left : Timespec; Right : Nanoseconds)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val - Duration (Right) / NS_per_S);
+      return Timespec'(Val => Left.Val - Duration (Right) / NS_per_S);
    end "-";
 
    -----------
@@ -675,7 +678,7 @@ package body POSIX is
    function "*" (Left : Timespec; Right : Integer)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val * Duration (Right));
+      return Timespec'(Val => Left.Val * Duration (Right));
    end "*";
 
    -----------
@@ -685,7 +688,7 @@ package body POSIX is
    function "*" (Left : Integer; Right : Timespec)
      return Timespec is
    begin
-      return Timespec' (Val => Left * Right.Val);
+      return Timespec'(Val => Left * Right.Val);
    end "*";
 
    -----------
@@ -695,7 +698,7 @@ package body POSIX is
    function "/" (Left : Timespec; Right : Integer)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val / Right);
+      return Timespec'(Val => Left.Val / Right);
    end "/";
 
    -----------
@@ -749,7 +752,7 @@ package body POSIX is
 
    function To_Timespec (D : Duration)  return Timespec is
    begin
-      return Timespec' (Val => D);
+      return Timespec'(Val => D);
    end To_Timespec;
 
    -------------------

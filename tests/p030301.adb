@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -44,6 +44,9 @@
 --  including POSIX_Message_Queues, POSIX_Timers, and
 --  POSIX_Asychronous_IO.
 
+--  Setup: The program must be run with the executable file for
+--  program p030301b accessible via the pathname "./p030301b".
+
 with Ada.Streams,
      Ada_Task_Identification,
      POSIX,
@@ -57,25 +60,26 @@ with Ada.Streams,
      POSIX_Report,
      POSIX_Signals,
      POSIX_Timers,
-     System,
-     System.Storage_Elements,
+     p030300a,
+     Test_Parameters,
      Unchecked_Conversion;
 
 procedure p030301 is
-use  Ada.Streams,
-     Ada_Task_Identification,
-     POSIX,
-     POSIX_Asynchronous_IO,
-     POSIX_Files,
-     POSIX_IO,
-     POSIX_Message_Queues,
-     POSIX_Permissions,
-     POSIX_Process_Identification,
-     POSIX_Process_Primitives,
-     POSIX_Report,
-     POSIX_Signals,
-     POSIX_Timers,
-     System;
+   use Ada.Streams,
+       Ada_Task_Identification,
+       POSIX,
+       POSIX_Asynchronous_IO,
+       POSIX_Files,
+       POSIX_IO,
+       POSIX_Message_Queues,
+       POSIX_Permissions,
+       POSIX_Process_Identification,
+       POSIX_Process_Primitives,
+       POSIX_Report,
+       POSIX_Signals,
+       POSIX_Timers,
+       p030300a,
+       Test_Parameters;
 
    function To_Signal_Data is
      new Unchecked_Conversion (Integer, Signal_Data);
@@ -84,42 +88,39 @@ use  Ada.Streams,
 
    Old_Mask : Signal_Set;
 
-   A_Signal : constant Signal := SIGHUP;
-   A_Signal_Addr : constant System.Address := Signal_Reference (A_Signal);
-   B_Signal  : constant Signal := SIGUSR1;
-   C_Signal  : constant Signal := SIGUSR2;
-
-   task My_Handler is
-      entry Reset_Count;
-      entry Current_Count (X : out integer);
-      entry Done;
-      for Done use at A_Signal_Addr;
-   end My_Handler;
-
-   task body My_Handler is
-      Count : integer := 0;
-   begin
-      loop
-         select
-            accept Done do
-               Count := Count + 1;
-            end Done;
-         or
-            accept Reset_Count do
-               Count := 0;
-            end Reset_Count;
-         or
-            accept Current_Count (X : out integer) do
-               X := Count;
-            end Current_Count;
-         or
-            terminate;
-         end select;
-      end loop;
-   end My_Handler;
+   Signals : constant array (1 .. 3) of Signal :=
+     (SIGHUP, SIGUSR1, SIGUSR2);
 
    Valid_MQ_Name : constant POSIX.POSIX_String := "/test_mq";
    Valid_AIO_File_Name : constant POSIX.POSIX_String := "aio_test_file";
+   Child_Pathname : POSIX_String := "./p030301b";
+   Child_Name : POSIX_String := "p030301b";
+
+   Queueing_Is_Enabled : Boolean := False;
+   --  It would be nice if this were a standard function.
+
+   procedure Try_Enable_Queueing (Sig : Signal; Msg : String);
+   procedure Try_Disable_Queueing (Sig : Signal);
+
+   procedure Try_Enable_Queueing (Sig : Signal; Msg : String) is
+   begin
+      Enable_Queueing (Sig);
+      Queueing_Is_Enabled := True;
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Realtime_Signals_Option, Operation_Not_Supported,
+        E1, Msg & 'a');
+   when E2 : others =>
+      Unexpected_Exception (E2, Msg & 'b');
+   end Try_Enable_Queueing;
+
+   procedure Try_Disable_Queueing (Sig : Signal) is
+   begin
+      if Queueing_Is_Enabled then
+         Disable_Queueing (Sig);
+         Queueing_Is_Enabled := False;
+      end if;
+   end Try_Disable_Queueing;
 
 begin
 
@@ -128,36 +129,20 @@ begin
    Test ("Validity of Signals used for this test ");
 
    declare
-      Mask1 : Signal_Set;
+      Mask : Signal_Set;
    begin
-      Delete_All_Signals (Mask1);
-      begin
-         Add_Signal (Mask1, A_Signal);
-      exception
+      for I in Signals'Range loop
+         Delete_All_Signals (Mask);
+         begin
+            Add_Signal (Mask, Signals (I));
+         exception
          when E1 : POSIX_Error =>
-            Comment (Image (A_Signal) & " is not a valid signal");
-            Fatal_Exception (E1, "A001");
+            Comment (Image (Signals (I)) & " is not a valid signal");
+            Fatal_Exception (E1, "A001:" & Image (Signals (I)));
          when E2 : others =>
-            Unexpected_Exception (E2, "A002");
-      end;
-      begin
-         Add_Signal (Mask1, B_Signal);
-      exception
-         when E1 : POSIX_Error =>
-            Comment (Image (B_Signal) & " is not a valid signal");
-            Fatal_Exception (E1, "A003");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A004");
-      end;
-      begin
-         Add_Signal (Mask1, C_Signal);
-      exception
-         when E1 : POSIX_Error =>
-            Comment (Image (C_Signal) & " is not a valid signal");
-            Fatal_Exception (E1, "A005");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A006");
-      end;
+            Unexpected_Exception (E2, "A002: " & Image (Signals (I)));
+         end;
+      end loop;
    end;
 
    ---------------------------------------------------------------------
@@ -171,6 +156,7 @@ begin
    --  signal shall be generated for its parent process, unless the
    --  parent process has disabled this feature, by calling
    --  Set_Stopped_Child_Signal with parameter Enable set to False.
+   --  [3.3.4]
 
    --  Stopped_Child_Signal_Enabled shall return True if and only if
    --  the signal specified by Signal_Child will be generated for the
@@ -178,19 +164,46 @@ begin
 
    Test ("Set_Stopped_Child_Signal [3.3.10]");
    declare
-
       New_Mask : Signal_Set;
-      Sig      : Signal;
       Child_ID : Process_ID;
       Template : Process_Template;
       Args     : POSIX_String_List;
       Status   : Termination_Status;
-      Child_Pathname : POSIX_String := "./p030301b";
+
+      procedure Do_Test (Expect_Timeout : Yes_No_Maybe; Msg : String);
+
+      procedure Do_Test (Expect_Timeout : Yes_No_Maybe; Msg : String) is
+      begin
+         Comment ("Starting child process");
+         Start_Process (Child_ID, Child_Pathname, Template, Args);
+         Wait_For_Child_Process (Status, Child_ID, Block => False);
+         Assert (not Status_Available (Status), "A003: " & Msg);
+
+         Comment ("Parent: stopping child");
+         Send_Signal (Child_ID, SIGSTOP);
+
+         Comment ("Parent: awaiting SIGCHLD");
+         begin
+            Try_Await_Signal
+              (SIGCHLD, New_Mask, 3.0, Expect_Timeout, "A004: " & Msg);
+         exception
+         when Local_Failure => null;
+         when E : others => Unexpected_Exception (E, "A005: " & Msg);
+         end;
+
+         Comment ("Parent: continuing child");
+         Send_Signal (Child_ID, SIGCONT);
+
+         Wait_For_Child_Process (Status, Child_ID);
+         Check_Child_Status (Status, Child_ID, 0, "A006: " & Msg);
+
+      end Do_Test;
+
    begin
 
       Open_Template (Template);
       Make_Empty (Args);
-      POSIX.Append (Args, "p030301b");
+      POSIX.Append (Args, Child_Name);
       POSIX.Append (Args, "-child");
       Pass_Through_Verbosity (Args);
 
@@ -198,7 +211,11 @@ begin
       --  The initial state of the process has the generation of
       --  SIGCHLD enabled for stopped child processes.
 
-      Assert (Stopped_Child_Signal_Enabled, "A007");
+      begin
+         Assert (Stopped_Child_Signal_Enabled, "A007");
+      exception
+      when E : others => Unexpected_Exception (E, "A008");
+      end;
 
       ------------------------------------------------------------------
       --  If the parameter Enable has the value True, the
@@ -206,45 +223,33 @@ begin
       --  process whenever any of its child processes stop.
 
       Comment ("Setting Stopped_Child_Signal to True");
-      Set_Stopped_Child_Signal (True);
-      Assert (Stopped_Child_Signal_Enabled, "A008");
+      begin
+         Set_Stopped_Child_Signal (True);
+         Assert (Stopped_Child_Signal_Enabled, "A009");
+      exception
+      when E : others => Unexpected_Exception (E, "A010");
+      end;
 
-      Comment ("Deleting all signals");
       Delete_All_Signals  (New_Mask);
-      Comment ("Adding in SIGCHLD");
       Add_Signal (New_Mask, SIGCHLD);
       Comment ("Blocking SIGCHLD");
       Block_Signals (New_Mask, Old_Mask);
 
-      Comment ("Starting child process");
-      Start_Process (Child_ID, Child_Pathname, Template, Args);
-      Wait_For_Child_Process (Status, Child_ID, Block => False);
-      Assert (not Status_Available (Status), "A000");
+      Do_Test (No, "initial task");
 
-      Comment ("Parent: stopping child");
-      Send_Signal (Child_ID, SIGSTOP);
+      ------------------------------------------------------------------
+      --  Redo the test case above, where the task awaiting the
+      --  child is not the initial task of the process.
 
-      Comment ("Parent: Awaiting SIGCHLD");
+      declare
+         task T;
+         task body T is
+         begin
+            Do_Test (No, "subsidiary task");
+         end T;
       begin
-         Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (3.0));
-         Assert (Sig = SIGCHLD, "A009");
-      exception
-      when POSIX_Error =>
-         Comment ("Parent: apparently timed out");
-         Check_Error_Code (ETIMEDOUT, "A101");
-      when E : others =>
-         Unexpected_Exception (E, "A102");
+         null;
       end;
-
-      --  .... A similar test should be done for the case where
-      --  the thread awaiting the child is not the initial thread of the
-      --  process.
-
-      Comment ("Parent: continuing child");
-      Send_Signal (Child_ID, SIGCONT);
-
-      Wait_For_Child_Process (Status, Child_ID);
-      Check_Child_Status (Status, Child_ID, 0, "A090");
 
       ------------------------------------------------------------------
       --  If Enable is False, the implementation shall not generate
@@ -252,70 +257,45 @@ begin
 
       Comment ("Setting Stopped_Child_Signal to False");
       Set_Stopped_Child_Signal (False);
-      Assert (not Stopped_Child_Signal_Enabled, "A007");
+      Assert (not Stopped_Child_Signal_Enabled, "A011");
 
-      Comment ("Starting child process");
-      Start_Process (Child_ID, Child_Pathname, Template, Args);
-      Comment ("Parent: stopping child");
-      Send_Signal (Child_ID, SIGSTOP);
-
-      Comment ("Parent: Awaiting SIGCHLD");
-      begin
---         Sig := Await_Signal_Or_Timeout
---          (New_Mask, To_Timespec (3.0));
-         Expect_Exception ("A100");
-      exception
-      when POSIX_Error => Check_Error_Code (ETIMEDOUT, "A101");
-      when E : others =>
-         Unexpected_Exception (E, "A102");
-      end;
-
-      Wait_For_Child_Process (Status, Child_ID);
-      Check_Child_Status (Status, Child_ID, 0, "A090");
+      Do_Test (Yes, "initial task, no child signal");
 
    exception
-      when E1 : POSIX_Error =>
-         Optional (Job_Control_Option, Invalid_Argument, E1, "A010");
-      when E2 : others =>
-         Unexpected_Exception (E2, "A011");
+   when E1 : POSIX_Error =>
+      Optional (Job_Control_Option, Invalid_Argument, E1, "A012");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A013");
    end;
 
    ---------------------------------------------------------------------
+   --  If a signal is sent to a process while the signal is masked
+   --  for all tasks in the process, the signal remains pending, and
+   --  can be detected via a call to Pending_Signals.
+   --  As soon as the pending signal is cleared, it is no longer
+   --  detected by Pending_Signals.
 
    Test ("Pending_Signals [3.3.11]");
    declare
       New_Mask  : Signal_Set;
-      Ret : Integer := 0;
    begin
-
-      My_Handler.Reset_Count;
-
-      Delete_All_Signals (New_Mask);
-      Add_Signal (New_Mask, A_Signal);
-      Comment ("Blocking A_Signal");
-      Block_Signals (New_Mask, Old_Mask);
-
-      Comment ("Sending A_Signal to self");
-      Send_Signal (POSIX_Process_Identification.Get_Process_ID, A_Signal);
-      Comment ("Delaying");
-      delay 0.1;
-      Comment ("Checking count");
-      My_Handler.Current_Count (Ret);
-      Assert (Ret = 0, "A012: Count = " & Integer'Image (Ret));
-
-      Assert (Is_Member (Pending_Signals, A_Signal), "A013");
-
-      Comment ("Unblocking A_Signal");
-      Unblock_Signals (New_Mask, Old_Mask);
-      Comment ("Delaying");
-      delay 0.1;
-      Comment ("Checking count");
-      My_Handler.Current_Count (Ret);
-      Assert (Ret = 1, "A014: " & Integer'Image (Ret));
-
+      for I in Signals'Range loop
+         Delete_All_Signals (New_Mask);
+         Add_Signal (New_Mask, Signals (I));
+         Comment ("Blocking signal");
+         Block_Signals (New_Mask, Old_Mask);
+         Comment ("Sending signal to self");
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID,
+           Signals (I));
+         Assert (Is_Member (Pending_Signals, Signals (I)), "A014");
+         Comment ("Discarding signal");
+         Ignore_Signal (Signals (I));
+         Unblock_Signals (New_Mask, Old_Mask);
+         Assert (not Is_Member (Pending_Signals, Signals (I)), "A015");
+         Unignore_Signal (Signals (I));
+      end loop;
    exception
-      when E1 : others =>
-         Unexpected_Exception (E1, "A015");
+   when E1 : others => Unexpected_Exception (E1, "A016");
    end;
 
    ---------------------------------------------------------------------
@@ -323,70 +303,75 @@ begin
    Test ("Await_Signal without info [3.3.15]");
    declare
       Old_Sig   : Signal;
+      Old_Mask  : Signal_Set;
       New_Mask  : Signal_Set;
 
-   begin
-
-      Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, A_Signal);
-      Block_Signals (New_Mask, Old_Mask);
-
-      Comment ("--1--");
-
+      procedure Test_Signal (Sig : Signal);
+      procedure Test_Signal (Sig : Signal) is
       begin
-         --  The signal is alreay bound to an entry
+         Comment ("Testing Await_Signal on signal " & Image (Sig));
+
+         Delete_All_Signals  (New_Mask);
+         Add_Signal (New_Mask, Sig);
+         Block_Signals (New_Mask, Old_Mask);
+
+         Comment ("Sending self " & Image (Sig));
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID, Sig);
+
+         Comment ("Awaiting signal " & Image (Sig));
          Old_Sig := Await_Signal (New_Mask);
-         Expect_Exception ("A016");
-      exception
-      when POSIX_Error =>
-         Check_Error_Code (Invalid_Argument, "A017");
-      when E1 : others => Unexpected_Exception (E1, "A018");
-      end;
-
-      Comment ("--2--");
-
-      Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, B_Signal);
-      Block_Signals (New_Mask, Old_Mask);
-
-      Comment ("--3--");
-
-      Send_Signal (POSIX_Process_Identification.Get_Process_ID, B_Signal);
-
-      Comment ("--4--");
-
-      Old_Sig := Await_Signal (New_Mask);
-      Assert (Old_Sig = B_Signal, "A019");
-      --  This should return immediately since there is a signal pending
-
-      Send_Signal (POSIX_Process_Identification.Get_Process_ID, B_Signal);
-
-      Comment ("--5--");
-      begin
-         Old_Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
          --  This should return immediately since there is a signal pending
-         Assert (Old_Sig = B_Signal, "A020");
+         Assert (Old_Sig = Sig, "A017");
+
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID, Sig);
+
+         Comment ("Awaiting " & Image (Sig));
+         begin
+            Old_Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+            --  This should return immediately since there is a signal pending.
+            Assert (Old_Sig = Sig, "A018");
+         exception
+         when E1 : others => Unexpected_Exception (E1, "A019");
+         end;
+
+         Comment ("Sending self " & Image (Sig));
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID, Sig);
+
+         Comment ("Awaiting " & Image (Sig));
+         begin
+            Old_Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+            --  This should return immediately since there is a signal pending.
+            Assert (Old_Sig = Sig, "A020");
+         exception
+         when E1 : others => Unexpected_Exception (E1, "A021");
+         end;
+
+         Comment ("Awaiting " & Image (Sig));
+         begin
+            Old_Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+            --  This should raise POSIX_Error when the time expires,
+            --  since there should no longer be an instance of the signal
+            --  pending.
+            Expect_Exception ("A022");
+         exception
+         when POSIX_Error =>
+            Check_Error_Code (Resource_Temporarily_Unavailable, "A023");
+         when E1 : others => Unexpected_Exception (E1, "A024");
+         end;
+
+         Unblock_Signals (New_Mask, Old_Mask);
       exception
-      when E1 : others => Unexpected_Exception (E1, "A021");
-      end;
+      when E1 : others => Unexpected_Exception (E1, "A025");
+      end Test_Signal;
 
-      begin
-         Old_Sig := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
-         --  This should not return with signal catching. Instead it
-         --  should return a POSIX_Error when the time expires.
-         Expect_Exception ("A022");
-      exception
-      when POSIX_Error =>
-         Check_Error_Code (Resource_Temporarily_Unavailable, "A023");
-      when E1 : others => Unexpected_Exception (E1, "A024");
-      end;
-
-      Comment ("--6--");
-
-      Unblock_Signals (New_Mask, Old_Mask);
+   begin
+      for I in Signals'Range loop
+         Test_Signal (Signals (I));
+      end loop;
    exception
-   when E1 : others => Unexpected_Exception (E1, "A025");
+   when E : others => Unexpected_Exception (E, "A026");
    end;
+
 
    ---------------------------------------------------------------------
 
@@ -394,52 +379,51 @@ begin
    declare
       New_Mask  : Signal_Set;
       Sig_Info  : Signal_Info;
-   begin
-      Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, B_Signal);
-      Block_Signals (New_Mask, Old_Mask);
-      Send_Signal (POSIX_Process_Identification.Get_Process_ID, B_Signal);
 
-      Comment ("--1--");
+      procedure Test_Signal (Sig : Signal);
 
-      Sig_Info := Await_Signal (New_Mask);
-
-      Comment ("--2--");
-
-      Assert (Get_Signal (Sig_Info) = B_Signal, "A026");
-      --  This should return immediately since there is a signal pending
-
-      Send_Signal (POSIX_Process_Identification.Get_Process_ID, B_Signal);
-      Comment ("--3--");
-
+      procedure Test_Signal (Sig : Signal) is
       begin
-         Sig_Info := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+         Comment ("Testing Await_Signal with info on signal " & Image (Sig));
+         Delete_All_Signals  (New_Mask);
+         Add_Signal (New_Mask, Sig);
+         Block_Signals (New_Mask, Old_Mask);
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID, Sig);
+         Sig_Info := Await_Signal (New_Mask);
+         Assert (Get_Signal (Sig_Info) = Sig, "A027");
          --  This should return immediately since there is a signal pending
-         Assert (Get_Signal (Sig_Info) = B_Signal, "A027");
+         Send_Signal (POSIX_Process_Identification.Get_Process_ID, Sig);
+         begin
+            Sig_Info := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+            --  This should return immediately since there is a signal pending
+            Assert (Get_Signal (Sig_Info) = Sig, "A028");
+         exception
+         when E1 : others => Unexpected_Exception (E1, "A029");
+         end;
+         begin
+            Sig_Info := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
+            --  This should not return with signal catching. Instead it
+            --  should return a POSIX_Error when the time expires.
+            Expect_Exception ("A030");
+         exception
+         when POSIX_Error =>
+            Check_Error_Code (Resource_Temporarily_Unavailable, "A031");
+         when E1 : others => Unexpected_Exception (E1, "A032");
+         end;
+         Unblock_Signals (New_Mask, Old_Mask);
       exception
-         when E1 : others =>
-            Unexpected_Exception (E1, "A028");
-      end;
+      when E1 : POSIX_Error =>
+         Optional (Realtime_Signals_Option,
+           Operation_Not_Implemented, E1, "A033");
+      when E2 : others => Unexpected_Exception (E2, "A034");
+      end Test_Signal;
 
-      begin
-         Sig_Info := Await_Signal_Or_Timeout (New_Mask, To_Timespec (1, 0));
-         --  This should not return with signal catching. Instead it
-         --  should return a POSIX_Error when the time expires.
-         Expect_Exception ("A029");
-      exception
-      when POSIX_Error =>
-         Check_Error_Code (Resource_Temporarily_Unavailable, "A030");
-      when E1 : others => Unexpected_Exception (E1, "A031");
-      end;
-
-      Comment ("--4--");
-
-      Unblock_Signals (New_Mask, Old_Mask);
+   begin
+      for I in Signals'Range loop
+         Test_Signal (Signals (I));
+      end loop;
    exception
-   when E1 : POSIX_Error =>
-      Optional (Realtime_Signals_Option,
-        Operation_Not_Implemented, E1, "A032");
-   when E2 : others => Unexpected_Exception (E2, "A033");
+   when E : others => Unexpected_Exception (E, "A035");
    end;
 
    ---------------------------------------------------------------------
@@ -464,10 +448,10 @@ begin
          POSIX_IO.Read
            (POSIX_IO.Standard_Input, Buf_1, Last);
       exception
-         when POSIX_Error =>
-            Check_Error_Code (Interrupted_Operation, "A034");
-         when E1 : others =>
-            Unexpected_Exception (E1, "A035");
+      when POSIX_Error =>
+         Check_Error_Code (Interrupted_Operation, "A036");
+      when E1 : others =>
+         Unexpected_Exception (E1, "A037");
       end Blocked_Task;
 
       T_ID : Task_Id;
@@ -489,42 +473,36 @@ begin
 
    begin
 
-      Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, B_Signal);
-      Block_Signals (New_Mask, Old_Mask);
+      for I in Signals'Range loop
+         Delete_All_Signals  (New_Mask);
+         Add_Signal (New_Mask, Signals (I));
+         Block_Signals (New_Mask, Old_Mask);
 
-      begin
-         Enable_Queueing (B_Signal);
-      exception
-         when E1 : POSIX_Error =>
-            Optional (Realtime_Signals_Option, Operation_Not_Supported,
-                E1, "A036");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A037");
-      end;
+         Try_Enable_Queueing (Signals (I), "A038");
+         delay 0.1;
+         Queue_Signal
+           (POSIX_Process_Identification.Get_Process_ID, Signals (I), Sig_D);
 
-      delay 0.1;
-      Queue_Signal
-        (POSIX_Process_Identification.Get_Process_ID, B_Signal, Sig_D);
+         Sig_Info := Await_Signal (New_Mask);
 
-      Sig_Info := Await_Signal (New_Mask);
+         Assert (Get_Data (Sig_Info) = Sig_D, "A039: signal data = "
+           & Integer'Image (To_Integer (Get_Data (Sig_Info))));
 
-      Assert (Get_Data (Sig_Info) = Sig_D, "A038: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
-
-      Unblock_Signals (New_Mask, New_Mask);
+         Try_Disable_Queueing (Signals (I));
+         Unblock_Signals (New_Mask, New_Mask);
+      end loop;
 
    exception
-      when E1 : POSIX_Error =>
-         Optional (Realtime_Signals_Option, Operation_Not_Implemented, E1,
-                "A039");
-      when E2 : others =>
-         Unexpected_Exception (E2, "A040");
+   when E1 : POSIX_Error =>
+      Optional (Realtime_Signals_Option, Operation_Not_Implemented, E1,
+             "A040");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A041");
    end;
 
    ---------------------------------------------------------------------
 
-   Test ("Signal notification with message queue");
+   Test ("Signal notification with message queue [3.3.13.2]");
 
    declare
       New_Mask : Signal_Set;
@@ -533,94 +511,103 @@ begin
       Sig_E    : Signal_Event;
       MQ : Message_Queue_Descriptor;
 
-      Received_B_Signal : Boolean := False;
-      pragma Volatile (Received_B_Signal);
+      procedure Test_Signal (Sig : Signal);
 
-      task Watchdog;
+      procedure Test_Signal (Sig : Signal) is
 
-      task body Watchdog is
-      begin
-         delay 2.0;
-         if not Received_B_Signal then
-            Send_Signal (Get_Process_ID, B_Signal);
-         end if;
-      end Watchdog;
+         Received_Signal : Boolean := False;
+         pragma Volatile (Received_Signal);
 
-   begin
+         task Watchdog;
 
-      Comment ("Checking that no residual message queue exists.");
-      begin
-         Unlink_Message_Queue (Valid_MQ_Name);
-      exception
-      when E1 : POSIX_Error =>
-         if Get_Error_Code /= No_Such_File_Or_Directory then
-            Optional (Realtime_Signals_Option,
-              Operation_Not_Implemented, E1, "A041");
-         end if;
-      when E2 : others => Unexpected_Exception (E2, "A042");
-      end;
-
-      Comment ("Creating message queue");
-      MQ := Open_Or_Create (Valid_MQ_Name, Read_Write, Owner_Permission_Set);
-
-      Set_Signal (Sig_E, B_Signal);
-      Set_Notification (Sig_E, Signal_Notification);
-      Set_Data (Sig_E, Sig_D);
-
-      Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, B_Signal);
-      Comment ("Blocking signals");
-      Block_Signals (New_Mask, Old_Mask);
+         task body Watchdog is
+         begin
+            delay 2.0;
+            if not Received_Signal then
+               Comment ("Watchdog time out");
+               Send_Signal (Get_Process_ID, Sig);
+            end if;
+         end Watchdog;
 
       begin
-         Comment ("Enabling queueing");
-         Enable_Queueing (B_Signal);
-      exception
+         Comment ("Testing " & Image (Sig));
+         Comment ("Checking that no residual message queue exists.");
+         begin
+            Unlink_Message_Queue (Valid_MQ_Name);
+         exception
          when E1 : POSIX_Error =>
-            Optional (Realtime_Signals_Option, Operation_Not_Supported, E1,
-                "A043");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A044");
-      end;
+            if Get_Error_Code /= No_Such_File_Or_Directory then
+               Optional (Realtime_Signals_Option,
+                 Operation_Not_Implemented, E1, "A042");
+            end if;
+         when E2 : others => Unexpected_Exception (E2, "A043");
+         end;
 
-      Comment ("Sending message");
-      Send (MQ, To_Stream_Element_Array ("Hello....."), 1);
---  This doesnt appear to send any signals.
-      Comment ("Delaying");
-      delay 0.1;
+         Comment ("Creating message queue");
+         MQ := Open_Or_Create
+           (Valid_MQ_Name, Read_Write, Owner_Permission_Set);
 
-      Assert (Is_Member (New_Mask, B_Signal), "A045");
-      Assert (Is_Member (Pending_Signals, B_Signal), "A046");
-      Assert (not Is_Member (New_Mask, C_Signal), "A047");
-      Assert (not Is_Member (Pending_Signals, C_Signal), "A048");
+         Set_Signal (Sig_E, Sig);
 
-      Comment ("Awaiting signal");
-      Sig_Info := Await_Signal (New_Mask);
-      Received_B_Signal := True;
+         Set_Notification (Sig_E, Signal_Notification);
+         Set_Data (Sig_E, Sig_D);
 
-      Assert (Get_Signal (Sig_Info) = B_Signal, "A049: signal = "
-        & Signal'Image (Get_Signal (Sig_Info)));
+         Comment ("Requesting notification");
+         Request_Notify (MQ, Sig_E);
 
-      Assert (Get_Data (Sig_Info) = Sig_D, "A050: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+         Delete_All_Signals  (New_Mask);
+         Add_Signal (New_Mask, Sig);
+         Comment ("Blocking signals");
+         Block_Signals (New_Mask, Old_Mask);
 
-      Assert (not Is_Member (Pending_Signals, C_Signal), "A051");
+         Comment ("Checking blocked signals");
+         Assert (Is_Member (Blocked_Signals, Sig), "A044");
 
-      Comment ("Unblocking signals");
-      Unblock_Signals (New_Mask, New_Mask);
+         Try_Enable_Queueing (Sig, "A045");
 
-      Comment ("Closing MQ");
-      Close (MQ);
+         Comment ("Sending message");
+         Send (MQ, To_Stream_Element_Array ("Hello....."), 1);
+         Comment ("Checking pending signals");
+         Assert (Is_Member (Pending_Signals, Sig), "A046");
 
-      Comment ("Unlinking MQ");
-      Unlink_Message_Queue (Valid_MQ_Name);
+         Comment ("Delaying");
+         delay 0.1;
 
-   exception
+         Comment ("Awaiting signal");
+         Sig_Info := Await_Signal (New_Mask);
+         Received_Signal := True;
+
+         Assert (Get_Signal (Sig_Info) = Sig, "A047: signal = "
+           & Signal'Image (Get_Signal (Sig_Info)));
+
+         Assert (Get_Data (Sig_Info) = Sig_D, "A048: signal data = "
+           & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+
+         Try_Disable_Queueing (Sig);
+
+         Comment ("Unblocking signals");
+         Unblock_Signals (New_Mask, New_Mask);
+
+         Comment ("Closing MQ");
+         Close (MQ);
+
+         Comment ("Unlinking MQ");
+         Unlink_Message_Queue (Valid_MQ_Name);
+
+      exception
       when E1 : POSIX_Error =>
          Optional (Realtime_Signals_Option, Message_Queues_Option,
-           Operation_Not_Implemented, E1, "A052");
+           Operation_Not_Implemented, E1, "A049");
       when E2 : others =>
-         Unexpected_Exception (E2, "A053");
+         Unexpected_Exception (E2, "A050");
+      end Test_Signal;
+
+   begin
+      for I in Signals'Range loop
+         if not Is_Reserved_Signal (Signals (I)) then
+            Test_Signal (Signals (I));
+         end if;
+      end loop;
    end;
 
    ---------------------------------------------------------------------
@@ -640,42 +627,32 @@ begin
       List     : AIO_Descriptor_List (1 .. 1);
       Count    : Natural := 0;
 
-      Received_B_Signal : Boolean := False;
-      pragma Volatile (Received_B_Signal);
-      Received_C_Signal : Boolean := False;
-      pragma Volatile (Received_C_Signal);
+      Received_Signals : array (Signals'Range) of Boolean :=
+        (others => False);
+      pragma Volatile_Components (Received_Signals);
 
       task Watchdog;
 
       task body Watchdog is
       begin
          delay 2.0;
-         if not Received_B_Signal then
-            Send_Signal (Get_Process_ID, B_Signal);
+         if not Received_Signals (2) then
+            Send_Signal (Get_Process_ID, Signals (2));
          end if;
          delay 2.0;
-         if not Received_C_Signal then
-            Send_Signal (Get_Process_ID, C_Signal);
+         if not Received_Signals (3) then
+            Send_Signal (Get_Process_ID, Signals (3));
          end if;
       end Watchdog;
 
    begin
       Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, B_Signal);
-      Add_Signal (New_Mask, C_Signal);
+      Add_Signal (New_Mask, Signals (2));
+      Add_Signal (New_Mask, Signals (3));
       Comment ("Blocking signals");
       Block_Signals (New_Mask, Old_Mask);
 
-      begin
-         Comment ("Enabling queueing");
-         Enable_Queueing (C_Signal);
-      exception
-         when E1 : POSIX_Error =>
-            Optional (Realtime_Signals_Option, Operation_Not_Supported,
-                E1, "A054");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A055");
-      end;
+      Try_Enable_Queueing (Signals (3), "A051");
 
       AD_1 := Create_AIO_Control_Block;
       Comment ("Setting buffer");
@@ -690,17 +667,17 @@ begin
       Set_Length (AD_2, 6);
 
       Comment ("Setting signal");
-      Set_Signal (Sig_E, B_Signal);
-      Set_Notification (Sig_E, Signal_Notification);
+      Set_Signal (Sig_E, Signals (2));
       Set_Data (Sig_E, Sig_D);
+      Set_Notification (Sig_E, Signal_Notification);
 
       Comment ("Setting event");
       Set_Event (AD_1, Sig_E);
 
       Comment ("Setting signal");
-      Set_Signal (Sig_E, C_Signal);
-      Set_Notification (Sig_E, Signal_Notification);
+      Set_Signal (Sig_E, Signals (3));
       Set_Data (Sig_E, Sig_D);
+      Set_Notification (Sig_E, Signal_Notification);
 
       Comment ("Setting event");
       Set_Event (AD_2, Sig_E);
@@ -725,58 +702,60 @@ begin
       Comment ("Delaying");
       delay 1.0;
 
-      Delete_Signal (New_Mask, C_Signal);
-      Assert (not Is_Member (New_Mask, C_Signal), "A056");
-      Assert (Is_Member (New_Mask, B_Signal), "A057");
+      Delete_Signal (New_Mask, Signals (3));
+      Assert (not Is_Member (New_Mask, Signals (3)), "A052");
+      Assert (Is_Member (New_Mask, Signals (2)), "A053");
 
-      Comment ("Awaiting signal B");
+      Comment ("Awaiting Signal (2)");
       Sig_Info := Await_Signal (New_Mask);
-      Received_B_Signal := True;
+      Received_Signals (2) := True;
 
-      Assert (Get_Signal (Sig_Info) = B_Signal, "A058: signal = "
+      Assert (Get_Signal (Sig_Info) = Signals (2), "A054: signal = "
         & Signal'Image (Get_Signal (Sig_Info)));
 
-      Assert (Get_Data (Sig_Info) = Sig_D, "A059: signal data = "
+      Assert (Get_Data (Sig_Info) = Sig_D, "A055: signal data = "
         & Integer'Image (To_Integer (Get_Data (Sig_Info))));
-      Assert (not Is_Member (Pending_Signals, B_Signal), "A060");
-      Assert (Is_Member (Pending_Signals, C_Signal), "A061");
+      Assert (not Is_Member (Pending_Signals, Signals (2)), "A056");
+      Assert (Is_Member (Pending_Signals, Signals (3)), "A057");
 
-      Delete_Signal (New_Mask, B_Signal);
-      Add_Signal (New_Mask, C_Signal);
-      Assert (not Is_Member (New_Mask, B_Signal), "A062");
-      Assert (Is_Member (New_Mask, C_Signal), "A063");
+      Delete_Signal (New_Mask, Signals (2));
+      Add_Signal (New_Mask, Signals (3));
+      Assert (not Is_Member (New_Mask, Signals (2)), "A058");
+      Assert (Is_Member (New_Mask, Signals (3)), "A059");
 
-      Comment ("Awaiting signal C");
+      Comment ("Awaiting Signal (3)");
       Sig_Info := Await_Signal (New_Mask);
-      Received_C_Signal := True;
+      Received_Signals (3) := True;
 
-      Assert (Get_Signal (Sig_Info) = C_Signal, "A064: signal = "
+      Assert (Get_Signal (Sig_Info) = Signals (3), "A060: signal = "
         & Signal'Image (Get_Signal (Sig_Info)));
 
-      Assert (Get_Data (Sig_Info) = Sig_D, "A065: signal data = "
+      Assert (Get_Data (Sig_Info) = Sig_D, "A061: signal data = "
         & Integer'Image (To_Integer (Get_Data (Sig_Info))));
-      Assert (not Is_Member (Pending_Signals, B_Signal), "A066");
+      Assert (not Is_Member (Pending_Signals, Signals (2)), "A062");
 
       Count := 1;
-      while Is_Member (Pending_Signals, C_Signal)
+      while Is_Member (Pending_Signals, Signals (3))
         and Count < 100 loop
          Count := Count + 1;
       end loop;
-      Assert (Count = 1, "A067: Count =" & Integer'Image (Count));
+      Assert (Count = 1, "A063: Count =" & Integer'Image (Count));
 
       Comment ("Ignoring signals");
-      Ignore_Signal (B_Signal);
-      Ignore_Signal (C_Signal);
+      Ignore_Signal (Signals (2));
+      Ignore_Signal (Signals (3));
 
       Comment ("Unignoring signals");
-      Unignore_Signal (B_Signal);
-      Unignore_Signal (C_Signal);
+      Unignore_Signal (Signals (2));
+      Unignore_Signal (Signals (3));
 
-      Assert (not Is_Member (Pending_Signals, C_Signal), "A068");
-      Assert (not Is_Member (Pending_Signals, B_Signal), "A069");
+      Assert (not Is_Member (Pending_Signals, Signals (3)), "A064");
+      Assert (not Is_Member (Pending_Signals, Signals (2)), "A065");
+
+      Try_Disable_Queueing (Signals (3));
 
       Comment ("Unblocking signals");
-      Add_Signal (New_Mask, B_Signal);
+      Add_Signal (New_Mask, Signals (2));
       Unblock_Signals (New_Mask, New_Mask);
 
       Comment ("Closing aio test file");
@@ -786,11 +765,11 @@ begin
       Unlink (Valid_AIO_File_Name);
 
    exception
-      when E1 : POSIX_Error =>
-         Optional (Realtime_Signals_Option, Asynchronous_IO_Option,
-           Operation_Not_Implemented, E1, "A070");
-      when E2 : others =>
-         Unexpected_Exception (E2, "A071");
+   when E1 : POSIX_Error =>
+      Optional (Realtime_Signals_Option, Asynchronous_IO_Option,
+        Operation_Not_Implemented, E1, "A066");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A067");
    end;
 
    ---------------------------------------------------------------------
@@ -809,27 +788,18 @@ begin
    begin
 
       Comment ("Creating timer");
-      Set_Signal (Sig_E, C_Signal);
-      Set_Notification (Sig_E, Signal_Notification);
+      Set_Signal (Sig_E, Signals (3));
       Set_Data (Sig_E, Sig_D);
+      Set_Notification (Sig_E, Signal_Notification);
 
       Tid := Create_Timer (Clock_Realtime, Sig_E);
 
       Comment ("Blocking signal");
       Delete_All_Signals  (New_Mask);
-      Add_Signal (New_Mask, C_Signal);
+      Add_Signal (New_Mask, Signals (3));
       Block_Signals (New_Mask, Old_Mask);
 
-      begin
-         Comment ("Enabling queueing");
-         Enable_Queueing (C_Signal);
-      exception
-         when E1 : POSIX_Error =>
-            Optional (Realtime_Signals_Option, Operation_Not_Supported, E1,
-              "A072");
-         when E2 : others =>
-            Unexpected_Exception (E2, "A073");
-      end;
+      Try_Enable_Queueing (Signals (3), "A068");
 
       Comment ("Setting up timer");
       POSIX.Set_Seconds (Initial, 1);
@@ -850,53 +820,55 @@ begin
       Comment ("Awaiting signal");
 
       Sig_Info := Await_Signal (New_Mask);
-      Assert (not Is_Member (Pending_Signals, C_Signal), "A074");
+      Assert (not Is_Member (Pending_Signals, Signals (3)), "A069");
 
-      Assert (Get_Signal (Sig_Info) = C_Signal, "A075: signal = "
+      Assert (Get_Signal (Sig_Info) = Signals (3), "A070: signal = "
         & Signal'Image (Get_Signal (Sig_Info)));
 
-      Assert (Get_Data (Sig_Info) = Sig_D, "A076: signal data = "
+      Assert (Get_Data (Sig_Info) = Sig_D, "A071: signal data = "
         & Integer'Image (To_Integer (Get_Data (Sig_Info))));
 
       Count := 1;
-      while Is_Member (Pending_Signals, C_Signal)
+      while Is_Member (Pending_Signals, Signals (3))
         and Count < 100 loop
          Count := Count + 1;
       end loop;
-      Assert (Count = 1, "A077: Count =" & Integer'Image (Count));
+      Assert (Count = 1, "A072: Count =" & Integer'Image (Count));
+
+      Try_Disable_Queueing (Signals (3));
 
       Comment ("Ignoring signals");
-      Ignore_Signal (B_Signal);
-      Ignore_Signal (C_Signal);
+      Ignore_Signal (Signals (2));
+      Ignore_Signal (Signals (3));
 
       Comment ("Unignoring signals");
-      Unignore_Signal (B_Signal);
-      Unignore_Signal (C_Signal);
+      Unignore_Signal (Signals (2));
+      Unignore_Signal (Signals (3));
 
-      Assert (not Is_Member (Pending_Signals, C_Signal), "A078");
+      Assert (not Is_Member (Pending_Signals, Signals (3)), "A073");
 
       Unblock_Signals (New_Mask, New_Mask);
 
       Delete_Timer (Tid);
 
    exception
-      when E1 : POSIX_Error =>
-         if Get_Error_Code = Operation_Not_Supported then
-            Set_Error_Code (Operation_Not_Implemented);
-         end if;
+   when E1 : POSIX_Error =>
+      if Get_Error_Code = Operation_Not_Supported then
+         Set_Error_Code (Operation_Not_Implemented);
+      end if;
 
-         --  POSIX.5b erroneously specifies OPERATION_NOT_SUPPORTED for
-         --  Create/Delete_Timer.  That is inconsistent with POSIX.1b.
-         --  Therefore, we allow Operation_Not_Implemented as well as
-         --  Operation_Not_Supported.
+      --  POSIX.5b erroneously specifies OPERATION_NOT_SUPPORTED for
+      --  Create/Delete_Timer.  That is inconsistent with POSIX.1b.
+      --  Therefore, we allow Operation_Not_Implemented as well as
+      --  Operation_Not_Supported.
 
-         Optional (Realtime_Signals_Option, Timers_Option,
-           Operation_Not_Implemented, E1, "A079");
-      when E2 : others =>
-         Unexpected_Exception (E2, "A080");
+      Optional (Realtime_Signals_Option, Timers_Option,
+        Operation_Not_Implemented, E1, "A074");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A075");
    end;
 
    Done;
 exception
-   when E : others => Fatal_Exception (E, "A081");
+when E : others => Fatal_Exception (E, "A076");
 end p030301;

@@ -37,14 +37,13 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Streams,
-     Ada.IO_Exceptions,
-     POSIX,
+with POSIX,
      POSIX.C,
      POSIX.Implementation,
      POSIX.IO,
      System,
      Unchecked_Conversion;
+
 package body POSIX.Sockets is
 
    use POSIX.C;
@@ -72,8 +71,6 @@ package body POSIX.Sockets is
    function To_Address is new Unchecked_Conversion
      (char_ptr, System.Address);
 
-   function To_addrinfo_ptr is new Unchecked_Conversion
-     (char_ptr, addrinfo_ptr);
    function To_addrinfo_ptr is new Unchecked_Conversion
      (System.Address, addrinfo_ptr);
 
@@ -115,49 +112,6 @@ package body POSIX.Sockets is
    type addrinfo_ptr_ptr is access all addrinfo_ptr;
    pragma Convention (C, addrinfo_ptr_ptr);
 
-   --  Internet support from <netdb.h>
-   --  Note : using the thread safe versions of the following rather
-   --         than the MT unsafe versions spec'd in dot1g
---     function c_getnetbyname_r
---        (name : char_ptr; result : netent_ptr; buffer : char_ptr;
---         buflen : int)
---       return netent_ptr;
---     pragma Import (C, c_getnetbyname_r, getnetbyname_r_LINKNAME);
-
---     function c_getnetbyaddr_r
---        (net : unsigned; typ : int; result : netent_ptr;
---         buffer : char_ptr; buflen : int)
---       return netent_ptr;
---     pragma Import (C, c_getnetbyaddr_r, getnetbyaddr_r_LINKNAME);
-
---     function c_setnetent (stayopen : int) return int;
---     pragma Import (C, c_setnetent, setnetent_LINKNAME);
-
---     function c_endnetent return int;
---     pragma Import (C, c_endnetent, endnetent_LINKNAME);
-
---     function c_getprotobyname_r
---        (name : char_ptr; result : protoent_ptr; buffer : char_ptr;
---         buflen : int)
---       return protoent_ptr;
---     pragma Import (C, c_getprotobyname_r, getprotobyname_r_LINKNAME);
-
---     function c_getprotobynumber_r
---        (proto : int; result : protoent_ptr; buffer : char_ptr; buflen : int)
---       return protoent_ptr;
---     pragma Import (C, c_getprotobynumber_r, getprotobynumber_r_LINKNAME);
-
---     function c_setprotoent (stayopen : int) return int;
---     pragma Import (C, c_setprotoent, setprotoent_LINKNAME);
-
---     function c_endprotoent return int;
---     pragma Import (C, c_endprotoent, endprotoent_LINKNAME);
-
-   --  poll file descriptors from <sys/poll.h>
---     function c_poll (fds : pollfd_ptr; nfds : unsigned; timeout : int)
---        return int;
---     pragma Import (C, c_poll, poll_LINKNAME);
-
    --  select file descriptor list <sys/select.h>
    --  Note that on Solaris this is more complicated that shown here.
    --  The header builds a bitmap dynamically based on host wordsize
@@ -174,14 +128,6 @@ package body POSIX.Sockets is
    pragma Convention (C, fd_set_ptr);
    type fd_set_const_ptr is access constant struct_fd_set;
    pragma Convention (C, fd_set_const_ptr);
-
-   --  select file descriptors from <sys/select.h>
-
---     function c_select
---        (nfds : int; readfds : fd_set_ptr; writefds : fd_set_ptr;
---         exceptfds : fd_set_ptr; timeout : timeval_ptr)
---        return int;
---     pragma Import (C, c_select, select_LINKNAME);
 
    --  select macros to manipulate the fd_set bitmap
    procedure c_fd_set (fd : int; fdsetp : fd_set_ptr);
@@ -201,17 +147,17 @@ package body POSIX.Sockets is
       (Message : in out Socket_Message;
        Name    : in     Socket_Address_Pointer) is
    begin
-      Message.C.msg_name := To_char_ptr (Name.C'Address);
+      Message.C.msg_name := Name.C'Unchecked_Access;
       Message.C.msg_namelen := Name.Length;
    end Set_Socket_Name;
 
    procedure Set_IO_Vector_Array
       (Message : in out Socket_Message;
-       Pointer : in     IO_Vector_Array_Pointer) is
+       Ptr     : in     IO_Vector_Array_Pointer) is
    begin
-      Message.C.msg_iov := To_iovec_ptr (Pointer (Pointer'First)'Address);
-      Message.C.msg_iovlen := size_t (Pointer.all'Length);
-      Message.io_vector_array_ptr := Pointer;
+      Message.C.msg_iov := To_iovec_ptr (Ptr (Ptr'First)'Address);
+      Message.C.msg_iovlen := size_t (Ptr.all'Length);
+      Message.io_vector_array_ptr := Ptr;
    end Set_IO_Vector_Array;
 
    function Get_IO_Vector_Array (Message : Socket_Message)
@@ -251,7 +197,7 @@ package body POSIX.Sockets is
    procedure Set_Ancillary_Data
      (Message : in out Socket_Message;
       Data    : in     System.Address;
-      Length  : in     Positive) is
+      Length  : in     POSIX.IO_Count) is
    begin
 #     if BSD4_3 then
          null;
@@ -272,6 +218,7 @@ package body POSIX.Sockets is
    begin
 #     if BSD4_3 then
          Data := System.Null_Address;
+         Length := 0;
 #     else
          Data   := To_Address (Message.C.msg_control);
          Length := POSIX.IO_Count (Message.C.msg_controllen);
@@ -292,7 +239,7 @@ package body POSIX.Sockets is
    procedure Accept_Connection
      (Socket            : in  POSIX.IO.File_Descriptor;
       Connection_Socket : out POSIX.IO.File_Descriptor;
-      Name              : out Socket_Address_Pointer)
+      Name              : in  Socket_Address_Pointer)
    is
       Address_Length : aliased size_t;
    begin
@@ -426,10 +373,14 @@ package body POSIX.Sockets is
    --  Make_Empty     --
    ---------------------
 
+   procedure c_freeaddrinfo (ai : addrinfo_ptr);
+   pragma Import (C, c_freeaddrinfo, freeaddrinfo_LINKNAME);
+
    procedure Make_Empty
       (Info_Item : in out Socket_Address_Info_List) is
    begin
-      null;
+      null;  -- remove later
+      c_freeaddrinfo (Info_Item.C'Unchecked_Access);
    end Make_Empty;
 
    -------------------------------
@@ -446,7 +397,7 @@ package body POSIX.Sockets is
       return Address_Flags is
    begin
       return Address_Flags
-         (Option_Set'(Option => To_Bits (Info_Item.C.ai_family)));
+         (Option_Set'(Option => To_Bits (Info_Item.C.ai_flags)));
    end Get_Flags;
 
    procedure Set_Family
@@ -468,6 +419,7 @@ package body POSIX.Sockets is
    begin
       Info_Item.C.ai_socktype := int (To);
    end Set_Socket_Type;
+
    function Get_Socket_Type (Info_Item : Socket_Address_Info)
       return Socket_Type is
    begin
@@ -485,10 +437,6 @@ package body POSIX.Sockets is
    begin
       return Protocol_Number (Info_Item.C.ai_protocol);
    end Get_Protocol_Number;
-
---   function Get_Address (Info_Item: Socket_Address_Info)
---     return Socket_Address_Pointer is abstract
---  this function is protocol specific. Look in the sockets child packages.
 
    function Get_Canonical_Name (Info_Item : Socket_Address_Info)
       return POSIX.POSIX_String is
@@ -513,6 +461,11 @@ package body POSIX.Sockets is
       Service_NUL : POSIX.Pathname := Service & NUL;
       Host_Ptr : char_ptr := null;
       Service_Ptr : char_ptr := null;
+      --  Not 100 percent why but you need this object to be local or
+      --  else the function can cause problems.  It may be that its being
+      --  passed in by registers (in parameter) and the pointers don't
+      --  work.
+      Tmp_Request : Socket_Address_Info := Request;
    begin
       if Name /= "" then
          Host_Ptr := Name_NUL (Name_NUL'First)'Unchecked_Access;
@@ -522,7 +475,7 @@ package body POSIX.Sockets is
       end if;
       Result := c_getaddrinfo (Host_Ptr,
                                Service_Ptr,
-                               Request.C'Unchecked_Access,
+                               Tmp_Request.C'Unchecked_Access,
                                Pai'Unchecked_Access);
       if Result = 0 then
          Info.C := Pai.all;
@@ -533,7 +486,8 @@ package body POSIX.Sockets is
             POSIX.Set_Error_Code (POSIX.Error_Code (Result) +
                                   Addrinfo_Error_Code'First);
          end if;
-         Check (Result);
+         Result := int (Get_Error_Code);
+         Check_NZ (Result);
          Info.C := (ai_flags     => 0,    ai_family    => 0,
                     ai_socktype  => 0,    ai_protocol  => 0,
                     ai_addrlen   => 0,    ai_canonname => null,
@@ -570,7 +524,8 @@ package body POSIX.Sockets is
             POSIX.Set_Error_Code (POSIX.Error_Code (Result) +
                                   Addrinfo_Error_Code'First);
          end if;
-         Check (Result);
+         Result := int (Get_Error_Code);
+         Check_NZ (Result);
          Info.C := (ai_flags     => 0,    ai_family    => 0,
                     ai_socktype  => 0,    ai_protocol  => 0,
                     ai_addrlen   => 0,    ai_canonname => null,
@@ -583,11 +538,11 @@ package body POSIX.Sockets is
       Quit      : Boolean      := False;
    begin
       if not Quit then
-         next_item := To_addrinfo_ptr (List.C.ai_next);
+         next_item := List.C.ai_next;
          while next_item /= null loop
             Action (Info => (C => next_item.all), Quit => Quit);
             exit when Quit;
-            next_item := To_addrinfo_ptr (next_item.all.ai_next);
+            next_item := next_item.all.ai_next;
          end loop;
       end if;
    end For_Every_Item;
@@ -1139,7 +1094,7 @@ package body POSIX.Sockets is
                         buf   => Buffer,
                         len   => size_t (Octets_Requested),
                         flags => To_int (Option_Set (Options).Option));
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
 
       --  a positive result is the length of the data received
       if Result > 0 then
@@ -1203,13 +1158,13 @@ package body POSIX.Sockets is
        Buffer           : in  System.Address;
        Octets_Requested : in  POSIX.IO_Count;
        Octets_Received  : out POSIX.IO_Count;
-       From             : out Socket_Address_Pointer;
+       From             : in  Socket_Address_Pointer;
        Masked_Signals   : in  POSIX.Signal_Masking;
        Options          : in  Message_Option_Set
          := Message_Option_Set (POSIX.Empty_Set)) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
-      Address_Length : aliased size_t;
+      Address_Length : aliased size_t := 0;
       use Ada_Streams;
    begin
       if Octets_Requested <= 0 then
@@ -1217,14 +1172,16 @@ package body POSIX.Sockets is
          return;
       end if;
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
-      Address_Length := From.Length;
+      if From /= Null_Socket_Address then
+         Address_Length := From.Length;
+      end if;
       Result := c_recvfrom (s       => int (Socket),
                             buf     => Buffer,
                             len     => size_t (Octets_Requested),
                             flags   => To_int (Option_Set (Options).Option),
                             from    => To_sockaddr_var_ptr (From.C'Address),
                             fromlen => Address_Length'Unchecked_Access);
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       --  a positive result is the length of the data received
       if Result > 0 then
          Octets_Received := POSIX.IO_Count (Result);
@@ -1243,7 +1200,7 @@ package body POSIX.Sockets is
        Buffer           : in  System.Address;
        Octets_Requested : in  POSIX.IO_Count;
        Octets_Received  : out POSIX.IO_Count;
-       From             : out Socket_Address_Pointer;
+       From             : in  Socket_Address_Pointer;
        Options          : in  Message_Option_Set
          := Message_Option_Set (POSIX.Empty_Set)) is
       Result : ssize_t;
@@ -1254,7 +1211,9 @@ package body POSIX.Sockets is
          Octets_Received := 0;
          return;
       end if;
-      Address_Length := From.Length;
+      if From /= Null_Socket_Address then
+         Address_Length := From.Length;
+      end if;
       Result := c_recvfrom (s       => int (Socket),
         buf     => Buffer,
         len     => size_t (Octets_Requested),
@@ -1297,7 +1256,7 @@ package body POSIX.Sockets is
                    (s     => int (Socket),
                     msg   => Message.C'Unchecked_Access,
                     flags => To_int (Option_Set (Options).Option));
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       if Result >= 0 then
          Octets_Received := POSIX.IO_Count (Result);
       else
@@ -1357,7 +1316,7 @@ package body POSIX.Sockets is
                         buf   => Buffer,
                         len   => size_t (Octets_To_Send),
                         flags => To_int (Option_Set (Options).Option));
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       if Result >= 0 then
          Octets_Sent := POSIX.IO_Count (Result);
       else Raise_POSIX_Error;
@@ -1425,7 +1384,7 @@ package body POSIX.Sockets is
                           flags => To_int (Option_Set (Options).Option),
                           to    => To_sockaddr_ptr (To.C'Address),
                           tolen => To.Length);
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       if Result >= 0 then
          Octets_Sent := POSIX.IO_Count (Result);
       else
@@ -1484,7 +1443,7 @@ package body POSIX.Sockets is
                    (s     => int (Socket),
                     msg   => Message.C'Unchecked_Access,
                     flags => To_int (Option_Set (Options).Option));
-      Restore_Signals (Old_Mask'Unchecked_Access);
+      Restore_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       if Result >= 0 then
          Octets_Sent := POSIX.IO_Count (Result);
       else

@@ -37,8 +37,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-
-with POSIX.C;
+with POSIX.C; use POSIX.C;
 package POSIX.Permissions.Implementation is
 
    --  =========  --

@@ -44,6 +44,7 @@
 
 #define _REENTRANT
 
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -217,18 +218,3 @@ void store_errno(int value) {
 int fstat_mod (int fd, struct stat *buf) {
   return fstat (fd, buf);
 }
-#if 0
-----------------------
--- REVISION HISTORY --
-----------------------
-
-----------------------------
-revision 1.1
-date: 1997/06/11 13:06:52;  author: baker;  state: Exp;
-added
-----------------------------
-revision 1.2  locked by: baker;
-date: 1997/11/03 12:16:58;  author: baker;  state: Exp;  lines: +1 -7
----------------------------------
-** New changes after this line and before endif. **
-#endif

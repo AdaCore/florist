@@ -52,8 +52,7 @@
 
 with POSIX.IO,
      POSIX.Permissions,
-     POSIX.Memory_Mapping,
-     System;
+     POSIX.Memory_Mapping;
 generic
    type Object_Type is private;
    --  Do not instantiate with a controlled type!

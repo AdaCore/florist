@@ -63,6 +63,7 @@ package P990001b is
    procedure Done_Job;
    --  called once by each process to complete
 
+   procedure Initialize;
    procedure Finalize;
 
 end P990001b;

@@ -43,8 +43,7 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
-with P9900doc,
-     P990030a;
+with P990030a;
 procedure P990030 is
 begin
    P990030a.Parent_Main;

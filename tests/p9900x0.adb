@@ -111,31 +111,40 @@ package body P9900x0 is
 
    function Run_Jobs return Boolean is
    begin
-      Comment ("running jobs");
-      Data.Start_POSIX_Time := POSIX_Calendar.Clock;
-      Data.Start_Calendar_Time := Calendar.Clock;
-      Data.Start_Real_Time := Ada.Real_Time.Clock;
-      if Needs_Clock_Realtime then
-         Data.Start_Timespec :=
-           POSIX_Timers.Get_Time (POSIX_Timers.Clock_Realtime);
-      end if;
       Data.Missed_Deadlines := False;
-      Initialize_Scheduling (Data);
+      Initialize_Sync;
       if Jobs_Are_Processes then
          Start_Processes;
+         Data.Start_POSIX_Time := POSIX_Calendar.Clock;
+         Data.Start_Calendar_Time := Calendar.Clock;
+         Data.Start_Real_Time := Ada.Real_Time.Clock;
+         if Needs_Clock_Realtime then
+            Data.Start_Timespec := 
+              POSIX_Timers.Get_Time (POSIX_Timers.Clock_Realtime);
+         end if;
+         Initialize_Scheduling (Data);
          Start_All_Jobs;
          Await_All_Jobs_Done;
          Stop_Processes;
       else
          Start_Tasks;
+         Data.Start_POSIX_Time := POSIX_Calendar.Clock;
+         Data.Start_Calendar_Time := Calendar.Clock;
+         Data.Start_Real_Time := Ada.Real_Time.Clock;
+         if Needs_Clock_Realtime then
+            Data.Start_Timespec := 
+              POSIX_Timers.Get_Time (POSIX_Timers.Clock_Realtime);
+         end if;
+         Initialize_Scheduling (Data);
          Start_All_Jobs;
-         Comment ("awaiting jobs done");
          Await_All_Jobs_Done;
          Stop_Tasks;
       end if;
+      Finalize_Scheduling;
       return not Data.Missed_Deadlines;
    exception
    when E : others =>
+      Finalize_Scheduling;
       Fatal_Exception (E, "A003: P9900x0");
       return not Data.Missed_Deadlines;
    end Run_Jobs;
@@ -155,7 +164,7 @@ package body P9900x0 is
       for J in Jobs loop
          Total_Utilization := Total_Utilization +
            (Input_Time (J) + Computation_Time (J) + Output_Time (J))
-             * Float (Rate (J));
+             * float (Rate (J));
       end loop;
 
       --  Estimate resolution of Calendar.Clock.
@@ -272,7 +281,6 @@ package body P9900x0 is
 
    procedure Start_Tasks is
    begin
-      Comment ("starting tasks");
       for J in Jobs loop
          Periodic_Tasks (J) :=
            new Periodic_Task (J);
@@ -283,7 +291,6 @@ package body P9900x0 is
 
    procedure Stop_Tasks is
    begin
-      Comment ("stopping tasks");
       for J in Jobs loop
          if not Periodic_Tasks (J).all'Terminated then
             abort Periodic_Tasks (J).all;
@@ -338,7 +345,7 @@ package body P9900x0 is
          raise POSIX_Error;
       end;
       begin
-         Comment ("set_Priority to system.Priority'last");
+         Comment ("Set_Priority to system.Priority'last");
          Set_Priority (Parms, Process_Prio (System.Priority'Last));
       exception
       when E: others =>
@@ -347,6 +354,7 @@ package body P9900x0 is
       end;
       Comment ("setting scheduling policy");
       begin
+         null;
          Set_Scheduling_Policy (Process => Get_Process_ID,
            New_Policy => Sched_FIFO,
            Parameters => Parms);
@@ -359,19 +367,17 @@ package body P9900x0 is
            (E2, "A011: P9900x0: in Run_Jobs/Set_Sched_Policy");
          raise POSIX_Error;
       end;
-      Comment ("opening template");
       Open_Template (Template);
       --  create the periodic processes
       for J in Jobs loop
          Make_Empty (Args);
          POSIX.Append (Args, Child_Pathname);
+         Pass_Through_Verbosity (Args);
          POSIX.Append (Args, "-child" & To_POSIX_String (Jobs'Image (J)));
          Start_Process (Child => Periodic_Processes (J),
            Pathname => Child_Pathname,
            Template => Template,
            Arg_List => Args);
-         Comment ("priority = " & Scheduling_Priority'Image
-           (Process_Prio (Priority (J))));
          Set_Priority (Parms, Process_Prio (Priority (J)));
          Set_Scheduling_Policy (Process => Periodic_Processes (J),
            New_Policy => Sched_FIFO,
@@ -389,7 +395,6 @@ package body P9900x0 is
    procedure Stop_Processes is
    begin
       for J in Jobs loop
-         Comment ("waiting for child" & Jobs'Image (J));
          Wait_For_Child_Process
            (Status => Status,
             Child => Periodic_Processes (J));
@@ -414,21 +419,19 @@ package body P9900x0 is
          if Needs_Clock_Realtime then
             Optional (Timers_Option, "P9900x0");
          end if;
+         Data := Shared_Data;
          Find_Utilization_Limit;
          Done;
       exception when E : others => Fatal_Exception (E, "A017: P9900x0");
       end Main;
    begin
-      Data := Shared_Data;
       while not Main'Terminated loop
          delay 1.0;
       end loop;
       Finalize_Sync;
-      Finalize_Scheduling;
       Finalize_Shared_Data;
    exception when E : others =>
       Finalize_Sync;
-      Finalize_Scheduling;
       Finalize_Shared_Data;
       Fatal_Exception (E, "A018: P9900x0");
    end Parent_Main;
@@ -436,6 +439,7 @@ package body P9900x0 is
    procedure Child_Main is
    begin
       Data := Shared_Data;
+      Initialize_Scheduling (Data);
       Work (Jobs (Child));
    exception when E : others => Fatal_Exception (E, "A019: P9900x0");
    end Child_Main;

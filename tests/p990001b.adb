@@ -70,7 +70,7 @@ package body P990001b is
    procedure Do_Input (Load : Natural) is
    begin
       Lock (IO_MutexD);
-      Do_Input (Load);
+      P990000.Do_Input (Load);
       Unlock (IO_MutexD);
    exception when E : others => Fatal_Exception (E, "A001: P990001b");
    end Do_Input;
@@ -78,7 +78,7 @@ package body P990001b is
    procedure Do_Output (Load : Natural) is
    begin
       Lock (IO_MutexD);
-      Do_Output (Load);
+      P990000.Do_Output (Load);
       Unlock (IO_MutexD);
    exception when E : others => Fatal_Exception (E, "A002: P990001b");
    end Do_Output;
@@ -122,6 +122,11 @@ package body P990001b is
       Unlock (Sync_MutexD);
    exception when E : others => Fatal_Exception (E, "A006: P990001b");
    end Await_All_Jobs_Done;
+
+   procedure Initialize is
+   begin
+      null;
+   end Initialize;
 
    procedure Finalize is
    begin
@@ -167,24 +172,3 @@ begin
 exception
 when E : others => Fatal_Exception (E, "A010: P990001b");
 end P990001b;
-
-
-----------------------
--- REVISION HISTORY --
-----------------------
-
---  ----------------------------
---  revision 1.5
---  date: 1998/06/18 01:51:14;  author: jiankuyu;  state: Exp;  lines: +11 -9
---  added exception when E : ....
---  ----------------------------
---  revision 1.6
---  date: 1998/06/28 21:36:22;  author: baker;  state: Exp;  lines: +112 -121
---  Restructured p9900** series of tests completely, to use
---  generic package.
---  ----------------------------
---  revision 1.7
---  date: 1998/06/30 13:27:24;  author: baker;  state: Exp;  lines: +16 -11
---  Added Finalize.
---  ----------------------------
---  New changes after this line.  Each line starts with: "--  "

@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -80,11 +80,11 @@ procedure p120501 is
 
    type Window is
       record
-        A : integer;
-        B : integer;
-        C : integer;
-        D : integer;
-        Done : integer;
+        A : Integer;
+        B : Integer;
+        C : Integer;
+        D : Integer;
+        Done : Integer;
         pragma Volatile (A);
         pragma Volatile (B);
         pragma Volatile (C);
@@ -98,7 +98,7 @@ procedure p120501 is
 
    Access_Failed : exception;
 
-   task type Shared_Mem_Task (number : integer)is
+   task type Shared_Mem_Task (number : Integer) is
      entry StartRunning;
    end Shared_Mem_Task;
 
@@ -112,7 +112,7 @@ procedure p120501 is
       Shared_Var : Window;
       Test_Perm : Permission_Set := Owner_Permission_Set;
       Obj : P.Shared_Access;
-      Count : integer := 0;
+      Count : Integer := 0;
 
    begin
       Comment ("Waiting to start ("
@@ -215,7 +215,7 @@ procedure p120501 is
          P.Unmap_And_Close_Shared_Memory (Shmd);
          Unlink_Shared_Memory (Object_Name);
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Check_Error_Code (No_Such_File_Or_Directory, "A004");
       end;
 
@@ -236,7 +236,7 @@ procedure p120501 is
 
 begin
 
-   Header ("p120501.adb", true);
+   Header ("p120501.adb", True);
 
    --  Clean up old memory objects, in case another test
    --  shut down improperly, leaving object behind.
@@ -245,8 +245,20 @@ begin
       Unlink_Shared_Memory (Object_Name);
    exception
    when E1 : POSIX_Error =>
-      Check_Error_Code (No_Such_File_Or_Directory, "A008");
+      Optional (Shared_Memory_Objects_Option,
+        Operation_Not_Implemented,
+        No_Such_File_Or_Directory, E1, "A008");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A009");
    end;
+
+   --  Give up if shared memory objects really are not
+   --  supported, so as not to allow this test to hang.
+   --  This test comes after at least one attempt to us a shared memory
+   --  operation, to make sure that the proper error code is returned
+   --  when those operations are called.
+
+   Optional (Shared_Memory_Objects_Option, "A010");
 
    Side_A.StartRunning;
    Side_B.StartRunning;
@@ -276,5 +288,5 @@ begin
    Done;
 
 exception
-when E : others => Fatal_Exception (E, "A009");
+when E : others => Fatal_Exception (E, "A011");
 end p120501;

@@ -44,8 +44,6 @@ package body POSIX.Process_Identification is
    use POSIX.C,
        POSIX.Implementation;
 
-   This_Process : Process_ID;
-
    ---------------------
    --  Get_Process_ID --
    ---------------------
@@ -55,7 +53,11 @@ package body POSIX.Process_Identification is
 
    function Get_Process_ID return Process_ID is
    begin
-      return This_Process;
+#     if HAVE_Leroy_Threads then
+      return Process_ID (This_Process);
+#     else
+      return Process_ID (getpid);
+#     end if;
    end Get_Process_ID;
 
    -----------------------------
@@ -109,7 +111,7 @@ package body POSIX.Process_Identification is
    -- Set_Process_Group_ID --
    --------------------------
 
-   function setpgid (pid : pid_t; pgrp : gid_t) return int;
+   function setpgid (pid : pid_t; pgrp : pid_t) return int;
    pragma Import (C, setpgid, setpgid_LINKNAME);
 
    procedure Set_Process_Group_ID
@@ -117,7 +119,7 @@ package body POSIX.Process_Identification is
       Process_Group : in Process_Group_ID := Get_Process_Group_ID) is
    begin
       Check (Process /= Null_Process_ID, Invalid_Argument);
-      Check (setpgid (pid_t (Process), gid_t (Process_Group)));
+      Check (setpgid (pid_t (Process), pid_t (Process_Group)));
    end Set_Process_Group_ID;
 
    --------------------------
@@ -126,7 +128,7 @@ package body POSIX.Process_Identification is
 
    procedure Create_Process_Group
      (Process : in Process_ID; Process_Group : out Process_Group_ID) is
-      function setpgid (pid : pid_t; pgrp : gid_t) return int;
+      function setpgid (pid : pid_t; pgrp : pid_t) return int;
       pragma Import (C, setpgid, setpgid_LINKNAME);
    begin
       Check (setpgid (pid_t (Process), 0));
@@ -316,6 +318,4 @@ package body POSIX.Process_Identification is
       return Group_ID (Group_ID'Value (Str));
    end Value;
 
-begin
-   This_Process := Process_ID (getpid);
 end POSIX.Process_Identification;

@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -154,7 +154,8 @@ procedure p060300 is
 
             Assert (Status /= In_Progress, "A005");
 
-         else Assert (Status = Completed_Successfully, "A006");
+         elsif Is_Supported (Asynchronous_IO_Option) then
+            Assert (Status = Completed_Successfully, "A006");
          end if;
          Comment ("Status=" & AIO_Status'Image (Status));
       exception
@@ -210,7 +211,7 @@ begin
       --  unless the object corresponds to an asynchronous I/O request
       --  that is still being processed.
 
-      Assert (true, "A015");
+      Assert (True, "A015");
       Destroy_AIO_Control_Block (AD);
    exception
    when E1 : POSIX_Error =>

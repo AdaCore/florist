@@ -45,29 +45,31 @@
 with POSIX,
      p030300a,
      POSIX_Report,
-     POSIX_Signals;
+     POSIX_Signals,
+     Test_Parameters;
 
 procedure p030306a is
    use  POSIX,
         p030300a,
         POSIX_Report,
-        POSIX_Signals;
+        POSIX_Signals,
+        Test_Parameters;
 
    Mask,
-   Old_Mask : Signal_Set;
-   Sig,
-   The_Sig  : Signal;
+   Old_Mask : aliased Signal_Set;
+   Sig      : Signal;
    Info     : Signal_Info;
 
 begin
-
-   Comment ("child: starting "
-     & Child_Action'Image (Child_Action'Val (Child)));
 
    --  Argument Child is a signal number passed to this
    --  process by its parent.
 
    Sig := Arg_Sig;
+
+   Comment ("child: starting "
+     & Child_Action'Image (Child_Action'Val (Child))
+     & " for " & Signal'Image (Sig));
 
    ---------------------------------------------------------------
    --  The initial signal mask of the child process shall
@@ -76,27 +78,31 @@ begin
    --  have specified that only Sig is masked.
 
    Mask := Blocked_Signals;
+   if not Is_Member (Mask, Sig) then
+      Assert (False, "A001: p030306a " & Image (Sig));
+      Add_Signal (Mask, Sig);
+      Assert (Is_Member (Mask, Sig), "A002: p030306a");
+   end if;
    for I in Signal loop
-      if I = Sig then
-         Assert (Is_Member (Mask, I),
-           "A001: p030306a " & POSIX_Signals.Image (I));
-      elsif not Is_Reserved (I) then
-         Assert (not Is_Member (Mask, I), "A002: p030306a " & Image (I));
+      if I /= Sig and then I /= SIGNULL and then
+         not Is_Reserved_Signal (I) then
+         Assert (not Is_Member (Mask, I), "A003: p030306a " & Image (I));
       end if;
    end loop;
 
    Delete_All_Signals (Mask);
 
    case Child_Action'Val (Child) is
+   when Delay_Then_Exit =>
+      --  Delay long enough for the parent to notice we are here.
+      delay 2*LDU;
    when Block_And_Await =>
       --  Wait for Sig, with just Sig blocked;
       --  expect to receive signal and then exit normally.
       Add_Signal (Mask, Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
       Comment ("child: waiting for " & Image (Sig));
-      The_Sig := Await_Signal (Mask);
-      Comment ("child: received " & Image (Sig) & " (OK)");
-      Assert (The_Sig = Sig, "A003: p030306a " & Image (The_Sig));
+      Try_Await_Signal (Sig, Mask, 2*LDU, No, "A004: p030306a");
    when Block_And_Await_With_Info =>
       --  Wait for Sig, with just Sig blocked;
       --  expect to receive signal with info and then exit normally.
@@ -105,7 +111,7 @@ begin
       Comment ("child: waiting for " & Image (Sig));
       begin
          Enable_Queueing (Sig);
-         Info := Await_Signal (Mask);
+         Info := Try_Await_Signal (Sig, Mask, 2*LDU, No, "A005: p030306a");
          Comment ("child: received " & Image (Sig) & " (OK)");
          Assert (Get_Signal (Info) = Sig, "A006: p030306a");
          Assert (Get_Source (Info) = From_Queue_Signal, "A007: p030306a");
@@ -113,10 +119,10 @@ begin
       exception
       when E1 : POSIX_Error =>
          Optional (Realtime_Signals_Option,
-           Operation_Not_Supported, E1, "A004: p030306a");
+           Operation_Not_Supported, E1, "A009: p030306a");
          --  If Enable_Queueing succeeds, then Await_Signal is not
          --  allowed to fail with Operation_Not_Implemented.
-      when E2 : others => Unexpected_Exception (E2, "A005: p030306a");
+      when E2 : others => Unexpected_Exception (E2, "A010: p030306a");
       end;
    when Block_And_Await_With_No_Info =>
       --  Wait for Sig, with just Sig blocked;
@@ -126,14 +132,14 @@ begin
       Comment ("child: waiting for " & Image (Sig));
       begin
          Enable_Queueing (Sig);
-         Info := Await_Signal (Mask);
+         Info := Try_Await_Signal (Sig, Mask, 2*LDU, No, "A011: p030306a");
          Comment ("child: received " & Image (Sig) & " (OK)");
-         Assert (Get_Source (Info) = From_Send_Signal, "A011: p030306a");
+         Assert (Get_Source (Info) = From_Send_Signal, "A012: p030306a");
       exception
       when E1 : POSIX_Error =>
          Optional (Realtime_Signals_Option,
-           Operation_Not_Supported, E1, "A009: p030306a");
-      when E2 : others => Unexpected_Exception (E2, "A010: p030306a");
+           Operation_Not_Supported, E1, "A013: p030306a");
+      when E2 : others => Unexpected_Exception (E2, "A014: p030306a");
       end;
       --  If Enable_Queueing succeeds, then Await_Signal is not
       --  allowed to fail with Operation_Not_Implemented.
@@ -144,35 +150,28 @@ begin
       Ignore_Signal (Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
       --  Delay long enough for parent to send signal.
-      delay 2 * DU;
+      delay 2 * LDU;
    when Block_Unignore_And_Await =>
       --  Wait for Sig, with just Sig blocked;
       --  expect to receive signal and then exit normally.
       Unignore_Signal (Sig);
       Add_Signal (Mask, Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
-      The_Sig := Await_Signal (Mask);
-      Comment ("child: received " & Image (Sig) & " (OK)");
-      Assert (The_Sig = Sig, "A012: p030306a " & Image (The_Sig));
+      Try_Await_Signal (Sig, Mask, 2*LDU, No, "A016: p030306a");
    when Unblock_And_Unignore =>
       --  Delay, with all signals unblocked;
       --  expect to receive signal and perform default action.
       Unignore_Signal (Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
       --  Delay long enough for parent to send signal.
-      delay 2 * DU;
-   when others => Fatal ("A000: invalid child action");
+      delay 2 * LDU;
+   when others => Fatal ("A017: invalid child action");
    end case;
 
    -----------------------------------------------
 
-   Comment ("child: exiting");
-
    Done;
 
 exception
-when E : others => Fatal_Exception (E, "A013: p030306a");
+when E : others => Fatal_Exception (E, "A018: p030306a");
 end p030306a;
-
-
-

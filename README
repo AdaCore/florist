@@ -1,14 +1,9 @@
-THIS SOFTWARE AND THE ACCOMPANYING DOCUMENTATION ARE DISTRIBUTED
-IN THE HOPE THAT IT WILL BE USEFUL, BUT WITHOUT ANY WARRANTY;
-WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
-FOR A PARTICULAR PURPOSE -- NOTWITHSTANDING ANY STATEMENTS MADE
-BELOW IN THIS FILE.
-
 FLORIST:
 
 This directory contains the components of FLORIST, an
-implementation of the IEEE Standards 1003.5: 1992 and IEEE STD
-1003.5b: 1996, also known as the POSIX Ada Bindings.
+implementation of the IEEE Standards 1003.5: 1992, IEEE STD
+1003.5b: 1996, and parts of IEEE STD 1003.5c: 1998, also known as
+the POSIX Ada Bindings.
 
 All the code in this directory is copyrighted by the Florida
 State University (FSU), except for any files that contain
@@ -35,58 +30,11 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.11b compiler and the Gnu "make" utility to
-install and compile Florist.  
+You will need the GNAT 3.15 compiler to install and compile Florist.  
 
-If you happen to have another compiler, you still may find Florist
-useful as a starting point, but some adaptation will be necessary.
-If you normally use another implementation of "make", we recommend
-you just download a copy of Gnu make to use for the installation
-process; otherwise, you will have to modify the Makefile's to work
-around the places where we are using pattern-matching rules.
-
-It is natural to ask why we have these dependences.  We certainly
-don't like them, and are willing to accept advice on how to reduce
-them.  In particular, we tried to get by using a POSIX.2-compliant
-Makefile, but could not figure a way to do so without making the
-file much longer and harder to maintain.
-
-The dependences on GNAT are to some extent unavoidable, though we
-think that with more work we may be able to automate the treatment
-better, as we have attempted manage dependences on the host
-operating system.  This is the hard part, and the fundamental job,
-of a POSIX Ada binding-- to make writing portable applications
-easier, by taking into the implementation of the binding the
-responsibility for dealing with the differences between various
-operating systems and compilers, and hiding them from application
-programs.
-
-Any implementation of the POSIX Ada bindings will necessarily
-contain some dependences on peculiar features of the Ada language
-implementation with which it is intended to be used.  For example,
-the two implementations must coordinate the way they manage
-signals, and must work together to support task signal entries.
-Another place where the two must work together is in the
-implementation of Start_Process, which uses the underlying POSIX
-fork() operation.  With POSIX threads, fork() creates only thread
-in the child process, but it duplicates the entire parent process
-address space, including the runtime system data structures that
-contain references to the other threads of the parent process, and
-locks that may appear to be holding.  The code in Start_Process
-that executes between the fork() and exec() operations must have
-some way to avoid invoking Ada runtime system operations that will
-try to reference these nonexistent threads, or lock any locks that
-they might appear to be holding.
-
-In the case of Florist, there are also some other GNAT
-dependences, which are for convenience and efficiency.  For
-example, Florist relies that Duration and Calendar.Time are both
-represented as a 64-bit count of nanoseconds, so as to simplify
-conversions between these types and POSIX.Timespec.
-
----------------
---  WARNINGS --
----------------
+----------------
+--  WARNINGS  --
+----------------
 
 This Ada binding implementation depends on your underlying OS
 having C header-files and libraries that conform to the POSIX
@@ -97,20 +45,35 @@ to the POSIX.5 and POSIX.5b standards will be limited by how well
 your OS conforms to the corresponding C API's.
 
 So far, we have not found any operating system that fully supports
-the POSIX.1b and POSIX.1c standards, though they are getting
-better.  Generally, you will get better results with newer OS
-releases, since their C API's are closer to the POSIX standards.
-It is also a good idea to make sure that your installation
-includes the header files and libraries needed for the real-time
-and threads extensions.  (The default "end user" OS installation
-may try to save you disk space by not installing them.)
+POSIX.1c and POSIX.1g though they are getting better.  Generally,
+you will get better results with newer OS releases, since their C
+API's are closer to the POSIX standards.  It is also a good idea
+to make sure that your installation includes the header files and
+libraries needed for the real-time and threads extensions.  (The
+default "end user" OS installation may try to save you disk space
+by not installing them.)
 
-We are still working on Florist, to improve it.  If you have
-problems with it, please report them.  Our first priorities are to
-make Forist more portable to the various POSIX-like operating
-systems, to test it better, to catch and correct any defects.  We
-are also interested in ways to improve efficiency, where that is
-possible.
+Beware of the packages POSIX_Sockets, POSIX_Sockets.Internet,
+POSIX_Sockets.Local, POSIX_Sockets.ISO, POSIX_XTI,
+POSIX_XTI.Internet, POSIX_XTI.ISO, POSIX_XTI.MOSI,
+POSIX_Event_Management.  These are parts of a POSIX.5c prototype
+effort that stalled during the ballot/revision process.  We have
+since made some improvements, notably in the socket interfaces,
+but this is far from a finished work.  These package interfaces
+SHOULD NOT BE ASSUMED TO CONFORM to the approved POSIX.5c
+standard, nor are they fully implemented.
+
+Florist is currently supported on the following configurations. It
+may or may not work on non supported configurations:
+
+Sparc/Solaris 2.5.1, 2.6, 2.7, 8
+x86/Solaris 2.6
+Linux glibc2
+DEC Unix 4.0x
+HP/UX 10.20
+HP/UX 11.0
+IRIX 6.5
+AiX 4.1
 
 Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
 and POSIX_XTI*).  We are working with members of the POSIX.5c
@@ -126,387 +89,19 @@ POSIX_XTI.MOSI, POSIX_Event_Management.
 
 NORMAL INSTALLATION:
 
-On the systems where the configure script and Makefile have been
-tested, the following instructions should work.  For other
-systems, give it a try.  It might work, at least partially,
-possibly with a little bit of modification to fit your particular
-system.
-
-In order to install FLORIST, you should go through the following
-steps.
-
-0. Make sure you have GNAT and Gnu make installed,
-   and that your environment variables are set up to provide GNAT
-   with the appropriate paths.
-
-1. Configure FLORIST by typing "./configure".
-   This may take a long time, perhaps an hour or more.
-   You probably should capture the output, in case something goes
-   wrong and the relevant error message scrolls off your screen,
-   e.g.
-        ./configure >& configure.log
-
-   The configure script will try to find out information about the system
-   you are using.  This includes information about the GNAT version,
-   and whether each of the features of the POSIX C-language interfaces
-   is supported.  This step generates the files:
-
-   gnatprep.config       directives for gnatprep
-   pconfig.h             #includes and #defines needed to use POSIX
-   config.h              configuration for c-posix.c
-   Config                definitions to be included in Makefile
-
-   Note that if "configure" does not work for your system as-is,
-   you can tailor it by editing the files "pconfig.h.in" and
-   "Config".  Some examples of these can be found in the "configs"
-   subdirectory.
-
-   Along the way, configure will tell you about the various
-   features it is checking, and whether it finds
-   them.  Don't worry if it fails to find some features.
-   That is normal, since no operating system we know has yet
-   fully caught up to the POSIX standards.  Assuming the configuration
-   process works correctly, the unsupported features will just
-   raise POSIX_Error if you try to use them.
-
-   The POSIX.1g (sockets and XTI) interfaces are still very new, and
-   not supported widely; the configure stage will attempt to work around
-   missing features.  If it fails badly, you can still build the rest of
-   Florist.  (One should not be using the POSIX.5c interfaces anyway,
-   except for balloters, who are using them to evaluate the draft standard.)
-
-   NOTE:  If you change versions of GNAT, you will need to re-run the
-   "configure" script, and recompile Florist, since the
-   signal-handling and process primitives packages contain code that
-   interacts with the Ada tasking runtime system.
-
-   NOTE:  Do not delete the empty file "florist_sources".  The configure
-   script checks for this file, to make sure it is in the right source
-   directory.
-
-2. Build and compile FLORIST by typing "make".  This will
-   *automatically* perform many operations, including the following:
-
-  a. Compile and execute the program "c-posix.c", which
-     generates the source code for the Ada package specifications
-     POSIX, POSIX.C, POSIX.LIMITS, and POSIX.OPTIONS.
-     If this stage fails, you will need to do some work.
-     The best thing is to capture the error messages,
-     and e-mail them to me.  I will work with you to figure out
-     what needs to be done to support your system.
-
-  b. Compile several C-language programs "XXX-macros.c".
-
-  c. Perhaps compile the GNAT preprocessor, "gnatprep", if you don't
-     have it already.
-
-  d. Use gnatprep to tailor some Ada source files to your system.
-
-  e. Compile the various POSIX Ada package specifications and
-     bodies.
-
-  [We apologize for the complexity of the above configuration process,
-   and how long it takes.  We have some ideas for simplifying it and
-   speeding it up in future versions.]
-
-3. If this all succeeds, try testing the installation.
-   See below, for more explanation.
-
-TESTING THE INSTALLAITON:
-
-Florist contains an increasingly large and complete set of tests.
-The tests are in subdirectory "tests".
-
-DO NOT RUN THE TESTS AS ROOT, UNLESS YOU ARE VERY FOOLHARDY,
-OR YOU HAVE EXAMINED THE TESTS AND ARE PREPARED TO ASSUME THE
-RISK OF POSSIBLE DAMAGES IF THE TEST RUNS AMOK.
-
-If you want to just compile and run all the tests, do "make
-run_tests".  The tests will be run in subdirectory
-tests/test.dir.  Even if everything works correctly, it
-will take a long time to run.  There is a good chance that one of
-the tests will hang or crash the test run.  If so, try removing
-that test from the script "run_tests_1", and restarting,
-or try running the tests individually.
-
-It is easy to compile and run the tests individually.  For
-example, p020400 is a test of the basic POSIX package.  That would
-be a good one to start with.  When you are running a test you can
-get more output by using the "-v" (verbose) command-line option,
-e.g., "p020400 -v".
-
-Even if you have installed everything correctly, you should expect
-some tests to fail.  Some of apparent failures may not be real;
-the tests try to perform operations that require special
-privilege, and you will probably not be running them with that
-privilege, at least for the first time.  There will be other
-failures if the underlying OS does not fully support the POSIX
-standards, or if Florist does not fully support a given
-functionaliy. See the file PASSFAIL, for a summary of the known
-(real) failures for Solaris 2.6, You should expect to find more
-test failures if you are porting to a new system.
-
-In the case of a test failure you will want more verbose output,
-which you can obtain by running the tests with the "-v" option.
-Using the information produced, you should locate the problem area
-in the source code.  We have tried to provide explanations for all
-the known failing/hanging problems. Please see the comments
-provided in the test source. If you do not find any explanation
-for the problem you are having, please report it to us.  We are
-working on improving the tests, and welcome test contributions.
-
-Chances are good that your installation will not pass all the
-tests, and some may even hang.  This probability grows higher as
-we extend Florist and improve the test suite, since most operating
-systems seem to have some defects in their underlying support for
-the POSIX (C-language) standards.  A few failures do not
-necessarily mean you can't use Florist.  They just point out
-places where you should beware that your system is not really
-POSIX compliant.
-
-See tests/README for more explanation.
+Follow the steps described in the INSTALL file.
 
 COMPILING YOUR PROGRAMS WITH FLORIST:
 
-To compile your own programs with Florist, take a look at
-tests/Makefile, to see how the tests are compiled.  You will need
-to include the gnatmake parameters that specify where to find the
-Florist sources and object library file.
+To compile your own programs with Florist, you will need to include
+the gnatmake parameters that specify where to find the
+Florist sources and object library file. Usually the following command
+will be enough :
+
+$ gnatmake -Ifloristlib main -largs -lflorist
 
 If you don't want to keep around the whole Florist installation
 directory, you should be able to copy or move the subdirectory
 "floristlib" to some other location, and then include it in
-your GNAT source and object library search paths.
-
-BACKGROUND:
-
-The name FLORIST is a meld of "FLORIDA" and "FOREST", indicating
-the dual origins of this implementation, which we hope combines
-the virtues of two earlier implementations of the POSIX Ada
-bindings: one being FOREST, done by Kenneth Almquist, and the
-other being the FSU POSIX.5 implementation primarily by Lin
-Wan-Hua and Li Yi-Gang.  My original intent was to literally merge
-the code of these two versions, but they were so different that I
-ended up writing essentially all new code.  However, the those
-other implementations still formed the conceptual starting point
-for FLORIST.
-
-This work and the earlier POSIX Ada binding developments were
-funded by the U.S. Department of Defense's Ada Joint Program
-Office, originally through the U.S. Army CECOM HQ U.S. Army CECOM,
-Software Engineering Directorate, and more recently through the
-ICASE program.
-
-PHILOSOPHY AND STYLE:
-
-The FLORIST implementation of the POSIX Ada bindings attempts to
-adhere to the following design and style rules:
-
-1. Conform to the IEEE Standards 1003.5 and 1003.5b, to the extent they
-   can be implemented.
-
-2. Assume the underlying OS supports the POSIX C-language interfaces
-   (i.e. IEEE STD 1003.1, 1003.1b, 1003.1c) correctly.
-   That is, do not attempt to compensate via Ada "glue" for failures
-   in the implementation of the C-language interface.
-
-3. Map as directly as possible to these underlying C-language interfaces,
-   so as not to impose any avoidable run-time or storage overhead.
-
-4. Entirely avoid use of the Interfaces.C and Interfaces.C.Strings packages,
-   using the (more complete) C interface package POSIX.C instead.
-
-5. Limit dependences on specifics of the underlying OS
-   to automatically configurable code (i.e. specs of packages
-   POSIX, POSIX.Limits, POSIX.Options, and POSIX.C).
-
-6. Use "access" parameter mode where the C interface uses a pointer
-   to achieve the effect of an "out" or "in out" parameter; use
-   "access constant" types where the C interface uses a pointer to
-   achieve the effect of an "in" parameter passed by-reference.
-
-7. Enclose C interface types in a tagged record where the standard
-   Ada API specifies that they be passed as "out" or "in out" parameters
-   and standard Ada API requires by-reference semantics.
-
-8. Take advantage of knowledge about how GNAT and GNARL implement things.
-   For example, rely on fact that Duration is a count of nanoseconds.
-
-We have made a few small exceptions to these rules, where one rule
-conflicted with another.  There are comments about these issues in
-the code of the Florist packages, and under DEFECTS, below.  As
-Florist evolves, we expect we may revisit some these compromises.
-
-See other files in this directory for more information.
-
-KNOWN DEFECTS:
-
-The following is a list of some major known defects and weaknesses
-in FLORIST.  Beware that the list has not been updated recently.
-
--- Defects in the underlying OS. 
-
-We have not tried to compensate for cases where the C-language API
-of the underlying OS fails to comply with the POSIX
-specifications.  Mostly this shows up as simple lack of support
-for a given feature.  In some cases it shows up as an incorrect
-error code, or a more seriously incorrect action.  This is
-especiallly noticeable with the Provenzano thread package which is
-used in the early GNAT implementations for Linux; there are
-several places where a single-threaded application works OK, but
-linking in the Provenzano thread library alters the behavior so
-that tests fail.  (We have not tested with the LeRoy Linux kernel
-thread implementation or the FSU threads on Linux.) To isolate and
-verify these problems, we wrote several test programs in the C
-language.  These include the programs listed as DEBUG_SOURCES in
-the Makefile.  Each has a few comments to explain what it is
-testing for.
-
-One may imagine that we might have added code to the Ada binding
-to detect and/or compensate for failures of the OS to conform to
-the POSIX C API standards, so that the Ada binding would still
-conform to the POSIX Ada API standard.  In some cases, this is
-possible, but we have not attempted to do it.  The main reason is
-that we could not afford to develop and maintain special code for
-each OS version and release.  We do expect that over time the OS's
-will improve their conformance to the POSIX C-API specs, and as
-they do so, the conformance of Florist to the POSIX Ada semantics
-will relect the same improvements.
-
--- Treatment of missing and unsupported features.
-
-The treatment of features that are missing or unsupported in the
-C-language interface is pretty rough-shod.  Dummy declarations are
-automatically provided for missing C names.  Not a lot of thought,
-and no testing, has so far been put into whether these will
-generate POSIX_Error with the appropriate error code, if an
-optional feature is missing - still less, what will happen if
-any of the required POSIX features are missing.
-
-Generally, each C function has its name declared as a constant,
-with an identifier ending in "_LINKNAME", declared in package
-POSIX.C.  If the C function was not found by the configure
-process, this string is set to "nosys_neg_one", a function that
-returns (int) -1 with error code ENOSYS.  This is the most common
-POSIX treatment of an unsupported feature, but it is not always
-correct.
-
-Minimally, we need to check the handling of the not-supported case
-for each C interface function, and be more precise about
-not-supported treatment:
-
-   some of them should return -1, but of a type that is a different
-     size than "int"
-   some of them should return ENOSYS directly, rather returning -1
-     and setting errno to ENOSYS
-   some of them may set errno to ENOSYS when they should set it
-     to ENOTSUP
-
-We also need to put in some conditional code, using constants in
-POSIX.C of the form HAVE_xxx (generated by the configure script
-and c-posix.c), for places where we have code that depends on an
-optional type or constant.
-
-Getting the treatment of all these optional features right is
-going to take more time and effort.  (We appreciate your reporting
-any problems, so we can fix them.)
-
--- POSIX.Group_Database
-
-In general there is a problem in C with library routines that
-return pointers to data (e.g. to strings).  Traditionally, these
-return pointers to statically allocated data, which means they are
-not safe for concurrent use.  If they are "fixed" to return pointers
-to dynamically allocated storage, then we have storage leakage.
-
-The best way to make such interfaces safe for Ada multitasking
-use would be to make a copy of the data.  The problem is that
-we need a way to recover the storage.
-
-In the case of this package, POSIX.5 specifies that the type
-Group_Database_Item is private (meaning we can copy values) but it
-does not allow us to implement it as an access type (a requirement
-based on a desire to avoid potential storage leakage).  This
-leaves us with a problem.  There is no fixed size, so we would
-like to make the size depend on a discriminant.  We can't do this,
-as the interface stands.
-
-This leaves us few options:
-
- (a) impose a fixed size limit, which might overflow;
- (b) use dynamic allocation, risking storage leakage;
- (c) use the raw C interfaces, risking tasking unsafety
-     and also storage leakage.
-
-With Ada'95 we have another possibility, of using a controlled
-type.  In this way we can perhaps circumvent the intent of the
-POSIX.5 rule about not using access types (i.e. not using heap
-allocation), by arranging for storage to be recovered.
-
-Note that using the new thread-safe operations, getgrgid_r and
-getgrnam_r, does not solve our problem, since we would still have
-to provide space to hold the strings.  We choose to use the raw C
-interfaces, since the other alternatives are not significantly
-more attractive.  See also POSIX.User_Database.
-
--- POSIX.User_Database
-
-Same problem as POSIX.Group_Database.
-
--- POSIX.Process_Identification
-
-Need to make Get_Login_Name "tasking-safe".
-See POSIX.Group_Database for discussion of the general problem.
-
--- POSIX.Process_Primitives
-
-A basic problem is that the child process will have only the
-thread that called Fork.  Thus, if some other thread is holding a
-runtime system lock and we need to lock it, we will have a
-deadlock.  We have tried to handle this by switching back the
-non-tasking versions of some runtime system routines by resetting
-the "soft links".  It is unclear whether this is going to be
-enough, especially as GNAT evolves to get rid of these soft links.
-
--- POSIX.Supplement_to_Ada_IO
-
-This package interface is wicked!  The "flush" operations have no
-parameters, which means we need some magical way of finding all
-the buffers we are supposed to flush.  We can see no way to do
-this without modifying the implementations of all the standard I/O
-packages, so that we can get at a list of currently open files, and
-their associated buffers.  Looking at these packages, it seems they
-have some kind of list which might serve the purpose, if we export it,
-possibly with some additional information.  However, those packages
-appear to be like Pandora's Box.  Once we start looking at how they
-attempt to handle concurrent access to shared data structures, we find
-more and more things need attention, and we have trouble deciding how
-far to go toward making "everything" tasking-safe.
-
--- POSIX.Timers
-
-Perhaps Signal_Event should be made into a tagged type, so that
-Create_Time (and other operations in other packages) can assume
-the event is passed by reference.  This would help us avoid making
-an aliased local copy for communication with the C interface.
-
--- POSIX
-
-POSIX.String_List should probably be made into a controlled type,
-so that we can avoid the potential storage leakage from the
-function POSIX.Process_Environment.Argument_List.
-
--- FOREST Compatibility
-
-We had originally intended that Florist be an upward-compatible
-extension of K. Almquist's Forest packages.  This turned out to
-conflict with our desire to conform to the IEEE POSIX.5 and
-POSIX.5b standards, since Forest contained some extensions that
-are not allowed by those standards.  For people who might want
-those extensions, we started out to provide some extra packages.
-The partial result is in subdirectory "forest".  Those packages
-are in a very incomplete state.  To fully bring them up to date
-would require duplicating quite a bit of the code in the original
-POSIX packages.  We are interested in finding out whether the
-demand for these extensions will justify the work of recoding,
-and the confusion of having several almost-identical packages.
+your GNAT source and object library search paths (see the GNAT documentation
+for more details).

@@ -66,29 +66,25 @@ package body P990001c is
    Sync_Lock,
    Waiting_To_Start,
    Waiting_For_Completion : Semaphore_Descriptor;
-   Done_Count             : Integer := 0;
 
    procedure Do_Input (Load : Natural) is
    begin
-      Comment ("IO.Input");
       Wait (Sem => IO_Lock, Masked_Signals => RTS_Signals);
-      Do_Input (Load);
+      P990000.Do_Input (Load);
       Post (Sem => IO_Lock);
    exception when E : others => Fatal_Exception (E, "A001: P990001c");
    end Do_Input;
 
    procedure Do_Output (Load : Natural) is
    begin
-      Comment ("IO.Output");
       Wait (Sem => IO_Lock, Masked_Signals => RTS_Signals);
-      Do_Output (Load);
+      P990000.Do_Output (Load);
       Post (Sem => IO_Lock);
    exception when E : others => Fatal_Exception (E, "A002: P990001c");
    end Do_Output;
 
    procedure Start_All_Jobs is
    begin
-      Comment ("Starting jobs");
       for J in Jobs loop
          Post (Waiting_To_Start);
       end loop;
@@ -97,44 +93,67 @@ package body P990001c is
 
    procedure Await_Start is
    begin
-      Comment ("Awaiting start");
       Wait (Sem => Waiting_To_Start, Masked_Signals => RTS_Signals);
-      exception when E : others =>
-         Fatal_Exception (E, "A004: P990001c");
+   exception when E : others => Fatal_Exception (E, "A004: P990001c");
    end Await_Start;
 
    procedure Done_Job is
    begin
-      Comment ("Done one job");
       Wait (Sem => Sync_Lock, Masked_Signals => RTS_Signals);
-      Done_Count := Done_Count + 1;
-      if Done_Count = Jobs'Last - Jobs'First + 1 then
-         --  wake up the main program
-         Post (Waiting_For_Completion);
-      end if;
+      Post (Sem => Waiting_For_Completion);
       Post (Sem => Sync_Lock);
-      exception when E : others =>
-         Fatal_Exception (E, "A005: P990001c");
+   exception when E : others => Fatal_Exception (E, "A005: P990001c");
    end Done_Job;
 
    procedure Await_All_Jobs_Done is
    begin
-      Comment ("Awaiting completion of all jobs");
-      Wait (Sem => Waiting_For_Completion, Masked_Signals => RTS_Signals);
-      exception when E : others => Fatal_Exception (E, "A006: P990001c");
+      for I in Jobs'Range loop
+         Wait (Sem => Waiting_For_Completion, Masked_Signals => RTS_Signals);
+      end loop;
+   exception when E : others => Fatal_Exception (E, "A006: P990001c");
    end Await_All_Jobs_Done;
 
    procedure Finalize is
    begin
-      Unlink_Semaphore (Valid_Semaphore_Name (1));
-      Unlink_Semaphore (Valid_Semaphore_Name (2));
-      Unlink_Semaphore (Valid_Semaphore_Name (3));
-      Unlink_Semaphore (Valid_Semaphore_Name (4));
+      --  clear out leftover semaphores
+      for I in 1 .. 4 loop
+         begin
+            Unlink_Semaphore (Valid_Semaphore_Name (I));
+         exception
+         when POSIX_Error =>
+            Check_Error_Code (No_Such_File_Or_Directory, "A007");
+         when E : others => Unexpected_Exception (E, "A008");
+         end;
+      end loop;
+   exception when E : others => Fatal_Exception (E, "A009: P990001c");
    end Finalize;
 
+   procedure Initialize is
+      procedure Set (Semd : Semaphore_Descriptor; Val : Natural);
+      procedure Set (Semd : Semaphore_Descriptor; Val : Natural) is
+      begin
+         if Get_Value (Semd) = Val then return;
+         end if;
+         while Get_Value (Semd) > 0 loop
+            Wait (Semd);
+         end loop;
+         while Get_Value (Semd) < Val loop
+            Post (Semd);
+         end loop;
+         Comment ("forced value of leftover semaphore to " &
+           Integer'Image (Get_Value (Semd)));
+      exception when E : others => Fatal_Exception (E, "A010: P990001c");
+      end Set;
+   begin
+      Set (IO_Lock, 1);
+      Set (Waiting_To_Start, 0);
+      Set (Sync_Lock, 1);
+      Set (Waiting_For_Completion, 0);
+   exception when E : others => Fatal_Exception (E, "A011: P990001c");
+   end Initialize;
+
 begin
-   Optional (Semaphores_Option, "A007: P990001c");
-   Comment ("Initializing P990001c");
+   Optional (Semaphores_Option, "A012: P990001c");
    IO_Lock := Open_Or_Create
     (Name => Valid_Semaphore_Name (1),
      Permissions => Owner_Permission_Set,
@@ -148,13 +167,13 @@ begin
    Sync_Lock := Open_Or_Create
     (Name => Valid_Semaphore_Name (3),
      Permissions => Owner_Permission_Set,
-     Value => 0,
+     Value => 1,  --  open
      Options => POSIX_IO.Empty_Set);
    Waiting_For_Completion := Open_Or_Create
     (Name => Valid_Semaphore_Name (4),
      Permissions => Owner_Permission_Set,
-     Value => 0,
+     Value => 0,  --  closed
      Options => POSIX_IO.Empty_Set);
 exception
-when E : others => Fatal_Exception (E, "A008: P990001c");
+when E : others => Fatal_Exception (E, "A013: P990001c");
 end P990001c;

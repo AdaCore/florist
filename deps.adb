@@ -49,7 +49,6 @@ with POSIX_Calendar;
 with POSIX_Condition_Variables;
 with POSIX_Configurable_File_Limits;
 with POSIX_Configurable_System_Limits;
-with POSIX_Error_Codes;
 with POSIX_File_Locking;
 with POSIX_File_Status;
 with POSIX_Files;

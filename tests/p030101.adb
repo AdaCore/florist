@@ -40,12 +40,12 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  Test package POSIX_Process_Primitives,
---  defined by IEEE Std 1003.5b Section 3.1,
+--  Test package POSIX_Process_Primitives, which is defined in
+--  Section 3.1 of IEEE Std 1003.5b,
 --  for consistency with package Ada.Command_Line.
 
---  ....
---  This test needs more work; it is presently incomplete.
+--  Setup:  When this test is run the executable program p030301b must
+--  be accessible via the pathname "./bin/p030101b".
 
 with POSIX,
      POSIX_Process_Identification,
@@ -83,7 +83,7 @@ begin
    begin
       Open_Template (Template);
       Comment ("Set up argument list");
-      POSIX.Append (Args, "");
+      POSIX.Append (Args, Child_Pathname);
       POSIX.Append (Args, "-child");
       POSIX.Append (Args, To_POSIX_String (Integer'Image (Normal_Completion)));
       Start_Process (Pid, Child_Pathname, Template, Args);

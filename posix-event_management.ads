@@ -87,9 +87,8 @@ use POSIX.C.Sockets;
    type File_Descriptor_Set is private;
    Empty_File_Descriptor_Set : constant File_Descriptor_Set;
    procedure Make_Empty (Set : in out File_Descriptor_Set);
-   subtype Select_File_Descriptor is POSIX.IO.File_Descriptor
-      range POSIX.IO.File_Descriptor'First .. POSIX.IO.File_Descriptor
-            (POSIX.Limits.File_Descriptor_Set_Maxima'Last - 1);
+   subtype Select_File_Descriptor is POSIX.IO.File_Descriptor;
+
    procedure Add_File_Descriptor_To_Set
       (Set  : in out File_Descriptor_Set;
        File : in     Select_File_Descriptor);
@@ -137,11 +136,11 @@ private
    end record;
 
    type File_Descriptor_Set is record
-      C    : aliased POSIX.C.struct_fd_set;
+      C    : aliased POSIX.C.fd_set;
    end record;
 
    Empty_File_Descriptor_Set : constant File_Descriptor_Set :=
-      (C    => (fds_bits => (others => 0)));
+      (C    => (others => 0));
 
    Read_Not_High  : constant Poll_Events :=
       Poll_Events (POSIX.Option_Set'(Option => POLLIN));

@@ -6,7 +6,7 @@
 --                             C - P O S I X . C                            --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997 Florida State University (FSU),                --
+--  Copyright (c) 1996-1999 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -39,7 +39,7 @@
    ===============
    [$Revision$]
 
-   This program generates the files: 
+   This program generates the files:
 
      posix.ads, posix-limits.ads, posix-options.ads, posix-c.ads
 
@@ -54,24 +54,41 @@
 
  */
 
-/* For HP-UX with DCE threads,
-   we need pthread.h first, to get the desired
-   effect, in the presence of #define sigaction cma_sigaction.
- */
 #include "pconfig.h"
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include "config.h"
+#include <stdarg.h>
+
+#ifdef hpux
+/* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
+  _XOPEN_SOURCE_EXTENDED is defined. Since we need this macro (_XOPEN.*)
+  to get other POSIX definitions, we kludge here by undefining this unwanted
+  symbol. */
+#undef OPEN_MAX
+#endif
+
+int indent = 0;
+
+int ifprintf (FILE *stream, const char * format, ...) {
+   va_list arg;
+   int done;
+   int i;
+   va_start(arg, format);
+   for (i = 0; i < indent; i++) fprintf(stream, "   ");
+   done = vfprintf(stream, format, arg);
+   va_end(arg);
+   return done;
+}
 
 /* Files pconfig.h and config.h are generated
    by the "configure" script, which in turn is generated
    by running "autoconf" on "configure.in".
- */ 
+ */
 
-/* .... The following two #defines probably belong in config.h
-   consider moving it there, and changing the associated comment,
-   much further below.
+/* .... The following #define may belong in pconfig.h.
+   Consider moving it there?
  */
 
 /* TRY_MACRO_LINKNAMES activates a workaround for header files
@@ -81,19 +98,13 @@
 
 #define TRY_MACRO_LINKNAMES
 
-/* SOLARIS_HACK activates a workaround for a trick that appeared
-   in the Solaris 2.6 header files, of defining local function bodies
-   for certain POSIX function names, which are wrappers that in turn
-   call a real library function whose name is of the form __posix_XXX.
-
-   ....We need to fix the configuration process to auto-detect this!
-
- */
-#define SOLARIS_HACK
-
 /* Macros
    ======
  */
+
+#define  NON_SUPPORT_MESSAGE(NAME)\
+  ifprintf(fp,"   --  *** MISSING: %s ***  --\n", NAME);\
+  warn("missing",NAME);
 
 /* universal constant declarations
    -------------------------------
@@ -106,20 +117,24 @@
  */
 
 #define GUCST(name, value) \
-  fprintf(fp,"   %s : constant := %u;\n", name, value);
+  ifprintf(fp,"   %s : constant := %u;\n", name, value);
 
 #define GCST(name, value) \
-  fprintf(fp,"   %s : constant := %d;\n", name, value);
+  ifprintf(fp,"   %s : constant := %d;\n", name, value);
 
 int  max_GCST2;
 #define GCST2(name, name2, value) \
-  fprintf(fp,"   %s,\n", name);\
-  fprintf(fp,"   %s : constant := %d;\n", name2, value); \
-  if (value > max_GCST2 ) max_GCST2 = value;
+  ifprintf(fp,"   %s,\n", name);\
+  ifprintf(fp,"   %s : constant := %d;\n", name2, value); \
+  if (value > max_GCST2) max_GCST2 = value;
 
 #define GDFLT(name, value) \
   NON_SUPPORT_MESSAGE(name)\
-  fprintf(fp,"   %s : constant := %d;\n", name, value);
+  ifprintf(fp,"   %s : constant := %d;\n", name, value);
+
+#define GUFLT(name, value) \
+  NON_SUPPORT_MESSAGE(name)\
+  ifprintf(fp,"   %s : constant := %u;\n", name, value);
 
 #define GDFLT2(name, name2) \
   NON_SUPPORT_MESSAGE(name)\
@@ -141,7 +156,7 @@ int  max_GCST2;
    start of code to generate a struct/record declaration
    C type name is struct TYPENAME
    Ada type name is struct_TYPENAME
- */  
+ */
 #define GT1(TYPENAME,WE_HAVE_IT)\
 void g_struct_##TYPENAME(){\
  int we_have_it = WE_HAVE_IT;\
@@ -155,13 +170,28 @@ void g_struct_##TYPENAME(){\
    start of code to generate a struct/record declaration
    C type name is TYPENAME
    Ada type name is struct_TYPENAME
- */  
+ */
 #define GT1T(TYPENAME,WE_HAVE_IT)\
 void g_##TYPENAME(){\
  int we_have_it = WE_HAVE_IT;\
  TYPENAME DUMMY;\
  char const typename [] = #TYPENAME;\
  int typekind = TYPEDEF_STRUCT_TYPE;\
+ component_t comps [] = {\
+
+/* GT1R
+   ---
+   start of code to generate a struct/record declaration for structs
+   that have a pointer to the struct type as a component.
+   C type name is struct TYPENAME
+   Ada type name is struct_TYPENAME
+ */
+#define GT1R(TYPENAME,WE_HAVE_IT)\
+void g_struct_##TYPENAME(){\
+ int we_have_it = WE_HAVE_IT;\
+ struct TYPENAME DUMMY;\
+ char const typename [] = #TYPENAME;\
+ int typekind = RECURSIVE_STRUCT_TYPE;\
  component_t comps [] = {\
 
 /* GT2
@@ -177,7 +207,7 @@ void g_##TYPENAME(){\
 
 /* GT2A
    ----
-   variant of GT2, for component that is an array 
+   variant of GT2, for component that is an array
    the component C type is CMPTYP
    which is an array with components of type CMPCMPTYP
    N is the number of components
@@ -216,7 +246,7 @@ void (*DUMMYFPTR) ();
 #define GT3\
  0, 0, 0, 0, 0};\
  if (! we_have_it) {\
- fprintf(fp,"   --  *** MISSING: %s ***  --\n", typename);\
+ ifprintf(fp,"   --  *** MISSING: %s ***  --\n", typename);\
  warn("missing struct type",typename);}\
  save_type(typename, sizeof(DUMMY), typekind, comps);\
  print_type_declaration(typename,fp);}
@@ -229,10 +259,6 @@ void (*DUMMYFPTR) ();
 #else
 #define ENOSYS -1
 #endif
-
-#define  NON_SUPPORT_MESSAGE(NAME)\
-  fprintf(fp,"   --  *** MISSING: %s ***  --\n", NAME);\
-  warn("missing",NAME);
 
 #define DEFAULTSIZE (sizeof(int)*bits_per_byte)
 /* the number of bits in the dummy type that is used
@@ -273,6 +299,7 @@ typedef struct component {
 #define TYPEDEF_STRUCT_TYPE 4
 #define OPAQUE_TYPE 5
 #define CHAR_ARRAY_TYPE 6
+#define RECURSIVE_STRUCT_TYPE 7  /* BLH */
 /* .... may need to also define a case for union types
    .... may not need to distinquish struct from typedef */
 
@@ -296,8 +323,8 @@ type_t **all_type_tail = &all_type_list;
 void warn(const char msg1[], const char msg2[]);
 void quit(const char msg1[], const char msg2[]);
 void save_type
-  (char const name[], 
-   int typesize, 
+  (char const name[],
+   int typesize,
    int typekind,
    component_t const *comps);
 void print_type_declaration(char const name[], FILE *fp);
@@ -344,7 +371,6 @@ char error_message[128];
  */
 
 FILE *fp;      /* current output file */
-FILE *fp_read; /* current input file */
 
 int network_byte_order;
 /* 1 means we have network order locally, and so don't
@@ -419,15 +445,17 @@ void g_tcflag_t(){gdfluitp("tcflag_t");}
 #endif
 
 #ifdef HAVE_clockid_t
-void g_clockid_t(){guitp("clockid_t", sizeof(clockid_t));}
+void g_clockid_t(){gsitp("clockid_t", sizeof(clockid_t));}
 #else
-void g_clockid_t(){gdfluitp("clockid_t");}
+void g_clockid_t(){gdflsitp("clockid_t");}
 #endif
 
 #ifdef HAVE_mqd_t
-void g_mqd_t(){guitp("mqd_t", sizeof(mqd_t));}
+void g_mqd_t(){gsitp("mqd_t", sizeof(mqd_t));}
 #else
-void g_mqd_t(){gdfluitp("mqd_t");}
+/* mqd_t must  be signed, since the value -1 is used for error return
+ */
+void g_mqd_t(){gdflsitp("mqd_t");}
 #endif
 
 #ifdef HAVE_fd_set
@@ -520,13 +548,13 @@ union sigval {
   };
 #endif
 void g_sigval(){
-  fprintf(fp,"   type sigval (Dummy : Boolean := True) is record\n");
-  fprintf(fp,"      case Dummy is\n");
-  fprintf(fp,"         when True  => sival_int : int;\n");
-  fprintf(fp,"         when False => sival_ptr : System.Address;\n");
-  fprintf(fp,"      end case;\n");
-  fprintf(fp,"   end record;\n");
-  fprintf(fp,"   pragma Unchecked_Union (sigval);\n");
+  ifprintf(fp,"   type sigval (Dummy : Boolean := True) is record\n");
+  ifprintf(fp,"      case Dummy is\n");
+  ifprintf(fp,"         when True  => sival_int : int;\n");
+  ifprintf(fp,"         when False => sival_ptr : System.Address;\n");
+  ifprintf(fp,"      end case;\n");
+  ifprintf(fp,"   end record;\n");
+  ifprintf(fp,"   pragma Unchecked_Union (sigval);\n");
 }
 
 /* siginfo_t must precede sigaction
@@ -765,7 +793,8 @@ struct termios {
 #ifdef HAVE_suseconds_t
 #else
   typedef int suseconds_t;
-#endif 
+#endif
+
 #ifdef HAVE_struct_timeval
   GT1(timeval, 1)
 #else
@@ -780,9 +809,8 @@ struct timeval {
   GT3
 
 struct timeval struct_timeval_dummy;
-void g_su_seconds_t()
+void g_suseconds_t()
  {gsitp("suseconds_t", sizeof(struct_timeval_dummy.tv_usec));}
-
 
 #ifdef HAVE_struct_iovec
   GT1(iovec, 1)
@@ -899,7 +927,7 @@ struct utsname {
   GT2A(machine, utsname_machine_string, char, sizeof(DUMMY.machine))
   GT3
 
-#ifdef HAVE_sa_family_t 
+#ifdef HAVE_sa_family_t
 #else
   typedef unsigned short sa_family_t;
 #endif
@@ -908,16 +936,23 @@ struct utsname {
   typedef unsigned short in_port_t;
 #endif
 
+/* in_addr_t should be 4 bytes long
+   It is likely to be defined as int or long,
+   depending on the machine architecture.
+   We use char[4] here if the system does not
+   define an appropriate type.
+ */
+
 #ifdef HAVE_struct_in_addr
 #ifdef HAVE_in_addr_t
 #else
-  typedef unsigned long in_addr_t;
+  typedef char in_addr_t[4];
 #endif
   GT1(in_addr, 1)
 #else
 #ifdef HAVE_in_addr_t
 #else
-  typedef unsigned long in_addr_t;
+  typedef char in_addr_t[4];
 #endif
 struct in_addr {
     in_addr_t s_addr;
@@ -950,7 +985,7 @@ struct sockaddr_un {
   GT1(sockaddr_un, 0)
 #endif
   GT2(sun_family, sa_family_t)
-  GT2A(sun_path, sun_path, char, sizeof (DUMMY.sun_path))
+  GT2A(sun_path, sun_path_string, char, sizeof (DUMMY.sun_path))
   GT3
 
 #ifdef HAVE_struct_sockaddr_in
@@ -987,7 +1022,7 @@ struct linger {
   GT1(msghdr, 1)
 #else
 struct msghdr {
-    char * msg_name;
+    struct sockaddr * msg_name;
     size_t msg_namelen;
     struct iovec * msg_iov;
     size_t msg_iovlen;
@@ -1002,14 +1037,14 @@ struct msghdr {
   };
   GT1(msghdr, 0)
 #endif
-  GT2(msg_name, char *)
+  GT2(msg_name, struct sockaddr *)
   GT2(msg_namelen, size_t)
   GT2(msg_iov, struct iovec *)
   GT2(msg_iovlen, size_t)
 #ifdef _BSD4_3_
   GT2(msg_accrights,caddr_t)
   GT2(msg_accrightslen,int)
-#else 
+#else
 #ifdef HAVE_component_msg_control
   GT2(msg_control, char *)
 #endif
@@ -1083,7 +1118,12 @@ struct netent {
   GT2(n_name, char *)
   GT2(n_aliases, char **)
   GT2(n_addrtype, int)
-  GT2(n_net, unsigned int)
+  GT2(n_net, in_addr_t)
+  /* POSIX 1003.1g/D6.4 says n_net should be unsigned long,
+     but it should be 4 bytes and unsigned long might be longer
+     than that on some systems.
+     Solaris 2.6 uses in_addr_t, which seems safer.
+   */
   GT3
 
 #ifdef HAVE_struct_protoent
@@ -1118,8 +1158,9 @@ struct servent {
   GT2(s_proto, char *)
   GT3
 
+/* BLH : Changed GT1 to GT1R to handle addrinfo pointer */
 #ifdef HAVE_struct_addrinfo
-  GT1(addrinfo, 1)
+  GT1R(addrinfo, 1)
 #else
 struct addrinfo {
   int ai_flags;
@@ -1129,9 +1170,9 @@ struct addrinfo {
   size_t ai_addrlen;
   struct sockaddr * ai_addr;
   char * ai_canonname;
-  char * ai_next;
+  struct addrinfo * ai_next;
   };
-  GT1(addrinfo, 0)
+  GT1R(addrinfo, 0)
 #endif
   GT2(ai_flags, int)
   GT2(ai_family, int)
@@ -1140,7 +1181,7 @@ struct addrinfo {
   GT2(ai_addrlen, size_t)
   GT2(ai_addr, struct sockaddr *)
   GT2(ai_canonname, char *)
-  GT2(ai_next, char *)
+  GT2(ai_next, struct addrinfo *)
   GT3
 
 /* XTI structs */
@@ -1336,8 +1377,8 @@ struct t_iovec {
   GT1(t_kpalive,1)
 #else
 struct t_kpalive {
-     long  kp_onoff; 
-     long  kp_timeout; 
+     long  kp_onoff;
+     long  kp_timeout;
   };
   GT1(t_kpalive,0)
 #endif
@@ -1345,9 +1386,8 @@ struct t_kpalive {
   GT2(kp_timeout, long)
   GT3
 
-
 /*
- Poll/Select 
+ Poll/Select
  */
 /* pollfd structure */
 #ifdef HAVE_struct_pollfd
@@ -1398,18 +1438,18 @@ void quit(const char msg1[], const char msg2[]) {
    and return a pointer to the new node.
  */
 void save_type
-  (char const name[], 
-   int typesize, 
+  (char const name[],
+   int typesize,
    int typekind,
    component_t const *comps) {
 
   type_t *tmp;
-  component_t const *p;
   int count;
+  component_t const *p;
 
   tmp = all_type_list;
-  for (tmp=all_type_list; 
-       tmp && strcmp(tmp->typename,name); 
+  for (tmp=all_type_list;
+       tmp && strcmp(tmp->typename,name);
        tmp=tmp->next);
   if (tmp) quit("DUPLICATE TYPE DEFINITION",name);
 
@@ -1443,8 +1483,8 @@ void print_type_declaration(char const name[], FILE *fp) {
   char extended_name[128];
 
   type = all_type_list;
-  for (type=all_type_list; 
-       type && strcmp(type->typename,name); 
+  for (type=all_type_list;
+       type && strcmp(type->typename,name);
        type=type->next);
   if (type == NULL) {
     NON_SUPPORT_MESSAGE(name);
@@ -1453,7 +1493,8 @@ void print_type_declaration(char const name[], FILE *fp) {
 
   if (type->is_printed) ("TYPE ALREADY DECLARED",name);
 
-  if (type->typekind == STRUCT_TYPE) {
+  if (type->typekind == STRUCT_TYPE || 
+      type->typekind == RECURSIVE_STRUCT_TYPE) {
     if (strlen(type->typename)>=sizeof(extended_name)) {
        quit("type name too long",type->typename);
     }
@@ -1467,68 +1508,107 @@ void print_type_declaration(char const name[], FILE *fp) {
   }
   switch (type->typekind) {
   case SIGNED_INTEGER_TYPE:
-    fprintf(fp,"   type %s is range -2**%d .. (2**%d)-1;\n",
-      type->typename, 
-      type->typesize*bits_per_byte-1, 
+    ifprintf(fp,"   type %s is range -2**%d .. (2**%d)-1;\n",
+      type->typename,
+      type->typesize*bits_per_byte-1,
       type->typesize*bits_per_byte-1);
-    fprintf(fp,"   for %s'Size use %d;\n",
+    ifprintf(fp,"   for %s'Size use %d;\n",
       extended_name, type->typesize*bits_per_byte);
     break;
   case UNSIGNED_INTEGER_TYPE:
-    fprintf(fp,"   type %s is mod 2**%d;\n",
+    ifprintf(fp,"   type %s is mod 2**%d;\n",
       type->typename,
       type->typesize*bits_per_byte);
-    fprintf(fp,"   for %s'Size use %d;\n",
+    ifprintf(fp,"   for %s'Size use %d;\n",
       extended_name, type->typesize*bits_per_byte);
     break;
   case STRUCT_TYPE:
   case TYPEDEF_STRUCT_TYPE:
   { component_t * p;
     int prev_offset = -1;
-    fprintf(fp,"   type %s is record\n", extended_name);
+    ifprintf(fp,"   type %s is record\n", extended_name);
     for (p = type->comps; p && p->typename; p++) {
-      fprintf(fp,"      %s : ", p->compname);
+      ifprintf(fp,"      %s : ", p->compname);
       print_ada_type(p->typename);
       fprintf(fp,";\n");
-      if (p->is_volatile) fprintf(fp,"      pragma Volatile (%s);\n",
+      if (p->is_volatile) ifprintf(fp,"      pragma Volatile (%s);\n",
          p->compname);
     }
-    fprintf(fp,"   end record;\n   for %s use record\n", extended_name);   
+    ifprintf(fp,"   end record;\n");
+    ifprintf(fp,"   for %s use record\n", extended_name);
     for (p = type->comps; p && p->compname; p++) {
       /* GNAT isn't able to handle overlapping components, so we add a simple
-	 minded test to prevent the most common cases */
+         minded test to prevent the most common cases */
       if (p->offset == prev_offset)
-	fprintf(fp,"      --  *** OVERLAPPING component ***\n"
-		   "      --  %s at %d range 0 .. %d;\n", p->compname,
-		   p->offset, p->size*bits_per_byte-1);
+        ifprintf(fp,"      --  *** OVERLAPPING component ***\n"
+                   "      --  %s at %d range 0 .. %d;\n", p->compname,
+                   p->offset, p->size*bits_per_byte-1);
       else
-	fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
-	  p->offset, p->size*bits_per_byte-1);
+        ifprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
+          p->offset, p->size*bits_per_byte-1);
       prev_offset = p->offset;
     }
-    fprintf(fp,"   end record;\n");
-    fprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
-    fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
-    fprintf(fp,"   pragma Warnings (Off);\n");
-    fprintf(fp,"   --  There may be holes in the record, due to\n");
-    fprintf(fp,"   --  components not defined by POSIX standard.\n");
-    fprintf(fp,"   for %s'Size use %d;\n",
+    ifprintf(fp,"   end record;\n");
+    ifprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
+    ifprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
+    ifprintf(fp,"   pragma Warnings (Off);\n");
+    ifprintf(fp,"   --  There may be holes in the record, due to\n");
+    ifprintf(fp,"   --  components not defined by POSIX standard.\n");
+    ifprintf(fp,"   for %s'Size use %d;\n",
       extended_name, type->typesize*bits_per_byte);
-    fprintf(fp,"   pragma Warnings (On);\n");
+    ifprintf(fp,"   pragma Warnings (On);\n");
     gptrtp(type->typename, extended_name);
     break;
   }
+  case RECURSIVE_STRUCT_TYPE:  /* BLH */
+  { component_t * p;
+    int prev_offset = -1;
+    ifprintf(fp,"   type %s;\n", extended_name);
+    gptrtp(type->typename, extended_name);
+    ifprintf(fp,"   type %s is record\n", extended_name);
+    for (p = type->comps; p && p->typename; p++) {
+      ifprintf(fp,"      %s : ", p->compname);
+      print_ada_type(p->typename);
+      fprintf(fp,";\n");
+      if (p->is_volatile) ifprintf(fp,"      pragma Volatile (%s);\n",
+         p->compname);
+    }
+    ifprintf(fp,"   end record;\n");
+    ifprintf(fp,"   for %s use record\n", extended_name);
+    for (p = type->comps; p && p->compname; p++) {
+      /* GNAT isn't able to handle overlapping components, so we add a simple
+         minded test to prevent the most common cases */
+      if (p->offset == prev_offset)
+        ifprintf(fp,"      --  *** OVERLAPPING component ***\n"
+                   "      --  %s at %d range 0 .. %d;\n", p->compname,
+                   p->offset, p->size*bits_per_byte-1);
+      else
+        ifprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
+          p->offset, p->size*bits_per_byte-1);
+      prev_offset = p->offset;
+    }
+    ifprintf(fp,"   end record;\n");
+    ifprintf(fp,"   pragma Convention (C_Pass_By_Copy, %s);\n", extended_name);
+    ifprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", extended_name);
+    ifprintf(fp,"   pragma Warnings (Off);\n");
+    ifprintf(fp,"   --  There may be holes in the record, due to\n");
+    ifprintf(fp,"   --  components not defined by POSIX standard.\n");
+    ifprintf(fp,"   for %s'Size use %d;\n",
+      extended_name, type->typesize*bits_per_byte);
+    ifprintf(fp,"   pragma Warnings (On);\n");
+    break;
+  }
   case CHAR_ARRAY_TYPE:
-    fprintf(fp,"   type %s is\n", extended_name);
-    fprintf(fp,"     array (1 .. %d) of char;\n", type->typesize);
-    fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", type->typename);
+    ifprintf(fp,"   type %s is\n", extended_name);
+    ifprintf(fp,"     array (1 .. %d) of char;\n", type->typesize);
+    ifprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", type->typename);
     gptrtp(type->typename,extended_name);
     break;
   case OPAQUE_TYPE:
-    fprintf(fp,"   type %s is\n", extended_name);
-    fprintf(fp,"     array (1 .. %d) of int;\n", wordsize(type->typesize));
-    fprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", type->typename);
-    fprintf(fp,"   for %s'Size use %d;\n",
+    ifprintf(fp,"   type %s is\n", extended_name);
+    ifprintf(fp,"     array (1 .. %d) of int;\n", wordsize(type->typesize));
+    ifprintf(fp,"   for %s'Alignment use ALIGNMENT;\n", type->typename);
+    ifprintf(fp,"   for %s'Size use %d;\n",
       extended_name, type->typesize*bits_per_byte);
     gptrtp(type->typename,extended_name);
     break;
@@ -1731,8 +1811,7 @@ void print_ada_type (char const typename[]) {
     fprintf(fp,"struct_sigevent");
   else if (!strcmp (typename, "struct sockaddr *"))
     fprintf(fp,"sockaddr_ptr");
-  else if (!strcmp (typename, "struct iovec *"))
-    fprintf(fp,"iovec_ptr");
+  else if (!strcmp (typename, "struct iovec *")) fprintf(fp,"iovec_ptr");
   else if (!strcmp (typename, "struct addrinfo *"))
     fprintf(fp,"addrinfo_ptr");
   else if (!strcmp (typename, "struct timespec"))
@@ -1743,29 +1822,19 @@ void print_ada_type (char const typename[]) {
     fprintf(fp,"System.Address");
   else if (!strcmp (typename, "void (*)()")) fprintf(fp,"System.Address");
   else if (!strcmp (typename, "volatile void *")) fprintf(fp,"System.Address");
-  else if (!strcmp (typename, "sun_path")) {
-#ifndef HAVE_struct_sockaddr_un
-     struct sockaddr_un {
-	sa_family_t sun_family;
-	char sun_path [100];
-     };
-#endif
-     struct sockaddr_un DUMMY;
-     fprintf(fp,"POSIX_String (1 .. %d)",  sizeof (DUMMY.sun_path));
-  } else if (!strcmp (typename, "fd_mask")) {
-     fprintf(fp,"fd_mask_array (1 .. %d)",
-	      sizeof(fd_set)/sizeof(unsigned int));
-  }
-  else if (!strncmp (typename, "void (*)(", 9) &&
-	   typename [strlen (typename) - 1] == ')')
-  /* translate "void (*)(...)" into System.Address */
-    fprintf(fp,"System.Address");
+  else if (!strcmp (typename, "fd_mask")) {
+    fprintf(fp,"fd_mask_array (1 .. %d)",
+              sizeof(fd_set)/sizeof(unsigned int));
+  } else if (!strncmp (typename, "void (*)(", 9) &&
+           typename [strlen (typename) - 1] == ')')
+   /* translate "void (*)(...)" into System.Address */
+   fprintf(fp,"System.Address");
   else fprintf(fp,"%s", typename);
 }
 
 /* wordsize
    --------
-   the number of locations of type int required to 
+   the number of locations of type int required to
    hold a value of a type of size n (in bytes)
  */
 int wordsize (int n) {
@@ -1781,9 +1850,12 @@ int wordsize (int n) {
 void ghdrcmnt(char name[]) {
   int len = strlen(name);
   int i;
-  fprintf(fp,"\n   ");
+  fprintf(fp,"\n");
+  ifprintf(fp,"   ");
   for (i=0; i<len+8; i++) fprintf(fp,"%s","-");
-  fprintf(fp,"\n   --  %s  --\n   ", name);
+  fprintf(fp,"\n");
+  ifprintf(fp,"   --  %s  --\n", name);
+  ifprintf(fp,"   ");
   for (i=0; i<len+8; i++) fprintf(fp,"%s","-");
   fprintf(fp,"\n\n");
 }
@@ -1793,7 +1865,8 @@ void ghdrcmnt(char name[]) {
    generate comment
  */
 void gcmnt(char name[]) {
-  fprintf(fp,"\n   --  %s  --\n", name);
+  fprintf(fp,"\n");
+  ifprintf(fp,"   --  %s  --\n", name);
 }
 
 /* gbrg
@@ -1802,8 +1875,8 @@ void gcmnt(char name[]) {
    range lb .. ub
  */
 void gbrg(char name[], char lb[], char ub[]) {
-  fprintf(fp,"   subtype %s is Boolean range\n",name);
-  fprintf(fp,"      %s .. %s;\n", lb, ub);
+  ifprintf(fp,"   subtype %s is Boolean range\n",name);
+  ifprintf(fp,"      %s .. %s;\n", lb, ub);
 }
 
 /* gptrtp
@@ -1811,10 +1884,10 @@ void gbrg(char name[], char lb[], char ub[]) {
    generate variable and constant-pointer types
  */
 void gptrtp(char const ptrname[], char const desname[]) {
-  fprintf(fp,"   type %s_ptr is access constant %s;\n", ptrname, desname);
-  fprintf(fp,"   pragma Convention (C, %s_ptr);\n", ptrname);
-  fprintf(fp,"   type %s_var_ptr is access all %s;\n", ptrname, desname);
-  fprintf(fp,"   pragma Convention (C, %s_var_ptr);\n", ptrname);
+  ifprintf(fp,"   type %s_ptr is access constant %s;\n", ptrname, desname);
+  ifprintf(fp,"   pragma Convention (C, %s_ptr);\n", ptrname);
+  ifprintf(fp,"   type %s_var_ptr is access all %s;\n", ptrname, desname);
+  ifprintf(fp,"   pragma Convention (C, %s_var_ptr);\n", ptrname);
 }
 
 /* gsitp
@@ -1864,8 +1937,15 @@ void gdfluitp(char name[]) {
    generate declaration of opaque (private type completion)
    for C type with specified name and size (in bytes)
  */
-void gptp(char name[], int size) { 
-  save_type(name, size, OPAQUE_TYPE, NULL);
+void gptp(char name[], int size) {
+  if (size >= sizeof (int)) 
+  {
+    save_type(name, size, OPAQUE_TYPE, NULL);
+  }
+  else
+  {
+    save_type(name, size, CHAR_ARRAY_TYPE, NULL);
+  }
   print_type_declaration(name,fp);
 }
 
@@ -1874,7 +1954,7 @@ void gptp(char name[], int size) {
    generate default completion of private type declaration
    for C type not supported by the underlying OS
  */
-void gdflptp(char name[])  { 
+void gdflptp(char name[])  {
   NON_SUPPORT_MESSAGE(name)
   gptp(name, DEFAULTSIZE/bits_per_byte);
 }
@@ -1902,37 +1982,38 @@ void gdflptp(char name[])  {
 
 void gfunc(char const name[], char const xname[], int have_it) {
   if (have_it) {
-    fprintf
+    ifprintf
       (fp,"   HAVE_%s : constant Boolean := True;\n", name);
-    if (strlen(name) > 20) fprintf
-      (fp,"   %s_LINKNAME : constant String :=\n       \"%s\";\n", name, name);
-    else fprintf
+    if (strlen(name) > 20) {
+      ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+      ifprintf(fp,"       \"%s\";\n", name);
+    } else ifprintf
       (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
    } else {
 #ifdef TRY_MACRO_LINKNAMES
-     if (strcmp(name, xname)) {  
+     if (strcmp(name, xname)) {
        /* We have a macro masquerading as a function name.
           If this code results in problems, #undef TRY_MACRO_LINKNAMES
           and recompile c-posix.c.
           These functions will then simply be treated as not available.
         */
-      fprintf(fp,"   --  We guessed %s is implemented as a macro that\n",
+      ifprintf(fp,"   --  We guessed %s is implemented as a macro that\n",
         name);
-      fprintf(fp,"   --  expands to the real function name."
+      ifprintf(fp,"   --  expands to the real function name."
        "  This is risky...\n");
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String"
-        " :=\n      \"%s\";\n", name, xname);
-      else fprintf
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"%s\";\n", xname);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
     } else
 #endif
     {
-    fprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
+    ifprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
     warn("missing function ", name);
-    fprintf
+    ifprintf
       (fp,"   HAVE_%s : constant Boolean := False;\n", name);
-    fprintf
+    ifprintf
       (fp,"   %s_LINKNAME : constant String := \"nosys_neg_one\";\n", name);
     }
   }
@@ -1946,13 +2027,14 @@ void gfunc(char const name[], char const xname[], int have_it) {
  */
 
 void gfuncsol(char const name[], char const xname[]) {
-  fprintf(fp,"   --  We guessed %s is implemented as a wrapper\n", name);
-  fprintf(fp,"   --  that calls the real function.  This is risky...\n");
-  fprintf
+  ifprintf(fp,"   --  We guessed %s is implemented as a wrapper\n", name);
+  ifprintf(fp,"   --  that calls the real function.  This is risky...\n");
+  ifprintf
     (fp,"   HAVE_%s : constant Boolean := True;\n", name);
-  if (strlen(name) > 20) fprintf
-    (fp,"   %s_LINKNAME : constant String :=\n       \"%s\";\n", name, xname);
-  else fprintf
+  if (strlen(name) > 20) {
+    ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+    ifprintf(fp,"       \"%s\";\n", xname);
+  } else ifprintf
     (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
 }
 
@@ -1971,37 +2053,38 @@ void gfuncsol(char const name[], char const xname[]) {
 
 void gfuncns(char const name[], char const xname[], int have_it) {
   if (have_it) {
-    fprintf
+    ifprintf
       (fp,"   HAVE_%s : constant Boolean := True;\n", name);
-    if (strlen(name) > 20) fprintf
-      (fp,"   %s_LINKNAME : constant String :=\n       \"%s\";\n", name, name);
-    else fprintf
+    if (strlen(name) > 20) {
+      ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+      ifprintf(fp,"       \"%s\";\n", name);
+    } else ifprintf
       (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
    } else {
 #ifdef TRY_MACRO_LINKNAMES
-     if (strcmp(name, xname)) {  
+     if (strcmp(name, xname)) {
        /* We have a macro masquerading as a function name.
           If this code results in problems, #undef TRY_MACRO_LINKNAMES
           and recompile c-posix.c.
           These functions will then simply be treated as not available.
         */
-      fprintf(fp,"   --  We guessed %s is implemented as a macro that\n",
+      ifprintf(fp,"   --  We guessed %s is implemented as a macro that\n",
         name);
-      fprintf(fp,"   --  expands to the real function name."
+      ifprintf(fp,"   --  expands to the real function name."
        "  This is risky...\n");
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String"
-        " :=\n      \"%s\";\n", name, xname);
-      else fprintf
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"%s\";\n", xname);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
     } else
 #endif
     {
-    fprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
+    ifprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
     warn("missing function ", name);
-    fprintf
+    ifprintf
       (fp,"   HAVE_%s : constant Boolean := False;\n", name);
-    fprintf
+    ifprintf
       (fp,"   %s_LINKNAME : constant String := \"notsup_neg_one\";\n", name);
     }
   }
@@ -2027,36 +2110,37 @@ void gfuncns(char const name[], char const xname[], int have_it) {
  */
 void gfuncd(char const name[], char const xname[], int have_it) {
   if (have_it) {
-    if (strlen(name) > 20) fprintf
-      (fp,"   %s_LINKNAME : constant String :=\n      \"%s\";\n", name, name);
-    else fprintf
+    if (strlen(name) > 20) {
+      ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+      ifprintf(fp,"      \"%s\";\n", name);
+    } else ifprintf
       (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
   } else {
 #ifdef TRY_MACRO_LINKNAMES
-    if (strcmp(name, xname)) {  
+    if (strcmp(name, xname)) {
        /* We have a macro masquerading as a function name.
           If this results in problems, #undef TRY_MACRO_LINKNAMES
           and recompile c-posix.c.  These functions will then simply
           be treated as not available.
         */
-      fprintf(fp,"   --  Apparently this function is actually a macro.\n");
-      fprintf(fp,"   --  We are guessing that"
+      ifprintf(fp,"   --  Apparently this function is actually a macro.\n");
+      ifprintf(fp,"   --  We are guessing that"
         " the macro expands to a linkable name.\n");
-      fprintf(fp,"   --  This is risky...\n");
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String"
-        " :=\n      \"%s\";\n", name, xname);
-      else fprintf
+      ifprintf(fp,"   --  This is risky...\n");
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"%s\";\n", xname);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
     } else
 #endif
    {
-      fprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
+      ifprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
       warn("missing function ", name);
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String :=\n      \"nosys_direct\";\n",
-         name);
-      else fprintf
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"nosys_direct\";\n", name);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"nosys_direct\";\n", name);
     }
   }
@@ -2075,36 +2159,37 @@ void gfuncd(char const name[], char const xname[], int have_it) {
  */
 void gfuncdns(char const name[], char const xname[], int have_it) {
   if (have_it) {
-    if (strlen(name) > 20) fprintf
-      (fp,"   %s_LINKNAME : constant String :=\n      \"%s\";\n", name, name);
-    else fprintf
+    if (strlen(name) > 20) {
+      ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+      ifprintf(fp,"      \"%s\";\n", name);
+    } else ifprintf
       (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
   } else {
 #ifdef TRY_MACRO_LINKNAMES
-    if (strcmp(name, xname)) {  
+    if (strcmp(name, xname)) {
        /* We have a macro masquerading as a function name.
           If this results in problems, #undef TRY_MACRO_LINKNAMES
           and recompile c-posix.c.  These functions will then simply
           be treated as not available.
         */
-      fprintf(fp,"   --  Apparently this function is actually a macro.\n");
-      fprintf(fp,"   --  We are guessing that"
+      ifprintf(fp,"   --  Apparently this function is actually a macro.\n");
+      ifprintf(fp,"   --  We are guessing that"
         " the macro expands to a linkable name.\n");
-      fprintf(fp,"   --  This is risky...\n");
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String"
-        " :=\n      \"%s\";\n", name, xname);
-      else fprintf
+      ifprintf(fp,"   --  This is risky...\n");
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"%s\";\n", xname);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
     } else
 #endif
    {
-      fprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
+      ifprintf(fp,"   --  *** MISSING: function %s ***  --\n", name);
       warn("missing function ", name);
-      if (strlen(name) > 20) fprintf
-        (fp,"   %s_LINKNAME : constant String :=\n      \"notsup_direct\";\n",
-         name);
-      else fprintf
+      if (strlen(name) > 20) {
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
+        ifprintf(fp,"      \"notsup_direct\";\n", name);
+      } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"notsup_direct\";\n", name);
     }
   }
@@ -2115,8 +2200,8 @@ void gfuncdns(char const name[], char const xname[], int have_it) {
    generate _Maxima subtype of Natural
  */
 void gmaxn(char const name[], int lower_bound) {
-  fprintf(fp,"   subtype %s_Maxima is Natural range\n",name);
-  fprintf(fp,"      %d .. Natural'Last;\n",lower_bound);
+  ifprintf(fp,"   subtype %s_Maxima is Natural range\n",name);
+  ifprintf(fp,"      %d .. Natural'Last;\n",lower_bound);
 }
 
 /* gmaxnn
@@ -2124,8 +2209,8 @@ void gmaxn(char const name[], int lower_bound) {
    generate _Maxima subtype of Natural with tight bound
  */
 void gmaxnn(char const name[], int bound) {
-  fprintf(fp,"   subtype %s_Maxima is Natural range\n",name);
-  fprintf(fp,"      %d .. %d;\n", bound, bound);
+  ifprintf(fp,"   subtype %s_Maxima is Natural range\n",name);
+  ifprintf(fp,"      %d .. %d;\n", bound, bound);
 }
 
 /* gmaxi
@@ -2133,8 +2218,8 @@ void gmaxnn(char const name[], int bound) {
    generate _Maxima subtype of IO_Count
  */
 void gmaxi(char const name[], int lower_bound) {
-  fprintf(fp,"   subtype %s_Maxima is IO_Count range\n",name);
-  fprintf(fp,"      %d .. IO_Count'Last;\n",lower_bound);
+  ifprintf(fp,"   subtype %s_Maxima is IO_Count range\n",name);
+  ifprintf(fp,"      %d .. IO_Count'Last;\n",lower_bound);
 }
 
 /* gmaxi
@@ -2142,8 +2227,8 @@ void gmaxi(char const name[], int lower_bound) {
    generate _Maxima subtype of IO_Count with tight range
  */
 void gmaxii(char const name[], int bound) {
-  fprintf(fp,"   subtype %s_Maxima is IO_Count range\n",name);
-  fprintf(fp,"      %d .. %d;\n", bound, bound);
+  ifprintf(fp,"   subtype %s_Maxima is IO_Count range\n",name);
+  ifprintf(fp,"      %d .. %d;\n", bound, bound);
 }
 
 /* gpmaxi
@@ -2152,8 +2237,8 @@ void gmaxii(char const name[], int bound) {
    with specified value
  */
 void gpmaxi(char const name[], int value) {
-  fprintf(fp,"   Portable_%s_Maximum :\n",name);
-  fprintf(fp,"      constant IO_Count := %d;\n",value);
+  ifprintf(fp,"   Portable_%s_Maximum :\n",name);
+  ifprintf(fp,"      constant IO_Count := %d;\n",value);
 }
 
 /* gpmaxn
@@ -2162,8 +2247,8 @@ void gpmaxi(char const name[], int value) {
    with specified value
  */
 void gpmaxn(char const name[], int value) {
-  fprintf(fp,"   Portable_%s_Maximum :\n",name);
-  fprintf(fp,"      constant Natural := %d;\n",value);
+  ifprintf(fp,"   Portable_%s_Maximum :\n",name);
+  ifprintf(fp,"      constant Natural := %d;\n",value);
 }
 
 /* gpmaxr
@@ -2173,8 +2258,8 @@ void gpmaxn(char const name[], int value) {
    as renaming of constant in package POSIX
  */
 void gpmaxr(char const name[], char const oname[]) {
-  fprintf(fp,"   Portable_%s_Maximum : Natural\n",name);
-  fprintf(fp,"      renames POSIX.Portable_%s_Maximum;\n",oname);
+  ifprintf(fp,"   Portable_%s_Maximum : Natural\n",name);
+  ifprintf(fp,"      renames POSIX.Portable_%s_Maximum;\n",oname);
 }
 
 /* gpmaxrioc
@@ -2184,28 +2269,28 @@ void gpmaxr(char const name[], char const oname[]) {
    as renaming of constant in package POSIX
  */
 void gpmaxrioc(char const name[], char const oname[]) {
-  fprintf(fp,"   Portable_%s_Maximum : POSIX.IO_Count\n",name);
-  fprintf(fp,"      renames POSIX.Portable_%s_Maximum;\n",oname);
+  ifprintf(fp,"   Portable_%s_Maximum : POSIX.IO_Count\n",name);
+  ifprintf(fp,"      renames POSIX.Portable_%s_Maximum;\n",oname);
 }
 
 /* grename
    -------
  */
 void grename (char const name[], char const oname[]) {
-  fprintf(fp,"   subtype %s is\n",name);
-  fprintf(fp,"      POSIX.%s;\n",oname);
+  ifprintf(fp,"   subtype %s is\n",name);
+  ifprintf(fp,"      POSIX.%s;\n",oname);
 }
 
 /* gmacrofunc
    ----------
  */
-void gmacrofunc 
-  (char const funcname[], 
+void gmacrofunc
+  (char const funcname[],
    char const parmtype[],
    char const parmname[]) {
-  fprintf(fp,"   function %s (%s : %s) return int;\n",
+  ifprintf(fp,"   function %s (%s : %s) return int;\n",
      funcname, parmname, parmtype);
-  fprintf(fp,"   pragma Import (C, %s, \"%s\");\n", funcname, funcname);
+  ifprintf(fp,"   pragma Import (C, %s, \"%s\");\n", funcname, funcname);
 }
 
 /* create_options
@@ -2220,12 +2305,12 @@ void create_options() {
     quit("can't open file to write","");
   }
   gheader("POSIX.Options", IEEE_Header);
-  fprintf(fp,"package POSIX.Options is\n");
+  ifprintf(fp,"package POSIX.Options is\n");
 
 #ifdef _POSIX_ASYNCHRONOUS_IO
   gbrg("Asynchronous_IO_Support", "True", "True");
 #else
-#ifdef _POSIX_ASYNC_IO 
+#ifdef _POSIX_ASYNC_IO
 #if (_POSIX_ASYNC_IO == -1)
   gbrg("Asynchronous_IO_Support", "False", "False");
 #else
@@ -2301,7 +2386,7 @@ void create_options() {
   gbrg("Priority_Task_Scheduling_Support", "True", "True");
 #else
   gbrg("Priority_Task_Scheduling_Support", "False", "False");
-#endif  
+#endif
 #else
   gbrg("Priority_Process_Scheduling_Support", "False", "True");
   gbrg("Priority_Task_Scheduling_Support", "False", "False");
@@ -2365,7 +2450,7 @@ void create_options() {
   gbrg("Timers_Support", "False", "True");
 #endif
 
-/* options from POSIX.5c [D2] 
+/* options from POSIX.5c [D2]
  */
 
 /* What does _POSIX_PII map to in Ada?
@@ -2448,7 +2533,7 @@ void create_options() {
   gbrg("Network_Management_Support", "False", "True");
 #endif
 
-  fprintf(fp,"end POSIX.Options;\n");
+  ifprintf(fp,"end POSIX.Options;\n");
   fclose (fp);
   fprintf(stderr,"done generating posix-options.ads\n");
 }
@@ -2465,22 +2550,22 @@ void create_limits() {
     quit("can't open file to write","");
   }
   gheader("POSIX.Limits", IEEE_Header);
-  fprintf(fp,"package POSIX.Limits is\n");
+  ifprintf(fp,"package POSIX.Limits is\n");
   ghdrcmnt("Portable System Limits");
 
-  fprintf(fp,"   --  .... Change P1003.5b?\n");
-  fprintf(fp,"   --  to allow these constants\n");
-  fprintf(fp,"   --  to be larger than the minimum values specified.\n\n");
+  ifprintf(fp,"   --  .... Change P1003.5b?\n");
+  ifprintf(fp,"   --  to allow these constants\n");
+  ifprintf(fp,"   --  to be larger than the minimum values specified.\n\n");
 
   gpmaxr("Argument_List","Argument_List");
 
-  fprintf(fp,"   Portable_Asynchronous_IO_Maximum :\n");
-  fprintf(fp,"      constant Natural := 1;\n");
+  ifprintf(fp,"   Portable_Asynchronous_IO_Maximum :\n");
+  ifprintf(fp,"      constant Natural := 1;\n");
 
   gpmaxr("Child_Processes","Child_Processes");
 
-  fprintf(fp,"   Portable_Clock_Resolution_Minimum :\n");
-  fprintf(fp,"      constant := 20_000_000;\n");
+  ifprintf(fp,"   Portable_Clock_Resolution_Minimum :\n");
+  ifprintf(fp,"      constant := 20_000_000;\n");
   /* notice that this is a MINIMUM, so we don't use gpmax */
 
   gpmaxr("Filename","Filename_Limit");
@@ -2560,7 +2645,8 @@ void create_limits() {
 
   gpmaxr("Time_Zone_String","Time_Zone_String");
 
-  fprintf(fp,"\n   --  limits from POSIX.5c [D2]\n\n");
+  fprintf(fp,"\n");
+  ifprintf(fp,"   --  limits from POSIX.5c [D2]\n\n");
 
 #ifdef _POSIX_FD_SETSIZE
   gpmaxn("File_Descriptor_Set", _POSIX_FD_SETSIZE);
@@ -2656,15 +2742,15 @@ void create_limits() {
 
   grename("Open_Files_Maxima","Open_Files_Maxima");
 
-  fprintf(fp,"   subtype Page_Size_Range ");
+  ifprintf(fp,"   subtype Page_Size_Range ");
 #ifdef PAGESIZE
-  fprintf(fp," is Natural range %d .. %d;\n", PAGESIZE, PAGESIZE);
+  ifprintf(fp," is Natural range %d .. %d;\n", PAGESIZE, PAGESIZE);
 #else
 #ifdef _SC_PAGESIZE
-  fprintf(fp," is Natural range %d .. %d;\n",
+  ifprintf(fp," is Natural range %d .. %d;\n",
     sysconf(_SC_PAGESIZE),  sysconf(_SC_PAGESIZE));
 #else
-  fprintf(fp," is Natural range 0 .. -1;\n");
+  ifprintf(fp," is Natural range 0 .. -1;\n");
 #endif
 #endif
 
@@ -2735,10 +2821,11 @@ void create_limits() {
 
   grename("Time_Zone_String_Maxima","Time_Zone_String_Maxima");
 
-/* limits from POSIX.5c/D4 
+/* limits from POSIX.5c/D4
  */
 
-  fprintf(fp,"\n   --  limits from POSIX.5c [D2]\n\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"   --  limits from POSIX.5c [D2]\n\n");
 
 #ifdef FD_SETSIZE
   gmaxnn("File_Descriptor_Set", FD_SETSIZE);
@@ -2790,7 +2877,7 @@ void create_limits() {
 #endif
 #endif
 
-  fprintf(fp,"end POSIX.Limits;\n");
+  ifprintf(fp,"end POSIX.Limits;\n");
   fclose (fp);
   fprintf(stderr,"done generating posix-limits.ads\n");
 
@@ -2807,27 +2894,40 @@ void create_posix() {
   int   XTI_Error_Last;
   int   EAI_Error_First;
   int   EAI_Error_Last;
-  char  buf[128];
-  char  buf2[128];
-  int   count, n1, n2;
+  int   count;
 
-  /* ?????
-     Need to fix this so that we don't need the file tmpposix.ads,
-     which was added as a temporary measure
-     when the sockets and XTI packages were added.
-   */
+  /* The Makefile is responsible for defining LIBS correctly */
+#ifdef LIBS
+  char  libs[] = LIBS, *s1, *s2;
+#endif
 
   fprintf(stderr,"creating package POSIX\n");
-  if (! (fp = fopen ("tmpposix.ads", "w"))) {
+  if (! (fp = fopen ("posix.ads", "w"))) {
     perror ("posix.ads");
     quit("can't open file to write","");
   }
 
   gheader("POSIX", IEEE_Header);
-  fprintf(fp,"with Ada_Streams;\n");
-  fprintf(fp,"with Interfaces;\n");
-  fprintf(fp,"package POSIX is\n");
-  fprintf(fp,"   --  2.4.1 Constants and Static Subtypes\n\n");
+  ifprintf(fp,"with Ada_Streams;\n");
+  ifprintf(fp,"with Interfaces;\n");
+  ifprintf(fp,"package POSIX is\n\n");
+
+#ifdef LIBS
+  /* Generate one pragma Linker_Options per library */
+
+  for (s1 = libs; *s1; ) {
+    for (s2 = s1; *s2 && *s2 != ' '; s2++);
+    if (*s2) {
+      *s2 = '\0';
+      ifprintf(fp,"   pragma Linker_Options (\"%s\");\n", s1);
+      s1 = s2 + 1;
+    } else
+      s1 = s2;
+  }
+#endif
+
+  fprintf(fp,"\n");
+  ifprintf(fp,"   --  2.4.1 Constants and Static Subtypes\n\n");
 
   fprintf(fp,"   --   Version Identification\n\n");
 
@@ -2836,9 +2936,10 @@ void create_posix() {
 #else
   GDFLT("POSIX_Version", 0);
 #endif
-  fprintf(fp,"   POSIX_Ada_Version : constant := 1995_00;\n\n");
-  fprintf(fp,"   --  Optional Facilities (obsolescent, 0)\n");
-  fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
+  ifprintf(fp,"   POSIX_Ada_Version : constant := 1995_00;\n\n");
+
+  ifprintf(fp,"   --  Optional Facilities (obsolescent, 0)\n");
+  ifprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
 
 #ifdef _POSIX_JOB_CONTROL
   gbrg("Job_Control_Support", "True", "True");
@@ -2871,19 +2972,19 @@ void create_posix() {
 #else
   gbrg("Filename_Truncation", "False", "True");
 #endif
-  fprintf(fp,"   --  Bytes and I/O Counts\n\n");
+  ifprintf(fp,"   --  Bytes and I/O Counts\n\n");
 
-  fprintf(fp,"   Byte_Size : constant :=  %d;\n\n",bits_per_byte);
+  ifprintf(fp,"   Byte_Size : constant :=  %d;\n\n",bits_per_byte);
 
-  fprintf(fp,"   type IO_Count is range -2**%d .. (2**%d)-1;\n\n",
+  ifprintf(fp,"   type IO_Count is range -2**%d .. (2**%d)-1;\n\n",
     sizeof(ssize_t)*bits_per_byte-1,
     sizeof(ssize_t)*bits_per_byte-1);
-  fprintf(fp,"   for IO_Count'Size use %d;\n", sizeof(ssize_t)*bits_per_byte);
+  ifprintf(fp,"   for IO_Count'Size use %d;\n", sizeof(ssize_t)*bits_per_byte);
 
   gmaxi("IO_Count", 32767);
 
-  fprintf(fp,"   --  System Limits (obsolescent)\n");
-  fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
+  ifprintf(fp,"   --  System Limits (obsolescent)\n");
+  ifprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
 
 /* Run-Time Increasable Values
    These must be defined, but
@@ -2904,7 +3005,7 @@ void create_posix() {
   gmaxn("Groups", _POSIX_NGROUPS_MAX);
 #else
   gmaxn("Groups", 0);
-#endif 
+#endif
 #endif
 
 /*
@@ -2955,7 +3056,7 @@ void create_posix() {
 #ifdef OPEN_MAX
   gmaxnn("Open_Files", OPEN_MAX);
 #else
-#ifdef _POSIX_OPEN_MAX 
+#ifdef _POSIX_OPEN_MAX
   gmaxn("Open_Files", _POSIX_OPEN_MAX);
 #else
   gmaxn("Open_Files", 16);
@@ -2994,16 +3095,17 @@ void create_posix() {
 #endif
 #endif
 
-/* 
+/*
    Pathname Variable Values
    These need not be defined.
    If defined, these are reliable static bounds,
-   not to be exceeded by pathconf() result.   
+   not to be exceeded by pathconf() result.
 
  */
 
-   fprintf(fp,"   --  Pathname Variable Values (obsolescent)\n");
-   fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
+   ifprintf(fp,"   --  Pathname Variable Values (obsolescent)\n");
+   ifprintf(fp,"   --  See package POSIX.Limits for preferred"
+     " interfaces.\n\n");
 
 #ifdef _POSIX_LINK_MAX
   gpmaxn("Link_Limit",_POSIX_LINK_MAX);
@@ -3088,151 +3190,179 @@ void create_posix() {
 #ifdef _POSIX_PIPE_BUF
   gpmaxi("Pipe_Limit",_POSIX_PIPE_BUF);
 #else
-  gpmaxid("Pipe_Limit", 512);
+  gpmaxi("Pipe_Limit", 512);
 #endif
 #ifdef PIPE_BUF
-  gmaxi("Pipe_Limit", PIPE_BUF);
+  gmaxii("Pipe_Limit", PIPE_BUF);
 #else
 #ifdef _POSIX_PIPE_BUF
-  gmaxii("Pipe_Limit", _POSIX_PIPE_BUF);
+  gmaxi("Pipe_Limit", _POSIX_PIPE_BUF);
 #else
   gmaxi("Pipe_Limit", 512);
 #endif
 #endif
 
-  fprintf(fp,"   --  Blocking Behavior Values\n");
+  ifprintf(fp,"   --  Blocking Behavior Values\n");
 
-  fprintf(fp,"   type Blocking_Behavior is (Tasks, Program, Special);\n");
+  ifprintf(fp,"   type Blocking_Behavior is (Tasks, Program, Special);\n");
 
-  fprintf(fp,"   subtype Text_IO_Blocking_Behavior is Blocking_Behavior\n");
-  fprintf(fp,"      range Tasks .. Tasks;\n");
+  ifprintf(fp,"   subtype Text_IO_Blocking_Behavior is Blocking_Behavior\n");
+  ifprintf(fp,"      range Tasks .. Tasks;\n");
 
-  fprintf(fp,"   IO_Blocking_Behavior               :");
-  fprintf(fp," constant Blocking_Behavior\n");
-  fprintf(fp,"                                      := Tasks;\n");
-  fprintf(fp,"   File_Lock_Blocking_Behavior        :");
-  fprintf(fp," constant Blocking_Behavior\n");
-  fprintf(fp,"                                      := Tasks;\n");
-  fprintf(fp,"   Wait_For_Child_Blocking_Behavior   :");
-  fprintf(fp," constant Blocking_Behavior\n");
-  fprintf(fp,"                                      := Tasks;\n");
+  ifprintf(fp,"   IO_Blocking_Behavior               :");
+  ifprintf(fp," constant Blocking_Behavior\n");
+  ifprintf(fp,"                                      := Tasks;\n");
+  ifprintf(fp,"   File_Lock_Blocking_Behavior        :");
+  ifprintf(fp," constant Blocking_Behavior\n");
+  ifprintf(fp,"                                      := Tasks;\n");
+  ifprintf(fp,"   Wait_For_Child_Blocking_Behavior   :");
+  ifprintf(fp," constant Blocking_Behavior\n");
+  ifprintf(fp,"                                      := Tasks;\n");
 
-  fprintf(fp,"   subtype Realtime_Blocking_Behavior is Blocking_Behavior\n");
-  fprintf(fp,"      range Tasks .. Program;\n");
+  ifprintf(fp,"   subtype Realtime_Blocking_Behavior is Blocking_Behavior\n");
+  ifprintf(fp,"      range Tasks .. Program;\n");
 
-  fprintf(fp,"   --  Signal Masking\n");
+  ifprintf(fp,"   --  Signal Masking\n");
 
-  fprintf(fp,"   type Signal_Masking is ");
-  fprintf(fp,"(No_Signals, RTS_Signals, All_Signals);\n");
+  ifprintf(fp,"   type Signal_Masking is ");
+  ifprintf(fp,"(No_Signals, RTS_Signals, All_Signals);\n");
 
-  fprintf(fp,"   --  Characters and Strings\n");
+  ifprintf(fp,"   --  Characters and Strings\n");
 
-  fprintf(fp,"   type POSIX_Character is new Standard.Character;\n");
+  ifprintf(fp,"   type POSIX_Character is new Standard.Character;\n");
 
-  fprintf(fp,"   --  We rely here on the fact that the GNAT type Character\n");
-  fprintf(fp,"   --  is the same as the GCC type char in C,\n");
-  fprintf(fp,"   --  which in turn must be the same as POSIX_Character.\n");
+  ifprintf(fp,"   --  We rely here on the fact that the GNAT"
+    " type Character\n");
+  ifprintf(fp,"   --  is the same as the GCC type char in C,\n");
+  ifprintf(fp,"   --  which in turn must be the same as POSIX_Character.\n\n");
+  ifprintf(fp,"   NUL : constant POSIX_Character := POSIX_Character (ASCII.NUL);\n");
+  ifprintf(fp,"   SOH : constant POSIX_Character := POSIX_Character (ASCII.SOH);\n");
+  ifprintf(fp,"   STX : constant POSIX_Character := POSIX_Character (ASCII.STX);\n");
+  ifprintf(fp,"   ETX : constant POSIX_Character := POSIX_Character (ASCII.ETX);\n");
+  ifprintf(fp,"   EOT : constant POSIX_Character := POSIX_Character (ASCII.EOT);\n");
+  ifprintf(fp,"   ENQ : constant POSIX_Character := POSIX_Character (ASCII.ENQ);\n");
+  ifprintf(fp,"   ACK : constant POSIX_Character := POSIX_Character (ASCII.ACK);\n");
+  ifprintf(fp,"   BEL : constant POSIX_Character := POSIX_Character (ASCII.BEL);\n");
+  ifprintf(fp,"   BS  : constant POSIX_Character := POSIX_Character (ASCII.BS);\n");
+  ifprintf(fp,"   HT  : constant POSIX_Character := POSIX_Character (ASCII.HT);\n");
+  ifprintf(fp,"   LF  : constant POSIX_Character := POSIX_Character (ASCII.LF);\n");
+  ifprintf(fp,"   VT  : constant POSIX_Character := POSIX_Character (ASCII.VT);\n");
+  ifprintf(fp,"   FF  : constant POSIX_Character := POSIX_Character (ASCII.FF);\n");
+  ifprintf(fp,"   CR  : constant POSIX_Character := POSIX_Character (ASCII.CR);\n");
+  ifprintf(fp,"   SO  : constant POSIX_Character := POSIX_Character (ASCII.SO);\n");
+  ifprintf(fp,"   SI  : constant POSIX_Character := POSIX_Character (ASCII.SI);\n");
+  ifprintf(fp,"   DLE : constant POSIX_Character := POSIX_Character (ASCII.DLE);\n");
+  ifprintf(fp,"   DC1 : constant POSIX_Character := POSIX_Character (ASCII.DC1);\n");
+  ifprintf(fp,"   DC2 : constant POSIX_Character := POSIX_Character (ASCII.DC2);\n");
+  ifprintf(fp,"   DC3 : constant POSIX_Character := POSIX_Character (ASCII.DC3);\n");
+  ifprintf(fp,"   DC4 : constant POSIX_Character := POSIX_Character (ASCII.DC4);\n");
+  ifprintf(fp,"   NAK : constant POSIX_Character := POSIX_Character (ASCII.NAK);\n");
+  ifprintf(fp,"   SYN : constant POSIX_Character := POSIX_Character (ASCII.SYN);\n");
+  ifprintf(fp,"   ETB : constant POSIX_Character := POSIX_Character (ASCII.ETB);\n");
+  ifprintf(fp,"   CAN : constant POSIX_Character := POSIX_Character (ASCII.CAN);\n");
+  ifprintf(fp,"   EM  : constant POSIX_Character := POSIX_Character (ASCII.EM);\n");
+  ifprintf(fp,"   SUB : constant POSIX_Character := POSIX_Character (ASCII.SUB);\n");
+  ifprintf(fp,"   ESC : constant POSIX_Character := POSIX_Character (ASCII.ESC);\n");
+  ifprintf(fp,"   FS  : constant POSIX_Character := POSIX_Character (ASCII.FS);\n");
+  ifprintf(fp,"   GS  : constant POSIX_Character := POSIX_Character (ASCII.GS);\n");
+  ifprintf(fp,"   RS  : constant POSIX_Character := POSIX_Character (ASCII.RS);\n");
+  ifprintf(fp,"   US  : constant POSIX_Character := POSIX_Character (ASCII.US);\n\n");
 
-  fprintf(fp,"   type POSIX_String is array (Positive range <>) ");
-  fprintf(fp,"of aliased POSIX_Character;\n");
+  ifprintf(fp,"   type POSIX_String is array (Positive range <>) ");
+  ifprintf(fp,"of aliased POSIX_Character;\n");
 
-  fprintf(fp,"   function To_POSIX_String (Str : string) ");
-  fprintf(fp,"return POSIX_String;\n");
+  ifprintf(fp,"   function To_POSIX_String (Str : String) ");
+  ifprintf(fp,"return POSIX_String;\n");
 
-  fprintf(fp,"   function To_POSIX_String (Str : Wide_String) ");
-  fprintf(fp,"return POSIX_String;\n");
+  ifprintf(fp,"   function To_POSIX_String (Str : Wide_String) ");
+  ifprintf(fp,"return POSIX_String;\n");
 
-  fprintf(fp,"   function To_String (Str : POSIX_String) return String;\n");
+  ifprintf(fp,"   function To_String (Str : POSIX_String) return String;\n");
 
-  fprintf(fp,"   function To_Wide_String (Str : POSIX_String) ");
-  fprintf(fp,"return Wide_String;\n");
+  ifprintf(fp,"   function To_Wide_String (Str : POSIX_String) ");
+  ifprintf(fp,"return Wide_String;\n");
 
-  fprintf(fp,"   function To_Stream_Element_Array (Buffer : POSIX_String)\n");
-  fprintf(fp,"      return Ada_Streams.Stream_Element_Array;\n");
+  ifprintf(fp,"   function To_Stream_Element_Array (Buffer : POSIX_String)\n");
+  ifprintf(fp,"      return Ada_Streams.Stream_Element_Array;\n");
 
-  fprintf(fp,"   function To_POSIX_String (Buffer : ");
-  fprintf(fp,"Ada_Streams.Stream_Element_Array)\n");
-  fprintf(fp,"      return POSIX_String;\n");
+  ifprintf(fp,"   function To_POSIX_String (Buffer : ");
+  ifprintf(fp,"Ada_Streams.Stream_Element_Array)\n");
+  ifprintf(fp,"      return POSIX_String;\n");
 
-  fprintf(fp,"   subtype Filename is POSIX_String;\n");
-  fprintf(fp,"   subtype Pathname is POSIX_String;\n");
+  ifprintf(fp,"   subtype Filename is POSIX_String;\n");
+  ifprintf(fp,"   subtype Pathname is POSIX_String;\n");
 
-  fprintf(fp,"   function Is_Filename (Str : POSIX_String) return Boolean;\n");
-  fprintf(fp,"   function Is_Pathname (Str : POSIX_String) return Boolean;\n");
+  ifprintf(fp,"   function Is_Filename (Str : POSIX_String)"
+    " return Boolean;\n");
+  ifprintf(fp,"   function Is_Pathname (Str : POSIX_String)"
+    " return Boolean;\n");
 
-  fprintf(fp,"   function Is_Portable_Filename (Str : POSIX_String)");
-  fprintf(fp," return Boolean;\n");
-  fprintf(fp,"   function Is_Portable_Pathname (Str : POSIX_String)");
-  fprintf(fp," return Boolean;\n");
+  ifprintf(fp,"   function Is_Portable_Filename (Str : POSIX_String)");
+  ifprintf(fp," return Boolean;\n");
+  ifprintf(fp,"   function Is_Portable_Pathname (Str : POSIX_String)");
+  ifprintf(fp," return Boolean;\n");
 
-  fprintf(fp,"   --  String Lists\n");
+  ifprintf(fp,"   --  String Lists\n");
 
-  fprintf(fp,"   type POSIX_String_List is limited private;\n");
+  ifprintf(fp,"   type POSIX_String_List is limited private;\n");
 
-  fprintf(fp,"   Empty_String_List : constant POSIX_String_List;\n");
+  ifprintf(fp,"   Empty_String_List : constant POSIX_String_List;\n");
 
-  fprintf(fp,"   procedure Make_Empty (List : in out POSIX_String_List);\n");
+  ifprintf(fp,"   procedure Make_Empty (List : in out POSIX_String_List);\n");
 
-  fprintf(fp,"   procedure Append (List   : in out POSIX_String_List;\n");
-  fprintf(fp,"                     In_Str : in POSIX_String);\n");
+  ifprintf(fp,"   procedure Append (List : in out POSIX_String_List;\n");
+  ifprintf(fp,"                     Str  : in POSIX_String);\n");
 
-  fprintf(fp,"   generic\n");
-  fprintf(fp,"      with procedure Action\n");
-  fprintf(fp,"        (Item : in POSIX_String;\n");
-  fprintf(fp,"        Quit : in out Boolean);\n");
-  fprintf(fp,"   procedure For_Every_Item (List : in POSIX_String_List);\n");
+  ifprintf(fp,"   generic\n");
+  ifprintf(fp,"      with procedure Action\n");
+  ifprintf(fp,"        (Item : in POSIX_String;\n");
+  ifprintf(fp,"        Quit : in out Boolean);\n");
+  ifprintf(fp,"   procedure For_Every_Item (List : in POSIX_String_List);\n");
 
-  fprintf(fp,"   function Length (List : POSIX_String_List) ");
-  fprintf(fp,"return Natural;\n");
+  ifprintf(fp,"   function Length (List : POSIX_String_List) ");
+  ifprintf(fp,"return Natural;\n");
 
-  fprintf(fp,"   function Value\n");
-  fprintf(fp,"     (List  : POSIX_String_List;\n");
-  fprintf(fp,"      Index : Positive) return POSIX_String;\n");
+  ifprintf(fp,"   function Value\n");
+  ifprintf(fp,"     (List  : POSIX_String_List;\n");
+  ifprintf(fp,"      Index : Positive) return POSIX_String;\n");
 
-  fprintf(fp,"   --  option sets\n");
+  ifprintf(fp,"   --  option sets\n");
 
-  fprintf(fp,"   type Option_Set is private;\n");
-  fprintf(fp,"   function Empty_Set return Option_Set;\n");
-  fprintf(fp,"   function \"+\" (L, R : Option_Set) return Option_Set;\n");
-  fprintf(fp,"   function \"-\" (L, R : Option_Set) return Option_Set;\n");
-  fprintf(fp,"   function \"<\" (Left, Right : Option_Set) return Boolean;\n");
-  fprintf(fp,"   function \"<=\"(Left, Right : Option_Set) return Boolean;\n");
-  fprintf(fp,"   function \">\" (Left, Right : Option_Set) return Boolean;\n");
-  fprintf(fp,"   function \">=\"(Left, Right : Option_Set) return Boolean;\n");
+  ifprintf(fp,"   type Option_Set is private;\n");
+  ifprintf(fp,"   function Empty_Set return Option_Set;\n");
+  ifprintf(fp,"   function \"+\" (L, R : Option_Set) return Option_Set;\n");
+  ifprintf(fp,"   function \"-\" (L, R : Option_Set) return Option_Set;\n");
+  ifprintf(fp,"   function \"<\" (Left, Right : Option_Set)"
+    " return Boolean;\n");
+  ifprintf(fp,"   function \"<=\"(Left, Right : Option_Set)"
+    " return Boolean;\n");
+  ifprintf(fp,"   function \">\" (Left, Right : Option_Set)"
+    " return Boolean;\n");
+  ifprintf(fp,"   function \">=\"(Left, Right : Option_Set)"
+    " return Boolean;\n");
 
   { int i;
-    for (i =1; i<32; i++) {  
-      fprintf(fp,"   Option_%d :  constant Option_Set;\n", i);
+    for (i =1; i<32; i++) {
+      ifprintf(fp,"   Option_%d :  constant Option_Set;\n", i);
     }
   }
 
-  fprintf(fp,"   --  Exceptions and error codes\n");
+  ifprintf(fp,"   --  Exceptions and error codes\n");
 
-  fprintf(fp,"   POSIX_Error : exception;\n");
+  ifprintf(fp,"   POSIX_Error : exception;\n");
 
   gsitp("Error_Code", sizeof(int));
-  fprintf(fp,"   subtype XTI_Error_Code is Error_Code\n");
-  fprintf(fp,"      range XTIERRORFIRST .. XTIERRORLAST;\n");
-  fprintf(fp,"   subtype Addrinfo_Error_Code is Error_Code\n");
-  fprintf(fp,"      range EAIERRORFIRST .. EAIERRORLAST;\n");
-
-  fprintf(fp,"   function Get_Error_Code return Error_Code;\n");
-
-  fprintf(fp,"   procedure Set_Error_Code (Error : in Error_Code);\n");
-
-  fprintf(fp,"   function Is_POSIX_Error (Error : Error_Code) ");
-  fprintf(fp,"return Boolean;\n");
-
-  fprintf(fp,"   function Image (Error : Error_Code) return String;\n");
-
-  fprintf(fp,"   No_Error : constant Error_Code := 0;\n");
-
-  fprintf(fp,"   --  Error code constants with negative values ");
-  fprintf(fp,"correspond to\n");
-  fprintf(fp,"   --  error codes that are not supported by the ");
-  fprintf(fp,"current system.\n");
-
-  fprintf(fp,"   --  error codes\n");
+  ifprintf(fp,"   function Get_Error_Code return Error_Code;\n");
+  ifprintf(fp,"   procedure Set_Error_Code (Error : in Error_Code);\n");
+  ifprintf(fp,"   function Is_POSIX_Error (Error : Error_Code) ");
+  ifprintf(fp,"return Boolean;\n");
+  ifprintf(fp,"   function Image (Error : Error_Code) return String;\n");
+  ifprintf(fp,"   No_Error : constant Error_Code := 0;\n");
+  ifprintf(fp,"   --  Error code constants with negative values ");
+  ifprintf(fp,"correspond to\n");
+  ifprintf(fp,"   --  error codes that are not supported by the ");
+  ifprintf(fp,"current system.\n");
+  ifprintf(fp,"   --  error codes\n");
 
   max_GCST2 = 0;
 
@@ -3469,7 +3599,7 @@ void create_posix() {
 #ifdef ENOTSUP
   GCST2("ENOTSUP", "Operation_Not_Supported", ENOTSUP);
 #else
-  NON_SUPPORT_MESSAGE("ENOTSUP");  
+  NON_SUPPORT_MESSAGE("ENOTSUP");
   GCST2("ENOTSUP", "Operation_Not_Supported", ENOSYS);
 #endif
 #ifdef ENOTDIR
@@ -3580,74 +3710,75 @@ void create_posix() {
 #endif
 
   max_posix_error = max_GCST2;
+
   EAI_Error_First = 10000;      /* Start with a bias of 10000 */
   while (1) {
-
      if (EAI_Error_First > max_posix_error) {
-	break;
+        break;
      } else {
-	EAI_Error_First = EAI_Error_First * 10;
+        EAI_Error_First = EAI_Error_First * 10;
      } /* end if */
   } /* end while */
 
   max_GCST2 = EAI_Error_First;
+
 #ifdef EAI_ADDRFAMILY
   GCST2("EAI_ADDRFAMILY", "Unknown_Address_Type",
- 	 EAI_ADDRFAMILY+EAI_Error_First);
+         EAI_ADDRFAMILY+EAI_Error_First);
 #else
   GDFLT2("EAI_ADDRFAMILY", "Unknown_Address_Type");
 #endif
 #ifdef EAI_AGAIN
   GCST2("EAI_AGAIN", "Try_Again",
-	 EAI_AGAIN+EAI_Error_First);
+         EAI_AGAIN+EAI_Error_First);
 #else
   GDFLT2("EAI_AGAIN", "Try_Again");
 #endif
 #ifdef EAI_BADFLAGS
   GCST2("EAI_BADFLAGS", "Invalid_Flags",
-	 EAI_BADFLAGS+EAI_Error_First);
+         EAI_BADFLAGS+EAI_Error_First);
 #else
   GDFLT2("EAI_BADFLAGS", "Invalid_Flags");
 #endif
 #ifdef EAI_FAIL
   GCST2("EAI_FAIL", "Name_Failed",
-	 EAI_FAIL+EAI_Error_First);
+         EAI_FAIL+EAI_Error_First);
 #else
   GDFLT2("EAI_FAIL", "Name_Failed");
 #endif
 #ifdef EAI_FAMILY
-  GCST2("EAI_FAMILY", "Unknown_Protocol_Family", 
-	 EAI_FAMILY+EAI_Error_First);
+  GCST2("EAI_FAMILY", "Unknown_Protocol_Family",
+         EAI_FAMILY+EAI_Error_First);
 #else
   GDFLT2("EAI_FAMILY", "Unknown_Protocol_Family");
 #endif
 #ifdef EAI_MEMORY
   GCST2("EAI_MEMORY", "Memory_Allocation_Failed",
-	 EAI_MEMORY+EAI_Error_First);
+         EAI_MEMORY+EAI_Error_First);
 #else
   GDFLT2("EAI_MEMORY", "Memory_Allocation_Failed");
 #endif
 #ifdef EAI_NODATA
-  GCST2("EAI_NODATA", "No_Address_For_Name", 
-	 EAI_NODATA+EAI_Error_First);
+  GCST2("EAI_NODATA", "No_Address_For_Name",
+         EAI_NODATA+EAI_Error_First);
 #else
   GDFLT2("EAI_NODATA", "No_Address_For_Name");
 #endif
 #ifdef EAI_NONAME
   GCST2("EAI_NONAME", "Name_Not_Known",
-	 EAI_NONAME+EAI_Error_First);
+         EAI_NONAME+EAI_Error_First);
 #else
   GDFLT2("EAI_NONAME", "Name_Not_Known");
 #endif
 #ifdef EAI_SERVICE
   GCST2("EAI_SERVICE", "Service_Not_Supported",
-	 EAI_SERVICE+EAI_Error_First);
+         EAI_SERVICE+EAI_Error_First);
 #else
   GDFLT2("EAI_SERVICE", "Service_Not_Supported");
 #endif
 #ifdef EAI_SOCKTYPE
   GCST2("EAI_SOCKTYPE", "Unknown_Socket_Type",
-	 EAI_SOCKTYPE+EAI_Error_First);
+         EAI_SOCKTYPE+EAI_Error_First);
 #else
   GDFLT2("EAI_SOCKTYPE", "Unknown_Socket_Type");
 #endif
@@ -3657,11 +3788,14 @@ void create_posix() {
   while (1) {
 
      if (XTI_Error_First > max_posix_error) {
-	break;
+        break;
      } else {
-	XTI_Error_First = XTI_Error_First * 10;
+        XTI_Error_First = XTI_Error_First * 10;
      } /* end if */
   } /* end while */
+
+  ifprintf(fp,"   subtype Addrinfo_Error_Code is Error_Code\n");
+  ifprintf(fp,"      range %d .. %d;\n", EAI_Error_First, EAI_Error_Last);
 
   max_GCST2 = XTI_Error_First;
 
@@ -3697,7 +3831,7 @@ void create_posix() {
 #endif
 #ifdef TBADNAME
   GCST2("TBADNAME", "Invalid_Communications_Provider",
-	 TBADNAME+XTI_Error_First);
+         TBADNAME+XTI_Error_First);
 #else
   GDFLT2("TBADNAME", "Invalid_Communications_Provider");
 #endif
@@ -3728,7 +3862,7 @@ void create_posix() {
 #endif
 #ifdef TINDOUT
   GCST2("TINDOUT", "Outstanding_Connection_Indications",
-	 TINDOUT+XTI_Error_First);
+         TINDOUT+XTI_Error_First);
 #else
   GDFLT2("TINDOUT", "Outstanding_Connection_Indications");
 #endif
@@ -3748,26 +3882,26 @@ void create_posix() {
   GDFLT2("TNODATA", "No_Data_Available");
 #endif
 #ifdef TNODIS
-  GCST2("TNODIS", "No_Disconnect_Indication_On_Endpoint", 
-	 TNODIS+XTI_Error_First);
+  GCST2("TNODIS", "No_Disconnect_Indication_On_Endpoint",
+         TNODIS+XTI_Error_First);
 #else
   GDFLT2("TNODIS", "No_Disconnect_Indication_On_Endpoint");
 #endif
 #ifdef TPROVMISMATCH
-  GCST2("TPROVMISMATCH", "Communications_Provider_Mismatch", 
-	 TPROVMISMATCH+XTI_Error_First);
+  GCST2("TPROVMISMATCH", "Communications_Provider_Mismatch",
+         TPROVMISMATCH+XTI_Error_First);
 #else
   GDFLT2("TPROVMISMATCH", "Communications_Provider_Mismatch");
 #endif
 #ifdef TNOREL
-  GCST2("TNOREL", "No_Orderly_Release_Indication_On_Endpoint", 
-	 TNOREL+XTI_Error_First);
+  GCST2("TNOREL", "No_Orderly_Release_Indication_On_Endpoint",
+         TNOREL+XTI_Error_First);
 #else
   GDFLT2("TNOREL", "No_Orderly_Release_Indication_On_Endpoint");
 #endif
 #ifdef TNOSTRUCTYPE
-  GCST2("TNOSTRUCTYPE", "Unsupported_Object_Type_Requested", 
-	 TNOSTRUCTYPE+XTI_Error_First);
+  GCST2("TNOSTRUCTYPE", "Unsupported_Object_Type_Requested",
+         TNOSTRUCTYPE+XTI_Error_First);
 #else
   GDFLT2("TNOSTRUCTYPE", "Unsupported_Object_Type_Requested");
 #endif
@@ -3778,13 +3912,13 @@ void create_posix() {
 #endif
 #ifdef TNOUDERR
   GCST2("TNOUDERR", "No_Unitdata_Error_On_Endpoint",
-	 TNOUDERR+XTI_Error_First);
+         TNOUDERR+XTI_Error_First);
 #else
   GDFLT2("TNOUDERR", "No_Unitdata_Error_On_Endpoint");
 #endif
 #ifdef TOUTSTATE
-  GCST2("TOUTSTATE", "Function_Not_Valid_For_State", 
-	 TOUTSTATE+XTI_Error_First);
+  GCST2("TOUTSTATE", "Function_Not_Valid_For_State",
+         TOUTSTATE+XTI_Error_First);
 #else
   GDFLT2("TOUTSTATE", "Function_Not_Valid_For_State");
 #endif
@@ -3799,131 +3933,82 @@ void create_posix() {
   GDFLT2("TQFULL", "Endpoint_Queue_Full");
 #endif
 #ifdef TSTATECHNG
-  GCST2("TSTATECHNG", "State_Change_In_Progress", 
-	 TSTATECHNG+XTI_Error_First);
+  GCST2("TSTATECHNG", "State_Change_In_Progress",
+         TSTATECHNG+XTI_Error_First);
 #else
   GDFLT2("TSTATECHNG", "State_Change_In_Progress");
 #endif
 #ifdef TRESADDR
-  GCST2("TRESADDR", "Surrogate_File_Descriptor_Mismatch", 
-	 TRESADDR+XTI_Error_First);
+  GCST2("TRESADDR", "Surrogate_File_Descriptor_Mismatch",
+         TRESADDR+XTI_Error_First);
 #else
   GDFLT2("TRESADDR", "Surrogate_File_Descriptor_Mismatch");
 #endif
 #ifdef TRESQLEN
   GCST2("TRESQLEN", "Incorrect_Surrogate_Queue_Length",
-	 TRESQLEN+XTI_Error_First);
+         TRESQLEN+XTI_Error_First);
 #else
   GDFLT2("TRESQLEN", "Incorrect_Surrogate_Queue_Length");
 #endif
 
   XTI_Error_Last = max_GCST2;
 
-  fclose (fp);
+  ifprintf(fp,"   subtype XTI_Error_Code is Error_Code\n");
+  ifprintf(fp,"      range %d .. %d;\n", XTI_Error_First, XTI_Error_Last);
 
-  if (! (fp_read = fopen ("tmpposix.ads", "r"))) {
-    perror ("tmpposix.ads");
-    quit("can't open file to read","");
-  }
-  if (! (fp = fopen ("posix.ads", "w"))) {
-    perror ("posix.ads");
-    quit("can't open file to read","");
-  }
+  ifprintf(fp,"   --  System Identification\n");
 
-  while (1) {
-     buf[0] = 0;
-     count = fscanf (fp_read, "%[^\n]", buf);
-     if ( count == EOF ) {
-	break;
-     } /* end if */
-     /* Get by carrage return */
-     fseek (fp_read, 1, SEEK_CUR);
+  ifprintf(fp,"   function System_Name return POSIX_String;\n");
+  ifprintf(fp,"   function Node_Name return POSIX_String;\n");
+  ifprintf(fp,"   function Release return POSIX_String;\n");
+  ifprintf(fp,"   function Version return POSIX_String;\n");
+  ifprintf(fp,"   function Machine return POSIX_String;\n");
 
-     /*
-      * Look for the lines to change
-      */
+  ifprintf(fp,"   type Seconds is new Integer;\n");
+  ifprintf(fp,"   type Minutes is new Integer;\n");
+  ifprintf(fp,"   type Nanoseconds_Base is new Integer;\n");
+  ifprintf(fp,"   subtype Nanoseconds   is ");
+  ifprintf(fp,"Nanoseconds_Base range 0 .. (10**9) - 1;\n");
+  ifprintf(fp,"   type Timespec         is private;\n");
 
-     /*
-      * Check for XTI ERROR FIRST
-      */
-     if ( sscanf (buf, "%[^X\n]", buf2) == 1 ) {
-        count = sscanf (&buf[strlen(buf2)], "%[XTIERRORFIRST]", buf2);
-	if ( (count == 1) && (strlen(buf2) == strlen("XTIERRORFIRST")) ){
-           sprintf(buf, "      range %d .. %d;",
-			   XTI_Error_First, XTI_Error_Last);
-	}
-     }
-
-     /*
-      * Check for EAI ERROR FIRST
-      */
-     if (sscanf (buf, "%[^E\n]", buf2) == 1) {
-        count = sscanf (&buf[strlen(buf2)], "%[EAIERRORFIRST]", buf2);
-	printf ("%s\n", buf2);
-	if ( (count == 1) && (strlen(buf2) == strlen("EAIERRORFIRST")) ){
-           sprintf(buf, "      range %d .. %d;",
-			   EAI_Error_First, EAI_Error_Last);
-        }
-     }
-     fprintf(fp, "%s\n", buf);
-
-  } /* end while */
-
-  fclose (fp_read);
-
-  fprintf(fp,"   --  System Identification\n");
-
-  fprintf(fp,"   function System_Name return POSIX_String;\n");
-  fprintf(fp,"   function Node_Name return POSIX_String;\n");
-  fprintf(fp,"   function Release return POSIX_String;\n");
-  fprintf(fp,"   function Version return POSIX_String;\n");
-  fprintf(fp,"   function Machine return POSIX_String;\n");
-
-  fprintf(fp,"   type Seconds is new Integer;\n");
-  fprintf(fp,"   type Minutes is new Integer;\n");
-  fprintf(fp,"   type Nanoseconds_Base is new Integer;\n");
-  fprintf(fp,"   subtype Nanoseconds   is ");
-  fprintf(fp,"Nanoseconds_Base range 0 .. (10**9) - 1;\n");
-  fprintf(fp,"   type Timespec         is private;\n");
-
-  fprintf(fp,"   function Get_Seconds (Time : Timespec) return Seconds;\n");
-  fprintf(fp,"   procedure Set_Seconds\n");
-  fprintf(fp,"      (Time : in out Timespec;\n");
-  fprintf(fp,"       S    : in Seconds);\n");
-  fprintf(fp,"   function Get_Nanoseconds (Time : Timespec) ");
-  fprintf(fp,"return Nanoseconds;\n");
-  fprintf(fp,"   procedure Set_Nanoseconds\n");
-  fprintf(fp,"      (Time : in out Timespec;\n");
-  fprintf(fp,"       NS   : in Nanoseconds);\n");
-  fprintf(fp,"   procedure Split\n");
-  fprintf(fp,"      (Time : in  Timespec;\n");
-  fprintf(fp,"       S    : out Seconds;\n");
-  fprintf(fp,"       NS   : out Nanoseconds);\n");
-  fprintf(fp,"   function To_Timespec\n");
-  fprintf(fp,"      (S  : Seconds;\n");
-  fprintf(fp,"       NS : Nanoseconds) return Timespec;\n");
-  fprintf(fp,"   function \"+\" (Left, Right : Timespec) return Timespec;\n");
-  fprintf(fp,"   function \"+\" (Left : Timespec; Right : Nanoseconds)\n");
-  fprintf(fp,"     return Timespec;\n");
-  fprintf(fp,"   function \"-\" (Right : Timespec) return Timespec;\n");
-  fprintf(fp,"   function \"-\" (Left, Right : Timespec) return Timespec;\n");
-  fprintf(fp,"   function \"-\" (Left : Timespec; Right : Nanoseconds)\n");
-  fprintf(fp,"      return Timespec;\n");
-  fprintf(fp,"   function \"*\" (Left : Timespec; Right : Integer)\n");
-  fprintf(fp,"      return Timespec;\n");
-  fprintf(fp,"   function \"*\" (Left : Integer; Right : Timespec)\n");
-  fprintf(fp,"      return Timespec;\n");
-  fprintf(fp,"   function \"/\" (Left : Timespec; Right : Integer)\n");
-  fprintf(fp,"      return Timespec;\n");
-  fprintf(fp,"   function \"/\" (Left, Right  : Timespec) return Integer;\n");
-  fprintf(fp,"   function \"<\" (Left, Right  : Timespec) return Boolean;\n");
-  fprintf(fp,"   function \"<=\" (Left, Right : Timespec) return Boolean;\n");
-  fprintf(fp,"   function \">\" (Left, Right  : Timespec) return Boolean;\n");
-  fprintf(fp,"   function \">=\" (Left, Right : Timespec) return Boolean;\n");
-  fprintf(fp,"   function To_Duration (Time : Timespec) return Duration;\n");
-  fprintf(fp,"   --  pragma Inline (To_Duration);\n");
-  fprintf(fp,"   function To_Timespec (D : Duration) return Timespec;\n");
-  fprintf(fp,"   --  pragma Inline (To_Timespec);\n");
+  ifprintf(fp,"   function Get_Seconds (Time : Timespec) return Seconds;\n");
+  ifprintf(fp,"   procedure Set_Seconds\n");
+  ifprintf(fp,"      (Time : in out Timespec;\n");
+  ifprintf(fp,"       S    : in Seconds);\n");
+  ifprintf(fp,"   function Get_Nanoseconds (Time : Timespec) ");
+  ifprintf(fp,"return Nanoseconds;\n");
+  ifprintf(fp,"   procedure Set_Nanoseconds\n");
+  ifprintf(fp,"      (Time : in out Timespec;\n");
+  ifprintf(fp,"       NS   : in Nanoseconds);\n");
+  ifprintf(fp,"   procedure Split\n");
+  ifprintf(fp,"      (Time : in  Timespec;\n");
+  ifprintf(fp,"       S    : out Seconds;\n");
+  ifprintf(fp,"       NS   : out Nanoseconds);\n");
+  ifprintf(fp,"   function To_Timespec\n");
+  ifprintf(fp,"      (S  : Seconds;\n");
+  ifprintf(fp,"       NS : Nanoseconds) return Timespec;\n");
+  ifprintf(fp,"   function \"+\" (Left, Right : Timespec) return Timespec;\n");
+  ifprintf(fp,"   function \"+\" (Left : Timespec; Right : Nanoseconds)\n");
+  ifprintf(fp,"     return Timespec;\n");
+  ifprintf(fp,"   function \"-\" (Right : Timespec) return Timespec;\n");
+  ifprintf(fp,"   function \"-\" (Left, Right : Timespec) return Timespec;\n");
+  ifprintf(fp,"   function \"-\" (Left : Timespec; Right : Nanoseconds)\n");
+  ifprintf(fp,"      return Timespec;\n");
+  ifprintf(fp,"   function \"*\" (Left : Timespec; Right : Integer)\n");
+  ifprintf(fp,"      return Timespec;\n");
+  ifprintf(fp,"   function \"*\" (Left : Integer; Right : Timespec)\n");
+  ifprintf(fp,"      return Timespec;\n");
+  ifprintf(fp,"   function \"/\" (Left : Timespec; Right : Integer)\n");
+  ifprintf(fp,"      return Timespec;\n");
+  ifprintf(fp,"   function \"/\" (Left, Right  : Timespec) return Integer;\n");
+  ifprintf(fp,"   function \"<\" (Left, Right  : Timespec) return Boolean;\n");
+  ifprintf(fp,"   function \"<=\" (Left, Right : Timespec) return Boolean;\n");
+  ifprintf(fp,"   function \">\" (Left, Right  : Timespec) return Boolean;\n");
+  ifprintf(fp,"   function \">=\" (Left, Right : Timespec) return Boolean;\n");
+  ifprintf(fp,"   function To_Duration (Time : Timespec) return Duration;\n");
+  ifprintf(fp,"   --  pragma Inline (To_Duration);\n");
+  ifprintf(fp,"   function To_Timespec (D : Duration) return Timespec;\n");
+  ifprintf(fp,"   --  pragma Inline (To_Timespec);\n");
 
   ghdrcmnt("Host-Network Byte Order Conversions");
 
@@ -3941,82 +4026,87 @@ void create_posix() {
       x.c[0] = 0; x.c[1] = 1; x.c[2] = 2; x.c[3] = 3;
       if (x.l == 0x00010203) {
          network_byte_order = 1;
-         fprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
-           " : boolean := True;\n\n");
+         ifprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
+           " : Boolean := True;\n\n");
       } else {
          network_byte_order = 0;
-         fprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
-           " : boolean := False;\n\n");
+         ifprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
+           " : Boolean := False;\n\n");
       }
     } else quit ("short is not 16-bit","");
   } else quit ("int is not 32-bit","");
-  fprintf(fp,"   function Host_To_Network_Byte_Order");
-  fprintf(fp," (Host_32 : Interfaces.Unsigned_32)\n");
-  fprintf(fp,"      return Interfaces.Unsigned_32;\n");
+  ifprintf(fp,"   function Host_To_Network_Byte_Order");
+  ifprintf(fp," (Host_32 : Interfaces.Unsigned_32)\n");
+  ifprintf(fp,"      return Interfaces.Unsigned_32;\n");
 
-  fprintf(fp,"   function Host_To_Network_Byte_Order");
-  fprintf(fp," (Host_16 : Interfaces.Unsigned_16)\n");
-  fprintf(fp,"      return Interfaces.Unsigned_16;\n");
+  ifprintf(fp,"   function Host_To_Network_Byte_Order");
+  ifprintf(fp," (Host_16 : Interfaces.Unsigned_16)\n");
+  ifprintf(fp,"      return Interfaces.Unsigned_16;\n");
 
-  fprintf(fp,"   function Network_To_Host_Byte_Order");
-  fprintf(fp," (Host_32 : Interfaces.Unsigned_32)\n");
-  fprintf(fp,"      return Interfaces.Unsigned_32;\n");
+  ifprintf(fp,"   function Network_To_Host_Byte_Order");
+  ifprintf(fp," (Host_32 : Interfaces.Unsigned_32)\n");
+  ifprintf(fp,"      return Interfaces.Unsigned_32;\n");
 
-  fprintf(fp,"   function Network_To_Host_Byte_Order");
-  fprintf(fp," (Host_16 : Interfaces.Unsigned_16)\n");
-  fprintf(fp,"      return Interfaces.Unsigned_16;\n");
+  ifprintf(fp,"   function Network_To_Host_Byte_Order");
+  ifprintf(fp," (Host_16 : Interfaces.Unsigned_16)\n");
+  ifprintf(fp,"      return Interfaces.Unsigned_16;\n");
 
-  fprintf(fp,"   XTI_Blocking_Behavior     : constant Blocking_Behavior\n");
-  fprintf(fp,"      := Tasks;\n");
+  ifprintf(fp,"   XTI_Blocking_Behavior     : constant Blocking_Behavior\n");
+  ifprintf(fp,"      := Tasks;\n");
 
-  fprintf(fp,"   Sockets_Blocking_Behavior     :"
+  ifprintf(fp,"   Sockets_Blocking_Behavior     :"
     " constant Blocking_Behavior\n");
-  fprintf(fp,"      := Tasks;\n");
+  ifprintf(fp,"      := Tasks;\n");
 
   ghdrcmnt("Octet declarations");
 
-  fprintf(fp,"   type Octet is mod 2 ** 8;\n");
-  fprintf(fp,"   type Octet_Array is\n");
-  fprintf(fp,"      array (Integer range <>) of aliased Octet;\n");
-  fprintf(fp,"   type Octet_Array_Pointer is access all Octet_Array;\n");
-  fprintf(fp,"private\n");
+  ifprintf(fp,"   type Octet is mod 2 ** 8;\n");
+  ifprintf(fp,"   type Octet_Array is\n");
+  ifprintf(fp,"      array (Integer range <>) of aliased Octet;\n");
+  ifprintf(fp,"   type Octet_Array_Pointer is access all Octet_Array;\n");
+  ifprintf(fp,"private\n");
 
-  fprintf(fp,"   type String_List;\n");
-  fprintf(fp,"   --  See package body for comments on String_List.\n");
-  fprintf(fp,"   type POSIX_String_List is access all String_List;\n");
-  fprintf(fp,"   Empty_String_List : constant POSIX_String_List := null;\n\n");
+#ifdef VERSION
+  ifprintf(fp,"   Florist_Version : constant String := \""VERSION"\";\n\n");
+#endif
 
-  fprintf(fp,"   type Timespec is record\n");
-  fprintf(fp,"      Val : Duration := 0.0;\n");
-  fprintf(fp,"   end record;\n");
+  ifprintf(fp,"   type String_List;\n");
+  ifprintf(fp,"   --  See package body for comments on String_List.\n");
+  ifprintf(fp,"   type POSIX_String_List is access all String_List;\n");
+  ifprintf(fp,"   Empty_String_List : constant POSIX_String_List"
+    " := null;\n\n");
 
-  fprintf(fp,"   --  The value is of type Duration because we can do more\n");
-  fprintf(fp,"   --  efficient arithmetic on that type ");
-  fprintf(fp,"than on a two-part C struct.\n");
-  fprintf(fp,"   --  We rely that GNAT implements type ");
-  fprintf(fp,"Duration with enough\n");
-  fprintf(fp,"   --  precision (64 bits) to hold a full C timespec value.\n");
-  fprintf(fp,"   --  The enclosing record is to permit ");
-  fprintf(fp,"implicit initialization.\n");
+  ifprintf(fp,"   type Timespec is record\n");
+  ifprintf(fp,"      Val : Duration := 0.0;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   --  The value is of type Duration because we can do more\n");
+  ifprintf(fp,"   --  efficient arithmetic on that type ");
+  ifprintf(fp,"than on a two-part C struct.\n");
+  ifprintf(fp,"   --  We rely that GNAT implements type ");
+  ifprintf(fp,"Duration with enough\n");
+  ifprintf(fp,"   --  precision (64 bits) to hold a full C timespec value.\n");
+  ifprintf(fp,"   --  The enclosing record is to permit ");
+  ifprintf(fp,"implicit initialization.\n");
 
   guitp("Bits", sizeof(int));
-  fprintf(fp,"   --  Bits and the C int type are always the same size.\n");
-  fprintf(fp,"   --  We don't define int here, since we want to be able to\n");
-  fprintf(fp,"   --  use it in the visible parts of child packages.\n\n");
-  fprintf(fp,"   type Option_Set is\n");
-  fprintf(fp,"      record\n");
-  fprintf(fp,"         Option : Bits := 0;\n");
-  fprintf(fp,"      end record;\n");
+  ifprintf(fp,"   --  Bits and the C int type are always the same size.\n");
+  ifprintf(fp,"   --  We don't define int here,"
+    " since we want to be able to\n");
+  ifprintf(fp,"   --  use it in the visible parts of child packages.\n\n");
+  ifprintf(fp,"   type Option_Set is\n");
+  ifprintf(fp,"      record\n");
+  ifprintf(fp,"         Option : Bits := 0;\n");
+  ifprintf(fp,"      end record;\n");
 
   { int i;
     for (i=1; i<32; i++) {
-      fprintf(fp,"   Option_%d  : constant Option_Set := (Option => 2**%d);\n",
-        i, i-1);
+      ifprintf(fp,"   Option_%d  : constant Option_Set"
+        " := (Option => 2**%d);\n", i, i-1);
     }
   }
 
-
-  fprintf(fp,"end POSIX;\n");
+  ifprintf(fp,"end POSIX;\n");
 
   fclose (fp);
   fprintf(stderr,"done generating posix.ads\n");
@@ -4036,23 +4126,23 @@ void create_c() {
   }
 
   gheader("POSIX.C", FSU_Header);
-  fprintf(fp,"with System;\n");
-  fprintf(fp,"package POSIX.C is\n");
-  fprintf(fp,"   pragma Elaborate_Body;\n");
+  ifprintf(fp,"with System;\n");
+  ifprintf(fp,"package POSIX.C is\n");
+  ifprintf(fp,"   pragma Elaborate_Body;\n");
 
-  fprintf(fp,"   --  =========  --\n");
-  fprintf(fp,"   --   WARNING   --\n");
-  fprintf(fp,"   --  =========  --\n\n");
-  fprintf(fp,"   --  This package should NOT be used directly");
-  fprintf(fp," by an application.\n");
-  fprintf(fp,"   --  It is internal to the FLORIST implementation of the");
-  fprintf(fp," POSIX.5 API,\n");
-  fprintf(fp,"   --  and may be changed or replaced in future versions");
-  fprintf(fp," of FLORIST.\n\n");
+  ifprintf(fp,"   --  =========  --\n");
+  ifprintf(fp,"   --   WARNING   --\n");
+  ifprintf(fp,"   --  =========  --\n\n");
+  ifprintf(fp,"   --  This package should NOT be used directly");
+  ifprintf(fp," by an application.\n");
+  ifprintf(fp,"   --  It is internal to the FLORIST implementation of the");
+  ifprintf(fp," POSIX.5 API,\n");
+  ifprintf(fp,"   --  and may be changed or replaced in future versions");
+  ifprintf(fp," of FLORIST.\n\n");
 
-  fprintf(fp,"   ALIGNMENT : constant");
-  fprintf(fp," := Natural'Min (Standard'Maximum_Alignment, 8);\n");
-  fprintf(fp,"   --  worst-case alignment requirement\n");
+  ifprintf(fp,"   ALIGNMENT : constant");
+  ifprintf(fp," := Natural'Min (Standard'Maximum_Alignment, 8);\n");
+  ifprintf(fp,"   --  worst-case alignment requirement\n");
 
   /* numeric types
      -------------
@@ -4077,26 +4167,25 @@ void create_c() {
   /* char * and char **
      ------------------
    */
-  fprintf(fp,"   subtype char is POSIX_Character;\n");
-  fprintf(fp,"   NUL : constant char := char'Val (0);\n");
+  ifprintf(fp,"   subtype char is POSIX_Character;\n");
   gptrtp("char","char");
   gptrtp("char_ptr","char_ptr");
-  fprintf(fp,"   type char_ptr_array is\n");
-  fprintf(fp,"     array (Positive range <>) of aliased char_ptr;\n");
+  ifprintf(fp,"   type char_ptr_array is\n");
+  ifprintf(fp,"     array (Positive range <>) of aliased char_ptr;\n");
 
-  fprintf(fp,"   function malloc (size : in size_t) return char_ptr;\n");
-  fprintf(fp,"   function malloc (size : in size_t) return char_ptr_ptr;\n");
-  fprintf(fp,"      pragma Import (C, malloc, \"malloc\");\n");
-  fprintf(fp,"   procedure free (object : in char_ptr);\n");
-  fprintf(fp,"   procedure free (object : in char_ptr_ptr);\n");
-  fprintf(fp,"      pragma Import (C, free, \"free\");\n");
-  fprintf(fp,"   procedure Advance (Ptr : in out char_ptr);\n");
-  fprintf(fp,"   procedure Advance (Ptr : in out char_ptr_ptr);\n");
-  fprintf(fp,"   --  advance Ptr to next location\n");
-  fprintf(fp,"   --  pragma Inline (Advance);\n");
-  fprintf(fp,"   function Form_POSIX_String (Str : in char_ptr)\n");
-  fprintf(fp,"      return POSIX_String;\n");
-  fprintf(fp,"   --  makes new copy of string, without null terminator\n");
+  ifprintf(fp,"   function malloc (size : in size_t) return char_ptr;\n");
+  ifprintf(fp,"   function malloc (size : in size_t) return char_ptr_ptr;\n");
+  ifprintf(fp,"      pragma Import (C, malloc, \"malloc\");\n");
+  ifprintf(fp,"   procedure free (object : in char_ptr);\n");
+  ifprintf(fp,"   procedure free (object : in char_ptr_ptr);\n");
+  ifprintf(fp,"      pragma Import (C, free, \"free\");\n");
+  ifprintf(fp,"   procedure Advance (Ptr : in out char_ptr);\n");
+  ifprintf(fp,"   procedure Advance (Ptr : in out char_ptr_ptr);\n");
+  ifprintf(fp,"   --  advance Ptr to next location\n");
+  ifprintf(fp,"   --  pragma Inline (Advance);\n");
+  ifprintf(fp,"   function Form_POSIX_String (Str : in char_ptr)\n");
+  ifprintf(fp,"      return POSIX_String;\n");
+  ifprintf(fp,"   --  makes new copy of string, without null terminator\n");
 
   /* constants
      ---------
@@ -4257,7 +4346,7 @@ void create_c() {
   GDFLT("CS8", 0);
 #endif
 
-  fprintf(fp,"   --   error code constants are in posix.ads\n");
+  ifprintf(fp,"   --   error code constants are in posix.ads\n");
 
 #ifdef ECHO
   GCST("ECHO", ECHO);
@@ -4450,7 +4539,7 @@ void create_c() {
   GDFLT("MAP_FAILED",-1);
 #endif
   /* Linux wants MAP_FILE flag if we are memory-mapping
-     a file.  We define it to be zero for other systems. 
+     a file.  We define it to be zero for other systems.
    */
 #ifdef MAP_FILE
   GCST("MAP_FILE", MAP_FILE);
@@ -5548,8 +5637,8 @@ void create_c() {
   g_gid_t();
   g_uid_t();
   g_mode_t();
+  g_suseconds_t();
   g_ssize_t();
-  g_su_seconds_t();
   g_DIR();
   g_ino_t();
   g_dev_t();
@@ -5569,13 +5658,13 @@ void create_c() {
   g_sem_t();
   g_sigset_t();
   g_speed_t();
-  g_timer_t(); 
+  g_timer_t();
   g_sigval(); /* must precede siginfo_t and struct_sigevent */
   g_siginfo_t(); /* is typedef of a struct type */
 
   ghdrcmnt("structure types");
   g_struct_sigevent(); /* must precede aiocb */
-  g_struct_aiocb(); 
+  g_struct_aiocb();
   g_struct_dirent();
   g_struct_flock();
   g_struct_group();
@@ -5583,8 +5672,8 @@ void create_c() {
   g_struct_passwd();
   g_struct_sigaction();
   g_struct_sched_param();
+  ifprintf(fp,"   type cc_t_array is array (0 .. NCCS - 1) of cc_t;\n");
   g_struct_stat();
-  fprintf(fp,"   type cc_t_array is array (0 .. NCCS - 1) of cc_t;\n");
   g_struct_termios();
   gcmnt("timeval structure");
   g_struct_timeval();
@@ -5594,16 +5683,16 @@ void create_c() {
   g_struct_tms();
   g_struct_utimbuf();
   { struct utsname DUMMY;
-    fprintf(fp,"   subtype utsname_sysname_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sysname));
-    fprintf(fp,"   subtype utsname_nodename_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.nodename));
-    fprintf(fp,"   subtype utsname_release_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.release));
-    fprintf(fp,"   subtype utsname_version_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.version));
-    fprintf(fp,"   subtype utsname_machine_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.machine));
+    ifprintf(fp,"   subtype utsname_sysname_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sysname));
+    ifprintf(fp,"   subtype utsname_nodename_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.nodename));
+    ifprintf(fp,"   subtype utsname_release_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.release));
+    ifprintf(fp,"   subtype utsname_version_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.version));
+    ifprintf(fp,"   subtype utsname_machine_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.machine));
   }
   g_struct_utsname();
 
@@ -5636,8 +5725,12 @@ void create_c() {
   /*  GFUNC(creat,HAVE_creat); */
   GFUNC(ctermid,HAVE_ctermid);
   GFUNC(ctime,HAVE_ctime);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_ctime_r)
-  gfuncsol("ctime_r","__posix_ctime_r");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_ctime_r == 1) {
+    gfuncsol("ctime_r","__posix_ctime_r");
+  } else {
+    GFUNC(ctime_r,HAVE_ctime_r);
+  }
 #else
   GFUNC(ctime_r,HAVE_ctime_r);
 #endif
@@ -5683,6 +5776,7 @@ void create_c() {
   GFUNC(getppid,HAVE_getppid);
   GFUNC(getpwnam,HAVE_getpwnam);
   GFUNC(getpwuid,HAVE_getpwuid);
+  GFUNC(gettimeofday,HAVE_gettimeofday);
   GFUNC(getuid,HAVE_getuid);
   GFUNC(gmtime_r,HAVE_gmtime_r);
   GFUNC(isatty,HAVE_isatty);
@@ -5772,7 +5866,9 @@ void create_c() {
   GFUNCD(pthread_mutexattr_init,HAVE_pthread_mutexattr_init);
   GFUNCD(pthread_mutexattr_setprioceiling,
     HAVE_pthread_mutexattr_setprioceiling);
-  GFUNCDNS(pthread_mutexattr_setprotocol,HAVE_pthread_mutexattr_setprotocol);
+  GFUNCD(pthread_mutexattr_setprotocol,HAVE_pthread_mutexattr_setprotocol);
+  /* if not supported, the error code is Operation_Not_Implemented,
+     i.e., ENOSYS */
   GFUNCD(pthread_mutexattr_setpshared,HAVE_pthread_mutexattr_setpshared);
   /*  GFUNCD(pthread_once,HAVE_pthread_once); */
   /*  GFUNCD(pthread_self,HAVE_pthread_self); */
@@ -5788,8 +5884,12 @@ void create_c() {
   /*  GFUNC(rand_r,HAVE_rand_r); */
   GFUNC(read,HAVE_read);
   GFUNC(readdir,HAVE_readdir);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_readdir_r)
-  gfuncsol("readdir_r","__posix_readdir_r");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_readdir_r == 1) {
+    gfuncsol("readdir_r","__posix_readdir_r");
+  } else {
+    GFUNC(readdir_r,HAVE_readdir_r);
+  }
 #else
   GFUNC(readdir_r,HAVE_readdir_r);
 #endif
@@ -5828,22 +5928,26 @@ void create_c() {
   GFUNC(sigfillset,HAVE_sigfillset);
   GFUNC(sigismember,HAVE_sigismember);
 #ifdef siglongjmp
-  /*  fprintf(fp,"   --  *** WARNING: %s is a macro ***  --\n",
+  /*  ifprintf(fp,"   --  *** WARNING: %s is a macro ***  --\n",
         "siglongjmp"); */
 #endif
   /*  GFUNC(siglongjmp,HAVE_siglongjmp); */
   GFUNC(sigpending,HAVE_sigpending);
-  /* GFUNC(sigprocmask,HAVE_sigprocmask); */
+  GFUNC(sigprocmask,HAVE_sigprocmask);
   GFUNC(sigqueue,HAVE_sigqueue);
 #ifdef sigsetjmp
-  /*  fprintf(fp,"   --  *** WARNING: %s is a macro ***  --\n",
+  /*  ifprintf(fp,"   --  *** WARNING: %s is a macro ***  --\n",
         "sigsetjmp"); */
 #endif
   /*  GFUNC(sigsetjmp,HAVE_sigsetjmp); */
   /*  GFUNC(sigsuspend,HAVE_sigsuspend); */
   GFUNC(sigtimedwait,HAVE_sigtimedwait);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_sigwait)
-  gfuncsol("sigwait","__posix_sigwait");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_sigwait == 1) {
+    gfuncsol("sigwait","__posix_sigwait");
+  } else {
+    GFUNC(sigwait,HAVE_sigwait);
+  }
 #else
   GFUNC(sigwait,HAVE_sigwait);
 #endif
@@ -5894,9 +5998,9 @@ void create_c() {
   gmacrofunc("s_issem","mode_t","mode");
   gmacrofunc("s_isshm","mode_t","mode");
   gmacrofunc("s_issock","mode_t","mode");
-  gmacrofunc("s_typeismq","stat_ptr","int");
-  gmacrofunc("s_typeissem","stat_ptr","int");
-  gmacrofunc("s_typeisshm","stat_ptr","int");
+  gmacrofunc("s_typeismq","stat_ptr","stat");
+  gmacrofunc("s_typeissem","stat_ptr","stat");
+  gmacrofunc("s_typeisshm","stat_ptr","stat");
   gmacrofunc("wifexited","int","stat_val");
   gmacrofunc("wifexitstatus","int","stat_val");
   gmacrofunc("wifsignaled","int","stat_val");
@@ -5904,29 +6008,22 @@ void create_c() {
   gmacrofunc("wifstopped","int","stat_val");
   gmacrofunc("wifstopsig","int","stat_val");
 
-
 /* c_sockets
    ----------------
  */
 
-  fprintf(fp,"package Sockets is\n");
+  indent++;
+  ifprintf(fp,"package Sockets is\n");
   ghdrcmnt("socket.h");
 
-#ifdef HAVE_sa_family_t 
+#ifdef HAVE_sa_family_t
   guitp("sa_family_t", sizeof(sa_family_t));
 #else
   NON_SUPPORT_MESSAGE("sa_family_t")
   guitp("sa_family_t", sizeof(short));
 #endif
 
-#ifdef HAVE_in_addr_t 
-  guitp("in_addr_t", sizeof(in_addr_t));
-#else
-  NON_SUPPORT_MESSAGE("in_addr_t")
-  guitp("in_addr_t", sizeof(long));
-#endif
-
-#ifdef HAVE_in_port_t 
+#ifdef HAVE_in_port_t
   guitp("in_port_t", sizeof(in_port_t));
 #else
   NON_SUPPORT_MESSAGE("in_port_t")
@@ -5937,7 +6034,7 @@ void create_c() {
 
 #ifdef HOST_NOT_FOUND
   GCST("HOST_NOT_FOUND", HOST_NOT_FOUND);
-#else 
+#else
   GDFLT("HOST_NOT_FOUND", 0);
 #endif
 #ifdef NO_DATA
@@ -6224,7 +6321,7 @@ void create_c() {
     sockaddr needs to come early, to avoid forward references
    */
   gcmnt("generic socket address");
-  g_struct_sockaddr(); 
+  g_struct_sockaddr();
   gcmnt("struct addrinfo...");
   g_struct_addrinfo();
   gcmnt("message option header");
@@ -6232,6 +6329,12 @@ void create_c() {
   gcmnt("host database entry");
   g_struct_hostent();
   gcmnt("internet address");
+#ifdef HAVE_in_addr_t
+  guitp("in_addr_t", sizeof(in_addr_t));
+#else
+  NON_SUPPORT_MESSAGE("in_addr_t")
+  guitp("in_addr_t", sizeof(long));
+#endif
   g_struct_in_addr();
   gcmnt("linger option structure");
   g_struct_linger();
@@ -6240,6 +6343,10 @@ void create_c() {
   gcmnt("message header");
   g_struct_msghdr();
   gcmnt("local socket address");
+  { struct sockaddr_un DUMMY;
+    ifprintf(fp,"   subtype sun_path_string is
+      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sun_path));
+  }
   g_struct_sockaddr_un();
   gcmnt("internet socket address");
   g_struct_sockaddr_in();
@@ -6266,13 +6373,16 @@ void create_c() {
   GFUNC(sockatmark, HAVE_sockatmark);
   GFUNC(socketpair, HAVE_socketpair);
 
-  fprintf(fp,"\nend Sockets;\n\n");
+  fprintf(fp,"\n");
+  ifprintf(fp,"end Sockets;\n\n");
+  indent--;
 
 /* c_xti
    ----------------
 */
 
-  fprintf(fp,"package XTI is\n");
+  indent++;
+  ifprintf(fp,"package XTI is\n");
 
   ghdrcmnt("XTI structures");
   /* can't follow alphabetic ordering; e.g.
@@ -6367,12 +6477,10 @@ void create_c() {
   GDFLT("T_EVENTS", 0);
 #endif
 
-
 /*
  * The following are the flag definitions needed by the
  * user level library routines.
  */
-
 
 #ifdef T_MORE
   GCST("T_MORE", T_MORE );
@@ -6487,7 +6595,6 @@ void create_c() {
   GDFLT("XPG4_1", 0);
 #endif
 
-
 /*
  * The following are structure types used when dynamically
  * allocating the above structure via alloc().
@@ -6534,7 +6641,6 @@ void create_c() {
   GDFLT("T_KUNITDATA", 0);
 #endif
 
-
 /*
  * The following bits specify which fields of the above
  * structures should be allocated by t_alloc().
@@ -6560,7 +6666,6 @@ void create_c() {
 #else
   GDFLT("T_ALL", 0);
 #endif
-
 
 /*
  * The following are the states for the user.
@@ -6612,7 +6717,7 @@ void create_c() {
 #ifdef T_YES
   GCST("T_YES", T_YES );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_YES", 1);
 #  else
       GDFLT("T_YES", 0);
@@ -6622,7 +6727,7 @@ void create_c() {
 #ifdef T_NO
   GCST("T_NO", T_NO );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_NO", 0);
 #  else
       GDFLT("T_NO", 0);
@@ -6632,7 +6737,7 @@ void create_c() {
 #ifdef T_UNUSED
   GCST("T_UNUSED", T_UNUSED );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_UNUSED", -1);
 #  else
       GDFLT("T_UNUSED", 0);
@@ -6642,7 +6747,7 @@ void create_c() {
 #ifdef T_NULL
   GCST("T_NULL", T_NULL );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_NULL", 0);
 #  else
       GDFLT("T_NULL", 0);
@@ -6652,7 +6757,7 @@ void create_c() {
 #ifdef T_ABSREQ
   GCST("T_ABSREQ", T_ABSREQ );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_ABSREQ", 0x8000);
 #  else
       GDFLT("T_ABSREQ", 0);
@@ -6662,7 +6767,7 @@ void create_c() {
 #ifdef T_INFINITE
   GCST("T_INFINITE", T_INFINITE );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_INFINITE", -1);
 #  else
       GDFLT("T_INFINITE", 0);
@@ -6672,7 +6777,7 @@ void create_c() {
 #ifdef T_INVALID
   GCST("T_INVALID", T_INVALID );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("T_INVALID", -2);
 #  else
       GDFLT("T_INVALID", 0);
@@ -6686,7 +6791,7 @@ void create_c() {
 #ifdef XTI_GENERIC
   GCST("XTI_GENERIC", XTI_GENERIC );
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("XTI_GENERIC", 0xffff);
 #  else
       GDFLT("XTI_GENERIC", 0);
@@ -6862,7 +6967,7 @@ void create_c() {
 #ifdef IP_REUSEADDR
   GCST("IP_REUSEADDR", IP_REUSEADDR);
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("IP_REUSEADDR", SO_REUSEADDR);
 #  else
       GDFLT("IP_REUSEADDR",0);
@@ -6872,7 +6977,7 @@ void create_c() {
 #ifdef IP_DONTROUTE
   GCST("IP_DONTROUTE", IP_DONTROUTE);
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("IP_DONTROUTE", SO_DONTROUTE);
 #  else
       GDFLT("IP_DONTROUTE",0);
@@ -6882,7 +6987,7 @@ void create_c() {
 #ifdef IP_BROADCAST
   GCST("IP_BROADCAST", IP_BROADCAST);
 #else
-#  if defined(_TLI_) 
+#  if defined(_TLI_)
       GCST("IP_BROADCAST", SO_BROADCAST);
 #  else
       GDFLT("IP_BROADCAST",0);
@@ -6957,49 +7062,52 @@ void create_c() {
 
   GFUNC(t_accept, HAVE_t_accept);
   GFUNC(t_alloc, HAVE_t_accept);
-  GFUNC(t_bind, HAVE_t_bind); 
-  GFUNC(t_blocking, HAVE_t_blocking); 
-  GFUNC(t_close, HAVE_t_close); 
-  GFUNC(t_connect, HAVE_t_connect); 
-  GFUNC(t_error, HAVE_t_error); 
-  GFUNC(t_free, HAVE_t_free); 
-  GFUNC(t_getinfo, HAVE_t_getinfo); 
-  GFUNC(t_getprotaddr, HAVE_t_getprotaddr); 
-  GFUNC(t_getstate, HAVE_t_getstate); 
-  GFUNC(t_listen, HAVE_t_listen); 
-  GFUNC(t_look, HAVE_t_look); 
-  GFUNC(t_nonblocking, HAVE_t_nonblocking); 
-  GFUNC(t_open, HAVE_t_open); 
-  GFUNC(t_optmgmt, HAVE_t_optmgmt); 
-  GFUNC(t_rcv, HAVE_t_rcv); 
-  GFUNC(t_rcvconnect, HAVE_t_rcvconnect); 
-  GFUNC(t_rcvdis, HAVE_t_rcvdis); 
-  GFUNC(t_rcvrel, HAVE_t_rcvrel); 
-  GFUNC(t_rcvreldata, HAVE_t_rcvreldata); 
-  GFUNC(t_rcvudata, HAVE_t_rcvudata); 
-  GFUNC(t_rcvuderr, HAVE_t_rcvuderr); 
-  GFUNC(t_rcvv, HAVE_t_rcvv); 
-  GFUNC(t_rcvvudata, HAVE_t_rcvvudata); 
-  GFUNC(t_snd, HAVE_t_snd); 
-  GFUNC(t_snddis, HAVE_t_snddis); 
-  GFUNC(t_sndudata, HAVE_t_sndudata); 
-  GFUNC(t_sndrel, HAVE_t_sndrel); 
-  GFUNC(t_sndreldata, HAVE_t_sndreldata); 
-  GFUNC(t_sndv, HAVE_t_sndv); 
-  GFUNC(t_sndvudata, HAVE_t_sndvudata); 
-  GFUNC(t_strerror, HAVE_t_strerror); 
-  GFUNC(t_sync, HAVE_t_sync); 
-  GFUNC(t_unbind, HAVE_t_unbind); 
+  GFUNC(t_bind, HAVE_t_bind);
+  GFUNC(t_blocking, HAVE_t_blocking);
+  GFUNC(t_close, HAVE_t_close);
+  GFUNC(t_connect, HAVE_t_connect);
+  GFUNC(t_error, HAVE_t_error);
+  GFUNC(t_free, HAVE_t_free);
+  GFUNC(t_getinfo, HAVE_t_getinfo);
+  GFUNC(t_getprotaddr, HAVE_t_getprotaddr);
+  GFUNC(t_getstate, HAVE_t_getstate);
+  GFUNC(t_listen, HAVE_t_listen);
+  GFUNC(t_look, HAVE_t_look);
+  GFUNC(t_nonblocking, HAVE_t_nonblocking);
+  GFUNC(t_open, HAVE_t_open);
+  GFUNC(t_optmgmt, HAVE_t_optmgmt);
+  GFUNC(t_rcv, HAVE_t_rcv);
+  GFUNC(t_rcvconnect, HAVE_t_rcvconnect);
+  GFUNC(t_rcvdis, HAVE_t_rcvdis);
+  GFUNC(t_rcvrel, HAVE_t_rcvrel);
+  GFUNC(t_rcvreldata, HAVE_t_rcvreldata);
+  GFUNC(t_rcvudata, HAVE_t_rcvudata);
+  GFUNC(t_rcvuderr, HAVE_t_rcvuderr);
+  GFUNC(t_rcvv, HAVE_t_rcvv);
+  GFUNC(t_rcvvudata, HAVE_t_rcvvudata);
+  GFUNC(t_snd, HAVE_t_snd);
+  GFUNC(t_snddis, HAVE_t_snddis);
+  GFUNC(t_sndudata, HAVE_t_sndudata);
+  GFUNC(t_sndrel, HAVE_t_sndrel);
+  GFUNC(t_sndreldata, HAVE_t_sndreldata);
+  GFUNC(t_sndv, HAVE_t_sndv);
+  GFUNC(t_sndvudata, HAVE_t_sndvudata);
+  GFUNC(t_strerror, HAVE_t_strerror);
+  GFUNC(t_sync, HAVE_t_sync);
+  GFUNC(t_unbind, HAVE_t_unbind);
 
-  fprintf(fp,"\nend XTI;\n");
+  fprintf(fp,"\n");
+  ifprintf(fp,"end XTI;\n");
+  indent--;
 
 /* netinet/in.h
    ----------------
 */
 
-  fprintf(fp,"package Netinet is\n");
+  indent++;
+  ifprintf(fp,"package Netinet is\n");
 
-   ghdrcmnt("From netinet/in.h");
+  ghdrcmnt("From netinet/in.h");
 
 #ifdef IPPROTO_IP
   GUCST("IPPROTO_IP", IPPROTO_IP);
@@ -7055,7 +7163,7 @@ void create_c() {
 #ifdef INADDR_NONE
   GUCST("INADDR_NONE", INADDR_NONE);
 #else
-  GDFLT("INADDR_NONE", 0);
+  GUFLT("INADDR_NONE", 0xffffffff);
 #endif
 #ifdef INADDR_ANY
   GUCST("INADDR_ANY",INADDR_ANY);
@@ -7088,12 +7196,12 @@ void create_c() {
   GDFLT("INADDR_MAX_LOCAL_GROUP",0);
 #endif
 
-  GFUNC(inet_addr, HAVE_inet_addr); 
-  GFUNC(inet_makeaddr, HAVE_inet_makeaddr); 
-  GFUNC(inet_network, HAVE_inet_network); 
-  GFUNC(inet_lnaof, HAVE_inet_lnaof); 
-  GFUNC(inet_netof, HAVE_inet_netof); 
-  GFUNC(inet_ntoa, HAVE_inet_ntoa); 
+  GFUNC(inet_addr, HAVE_inet_addr);
+  GFUNC(inet_makeaddr, HAVE_inet_makeaddr);
+  GFUNC(inet_network, HAVE_inet_network);
+  GFUNC(inet_lnaof, HAVE_inet_lnaof);
+  GFUNC(inet_netof, HAVE_inet_netof);
+  GFUNC(inet_ntoa, HAVE_inet_ntoa);
 
    ghdrcmnt("From netinet/tcp.h");
 
@@ -7141,14 +7249,17 @@ void create_c() {
   GDFLT("IPTOS_RELIABILITY",0);
 #endif
 
-  fprintf(fp,"\nend Netinet;\n");
-
+  fprintf(fp,"\n");
+  ifprintf(fp,"end Netinet;\n");
+  indent--;
 
 /* netdb.h
    ----------------
 */
 
-  fprintf(fp,"package NetDB is\n");
+  indent++;
+  ifprintf(fp,"package NetDB is\n");
+  ifprintf(fp,"   use Sockets;\n");
 
   g_struct_netent();
   gcmnt("protocol database entry");
@@ -7159,7 +7270,13 @@ void create_c() {
   GFUNC(endnetent, HAVE_endnetent);
   GFUNC(endprotoent, HAVE_endprotoent);
   GFUNC(endservent, HAVE_endservent);
-  GFUNC(getaddrinfo, HAVE_getaddrinfo);
+  /* Assume the following three are always there, since
+     if getaddrinfo is not implemented we will provide our
+     own freeware version.
+   */
+  GFUNC(getaddrinfo, 1);
+  GFUNC(freeaddrinfo, 1);
+  GFUNC(getnameinfo, 1);
   GFUNC(gethostbyaddr, HAVE_gethostbyaddr);
   GFUNC(gethostbyaddr_r, HAVE_gethostbyaddr_r);
   GFUNC(gethostbyname, HAVE_gethostbyname);
@@ -7183,19 +7300,21 @@ void create_c() {
   GFUNC(setprotoent, HAVE_setprotoent);
   GFUNC(setservent, HAVE_setservent);
 
-  fprintf(fp,"\nend NetDB;\n");
+  fprintf(fp,"\n");
+  ifprintf(fp,"end NetDB;\n");
+  indent--;
 
 /*
  * Poll/Select
  */
 
   gcmnt("pollfd structure");
-  g_struct_pollfd(); 
+  g_struct_pollfd();
 
-  fprintf(fp,
+  ifprintf(fp,
      "   type fd_mask_array is array (Integer range <>) of unsigned_int;\n");
   gcmnt("fd_set structure");
-  g_fd_set(); 
+  g_fd_set();
 
 #ifdef FD_SETSIZE
   GCST("FD_SETSIZE", FD_SETSIZE);
@@ -7252,12 +7371,12 @@ void create_c() {
   GFUNC(poll, HAVE_poll);
   GFUNC(select, HAVE_select);
 
-  fprintf(fp,"\nend POSIX.C;\n");
+  fprintf(fp,"\n");
+  ifprintf(fp,"end POSIX.C;\n");
   fclose(fp);
   fprintf(stderr,"done generating posix-c.ads\n");
 
 } /* end create_c */
-
 
 /*
    main
@@ -7282,7 +7401,7 @@ int main() {
 
   create_options();
   create_limits();
-  create_posix(); 
+  create_posix();
   create_c();
 
   return 0;

@@ -41,23 +41,24 @@ with Ada_Task_Identification,
      POSIX.C,
      POSIX.Process_Identification,
      System,
-#    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupt_Management,
-#    else
-#    end if;
-     System.Storage_Elements,
-     Unchecked_Conversion;
+     System.Storage_Elements;
+
+--  To ensure that this file does not get compiled when thread support is
+--  disabled
+pragma Warnings (Off);
+with POSIX.Implementation.OK_Signals;
+pragma Warnings (On);
+
 package POSIX.Signals is
 
    --  Signal Type
 
-#  if HAVE_INTERRUPT_MANAGEMENT then
    type Signal is
      new System.Interrupt_Management.Interrupt_ID'Base
      range 0 .. POSIX.C.NSIGS;
-#  else
-   type Signal is range 0 .. 64;
-#  end if;
+   for Signal'Size use POSIX.C.int'Size;
+
    function Image (Sig : Signal) return String;
    function Value (Str : String) return Signal;
 

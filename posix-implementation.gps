@@ -7,7 +7,7 @@
 --                                  S p e c                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU).     All Rights  --
+--  Copyright (c) 1996-1999 Florida State University (FSU).     All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -38,10 +38,7 @@
 --  [$Revision$]
 
 with POSIX.C,
-#    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupt_Management,
-#    else
-#    end if;
      Unchecked_Conversion;
 package POSIX.Implementation is
    pragma Elaborate_Body;
@@ -89,6 +86,7 @@ package POSIX.Implementation is
    --  or within an abort-deferred section!
 
    procedure Raise_POSIX_Error (Error : Error_Code := No_Error);
+   pragma No_Return (Raise_POSIX_Error);
 
    procedure Check (Condition : Boolean; Error : Error_Code);
    --  if Condition is false, raise POSIX_Error with
@@ -144,7 +142,7 @@ package POSIX.Implementation is
    --  Strings  --
    ---------------
 
-   NUL_String : POSIX_String := (1 => POSIX.C.NUL);
+   NUL_String : POSIX_String := (1 => NUL);
    function Form_String (Str : in POSIX.C.char_ptr) return String;
    function Trim_Leading_Blank (S : String) return String;
    --  pragma Inline (Trim_Leading_Blank);
@@ -208,11 +206,7 @@ package POSIX.Implementation is
 
    --  The following two also defer/undefer abortion, as side-effects.
 
-#  if HAVE_INTERRUPT_MANAGEMENT then
    subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
-#  else
-   subtype Signal_Mask is Integer;
-#  end if;
 
    procedure Mask_Signals
      (Masking  : in Signal_Masking;
@@ -253,6 +247,21 @@ package POSIX.Implementation is
 
    procedure Store_Errno (value : Error_Code);
    pragma Import (C, Store_Errno, "store_errno");
+
+   --  The following operate on the Ada per-task errno value.
+   --  The difference is that this value is not affected by any
+   --  implicit OS calls that might occur during the implementation
+   --  of exception propagation.
+
+   function Get_Ada_Error_Code return Error_Code;
+#  if HAVE_Safe_Errno then
+   pragma Import (C, Get_Ada_Error_Code, "fetch_errno");
+#  end if;
+
+   procedure Set_Ada_Error_Code (Error : in Error_Code);
+#  if HAVE_Safe_Errno then
+   pragma Import (C, Set_Ada_Error_Code, "store_errno");
+#  end if;
 
    package Bogus_Error_Codes is
 
@@ -368,5 +377,16 @@ package POSIX.Implementation is
    function To_Timespec (TS : POSIX.C.struct_timespec) return Timespec;
    function To_Struct_Timeval (D : Duration) return POSIX.C.struct_timeval;
    function To_Duration (TV : POSIX.C.struct_timeval) return Duration;
+
+#if HAVE_Leroy_Threads then
+   --  The following is used in POSIX.Unsafe_Process_Primitives.Fork and
+   --  POSIX.Process_Identification.Get_Process_ID to cache the ID of the
+   --  current process.  It is present only because  Xavier Leroy's
+   --  Linux threads do not conform to the POSIX C interface standard.
+   --  In particular, they return different values from getpid()
+   --  for each thread.
+
+   This_Process : POSIX.C.pid_t;
+#end if;
 
 end POSIX.Implementation;

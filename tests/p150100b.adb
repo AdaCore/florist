@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -72,12 +72,13 @@ begin
    Mqd := Open (TP.Valid_MQ_Name (7), Read_Only);
    Receive (Mqd, Msg, Last, Prio);
    Assert (Last = 10, "A001");
-   Assert (Msg = To_Stream_Element_Array ("Hello....."), "A002");
+   Assert (Msg = To_Stream_Element_Array ("Hello....."), "A002: Child");
    Close (Mqd);
    Exit_Process (Normal_Exit);
 
 exception
 when E1 : POSIX_Error =>
-   Optional (Message_Queues_Option, Operation_Not_Implemented, E1, "A003");
-when E2 : others => Unexpected_Exception (E2, "A004");
+   Optional
+     (Message_Queues_Option, Operation_Not_Implemented, E1, "A003: Child");
+when E2 : others => Unexpected_Exception (E2, "A004: Child");
 end p150100b;

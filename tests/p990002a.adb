@@ -57,45 +57,42 @@ package body P990002a is
 
    procedure Initialize_Scheduling (Shared_Data : Shared_Data_Ptr) is
    begin
-      Comment ("Initialize_Scheduling");
       Data := Shared_Data;
+      Assert (Data.Check = 9999, "A001: P99002a");
       Start_Time := Data.Start_Calendar_Time;
+      Comment ("Clock - Start_Time", POSIX.To_Timespec (Clock - Start_Time));
       Stop_Time := Start_Time + Duration (Seconds_To_Run);
       Next_Request_Time := (others => Start_Time);
-      exception when E : others => Fatal_Exception (E, "A001: P990002a");
+   exception when E : others => Fatal_Exception (E, "A002: P990002a");
    end Initialize_Scheduling;
 
    function Reschedule (Job : Jobs) return Boolean is
       Last_Completion_Time : Time;
-      Time_To_Next_Request : Duration;
-      Missed_Periods : Integer;
    begin
-      Next_Request_Time (Job) :=
-        Next_Request_Time (Job) + Period (Job);
+      if Data.Missed_Deadlines then
+         --  there is at least one task that has already missed its
+         --  deadline, so no need to continue anymore
+         return False;
+      end if;
+      Next_Request_Time (Job) := Next_Request_Time (Job) +
+        Period (Job);
       Last_Completion_Time := Clock;
-      Time_To_Next_Request := Next_Request_Time (Job) - Last_Completion_Time;
-      if Time_To_Next_Request < 0.0 then
-         if not Data.Missed_Deadlines then
-            Data.Missed_Deadlines := True;
-            Comment ("lateness", POSIX.To_Timespec (-Time_To_Next_Request));
-         end if;
-         Missed_Periods := 0;
-         while Time_To_Next_Request < 0.0 loop
-            Time_To_Next_Request := Time_To_Next_Request + Period (Job);
-            Missed_Periods := Missed_Periods + 1;
-         end loop;
-         Next_Request_Time (Job) :=
-           Next_Request_Time (Job) + Missed_Periods * Period (Job);
+      if Next_Request_Time (Job) <= Last_Completion_Time then
+         Data.Missed_Deadlines := True;
+         Comment ("lateness", POSIX.To_Timespec
+           (Last_Completion_Time - Next_Request_Time (Job)));
+         return False;
       end if;
       if Next_Request_Time (Job) >= Stop_Time then
+         --  if the test has been running for enough time
          return False;
       end if;
       delay until Next_Request_Time (Job);
       --  We should not wake up early.
-      Assert (Clock >= Next_Request_Time (Job), "A002: P990002a ");
+      Assert (Clock >= Next_Request_Time (Job), "A003: P990002a ");
       return True;
    exception
-   when E : others => Fatal_Exception (E, "A003: P990002a");
+   when E : others => Fatal_Exception (E, "A004: P990002a");
       return False;
    end Reschedule;
 

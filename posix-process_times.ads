@@ -54,7 +54,11 @@ package POSIX.Process_Times is
 
 private
 
-   Ticks_Per_Second : constant Tick_Count := POSIX.C.SC_CLK_TCK;
+   function sysconf (c_name : POSIX.C.int) return POSIX.C.long;
+   pragma Import (C, sysconf, POSIX.C.sysconf_LINKNAME);
+
+   Ticks_Per_Second : constant Tick_Count :=
+     Tick_Count (sysconf (POSIX.C.SC_CLK_TCK));
    type Process_Times is record
       tms : aliased POSIX.C.struct_tms;
       Elapsed_Real_Time : POSIX.C.clock_t;

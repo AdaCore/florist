@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997            Florida  State  University  (FSU),  --
+--  Copyright (c) 1996, 2002            Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -38,8 +38,7 @@
 --  [$Revision$]
 
 with POSIX.C,
-     POSIX.Implementation,
-     POSIX.Mutexes;
+     POSIX.Implementation;
 package body POSIX.Mutexes is
 
    use POSIX.C;
@@ -159,7 +158,7 @@ package body POSIX.Mutexes is
       elsif Result = PTHREAD_PRIO_PROTECT then return Highest_Ceiling_Priority;
       else Raise_POSIX_Error (Operation_Not_Supported);
          --  to suppress compiler warning
-         return PTHREAD_PRIO_NONE;
+         return No_Priority_Inheritance;
       end if;
    end Get_Locking_Policy;
 

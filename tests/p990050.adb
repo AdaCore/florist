@@ -43,9 +43,14 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
+--  Setup: The executable file for program p990050a should
+--  be accessible via pathname "./p990050a".
+
 with P9900doc,
-     P990050a;
+     P990050a,
+     POSIX_Report;
 procedure P990050 is
 begin
+   POSIX_Report.Comment ("P990050");
    P990050a.Parent_Main;
 end P990050;

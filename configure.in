@@ -6,115 +6,43 @@
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
 AC_INIT(florist_sources)
-[echo See file "configure.log" for results of this step.
-echo It takes a LONG time \(half an hour or so on a 100Mhz SPARC\).]
+[echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(config.h)
-PRODUCT=florist
-VERSION=0.0.0
-AC_DEFINE_UNQUOTED(PRODUCT, "$PRODUCT")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
-AC_SUBST(PRODUCT)
-AC_SUBST(VERSION)
 AC_PROG_CC
 
-rm -f Config pconfig.h
-# temporary kludge for apparent inheritance of
-# read-only status from somewhere?????
-chmod 644 pconfig.h.in
+rm -f pconfig.h
 
-[if ( test ! -d lib ); then mkdir lib; fi
-# configure gnatprep parameters
-rm -f gnatprep.config
-cat > gnat_ver.gpb << EOF
-EOF
-if (gnatprep gnat_ver.gpb gnat_ver.adb /dev/null)
-then
-  echo "have gnatprep already; will use that version"
+AC_ARG_ENABLE(threads,
+[  --disable-threads       Do not try to build pthread support],
+, use_pthread=yes)
+
+if test "x$use_pthread" = "xyes" ; then
+  DEPS=deps
+  SIGNALS_GENERATED=posix-implementation-ok_signals.ads
 else
-  echo "missing gnatprep; Makefile will build it"
-  echo "LOCAL_GNATPREP = gnatprep" >> Config
+  AC_MSG_WARN(No pthread support.)
+  DEPS=deps_no_thread
+  SIGNALS_GENERATED=
 fi
-rm -f gnat_ver.gpb gnat_ver.gpb
 
-cat > gnat_ver.adb << EOF
-with system.interrupt_management;
-use system.interrupt_management;
-procedure gnat_ver is
-begin null;
-end gnat_ver;
-EOF
+AC_SUBST(SIGNALS_GENERATED)
+AC_SUBST(DEPS)
 
-echo $ac_n "checking whether GNAT has Interrupt_Management... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_INTERRUPT_MANAGEMENT := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_INTERRUPT_MANAGEMENT := False" >> gnatprep.config;
-fi;
-
-rm -f gnat_ver.adb gnat_ver.o
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin 
-   if (NT_GNAT_Exception = NT_GNAT_Exception) then null; end if;
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether GNAT has NT_GNAT_Exception... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_NT_GNAT_Exception := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_NT_GNAT_Exception := False" >> gnatprep.config;
-fi;
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin system.tasking_soft_links.abort_defer.all;
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether GNAT has Abort_Defer soft link... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_Soft_Abort_Defer := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_Soft_Abort_Defer := False" >> gnatprep.config;
-fi;
-rm -f gnat_ver.adb gnat_ver.o
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin system.tasking_soft_links.Set_Exc_Stack_Addr (System.Null_Address);
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether Set_Exc_Stack_Addr needs Self_ID... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "no"
- echo "HAVE_Set_Exc_Stack_Addr_With_Self_ID := False" >> gnatprep.config;
-else
- echo "yes"
- echo "HAVE_Set_Exc_Stack_Addr_With_Self_ID := True" >> gnatprep.config;
-fi;
-rm -f gnat_ver.adb gnat_ver.o
+[
 
 echo $ac_n "checking for Xavier Leroy Linux threads... " $ac_c;
-if (grep "Leroy" /usr/include/pthread.h 2>/dev/null); then
+if (grep "Leroy" /usr/include/pthread.h >/dev/null 2>&1); then
  echo "yes"
  echo "HAVE_Leroy_Threads := True" >> gnatprep.config;
 else
  echo "no"
  echo "HAVE_Leroy_Threads := False" >> gnatprep.config;
 fi;
+
+echo "We will assume errno is safe for exception propagation."
+echo "-- to override, hand-edit gnatprep.config"
+echo "HAVE_Safe_Errno := True" >> gnatprep.config;
 
 UNAME_MACHINE=`(uname -m) 2>/dev/null`
 UNAME_RELEASE=`(uname -r) 2>/dev/null`
@@ -129,13 +57,13 @@ case ${UNAME_SYSTEM} in
      B.10.*)
            echo "making Config"
            cp ./configs/pconfig.HP-UX10.x ./pconfig.h.in;
-# Trying to get rid of configs/Config.XXX special files.
-#           cat ./configs/Config.HP-UX10.x > ./Config;
-           cat ./configs/Config.Default > ./Config;
+           ;;
+     B.11.*)
+           echo "making Config"
+           cp ./configs/pconfig.HP-UX11.00 ./pconfig.h.in;
            ;;
      *) echo "Unexpected HP-UX release; using default."
            cp ./configs/pconfig.Default ./pconfig.h.in;
-           cat ./configs/Config.Default > ./Config;
            ;;
    esac;
    ;;
@@ -143,35 +71,42 @@ case ${UNAME_SYSTEM} in
 # .... need to add cases here for versions 2.5.1 and 2.6, at least
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in;
-#   cp ./configs/Config.SunOS5.6 > ./Config;
-           cat ./configs/Config.Default > ./Config;
    ;;
  Linux)
 # .... need to add cases here for different thread and C libraries
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.Linux ./pconfig.h.in;
-#   cat ./configs/Config.Linux > ./Config;
-   cat ./configs/Config.Default > ./Config;
    ;;
  OSF1)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
-   cp ./configs/pconfig.OSF1 ./pconfig.h.in;
-   cat ./configs/Config.OSF1 > ./Config;
+   case `gcc -dumpmachine` in
+      *-*-osf4.0[bc])
+	cp ./configs/pconfig.OSF1-4.0b ./pconfig.h.in;
+	;;
+      *-*-osf4.0[d-z] | *-*-osf4.[1-9]* | *-*-osf5* )
+	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
+	;;
+   esac
    ;;
  IRIX*)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
-   cp ./configs/pconfig.IRIX6.3 ./pconfig.h.in;
-   cat ./configs/Config.IRIX6.3 > ./Config;
+   cp ./configs/pconfig.IRIX6.x ./pconfig.h.in;
    ;;
  AIX)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
-   cat ./configs/Config.AIX4.1 > ./Config;
    ;;
+ UnixWare)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   cp ./configs/pconfig.UnixWare ./pconfig.h.in;
+   ;;
+ LynxOS)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.LynxOS ./pconfig.h.in;
+    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
-   cat ./configs/Config.Default > ./Config;
    ;;
 esac; 
 
@@ -236,35 +171,32 @@ AC_POSIX5C_HEADERS(
  sys/un.h\
 )
 
-AC_POSIX_LIB(pthread, pthread_self,,
-AC_POSIX_LIB(pthread, __pthread_self,,
-AC_POSIX_LIB(pthreads, pthread_self,,
-AC_POSIX_LIB(dce, pthread_self,,
-AC_POSIX_LIB(:libdce.a, pthread_self)))))
+if test "x$use_pthread" = "xyes" ; then
+  AC_POSIX_LIB(pthread, pthread_self,,
+  AC_POSIX_LIB(pthread, __pthread_self,,
+  AC_POSIX_LIB(pthreads, pthread_self,,
+  AC_POSIX_LIB(cma, pthread_self,,
+  AC_POSIX_LIB(:libcma.a, pthread_self,,
+  AC_POSIX_LIB(thread, pthread_self))))))
+fi
 
 AC_POSIX_LIB(aio, aio_read)
 
 AC_POSIX_LIB(posix4, clock_gettime,,
-AC_POSIX_LIB(rt, clock_gettime,,
-AC_POSIX_LIB(picc, clock_gettime)))
+AC_POSIX_LIB(rt, clock_gettime))
 
 AC_POSIX_LIB(nsl, gethostbyname)
 
 AC_POSIX_LIB(nsl, t_bind,,
 AC_POSIX_LIB(nsl_s, t_bind))
 
-AC_POSIX_LIB(socket, socketpair,,
-AC_POSIX_LIB(BSD, socketpair,,
-AC_POSIX_LIB(bsd, socketpair)))
-
 AC_POSIX_LIB(socket, accept,,
-AC_POSIX_LIB(BSD, accept,,
-AC_POSIX_LIB(bsd, accept)))
+AC_POSIX_LIB(bsd, accept))
 
 AC_POSIX_LIB(resolv, h_errno)
 
-echo using library/libraries $LIBS
-echo "LIBS=${LIBS}" >> Config
+echo using "LIBS=${LIBS}"
+AC_SUBST(LIBS)
 
 AC_POSIX_VAR(t_errno)
 AC_POSIX_VAR(t_nerr)
@@ -306,16 +238,17 @@ AC_POSIX_STRUCTS(\
  termios\
  timespec\
  timeval\
- t_info\
- t_opthdr\
  t_bind\
- t_optmgmt\
- t_discon\
  t_call\
- t_unitdata\
- t_uderr\
- t_linger\
+ t_discon\
+ t_info\
+ t_iovec\
  t_kpalive\
+ t_linger\
+ t_opthdr\
+ t_optmgmt\
+ t_uderr\
+ t_unitdata\
  itimerspec\
  utimbuf\
  utsname\
@@ -439,6 +372,7 @@ AC_POSIX_FUNCS(\
  getsockname\
  getsockname_r\
  getsockopt\
+ gettimeofday\
  getuid\
  gmtime_r\
  inet_addr\
@@ -635,4 +569,4 @@ AC_POSIX_FUNCS(\
  __posix_ttyname_r\
 )
 
-AC_OUTPUT(,[test -z "$CONFIG_HEADERS" || date > stamp-h])
+AC_OUTPUT(Makefile, [test -z "$CONFIG_HEADERS" || date > stamp-h])

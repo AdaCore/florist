@@ -158,5 +158,5 @@ begin
 
    Done;
 exception
-   when E : others => Fatal_Exception (E);
+   when E : others => Fatal_Exception (E, "A000");
 end p030302;

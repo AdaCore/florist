@@ -47,7 +47,8 @@ package body POSIX.Timers is
    use POSIX.Implementation;
 
    function To_int is new Unchecked_Conversion (Bits, int);
-   function To_Bits is new Unchecked_Conversion (int, Bits);
+   function To_Struct_Sigevent is new Unchecked_Conversion
+     (POSIX.Signals.Signal_Event, POSIX.C.struct_sigevent);
 
    Zero_Timespec : aliased constant struct_timespec := (0, 0);
    Zero_State : aliased constant struct_itimerspec := ((0, 0), (0, 0));
@@ -163,16 +164,21 @@ package body POSIX.Timers is
       Event : POSIX.Signals.Signal_Event) return Timer_ID is
       function timer_create
         (clock_id : clockid_t;
-         evp : access POSIX.Signals.Signal_Event;
+         evp : sigevent_ptr;
          timerid : access timer_t) return int;
       pragma Import (C, timer_create, timer_create_LINKNAME);
       --  .... Consider making Signal_Event into a tagged type
       --  so that we don't need to make a local copy.
-      E : aliased POSIX.Signals.Signal_Event := Event;
+      E : aliased POSIX.C.struct_sigevent := To_Struct_Sigevent (Event);
       TID : aliased timer_t;
    begin
+      if E.sigev_notify = POSIX.C.SIGEV_NONE then
+         --  make sure the other fields are valid
+         E.sigev_signo := SIGUSR1;
+         E.sigev_value.sival_int := 0;
+      end if;
       Check (timer_create (clockid_t (Clock),
-        E'Unchecked_Access, TID'Unchecked_Access));
+         E'Unchecked_Access, TID'Unchecked_Access));
       return Timer_ID (TID);
    end Create_Timer;
 

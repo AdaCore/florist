@@ -40,6 +40,9 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
+--  Setup:  When this test is run the executable program p030300b must
+--  be accessible via the pathnames "./bin/p030100b" and "./p030100b".
+
 with POSIX,
      POSIX_Configurable_System_Limits,
      POSIX_Files,
@@ -90,7 +93,7 @@ begin
       Put (Test_File, "01234");
       Close (Test_File);
       Set_Environment_Variable ("ABC", "abc");
-   exception when E : others => Unexpected_Exception (E, "001");
+   exception when E : others => Unexpected_Exception (E, "A001");
    end;
 
    ---------------------------------------------------------------------
@@ -111,60 +114,60 @@ begin
          Comment ("Set_Keep_Effective_IDs (invalid template)");
          Set_Keep_Effective_IDs (Template);
          --  invalid template not detected
-         Assert (False, "002");
+         Assert (False, "A002");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "003");
-      when E : others => Unexpected_Exception (E, "004");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A003");
+      when E : others => Unexpected_Exception (E, "A004");
       end;
 
       begin
          Comment ("Set_Signal_Mask (invalid template)");
          Set_Signal_Mask (Template, Mask);
          --  invalid template not detected
-         Assert (False, "005");
+         Assert (False, "A005");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "006");
-      when E : others => Unexpected_Exception (E, "007");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A006");
+      when E : others => Unexpected_Exception (E, "A007");
       end;
 
       begin
          Comment ("Set_Creation_Signal_Masking (invalid template)");
          Set_Creation_Signal_Masking (Template, All_Signals);
          --  invalid template not detected
-         Assert (False, "008");
+         Assert (False, "A008");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "009");
-      when E : others => Unexpected_Exception (E, "010");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A009");
+      when E : others => Unexpected_Exception (E, "A010");
       end;
 
       begin
          Comment ("Set_File_Action_To_Open (invalid template)");
          Set_File_Action_To_Open (Template, 3, "test_file");
          --  invalid template not detected
-         Assert (False, "011");
+         Assert (False, "A011");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "012");
-      when E : others => Unexpected_Exception (E, "013");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A012");
+      when E : others => Unexpected_Exception (E, "A013");
       end;
 
       begin
          Comment ("Set_File_Action_To_Duplicate (invalid template)");
          Set_File_Action_To_Duplicate (Template, 5, 3);
          --  invalid template not detected
-         Assert (False, "014");
+         Assert (False, "A014");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "015");
-      when E : others => Unexpected_Exception (E, "016");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A015");
+      when E : others => Unexpected_Exception (E, "A016");
       end;
 
       begin
          Comment ("Set_File_Action_To_Close (invalid template)");
          Set_File_Action_To_Close (Template, 0);
          --  invalid template not detected
-         Assert (False, "017");
+         Assert (False, "A017");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "018");
-      when E : others => Unexpected_Exception (E, "019");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A018");
+      when E : others => Unexpected_Exception (E, "A019");
       end;
 
       ------------------------------------------------------------------
@@ -183,60 +186,60 @@ begin
          Comment ("Set_Keep_Effective_IDs (closed template)");
          Set_Keep_Effective_IDs (Template);
          --  closed template not detected
-         Assert (False, "020");
+         Assert (False, "A020");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "021");
-      when E : others => Unexpected_Exception (E, "022");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A021");
+      when E : others => Unexpected_Exception (E, "A022");
       end;
 
       begin
          Comment ("Set_Signal_Mask (closed template)");
          Set_Signal_Mask (Template, Mask);
          --  closed template not detected
-         Assert (False, "023");
+         Assert (False, "A023");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "024");
-      when E : others => Unexpected_Exception (E, "025");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A024");
+      when E : others => Unexpected_Exception (E, "A025");
       end;
 
       begin
          Comment ("Set_Creation_Signal_Masking (closed template)");
          Set_Creation_Signal_Masking (Template, All_Signals);
          --  closed template not detected
-         Assert (False, "026");
+         Assert (False, "A026");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "027");
-      when E : others => Unexpected_Exception (E, "028");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A027");
+      when E : others => Unexpected_Exception (E, "A028");
       end;
 
       begin
          Comment ("Set_File_Action_To_Open (closed template)");
          Set_File_Action_To_Open (Template, 3, "test_file");
          --  closed template not detected
-         Assert (False, "029");
+         Assert (False, "A029");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "030");
-      when E : others => Unexpected_Exception (E, "031");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A030");
+      when E : others => Unexpected_Exception (E, "A031");
       end;
 
       begin
          Comment ("Set_File_Action_To_Duplicate (closed template)");
          Set_File_Action_To_Duplicate (Template, 5, 3);
          --  closed template not detected
-         Assert (False, "032");
+         Assert (False, "A032");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "033");
-      when E : others => Unexpected_Exception (E, "034");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A033");
+      when E : others => Unexpected_Exception (E, "A034");
       end;
 
       begin
          Comment ("Set_File_Action_To_Close (closed template)");
          Set_File_Action_To_Close (Template, 0);
          --  closed template not detected
-         Assert (False, "035");
+         Assert (False, "A035");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "036");
-      when E : others => Unexpected_Exception (E, "037");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A036");
+      when E : others => Unexpected_Exception (E, "A037");
       end;
 
       ------------------------------------------------------------------
@@ -271,7 +274,7 @@ begin
       Comment ("Close_Template");
       Close_Template (Template);
 
-   exception when E : others => Unexpected_Exception (E, "038");
+   exception when E : others => Unexpected_Exception (E, "A038");
    end;
 
    ---------------------------------------------------------------------
@@ -281,11 +284,11 @@ begin
    begin
       --  Checking range
       Assert (Exit_Status'First = 0 and Exit_Status'Last = 2**8 - 1,
-        "039");
+        "A039");
       --  Checking constants
       Assert (Normal_Exit = 0 and Failed_Creation_Exit = 41 and
-        Unhandled_Exception_Exit = 42, "040");
-   exception when E : others => Unexpected_Exception (E, "041");
+        Unhandled_Exception_Exit = 42, "A040");
+   exception when E : others => Unexpected_Exception (E, "A041");
    end;
 
    ---------------------------------------------------------------------
@@ -298,20 +301,20 @@ begin
       Assert (Exited = Termination_Cause'First and
         Termination_Cause'Pos (Terminated_By_Signal) = 1 and
         Termination_Cause'Last = Stopped_By_Signal,
-        "042");
+        "A042");
 
       --  Checking initial value
-      Assert (not Status_Available (Status), "043");
+      Assert (not Status_Available (Status), "A043");
 
       declare
          Pid : Process_ID;
       begin
          Pid := Process_ID_Of (Status);
          --  Checking Process_ID_Of invalid status
-         Assert (False, "044");
+         Assert (False, "A044");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "045");
-      when E : others => Unexpected_Exception (E, "046");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A045");
+      when E : others => Unexpected_Exception (E, "A046");
       end;
 
       declare
@@ -319,10 +322,10 @@ begin
       begin
          Cause := Termination_Cause_Of (Status);
          --  Checking Termination_Cause_Of invalid status
-         Assert (False, "047");
+         Assert (False, "A047");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "048");
-      when E : others => Unexpected_Exception (E, "049");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A048");
+      when E : others => Unexpected_Exception (E, "A049");
       end;
 
       declare
@@ -330,10 +333,10 @@ begin
       begin
          E := Exit_Status_Of (Status);
          --  Checking Exit_Status_Of invalid status
-         Assert (False, "050");
+         Assert (False, "A050");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "051");
-      when E : others => Unexpected_Exception (E, "052");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A051");
+      when E : others => Unexpected_Exception (E, "A052");
       end;
 
       declare
@@ -341,10 +344,10 @@ begin
       begin
          Sig := Termination_Signal_Of (Status);
          --  Checking Termination_Signal_Of invalid status
-         Assert (False, "053");
+         Assert (False, "A053");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "054");
-      when E : others => Unexpected_Exception (E, "055");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A054");
+      when E : others => Unexpected_Exception (E, "A055");
       end;
 
       declare
@@ -352,13 +355,13 @@ begin
       begin
          Sig := Stopping_Signal_Of (Status);
          --  Checking Stopping_Signal_Of invalid status
-         Assert (False, "056");
+         Assert (False, "A056");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "057");
-      when E : others => Unexpected_Exception (E, "058");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A057");
+      when E : others => Unexpected_Exception (E, "A058");
       end;
 
-   exception when E : others => Unexpected_Exception (E, "059");
+   exception when E : others => Unexpected_Exception (E, "A059");
    end;
 
    ---------------------------------------------------------------------
@@ -373,7 +376,7 @@ begin
    begin
 
       --  Checking Args
-      Assert (Length (Args) = 0, "060");
+      Assert (Length (Args) = 0, "A060");
       POSIX.Append (Args, "-child" &
         To_POSIX_String (Integer'Image (Should_Not_Start)));
 
@@ -385,10 +388,10 @@ begin
          Comment ("Start_Process (invalid template)");
          Start_Process (Pid, Child_Pathname, Template, Args);
          --  Checking invalid template not detected
-         Assert (False, "061");
+         Assert (False, "A061");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "062");
-      when E : others => Unexpected_Exception (E, "063");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A062");
+      when E : others => Unexpected_Exception (E, "A063");
       end;
 
       ------------------------------------------------------------------
@@ -397,10 +400,10 @@ begin
          Comment ("Start_Process with Env  (invalid template)");
          Start_Process (Pid, Child_Pathname, Template, Env, Args);
          --  Checking invalid template not detected
-         Assert (False, "064");
+         Assert (False, "A064");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "065");
-      when E : others => Unexpected_Exception (E, "066");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A065");
+      when E : others => Unexpected_Exception (E, "A066");
       end;
 
       ------------------------------------------------------------------
@@ -409,10 +412,10 @@ begin
          Comment ("Start_Process_Search (invalid template)");
          Start_Process_Search (Pid, Child_Filename, Template, Args);
          --  Checking invalid template not detected
-         Assert (False, "067");
+         Assert (False, "A067");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "068");
-      when E : others => Unexpected_Exception (E, "069");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A068");
+      when E : others => Unexpected_Exception (E, "A069");
       end;
 
       ------------------------------------------------------------------
@@ -422,10 +425,10 @@ begin
          Start_Process_Search
           (Pid, Child_Filename, Template, Env, Args);
          --  Checking invalid template not detected
-         Assert (False, "070");
+         Assert (False, "A070");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "071");
-      when E : others => Unexpected_Exception (E, "072");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A071");
+      when E : others => Unexpected_Exception (E, "A072");
       end;
 
       ------------------------------------------------------------------
@@ -441,10 +444,10 @@ begin
          Comment ("Start_Process (closed template)");
          Start_Process (Pid, Child_Pathname, Template, Args);
          --  Checking closed template not detected
-         Assert (False, "073");
+         Assert (False, "A073");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "074");
-      when E : others => Unexpected_Exception (E, "075");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A074");
+      when E : others => Unexpected_Exception (E, "A075");
       end;
 
       ------------------------------------------------------------------
@@ -453,10 +456,10 @@ begin
          Comment ("Start_Process with Env  (closed template)");
          Start_Process (Pid, Child_Pathname, Template, Env, Args);
          --  Checking closed template not detected
-         Assert (False, "076");
+         Assert (False, "A076");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "077");
-      when E : others => Unexpected_Exception (E, "078");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A077");
+      when E : others => Unexpected_Exception (E, "A078");
       end;
 
       ------------------------------------------------------------------
@@ -465,10 +468,10 @@ begin
          Comment ("Start_Process_Search (closed template)");
          Start_Process_Search (Pid, Child_Filename, Template, Args);
          --  Checking closed template not detected
-         Assert (False, "079");
+         Assert (False, "A079");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "080");
-      when E : others => Unexpected_Exception (E, "081");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A080");
+      when E : others => Unexpected_Exception (E, "A081");
       end;
 
       ------------------------------------------------------------------
@@ -478,10 +481,10 @@ begin
          Start_Process_Search
           (Pid, Child_Filename, Template, Env, Args);
          --  Checking closed template not detected
-         Assert (False, "082");
+         Assert (False, "A082");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "083");
-      when E : others => Unexpected_Exception (E, "084");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A083");
+      when E : others => Unexpected_Exception (E, "A084");
       end;
 
       ------------------------------------------------------------------
@@ -490,10 +493,10 @@ begin
          Comment ("Start_Process (closed template)");
          Start_Process (Pid, Child_Pathname, Template, Args);
          --  Checking closed template not detected
-         Assert (False, "085");
+         Assert (False, "A085");
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "086");
-      when E : others => Unexpected_Exception (E, "087");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A086");
+      when E : others => Unexpected_Exception (E, "A087");
       end;
 
       ------------------------------------------------------------------
@@ -503,7 +506,7 @@ begin
       begin
          Comment ("Set up argument list");
          Make_Empty (Args);
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Parents_Environment)));
          Pass_Through_Verbosity (Args);
@@ -513,8 +516,8 @@ begin
          Set_Environment_Variable ("PATH", Search_Path);
          Set_Environment_Variable ("PATH", Search_Path, Env);
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "088");
-      when E : others => Unexpected_Exception (E, "089");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A088");
+      when E : others => Unexpected_Exception (E, "A089");
       end;
 
       ------------------------------------------------------------------
@@ -525,27 +528,27 @@ begin
          Comment ("Start_Process");
          Start_Process (Pid, Child_Pathname, Template, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "090");
+         Check_Child_Status (Status, Pid, 0, "A090");
       exception
-      when E : others => Unexpected_Exception (E, "091");
+      when E : others => Unexpected_Exception (E, "A091");
       end;
 
       begin
          Comment ("Start_Process_Search with filename");
          Start_Process (Pid, Child_Filename, Template, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "092");
+         Check_Child_Status (Status, Pid, 0, "A092");
       exception
-      when E : others => Unexpected_Exception (E, "093");
+      when E : others => Unexpected_Exception (E, "A093");
       end;
 
       begin
          Comment ("Start_Process_Search with pathname");
          Start_Process (Pid, Child_Pathname, Template, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "094");
+         Check_Child_Status (Status, Pid, 0, "A094");
       exception
-      when E : others => Unexpected_Exception (E, "095");
+      when E : others => Unexpected_Exception (E, "A095");
       end;
 
       ------------------------------------------------------------------
@@ -556,13 +559,13 @@ begin
       begin
          Comment ("Reset argument list");
          Make_Empty (Args);
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Explicit_Environment)));
          Pass_Through_Verbosity (Args);
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "096");
-      when E : others => Unexpected_Exception (E, "097");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A096");
+      when E : others => Unexpected_Exception (E, "A097");
       end;
 
       ------------------------------------------------------------------
@@ -574,10 +577,10 @@ begin
          Comment ("-2-");
          Wait_For_Child_Process (Status, Pid);
          Comment ("-3-");
-         Check_Child_Status (Status, Pid, 0, "098");
+         Check_Child_Status (Status, Pid, 0, "A098");
          Comment ("-4-");
       exception
-      when E : others => Unexpected_Exception (E, "099");
+      when E : others => Unexpected_Exception (E, "A099");
       end;
 
       begin
@@ -585,9 +588,9 @@ begin
          Start_Process_Search
            (Pid, Child_Filename, Template, Env, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "100");
+         Check_Child_Status (Status, Pid, 0, "A100");
       exception
-      when E : others => Unexpected_Exception (E, "101");
+      when E : others => Unexpected_Exception (E, "A101");
       end;
 
       begin
@@ -595,16 +598,16 @@ begin
          Start_Process_Search
            (Pid, Child_Pathname, Template, Env, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "102");
+         Check_Child_Status (Status, Pid, 0, "A102");
       exception
-      when E : others => Unexpected_Exception (E, "103");
+      when E : others => Unexpected_Exception (E, "A103");
       end;
 
       -----------------------------------------------------------------
 
       Close_Template (Template);
 
-   exception when E : others => Unexpected_Exception (E, "104");
+   exception when E : others => Unexpected_Exception (E, "A104");
    end;
 
    ---------------------------------------------------------------------
@@ -617,7 +620,7 @@ begin
       Status : Termination_Status;
    begin
 
-      Assert (Length (Args) = 0, "105");
+      Assert (Length (Args) = 0, "A105");
       POSIX.Append (Args, "-child" &
         To_POSIX_String (Integer'Image (Should_Not_Start)));
 
@@ -629,9 +632,9 @@ begin
          Comment ("Start_Process with nonexistent program");
          Start_Process (Pid, "not the name of a file", Template, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, Failed_Creation_Exit, "106");
+         Check_Child_Status (Status, Pid, Failed_Creation_Exit, "A106");
       exception
-      when E : others => Unexpected_Exception (E, "107");
+      when E : others => Unexpected_Exception (E, "A107");
       end;
 
       begin
@@ -639,16 +642,16 @@ begin
          Set_File_Action_To_Open (Template, 3, "not the name of a file");
          Start_Process (Pid, Child_Pathname, Template, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, Failed_Creation_Exit, "108");
+         Check_Child_Status (Status, Pid, Failed_Creation_Exit, "A108");
       exception
-      when E : others => Unexpected_Exception (E, "109");
+      when E : others => Unexpected_Exception (E, "A109");
       end;
 
       ------------------------------------------------------------------
 
       Close_Template (Template);
 
-   exception when E : others => Unexpected_Exception (E, "110");
+   exception when E : others => Unexpected_Exception (E, "A110");
    end;
 
    ---------------------------------------------------------------------
@@ -668,7 +671,7 @@ begin
 
       begin
          Comment ("Set up argument list");
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Parents_Environment)));
          Pass_Through_Verbosity (Args);
@@ -679,8 +682,8 @@ begin
          Set_Environment_Variable ("PATH", Search_Path, Env);
          Set_Environment_Variable ("WAIT", "YES", Env);
       exception
-      when POSIX_Error => Check_Error_Code (Invalid_Argument, "111");
-      when E : others => Unexpected_Exception (E, "112");
+      when POSIX_Error => Check_Error_Code (Invalid_Argument, "A111");
+      when E : others => Unexpected_Exception (E, "A112");
       end;
 
       ------------------------------------------------------------------
@@ -693,7 +696,7 @@ begin
          Wait_For_Child_Process (Status,
            Block => False);
          --  Checking status available
-         Assert (not Status_Available (Status), "113");
+         Assert (not Status_Available (Status), "A113");
          if POSIX_Configurable_System_Limits.Job_Control_Supported then
             Comment ("stop child process");
             Send_Signal (Pid, Signal_Stop);
@@ -702,37 +705,37 @@ begin
               Block => False,
               Trace_Stopped => False);
             --  Checking status available
-            Assert (not Status_Available (Status), "114");
+            Assert (not Status_Available (Status), "A114");
             --  now, include stopped jobs
             Wait_For_Child_Process (Status,
               Block => True,
               Trace_Stopped => True);
             --  Checking status not available
-            Assert (Status_Available (Status), "115");
+            Assert (Status_Available (Status), "A115");
             --  Checking Pid
-            Assert (Process_ID_Of (Status) = Pid, "116");
+            Assert (Process_ID_Of (Status) = Pid, "A116");
             --  Checking cause
             Assert (Termination_Cause_Of (Status) = Stopped_By_Signal,
-              "117");
+              "A117");
             --  Checking signal
             Assert (Stopping_Signal_Of (Status) = Signal_Stop,
-              "118");
+              "A118");
             declare
                E : Exit_Status;
             begin
                E := Exit_Status_Of (Status);
                --  Fail on exit
-               Assert (False, "119");
+               Assert (False, "A119");
             exception
-            when POSIX_Error => Check_Error_Code (Invalid_Argument, "120");
-            when E : others => Unexpected_Exception (E, "121");
+            when POSIX_Error => Check_Error_Code (Invalid_Argument, "A120");
+            when E : others => Unexpected_Exception (E, "A121");
             end;
             Comment ("continue child process");
             Send_Signal (Pid, Signal_Continue);
             Wait_For_Child_Process (Status,
               Block => False,
               Trace_Stopped => True);
-            Assert (not Status_Available (Status), "122");
+            Assert (not Status_Available (Status), "A122");
          else
             Comment ("Job control option is not supported");
          end if;
@@ -741,17 +744,17 @@ begin
          Wait_For_Child_Process (Status,
            Block => True,
            Trace_Stopped => False);
-         Assert (Status_Available (Status), "123");
+         Assert (Status_Available (Status), "A123");
          --  Checking pid
-         Assert (Process_ID_Of (Status) = Pid, "124");
+         Assert (Process_ID_Of (Status) = Pid, "A124");
          --  Checking cause
          Assert (Termination_Cause_Of (Status) = Terminated_By_Signal,
-           "125");
+           "A125");
          --  Checking signal
          Assert (Termination_Signal_Of (Status) = Signal_Kill,
-           "126");
+           "A126");
       exception
-      when E : others => Unexpected_Exception (E, "127");
+      when E : others => Unexpected_Exception (E, "A127");
       end;
 
       ------------------------------------------------------------------
@@ -764,7 +767,7 @@ begin
          Wait_For_Child_Process (Status,
            Child => Pid,
            Block => False);
-         Assert (not Status_Available (Status), "128");
+         Assert (not Status_Available (Status), "A128");
          if POSIX_Configurable_System_Limits.Job_Control_Supported then
             Comment ("stop child process");
             Send_Signal (Pid, Signal_Stop);
@@ -773,27 +776,27 @@ begin
               Child => Pid,
               Block => False,
               Trace_Stopped => False);
-            Assert (not Status_Available (Status), "129");
+            Assert (not Status_Available (Status), "A129");
             --  now, include stopped jobs
             Wait_For_Child_Process (Status,
               Child => Pid,
               Block => True,
               Trace_Stopped => True);
-            Assert (Status_Available (Status), "130");
+            Assert (Status_Available (Status), "A130");
             --  Checking pid
-            Assert (Process_ID_Of (Status) = Pid, "131");
+            Assert (Process_ID_Of (Status) = Pid, "A131");
             --  Checking cause
-            Assert (Termination_Cause_Of (Status) = Stopped_By_Signal, "132");
+            Assert (Termination_Cause_Of (Status) = Stopped_By_Signal, "A132");
             --  Checking signal
-            Assert (Stopping_Signal_Of (Status) = Signal_Stop, "133");
+            Assert (Stopping_Signal_Of (Status) = Signal_Stop, "A133");
             declare
                E : Exit_Status;
             begin
                E := Exit_Status_Of (Status);
                Assert (False, "exited");
             exception
-            when POSIX_Error => Check_Error_Code (Invalid_Argument, "134");
-            when E : others => Unexpected_Exception (E, "135");
+            when POSIX_Error => Check_Error_Code (Invalid_Argument, "A134");
+            when E : others => Unexpected_Exception (E, "A135");
             end;
             Comment ("continue child process");
             Send_Signal (Pid, Signal_Continue);
@@ -801,7 +804,7 @@ begin
               Child => Pid,
               Block => False,
               Trace_Stopped => True);
-            Assert (not Status_Available (Status), "136");
+            Assert (not Status_Available (Status), "A136");
          else
             Comment ("Job control option is not supported");
          end if;
@@ -811,17 +814,17 @@ begin
            Child => Pid,
            Block => True,
            Trace_Stopped => False);
-         Assert (Status_Available (Status), "137");
+         Assert (Status_Available (Status), "A137");
          --  Checking pid
-         Assert (Process_ID_Of (Status) = Pid, "138");
+         Assert (Process_ID_Of (Status) = Pid, "A138");
          --  Checking cause
          Assert (Termination_Cause_Of (Status) = Terminated_By_Signal,
-           "139");
+           "A139");
          --  Checking signal
          Assert (Termination_Signal_Of (Status) = Signal_Kill,
-           "140");
+           "A140");
       exception
-      when E : others => Unexpected_Exception (E, "141");
+      when E : others => Unexpected_Exception (E, "A141");
       end;
 
 
@@ -837,7 +840,7 @@ begin
          Wait_For_Child_Process (Status,
            Group => Gid,
            Block => False);
-         Assert (not Status_Available (Status), "142");
+         Assert (not Status_Available (Status), "A142");
          if POSIX_Configurable_System_Limits.Job_Control_Supported then
             Comment ("stop child process");
             Send_Signal (Pid, Signal_Stop);
@@ -846,29 +849,29 @@ begin
               Group => Gid,
               Block => False,
               Trace_Stopped => False);
-            Assert (not Status_Available (Status), "143");
+            Assert (not Status_Available (Status), "A143");
             --  now, include stopped jobs
             Wait_For_Child_Process (Status,
               Group => Gid,
               Block => True,
               Trace_Stopped => True);
-            Assert (Status_Available (Status), "144");
+            Assert (Status_Available (Status), "A144");
             --  Checking pid
-            Assert (Process_ID_Of (Status) = Pid, "145");
+            Assert (Process_ID_Of (Status) = Pid, "A145");
             --  Checking cause
             Assert (Termination_Cause_Of (Status) = Stopped_By_Signal,
-              "146");
+              "A146");
             --  Checking signal
             Assert (Stopping_Signal_Of (Status) = Signal_Stop,
-              "147");
+              "A147");
             declare
                E : Exit_Status;
             begin
                E := Exit_Status_Of (Status);
-               Assert (False, "148");
+               Assert (False, "A148");
             exception
-            when POSIX_Error => Check_Error_Code (Invalid_Argument, "149");
-            when E : others => Unexpected_Exception (E, "150");
+            when POSIX_Error => Check_Error_Code (Invalid_Argument, "A149");
+            when E : others => Unexpected_Exception (E, "A150");
             end;
             Comment ("continue child process");
             Send_Signal (Pid, Signal_Continue);
@@ -876,7 +879,7 @@ begin
               Group => Gid,
               Block => False,
               Trace_Stopped => True);
-            Assert (not Status_Available (Status), "151");
+            Assert (not Status_Available (Status), "A151");
          else
             Comment ("Job control option is not supported");
          end if;
@@ -886,24 +889,24 @@ begin
            Group => Gid,
            Block => True,
            Trace_Stopped => False);
-         Assert (Status_Available (Status), "152");
+         Assert (Status_Available (Status), "A152");
          --  Checking pid
-         Assert (Process_ID_Of (Status) = Pid, "153");
+         Assert (Process_ID_Of (Status) = Pid, "A153");
          --  Checking cause
          Assert (Termination_Cause_Of (Status) = Terminated_By_Signal,
-           "154");
+           "A154");
          --  Checking signal
          Assert (Termination_Signal_Of (Status) = Signal_Kill,
-           "155");
+           "A155");
       exception
-      when E : others => Unexpected_Exception (E, "156");
+      when E : others => Unexpected_Exception (E, "A156");
       end;
 
       ------------------------------------------------------------------
 
       Close_Template (Template);
 
-   exception when E : others => Unexpected_Exception (E, "157");
+   exception when E : others => Unexpected_Exception (E, "A157");
    end;
 
    --------------------------------------------------------------------
@@ -918,5 +921,5 @@ begin
 exception
 when E : others =>
    POSIX_Files.Unlink ("test_file");
-   Fatal_Exception (E, "158");
+   Fatal_Exception (E, "A158");
 end p030100;

@@ -96,5 +96,5 @@ private
       State : aliased POSIX.C.struct_itimerspec;
    end record;
    Absolute_Timer : constant Timer_Options :=
-      Timer_Options (Option_Set' (Option => POSIX.C.TIMER_ABSTIME));
+      Timer_Options (Option_Set'(Option => POSIX.C.TIMER_ABSTIME));
 end POSIX.Timers;
