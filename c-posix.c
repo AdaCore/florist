@@ -5998,9 +5998,9 @@ void create_c() {
   gmacrofunc("s_issem","mode_t","mode");
   gmacrofunc("s_isshm","mode_t","mode");
   gmacrofunc("s_issock","mode_t","mode");
-  gmacrofunc("s_typeismq","stat_ptr","int");
-  gmacrofunc("s_typeissem","stat_ptr","int");
-  gmacrofunc("s_typeisshm","stat_ptr","int");
+  gmacrofunc("s_typeismq","stat_ptr","stat");
+  gmacrofunc("s_typeissem","stat_ptr","stat");
+  gmacrofunc("s_typeisshm","stat_ptr","stat");
   gmacrofunc("wifexited","int","stat_val");
   gmacrofunc("wifexitstatus","int","stat_val");
   gmacrofunc("wifsignaled","int","stat_val");
