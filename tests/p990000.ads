@@ -7,7 +7,7 @@
 --                                S p e c                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1998-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -50,6 +50,7 @@ with Calendar,
      Ada.Real_Time,
      POSIX,
      POSIX_Calendar,
+     P9900doc,
      System;
 package P990000 is
 
@@ -67,7 +68,9 @@ package P990000 is
       Start_POSIX_Time : aliased POSIX_Calendar.POSIX_Time;
       Start_Timespec : aliased POSIX.Timespec;
       Start_Real_Time : aliased Ada.Real_Time.Time;
+      Check : aliased Integer;
    end record;
+   pragma Volatile (Shared_Data_Area);
 
    type Shared_Data_Ptr is access all Shared_Data_Area;
    type Job_Procedure_Ptr is access procedure (Job : Jobs);
@@ -82,8 +85,8 @@ package P990000 is
       System.Priority'Last - 5,
       System.Priority'Last - 6);
 
-   Rate : constant array (Jobs) of Integer :=
-     (16, 8, 6, 4, 2, 1);
+   Rate : constant array (Jobs) of Natural :=
+     (32, 16, 8, 4, 2, 1);
 
    function Period (Job : Jobs) return Duration;
    --  returns 1.0 / Rate (Job)
@@ -91,10 +94,10 @@ package P990000 is
    Computation_Time : constant array (Jobs) of Float :=
      (0.004,
       0.005,
-      0.000025,
-      0.0278,
-      0.000025,
-      0.018);
+      0.002,
+      0.005,
+      0.001,
+      0.006);
 
    Input_Time  : constant array (Jobs) of Float :=
      (others => 0.00000016);
