@@ -102,7 +102,7 @@ package body POSIX.Process_Scheduling is
      return Scheduling_Parameters is
       Params : aliased Scheduling_Parameters;
    begin
-      Check (sched_setparam
+      Check (sched_getparam
         (To_pid_t (Process), Params.Param'Unchecked_Access));
       return Scheduling_Parameters (Params);
    end Get_Scheduling_Parameters;
