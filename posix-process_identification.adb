@@ -44,8 +44,6 @@ package body POSIX.Process_Identification is
    use POSIX.C,
        POSIX.Implementation;
 
-   This_Process : Process_ID;
-
    ---------------------
    --  Get_Process_ID --
    ---------------------
@@ -55,7 +53,7 @@ package body POSIX.Process_Identification is
 
    function Get_Process_ID return Process_ID is
    begin
-      return This_Process;
+      return Process_ID (getpid);
    end Get_Process_ID;
 
    -----------------------------
@@ -316,6 +314,4 @@ package body POSIX.Process_Identification is
       return Group_ID (Group_ID'Value (Str));
    end Value;
 
-begin
-   This_Process := Process_ID (getpid);
 end POSIX.Process_Identification;
