@@ -40,8 +40,8 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  This package is a dummy, just to hold comments documenting the overall
---  structure and common elements of the P9900** set of tests.
+--  This package is a dummy, just to hold comments that apply to all
+--  of the P9900** series of tests.
 
 --  Each of these tests runs a set of periodic tasks or processes
 --  that serially share access to an "I/O" object.
@@ -99,6 +99,14 @@
 --  P9900N0.adb
 --  P9900N0b.ads  main program of child process, if applicable
 
+--  The tests that use processes (instead of tasks)
+--  for concurrency need to have the executable file for the
+--  child process available in the process working directory
+--  when the test program is run.  The name of the child
+--  process executable file is the name of the parent with
+--  the letter "b" appended to the name.  For example, for
+--  test p990040 you need program p990040b for the child.
+
 --  Conflict Matrix
 
 ---------------------------------------------------------------------------
@@ -120,8 +128,8 @@
 -----------------------------------------------------------------------------
 --  P990002a               X X X                              clock and delay
 --  P990002b             X   X X                Clock_Realtime and Timed_Wait
---  P990002c             X X   X          POSIX_Calendar.Clock and Timed_Wait
---  P990002d             X X X                  Ada.Real_Time.Clock and delay
+--  P990002c             X X   X               POSIX_Calendar.Clock and delay
+--  P990002d             X X X             Ada.Real_Time.Clock and Timed_Wait
 -----------------------------------------------------------------------------
 --  P990003a     X                 X                             local memory
 --  P990003b       X X           X                              shared memory
@@ -130,28 +138,28 @@
 --  Use Matrix
 
 ---------------------------------------------------------------------------
---           p p p p p
---           9 9 9 9 9
---           9 9 9 9 9
---           0 0 0 0 0
---           0 0 0 0 0
---           1 2 3 4 5
---           0 0 0 0 0
+--           p p p p p p p p p p
+--           9 9 9 9 9 9 9 9 9 9
+--           9 9 9 9 9 9 9 9 9 9
+--           0 0 0 0 0 0 0 0 0 0
+--           0 0 0 0 0 0 0 0 0 0
+--           1 2 3 4 5 6 7 8 9 1
+--           0 0 0 0 0 0 0 0 0 1
 ---------------------------------------------------------------------------
---  P990000  X X X X X                                  common declarations
---  P9900x0  X X X X X                                        generic mains
+--  P990000  X X X X X X X X X X                        common declarations
+--  P9900x0  X X X X X X X X X X                              generic mains
 --  P9900x0*       X X                                          *child_main
 ---------------------------------------------------------------------------
---  P990001a X                                            protected objects
---  P990001b   X X                                    basic mutexes and CVs
---  P990001c       X X                                     named semaphores
+--  P990001a X             X X X                          protected objects
+--  P990001b   X X     X                              basic mutexes and CVs
+--  P990001c       X X   X                                 named semaphores
 ---------------------------------------------------------------------------
---  P990002a X     X                                        clock and delay
---  P990002b   X                              Clock_Realtime and Timed_Wait
---  P990002c     X                      POSIX_Calendar.Clock and Timed_Wait
---  P990002d         X                        Ada.Real_Time.Clock and delay
+--  P990002a X     X   X X                                  clock and delay
+--  P990002b   X             X                Clock_Realtime and Timed_Wait
+--  P990002c     X             X        POSIX_Calendar.Clock and Timed_Wait
+--  P990002d         X     X                  Ada.Real_Time.Clock and delay
 ---------------------------------------------------------------------------
---  P990003a X X X                                             local memory
+--  P990003a X X X     X X X X X                               local memory
 --  P990003b       X X                                        shared memory
 ---------------------------------------------------------------------------
 
