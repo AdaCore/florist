@@ -44,11 +44,6 @@ package body POSIX.Process_Identification is
    use POSIX.C,
        POSIX.Implementation;
 
-#if HAVE_Leroy_Threads then
-begin
-   This_Process : Process_ID;
-#end if;
-
    ---------------------
    --  Get_Process_ID --
    ---------------------
@@ -58,11 +53,7 @@ begin
 
    function Get_Process_ID return Process_ID is
    begin
-#     if HAVE_Leroy_Threads then
-      return Process_ID (This_Process);
-#     else
       return Process_ID (getpid);
-#     end if;
    end Get_Process_ID;
 
    -----------------------------
@@ -323,8 +314,4 @@ begin
       return Group_ID (Group_ID'Value (Str));
    end Value;
 
-#if HAVE_Leroy_Threads then
-begin
-   This_Process := Process_ID (getpid);
-#end if;
 end POSIX.Process_Identification;
