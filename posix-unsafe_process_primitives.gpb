@@ -44,7 +44,7 @@ with POSIX.C,
      POSIX.Process_Identification,
      System,
      System.Tasking,
-     System.Tasking_Soft_Links,
+     System.Soft_Links,
      Unchecked_Conversion;
 package body POSIX.Unsafe_Process_Primitives is
 
@@ -94,7 +94,7 @@ package body POSIX.Unsafe_Process_Primitives is
 
    function Fork return POSIX.Process_Identification.Process_ID is
       Result : pid_t;
-      package TSL renames System.Tasking_Soft_Links;
+      package TSL renames System.Soft_Links;
       --  save local values of soft-link data
       NT_Sec_Stack_Addr : System.Address := TSL.Get_Sec_Stack_Addr.all;
       NT_Exc_Stack_Addr : System.Address := TSL.Get_Exc_Stack_Addr.all;

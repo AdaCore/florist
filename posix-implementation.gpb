@@ -48,7 +48,8 @@ with Ada.Exceptions,
      System.Interrupt_Management.Operations,
 #    else
 #    end if;
-     System.Tasking_Soft_Links,
+     GNAT.Task_Lock,
+     System.Soft_Links,
      Unchecked_Conversion;
 package body POSIX.Implementation is
 
@@ -87,7 +88,7 @@ package body POSIX.Implementation is
 
    procedure Begin_Critical_Section is
    begin
-      System.Tasking_Soft_Links.Lock_Task.all;
+      GNAT.Task_Lock.Lock;
    end Begin_Critical_Section;
 
    ----------------------------
@@ -96,7 +97,7 @@ package body POSIX.Implementation is
 
    procedure End_Critical_Section is
    begin
-      System.Tasking_Soft_Links.Unlock_Task.all;
+      GNAT.Task_Lock.Unlock;
    end End_Critical_Section;
 
 
@@ -106,11 +107,7 @@ package body POSIX.Implementation is
 
    procedure Defer_Abortion is
    begin
-#     if HAVE_Soft_Abort_Defer
-      System.Tasking_Soft_Links.Abort_Defer.all;
-#     else
-      System.Tasking_Soft_Links.Abort_Defer;
-#     end if;
+      System.Soft_Links.Abort_Defer.all;
    end Defer_Abortion;
 
 
@@ -120,11 +117,7 @@ package body POSIX.Implementation is
 
    procedure Undefer_Abortion is
    begin
-#     if HAVE_Soft_Abort_Defer
-      System.Tasking_Soft_Links.Abort_Undefer.all;
-#     else
-      System.Tasking_Soft_Links.Abort_Undefer;
-#     end if;
+      System.Soft_Links.Abort_Undefer.all;
    end Undefer_Abortion;
 
    -------------------------
