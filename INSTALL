@@ -9,7 +9,7 @@ steps.
 1. Configure FLORIST by typing "./configure".
    You probably should capture the output, in case something goes
    wrong and the relevant error message scrolls off your screen,
-   e.g.
+   e.g. with a csh-like syntax:
         ./configure >& configure.log
 
    If you are using a GNAT run time that is not using native OS threads
@@ -52,10 +52,7 @@ steps.
    raise POSIX_Error if you try to use them.
 
    The POSIX.1g (sockets and XTI) interfaces are still very new, and
-   not supported widely; the configure stage will attempt to work around
-   missing features.  If it fails badly, you can still build the rest of
-   Florist.  (One should not be using the POSIX.5c interfaces anyway,
-   as explained above.)
+   not supported.
 
    NOTE:  Do not delete the empty file "florist_sources".  The configure
    script checks for this file, to make sure it is in the right source
@@ -68,7 +65,7 @@ steps.
      generates the source code for the Ada package specifications
      Posix, Posix.C, Posix.Limits, and Posix.Options.
 
-  b. Compile several C-language programs "XXX-macros.c".
+  b. Compile several C-language programs "posix-macros*.c".
 
   c. Use gnatprep to tailor some Ada source files to your system.
 
