@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998 Florida  State  University  (FSU).       All Rights  --
+--  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -34,20 +34,21 @@
 --  AVAILABLE OR DISCLOSED ARE AS IS.   THE GOVERNMENT MAKES NO EXPRESS OR  --
 --  IMPLIED WARRANTY AS TO ANY MATTER WHATSOEVER, INCLUDING THE CONDITIONS  --
 --  OF THE SOFTWARE,  DOCUMENTATION  OR  OTHER INFORMATION RELEASED,  MADE  --
---  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP,  MERCHANTABILITY, OR FITNESS  --
+--  AVAILABLE OR DISCLOSED,  OR THE OWNERSHIP, MERCHANTABILITY, OR FITNESS  --
 --  FOR A PARTICULAR PURPOSE OF SAID MATERIAL.                              --
 --                                                                          --
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
 --  Simulate mix of periodic jobs with rate monotone priorities.
---  This version uses:
---     POSIX processes and process priorities for concurrency and scheduling
---     Ada delay statements and Ada.Calendar.Clock for timing control
---     POSIX semaphores for mutual exclusion
+--  See P9900doc.ads for more detailed explanation.
 
-with p990040a;
-procedure p990040 is
+--  Setup: The executable file for program p990050a should
+--  be accessible via pathname "./p990050a".
+
+with P9900doc,
+     P990040a;
+procedure P990040 is
 begin
    P990040a.Parent_Main;
 end P990040;
