@@ -206,7 +206,7 @@ begin
                         Assert (The_Sig = Sig, "A007");
                         Count := Count + 1;
                      exception
-                     when E : POSIX_Error =>
+                     when POSIX_Error =>
                         Comment ("TIMED OUT waiting for " & Image (Sig));
                         Check_Error_Code (EAGAIN, "A008: " & Image (Sig));
                      when E : others =>
@@ -348,7 +348,7 @@ begin
          end;
 
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Assert (Get_Error_Code = Invalid_Argument and
            Action_Cannot_Be_Set (Sig), "A020: " & Image (Sig)
              & " " & Image (Get_Error_Code));
@@ -507,7 +507,7 @@ begin
          POSIX_IO.Read (POSIX_IO.Standard_Input, Buffer, Last);
          Comment ("system call aborted OK");
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Check_Error_Code (Interrupted_Operation, "A050");
       when E2 : others => Unexpected_Exception (E2, "A051");
       end T;
