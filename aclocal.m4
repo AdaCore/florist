@@ -314,10 +314,11 @@ main()
     exit (0);
   }
 }], eval "ac_cv_comp_$2=yes",
-eval "ac_cv_comp_$2=no", eval "ac_cv_comp_$2=nu")])dnl
+eval "ac_cv_comp_$2=no", eval "ac_cv_comp_$2=nu"))dnl
 if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
   AC_DEFINE_UNQUOTED(HAVE_component_$2)
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
 fi
+])

@@ -2187,6 +2187,17 @@ fi
 rm -fr conftest*
 fi
 
+fi
+if eval "test \"`echo '$ac_cv_comp_'sa_sigaction`\" = yes"; then
+  cat >> confdefs.h <<EOF
+#define HAVE_component_sa_sigaction 1
+EOF
+
+  echo "$ac_t""yes" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
 for ac_struct in \
  addrinfo\
  aiocb\
@@ -2236,12 +2247,12 @@ for ac_struct in \
 
 do
   echo $ac_n "checking for struct $ac_struct""... $ac_c" 1>&6
-echo "configure:2240: checking for struct $ac_struct" >&5
+echo "configure:2251: checking for struct $ac_struct" >&5
 if eval "test \"`echo '$''{'ac_cv_struct_$ac_struct'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2245 "configure"
+#line 2256 "configure"
 #include "confdefs.h"
 #include "pconfig.h"
 struct $ac_struct x;
@@ -2249,7 +2260,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:2253: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:2264: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_struct_$ac_struct=yes"
 else
@@ -2304,17 +2315,17 @@ for ac_typ in \
 
 do
   echo $ac_n "checking for $ac_typ""... $ac_c" 1>&6
-echo "configure:2308: checking for $ac_typ" >&5
+echo "configure:2319: checking for $ac_typ" >&5
 if eval "test \"`echo '$''{'ac_cv_type_$ac_typ'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2313 "configure"
+#line 2324 "configure"
 #include "confdefs.h"
 #include "pconfig.h"
 EOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "$ac_typ^0-9A-Za-z_" >/dev/null 2>&1; then
+  egrep "$ac_typ[^0-9A-Za-z_]" >/dev/null 2>&1; then
   rm -rf conftest*
   eval "ac_cv_type_$ac_typ=yes"
 else
@@ -2624,12 +2635,12 @@ for ac_func in \
 
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:2628: checking for $ac_func" >&5
+echo "configure:2639: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2633 "configure"
+#line 2644 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -2652,7 +2663,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:2656: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2667: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -2692,7 +2703,7 @@ test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 # the first set of double-colon rules, so remove it if not needed.
 # If there is a colon in the path, we need to keep it.
 if test "x$srcdir" = x.; then
-  ac_vpsub='/^ 	*VPATH 	*=^:*$/d'
+  ac_vpsub='/^[ 	]*VPATH[ 	]*=[^:]*$/d'
 fi
 
 trap 'rm -f $CONFIG_STATUS conftest*; exit 1' 1 2 15
@@ -2716,13 +2727,11 @@ cat > $CONFIG_STATUS <<EOF
 # Compiler output produced by configure, useful for debugging
 # configure, is in ./config.log if it exists.
 
-ac_cs_usage="Usage: $CONFIG_STATUS --recheck --version --help"
+ac_cs_usage="Usage: $CONFIG_STATUS [--recheck] [--version] [--help]"
 for ac_option
 do
   case "\$ac_option" in
-  -recheck | --recheck | --rechec | --reche | --rech | --rec | --re | --r
-fi
-
+  -recheck | --recheck | --rechec | --reche | --rech | --rec | --re | --r)
     echo "running \${CONFIG_SHELL-/bin/sh} $0 $ac_configure_args --no-create --no-recursion"
     exec \${CONFIG_SHELL-/bin/sh} $0 $ac_configure_args --no-create --no-recursion ;;
   -version | --version | --versio | --versi | --vers | --ver | --ve | --v)
