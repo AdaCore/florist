@@ -1,3 +1,6 @@
+dnl auto-configuration macros for Florist
+dnl This version requires autoconf-2.10.
+
 dnl AC_POSIX_HEADER(HEADER-FILE,
 dnl   [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 dnl side-effect: extend file "pconfig.h",
@@ -46,22 +49,6 @@ do
 changequote([, ])dnl
   AC_DEFINE_UNQUOTED($ac_tr_hdr)])dnl
 done
-AC_MSG_CHECKING(Provenzano (MIT) threads)
-if egrep _MIT_POSIX_THREADS /usr/include/pthread.h >/dev/null 2>&1; then
- AC_MSG_RESULT(yes)
- AC_DEFINE_UNQUOTED(HAVE_MIT_POSIX_THREADS)
- AC_POSIX_STRUCT(sched_param,
-  AC_MSG_WARN(conflicting declarations of sched_param)
-   AC_MSG_WARN(omitting all pthread.h support),
-   cp pconfig.h pconfig.hhh
-   cat > pconfig.h <<EOF
-#define _MIT_POSIX_THREADS 1
-EOF
-cat pconfig.hhh >> pconfig.h
-rm pconfig.hhh)
-else
-AC_MSG_RESULT(no)
-fi
 ])dnl
 
 dnl AC_POSIX5C_HEADERS(NAMES...)
@@ -134,9 +121,26 @@ AC_CHECK_FUNC(getaddrinfo,,
 ])
 ])dnl
 
+dnl AC_POSIX_LIBS(LIBRARY..., FUNCTION
+dnl    [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+AC_DEFUN(AC_POSIX_LIBS,
+[for ac_lib in $1
+do
+   AC_POSIX_LIB($ac_lib,$2,ac_lib_success="yes",ac_lib_success="no")
+   if [[ "$ac_lib_success" = "yes" ]]
+   then break;
+   fi
+done])
+
 dnl AC_POSIX_LIB(LIBRARY, FUNCTION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 AC_DEFUN(AC_POSIX_LIB,
-[AC_MSG_CHECKING([for $2 in -l$1])
+[
+ac_save_LIBS="$LIBS"
+if [[ "$1" ]]
+then
+   LIBS="-l$1 ${LIBS}"
+fi
+AC_MSG_CHECKING([for $2 with LIBS=${LIBS}])
 dnl Use a cache variable name containing both the library and function name,
 dnl because the test really is for library $1 defining function $2, not
 dnl just for library $1.  Separate tests with the same $1 and different $2s
@@ -157,17 +161,14 @@ extern "C"
 LIBS="$ac_save_LIBS"
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   AC_MSG_RESULT(yes)
-  ifelse([$3],[],
-[changequote(, )dnl
-  ac_tr_lib=HAVE_LIB`echo $1 |
-   tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
-changequote([, ])dnl
-  AC_DEFINE_UNQUOTED($ac_tr_lib)
+if [[ "$1" ]]; then
 if echo ${LIBS} | grep $1; then true;
 else
-  LIBS="-l$1 $LIBS"
-fi],
-[$3])
+  LIBS="-l$1 ${LIBS}"
+fi
+fi
+ifelse([$3], , , [$3
+])dnl
 else
   AC_MSG_RESULT(no)
 ifelse([$4], , , [$4
@@ -252,10 +253,9 @@ do
 done
 ])
 
-dnl AC_POSIX_FUNCS(FUNCTION... [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+dnl AC_POSIX_FUNCS(FUNCTION... )
 AC_DEFUN(AC_POSIX_FUNCS,
-[rm -f pconfig.f
-for ac_func in $1
+[for ac_func in $1
 do
 AC_CHECK_FUNC($ac_func,
 [AC_DEFINE_UNQUOTED(HAVE_$ac_func,1)],
@@ -293,7 +293,6 @@ if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
 else
   AC_MSG_RESULT(no)
 fi
-])
 
 dnl AC_POSIX_COMP_OVERLAY(STRUCTNAME, COMPNAME1, COMPNAME2)
 dnl check for COMPNAME1 but only if it does not overlay in memory
@@ -303,7 +302,7 @@ AC_DEFUN(AC_POSIX_COMP_OVERLAY,
 [AC_REQUIRE([AC_POSIX_HEADERS])dnl
 AC_MSG_CHECKING(for struct $1 component $2 overlaying $3)
 AC_CACHE_VAL(ac_cv_comp_$2,
-[AC_TRY_RUN_NATIVE([#include "pconfig.h"
+AC_TRY_RUN([#include "pconfig.h"
 main()
 {
   struct $1 x;
@@ -314,11 +313,10 @@ main()
     exit (0);
   }
 }], eval "ac_cv_comp_$2=yes",
-eval "ac_cv_comp_$2=no")])dnl
+eval "ac_cv_comp_$2=no", eval "ac_cv_comp_$2=nu")])dnl
 if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
   AC_DEFINE_UNQUOTED(HAVE_component_$2)
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
 fi
-])

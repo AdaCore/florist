@@ -116,10 +116,26 @@ else
  echo "HAVE_Leroy_Threads := False" >> gnatprep.config;
 fi;
 
+echo "We will assume errno is unsafe for exception propagation."
+echo "-- to override, hand-edit gnatprep.config"
+echo "HAVE_Safe_Errno := False" >> gnatprep.config;
+
 UNAME_MACHINE=`(uname -m) 2>/dev/null`
 UNAME_RELEASE=`(uname -r) 2>/dev/null`
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`
 UNAME_VERSION=`(uname -v) 2>/dev/null`
+
+if [ "${UNAME_SYSTEM}" = "Linux" ]; then
+echo Linux := True >> gnatprep.config;
+else 
+echo Linux := False >> gnatprep.config;
+fi
+
+if [ "${UNAME_SYSTEM}" = "SunOS" ]; then
+echo SunOS := True >> gnatprep.config;
+else 
+echo SunOS := False >> gnatprep.config;
+fi
 
 echo ${UNAME_SYSTEM} ${UNAME_MACHINE} ${UNAME_RELEASE} ${UNAME_VERSION}
 case ${UNAME_SYSTEM} in
@@ -246,27 +262,21 @@ AC_POSIX_LIB(pthreads, pthread_self,,
 AC_POSIX_LIB(dce, pthread_self,,
 AC_POSIX_LIB(:libdce.a, pthread_self)))))
 
-AC_POSIX_LIB(aio, aio_read)
+AC_POSIX_LIBS("" posix4 aio, aio_read)
 
-AC_POSIX_LIB(posix4, clock_gettime,,
-AC_POSIX_LIB(rt, clock_gettime))
+AC_POSIX_LIBS("" posix4 rt picc, clock_gettime)
 
-AC_POSIX_LIB(nsl, gethostbyname)
+AC_POSIX_LIBS("" nsl, gethostbyname)
 
-AC_POSIX_LIB(nsl, t_bind,,
-AC_POSIX_LIB(nsl_s, t_bind))
+AC_POSIX_LIBS("" nsl nsl_s, t_bind)
 
-AC_POSIX_LIB(socket, socketpair,,
-AC_POSIX_LIB(BSD, socketpair,,
-AC_POSIX_LIB(bsd, socketpair)))
+AC_POSIX_LIBS("" socket BSD bsd, socketpair)
 
-AC_POSIX_LIB(socket, accept,,
-AC_POSIX_LIB(BSD, accept,,
-AC_POSIX_LIB(bsd, accept)))
+AC_POSIX_LIBS("" socket BSD bsd, accept)
 
-AC_POSIX_LIB(resolv, h_errno)
+AC_POSIX_LIBS("" resolv, h_errno)
 
-echo using library/libraries $LIBS
+echo using "LIBS=${LIBS}"
 echo "LIBS=${LIBS}" >> Config
 
 AC_POSIX_VAR(t_errno)
