@@ -41,11 +41,13 @@
 --  [$Revision$]
 
 with POSIX_Report,
+     P9900doc,
      P990000,
      System;
 package body P990001a is
 
    use POSIX_Report,
+       P9900doc,
        P990000;
 
    protected IO is
@@ -84,25 +86,21 @@ package body P990001a is
 
       procedure Start_All_Jobs is
       begin
-         Comment ("start_all_jobs");
          All_Go := True;
       end Start_All_Jobs;
 
       entry Await_Start when All_Go is
       begin
-         Comment ("await_start");
          null;
       end Await_Start;
 
       procedure Done_Job is
       begin
-         Comment ("done_job");
          Done_Count := Done_Count + 1;
       end Done_Job;
 
       entry Await_All_Jobs_Done when Done_Count >= Jobs'Last is
       begin
-         Comment ("await_all_jobs_done");
          All_Go := False;
          Done_Count := 0;
       end Await_All_Jobs_Done;
@@ -138,6 +136,11 @@ package body P990001a is
    begin
       Sync.Done_Job;
    end Done_Job;
+
+   procedure Initialize is
+   begin
+      null;
+   end Initialize;
 
    procedure Finalize is
    begin
