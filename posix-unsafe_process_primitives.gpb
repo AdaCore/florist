@@ -89,6 +89,9 @@ package body POSIX.Unsafe_Process_Primitives is
    function fork return pid_t;
    pragma Import (C, fork, fork_LINKNAME);
 
+   function getpid return pid_t;
+   pragma Import (C, getpid, getpid_LINKNAME);
+
    function Fork return POSIX.Process_Identification.Process_ID is
       Result : pid_t;
       package TSL renames System.Tasking_Soft_Links;
