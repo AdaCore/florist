@@ -56,10 +56,10 @@
 
 #include "pconfig.h"
 #include <errno.h>
+#include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 #include "config.h"
-#include <stdarg.h>
 
 #ifdef hpux
 /* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
