@@ -43,7 +43,6 @@ with POSIX.C,
      POSIX.Process_Environment,
      POSIX.Process_Identification,
      System,
-     System.Tasking,
      System.Soft_Links,
      Unchecked_Conversion;
 package body POSIX.Unsafe_Process_Primitives is
@@ -57,8 +56,6 @@ package body POSIX.Unsafe_Process_Primitives is
      (POSIX_String_List, String_List_Ptr);
    function To_String_List_Ptr is new Unchecked_Conversion
      (POSIX.Process_Environment.Environment, String_List_Ptr);
-   function To_Address is new Unchecked_Conversion
-     (System.Tasking.Task_ID, System.Address);
 
    -------------------------
    --  Local Subprograms  --
@@ -94,16 +91,11 @@ package body POSIX.Unsafe_Process_Primitives is
 
    function Fork return POSIX.Process_Identification.Process_ID is
       Result : pid_t;
-      package TSL renames System.Soft_Links;
+      package SSL renames System.Soft_Links;
       --  save local values of soft-link data
-      NT_Sec_Stack_Addr : System.Address := TSL.Get_Sec_Stack_Addr.all;
-      NT_Exc_Stack_Addr : System.Address := TSL.Get_Exc_Stack_Addr.all;
-#     if HAVE_NT_GNAT_Exception
-      NT_GNAT_Exception : System.Address := TSL.Get_GNAT_Exception.all;
-      NT_Message_Length : Natural := TSL.Get_Message_Length.all;
-      NT_Message_Addr   : System.Address := TSL.Get_Message_Addr.all;
-#     end if;
-      NT_Jmpbuf_Address : System.Address := TSL.Get_Jmpbuf_Address.all;
+      NT_Sec_Stack_Addr : System.Address := SSL.Get_Sec_Stack_Addr.all;
+      NT_Exc_Stack_Addr : System.Address := SSL.Get_Exc_Stack_Addr.all;
+      NT_Jmpbuf_Address : System.Address := SSL.Get_Jmpbuf_Address.all;
    begin
       Result := fork;
       if Result = -1 then Raise_POSIX_Error; end if;
@@ -112,40 +104,20 @@ package body POSIX.Unsafe_Process_Primitives is
          This_Process := getpid;
 #        end if;
          --  reset soft links to non-tasking versions of operations
-#        if HAVE_Soft_Abort_Defer
-         TSL.Abort_Defer        := TSL.Abort_Defer_NT'Access;
-         TSL.Abort_Undefer      := TSL.Abort_Undefer_NT'Access;
-#        end if;
-         TSL.Lock_Task          := TSL.Task_Lock_NT'Access;
-         TSL.Unlock_Task        := TSL.Task_Unlock_NT'Access;
-         TSL.Get_Jmpbuf_Address := TSL.Get_Jmpbuf_Address_NT'Access;
-         TSL.Set_Jmpbuf_Address := TSL.Set_Jmpbuf_Address_NT'Access;
-         TSL.Get_Sec_Stack_Addr := TSL.Get_Sec_Stack_Addr_NT'Access;
-         TSL.Set_Sec_Stack_Addr := TSL.Set_Sec_Stack_Addr_NT'Access;
-         TSL.Get_Exc_Stack_Addr := TSL.Get_Exc_Stack_Addr_NT'Access;
-         TSL.Set_Exc_Stack_Addr := TSL.Set_Exc_Stack_Addr_NT'Access;
-#        if HAVE_NT_GNAT_Exception then
-         TSL.Get_Gnat_Exception := TSL.Get_GNAT_Exception_NT'Access;
-         TSL.Set_Gnat_Exception := TSL.Set_GNAT_Exception_NT'Access;
-         TSL.Get_Message_Length := TSL.Get_Message_Length_NT'Access;
-         TSL.Set_Message_Length := TSL.Set_Message_Length_NT'Access;
-         TSL.Get_Message_Addr   := TSL.Get_Message_Addr_NT'Access;
-         TSL.Set_Message_Addr   := TSL.Set_Message_Addr_NT'Access;
-#        end if;
+         SSL.Abort_Defer        := SSL.Abort_Defer_NT'Access;
+         SSL.Abort_Undefer      := SSL.Abort_Undefer_NT'Access;
+         SSL.Lock_Task          := SSL.Task_Lock_NT'Access;
+         SSL.Unlock_Task        := SSL.Task_Unlock_NT'Access;
+         SSL.Get_Jmpbuf_Address := SSL.Get_Jmpbuf_Address_NT'Access;
+         SSL.Set_Jmpbuf_Address := SSL.Set_Jmpbuf_Address_NT'Access;
+         SSL.Get_Sec_Stack_Addr := SSL.Get_Sec_Stack_Addr_NT'Access;
+         SSL.Set_Sec_Stack_Addr := SSL.Set_Sec_Stack_Addr_NT'Access;
+         SSL.Get_Exc_Stack_Addr := SSL.Get_Exc_Stack_Addr_NT'Access;
+         SSL.Set_Exc_Stack_Addr := SSL.Set_Exc_Stack_Addr_NT'Access;
          --  reset global data to saved local values for this thread
-         TSL.Set_Sec_Stack_Addr (NT_Sec_Stack_Addr);
-#        if HAVE_Set_Exc_Stack_Addr_With_Self_ID then
-         TSL.Set_Exc_Stack_Addr
-           (To_Address (System.Tasking.Self), NT_Exc_Stack_Addr);
-#        else
-         TSL.Set_Exc_Stack_Addr (NT_Exc_Stack_Addr);
-#        end if;
-         TSL.Set_Jmpbuf_Address (NT_Jmpbuf_Address);
-#        if HAVE_NT_GNAT_Exception then
-         TSL.Set_GNAT_Exception (NT_GNAT_Exception);
-         TSL.Set_Message_Length (NT_Message_Length);
-         TSL.Set_Message_Addr   (NT_Message_Addr);
-#        end if;
+         SSL.Set_Sec_Stack_Addr (NT_Sec_Stack_Addr);
+         SSL.Set_Exc_Stack_Addr (System.Null_Address, NT_Exc_Stack_Addr);
+         SSL.Set_Jmpbuf_Address (NT_Jmpbuf_Address);
       end if;
       return To_Process_ID (Result);
    end Fork;
