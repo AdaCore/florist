@@ -54,7 +54,7 @@ GENERATED = $(CONFIG_GENERATED) $(C-POSIX_GENERATED) $(GNATPREP_SOURCES) \
  $(C-POSIX-SIGNALS_GENERATED)
 
 # all the executable programs
-EXECUTABLES = c-posix
+EXECUTABLES = c-posix c-posix-signals
 
 MACRO_OBJECTS = posix-macros.o posix-macros-sockets.o
 
