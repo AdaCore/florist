@@ -1,5 +1,6 @@
 /* ??? On AiX, pthread.h must be included first */
 #ifdef _POSIX_C_SIGNALS_C
+#define _LONG_LONG
 #include <pthread.h>
 #endif
 #define _POSIX_C_SOURCE 199506L
@@ -22,3 +23,5 @@ typedef unsigned char   u_char;
 typedef unsigned short  u_short;
 typedef unsigned int    u_int;
 typedef unsigned long   u_long;
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
