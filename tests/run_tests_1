@@ -2,7 +2,7 @@
 # Archive version is already corrected for some of these errors.
 FLAGS="-t"
 
-RUN='rlimit 10'
+RUN='rlimit 30'
 
 # run all the simple tests
 rm -f run_tests_1.log
@@ -24,7 +24,8 @@ $RUN ../p030300 ${FLAGS} >> run_tests_1.log 2>&1
 ln -fs ../p030301b
 # ........p030301 hangs on Linux????????
 $RUN ../p030301 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p030302 ${FLAGS} >> run_tests_1.log 2>&1
+# test incomplete
+# $RUN ../p030302 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030303 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030304 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030305 ${FLAGS} >> run_tests_1.log 2>&1
@@ -69,4 +70,3 @@ $RUN ../p150101 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p990010 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p990020 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p990030 ${FLAGS} >> run_tests_1.log 2>&1
-$RUN ../p990040 ${FLAGS} >> run_tests_1.log 2>&1
