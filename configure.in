@@ -129,13 +129,11 @@ case ${UNAME_SYSTEM} in
      B.10.*)
            echo "making Config"
            cp ./configs/pconfig.HP-UX10.x ./pconfig.h.in;
-# Trying to get rid of configs/Config.XXX special files.
-#           cat ./configs/Config.HP-UX10.x > ./Config;
-           cat ./configs/Config.Default > ./Config;
+           cat ./configs/Config.Default >> ./Config;
            ;;
      *) echo "Unexpected HP-UX release; using default."
            cp ./configs/pconfig.Default ./pconfig.h.in;
-           cat ./configs/Config.Default > ./Config;
+           cat ./configs/Config.Default >> ./Config;
            ;;
    esac;
    ;;
@@ -143,35 +141,33 @@ case ${UNAME_SYSTEM} in
 # .... need to add cases here for versions 2.5.1 and 2.6, at least
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in;
-#   cp ./configs/Config.SunOS5.6 > ./Config;
-           cat ./configs/Config.Default > ./Config;
+   cat ./configs/Config.Default >> ./Config;
    ;;
  Linux)
 # .... need to add cases here for different thread and C libraries
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.Linux ./pconfig.h.in;
-#   cat ./configs/Config.Linux > ./Config;
-   cat ./configs/Config.Default > ./Config;
+   cat ./configs/Config.Default >> ./Config;
    ;;
  OSF1)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.OSF1 ./pconfig.h.in;
-   cat ./configs/Config.OSF1 > ./Config;
+   cat ./configs/Config.Default >> ./Config;
    ;;
  IRIX*)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
-   cp ./configs/pconfig.IRIX6.3 ./pconfig.h.in;
-   cat ./configs/Config.IRIX6.3 > ./Config;
+   cp ./configs/pconfig.IRIX6.x ./pconfig.h.in;
+   cat ./configs/Config.Default >> ./Config;
    ;;
  AIX)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
-   cat ./configs/Config.AIX4.1 > ./Config;
+   cat ./configs/Config.Default >> ./Config;
    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
-   cat ./configs/Config.Default > ./Config;
+   cat ./configs/Config.Default >> ./Config;
    ;;
 esac; 
 

@@ -369,8 +369,7 @@ deps5c: Makefile $(ALL_SOURCES) florist
 # If we have modified the Ada runtime system, we need to recompile that also.
 #
 build: Makefile build.adb $(ALL_SOURCES) florist
-	@if [ ! -d tmpbuild ]; then mkdir tmpbuild; fi
-	cd tmpbuild; gnatmake  $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
+	gnatmake  $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
 #
 # -----------------------------------
 # Create a florist library for objects
@@ -415,7 +414,7 @@ clean:
 # remove all generated files, including configuration history
 realclean:
 	rm -f  $(CONFIG_HISTORY) $(CONFIG_GENERATED)
-	rm -rf tmpbuild floristlib
+	rm -rf floristlib
 	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c
 	rm -f *CHECKING_IN*
 	rm -f $(GNATPREP_GENERATED) $(C-POSIX_GENERATED)
