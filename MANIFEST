@@ -1,5 +1,4 @@
 COPYING
-Config
 MANIFEST
 README
 aclocal.m4
@@ -13,7 +12,6 @@ config.h.in
 configs/pconfig.OSF1
 configs/Config.Default
 configs/pconfig.OSF1-4.0b
-configs/Config.OSF1
 configs/pconfig.AIX4.1
 configs/pconfig.Default
 configs/pconfig.HP-UX10.x
