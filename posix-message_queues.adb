@@ -80,8 +80,9 @@ package body POSIX.Message_Queues is
            (Masked_Signals, Old_Mask);
       else
          Restore_Signals (Masked_Signals, Old_Mask);
-         return Result;
       end if;
+
+      return Result;
    end Check_NNeg_And_Restore_Signals;
 
    ------------------------
