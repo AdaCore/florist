@@ -42,8 +42,7 @@
 
 --  See P9900doc.ads for more detailed explanation.
 
-with P990000,
-     P9900doc;
+with P990000;
 package body P990003a is
 
    Data : aliased P990000.Shared_Data_Area;

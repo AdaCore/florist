@@ -45,7 +45,6 @@ with P990000,
      POSIX_Calendar,
      POSIX_Mutexes,
      POSIX_Condition_Variables,
-     POSIX_Configurable_System_Limits,
      POSIX_Report;
 package body P990002c is
 
@@ -54,7 +53,6 @@ package body P990002c is
        POSIX_Calendar,
        POSIX_Mutexes,
        POSIX_Condition_Variables,
-       POSIX_Configurable_System_Limits,
        POSIX_Report;
 
    Data : Shared_Data_Ptr;

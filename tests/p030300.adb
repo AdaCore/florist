@@ -50,18 +50,12 @@
 with Ada_Task_Identification,
      p030300a,
      POSIX,
-     POSIX_Asynchronous_IO,
-     POSIX_Files,
-     POSIX_IO,
      POSIX_Limits,
-     POSIX_Message_Queues,
-     POSIX_Permissions,
      POSIX_Process_Identification,
      POSIX_Report,
      POSIX_Signals,
      POSIX_Timers,
      System,
-     System.Interrupts,
      System.Storage_Elements,
      Test_Parameters;
 
@@ -69,12 +63,7 @@ procedure p030300 is
    use  Ada_Task_Identification,
         p030300a,
         POSIX,
-        POSIX_Asynchronous_IO,
-        POSIX_Files,
-        POSIX_IO,
         POSIX_Limits,
-        POSIX_Message_Queues,
-        POSIX_Permissions,
         POSIX_Process_Identification,
         POSIX_Report,
         POSIX_Signals,
@@ -407,7 +396,7 @@ begin
          Sig := Value ("Garbage");
          Assert (False, "A096");
       exception
-         when E1 : Constraint_Error => null;
+         when Constraint_Error => null;
          when E2 : others => Unexpected_Exception (E2, "A097");
       end;
 
@@ -626,7 +615,6 @@ begin
 
    declare
       Mask1, Mask2, Mask3, Mask4 : Signal_Set;
-      New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
@@ -843,7 +831,7 @@ begin
          end;
 
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Assert (Get_Error_Code = Invalid_Argument and
            Action_Cannot_Be_Set (Sig), "A151: " & Image (Sig)
              & " " & Image (Get_Error_Code));
@@ -1341,7 +1329,7 @@ begin
          Send_Signal (Uninitialized_Process_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable process?");
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          if Get_Error_Code = Operation_Not_Permitted then
             Comment ("UNLIKELY: garbage ID is real process?");
          else Check_Error_Code (No_Such_Process, "A223");
@@ -1359,7 +1347,7 @@ begin
          Send_Signal (Uninitialized_Group_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable group?");
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          if Get_Error_Code = Operation_Not_Permitted then
             Comment ("UNLIKELY: garbage ID is real group?");
          else Check_Error_Code (No_Such_Process, "A225");

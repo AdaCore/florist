@@ -43,7 +43,6 @@
 with P990000,
      POSIX,
      POSIX_Condition_Variables,
-     POSIX_Configurable_System_Limits,
      POSIX_Mutexes,
      POSIX_Report;
 
@@ -52,7 +51,6 @@ package body P990001b is
    use P990000,
        POSIX,
        POSIX_Condition_Variables,
-       POSIX_Configurable_System_Limits,
        POSIX_Mutexes,
        POSIX_Report;
 

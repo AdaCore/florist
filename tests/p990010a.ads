@@ -43,8 +43,7 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
-with P9900doc,
-     P9900x0,
+with P9900x0,
      P990001a,  --  protected objects
      P990002a,  --  Calendar and delay
      P990003a;  --  locally shared data

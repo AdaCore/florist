@@ -41,13 +41,11 @@
 --  [$Revision$]
 
 with POSIX_Report,
-     P9900doc,
      P990000,
      System;
 package body P990001a is
 
    use POSIX_Report,
-       P9900doc,
        P990000;
 
    protected IO is

@@ -44,7 +44,6 @@ with P990000,
      POSIX,
      POSIX_Mutexes,
      POSIX_Condition_Variables,
-     POSIX_Configurable_System_Limits,
      POSIX_Timers,
      POSIX_Report;
 package body P990002b is
@@ -53,7 +52,6 @@ package body P990002b is
        POSIX,
        POSIX_Mutexes,
        POSIX_Condition_Variables,
-       POSIX_Configurable_System_Limits,
        POSIX_Timers,
        POSIX_Report;
 

@@ -64,8 +64,7 @@
 
 --  See P9900doc.ads for more detailed explanation.
 
-with P990000,
-     P9900doc;
+with P990000;
 package P990003a is
 
    function Shared_Data return P990000.Shared_Data_Ptr;
