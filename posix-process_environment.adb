@@ -49,15 +49,9 @@ package body POSIX.Process_Environment is
 
    type Environment_List is new POSIX.Implementation.String_List;
 
-   function To_Environment is
-     new Unchecked_Conversion (POSIX_String_List, Environment);
-
    type var_char_ptr_ptr is access all char_ptr;
    function To_Variable is
-     new Unchecked_Conversion (char_ptr_ptr, var_char_ptr_ptr);
-
-   function To_POSIX_String_List is
-     new Unchecked_Conversion (Environment, POSIX_String_List);
+      new Unchecked_Conversion (char_ptr_ptr, var_char_ptr_ptr);
 
    procedure Free is
      new Unchecked_Deallocation (POSIX_String, POSIX_String_Ptr);
