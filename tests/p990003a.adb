@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1998-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -42,13 +42,15 @@
 
 --  See P9900doc.ads for more detailed explanation.
 
-with P990000;
+with P990000,
+     P9900doc;
 package body P990003a is
 
    Data : aliased P990000.Shared_Data_Area;
 
    function Shared_Data return P990000.Shared_Data_Ptr is
    begin
+      Data.Check := 9999;
       return Data'Access;
    end Shared_Data;
 
