@@ -82,8 +82,7 @@ package body POSIX is
    --  To_String  --
    -----------------
 
-   function To_String (Str : POSIX_String)
-      return string is
+   function To_String (Str : POSIX_String) return String is
    begin
       return psptr_to_sptr (Str'Unrestricted_Access).all;
    end To_String;
@@ -158,7 +157,7 @@ package body POSIX is
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
          if Str (I) = '/' or Str (I) = NUL or Str (I) = ' ' then
-            return false;
+            return False;
          end if;
       end loop;
       return True;
@@ -179,7 +178,7 @@ package body POSIX is
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
          if Str (I) = NUL or Str (I) = ' ' then
-            return false;
+            return False;
          end if;
       end loop;
       return True;
@@ -215,16 +214,16 @@ package body POSIX is
       Start : Positive;
       P : Positive;
    begin
-      if To_String (Str)'Length = 0 then return false; end if;
+      if To_String (Str)'Length = 0 then return False; end if;
       Start := Str'First;
       P := Str'First;
       loop
          if P > Str'Last or else Str (P) = '/' then
             if Start < P and then not
                Is_Portable_Filename (Str (Start .. P - 1)) then
-               return false;
+               return False;
             end if;
-            if P > Str'Last then return true; end if;
+            if P > Str'Last then return True; end if;
             Start := P + 1;
          end if;
          P := P + 1;
