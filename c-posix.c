@@ -4063,6 +4063,13 @@ void create_c() {
   fprintf(fp,"   type char_ptr_array is\n");
   fprintf(fp,"     array (Positive range <>) of aliased char_ptr;\n");
 
+#ifdef HAVE_in_addr_t 
+  guitp("in_addr_t", sizeof(in_addr_t));
+#else
+  NON_SUPPORT_MESSAGE("in_addr_t")
+  guitp("in_addr_t", sizeof(long));
+#endif
+
   fprintf(fp,"   function malloc (size : in size_t) return char_ptr;\n");
   fprintf(fp,"   function malloc (size : in size_t) return char_ptr_ptr;\n");
   fprintf(fp,"      pragma Import (C, malloc, \"malloc\");\n");
@@ -5908,13 +5915,6 @@ void create_c() {
 #else
   NON_SUPPORT_MESSAGE("sa_family_t")
   guitp("sa_family_t", sizeof(short));
-#endif
-
-#ifdef HAVE_in_addr_t 
-  guitp("in_addr_t", sizeof(in_addr_t));
-#else
-  NON_SUPPORT_MESSAGE("in_addr_t")
-  guitp("in_addr_t", sizeof(long));
 #endif
 
 #ifdef HAVE_in_port_t 
