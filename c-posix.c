@@ -4163,7 +4163,6 @@ void create_c() {
      ------------------
    */
   ifprintf(fp,"   subtype char is POSIX_Character;\n");
-  ifprintf(fp,"   NUL : constant char := char'Val (0);\n");
   gptrtp("char","char");
   gptrtp("char_ptr","char_ptr");
   ifprintf(fp,"   type char_ptr_array is\n");
