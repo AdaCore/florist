@@ -76,7 +76,8 @@ GNATPREP_BODIES = \
  posix-xti.adb
 GNATPREP_SPECS = \
  posix-implementation.ads\
- posix-sockets.ads
+ posix-sockets.ads\
+ posix-timers.ads
 GNATPREP_GENERATED = $(GNATPREP_BODIES) $(GNATPREP_SPECS)
 GENERATED = $(CONFIG_GENERATED) $(C-POSIX_GENERATED) $(GNATPREP_GENERATED)\
  $(C-POSIX-SIGNALS_GENERATED)
@@ -89,6 +90,7 @@ GNATPREP_SOURCES = \
  posix-sockets.gps\
  posix-sockets.gpb\
  posix-sockets-internet.gpb\
+ posix-timers.gps\
  posix-xti.gpb
 # non-generated Ada and C source files for Florist
 FLORIST_SOURCES = $(GNATPREP_SOURCES)\
