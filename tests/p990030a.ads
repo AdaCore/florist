@@ -43,7 +43,8 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
-with P9900x0,
+with P9900doc,
+     P9900x0,
      P990001b,  --  POSIX mutexes and CVs
      P990002c,  --  POSIX_Calendar and CV time wait
      P990003a;  --  locally shared data
@@ -51,6 +52,7 @@ package P990030a is new P9900x0
   (Version => "30",
    Needs_Clock_Realtime => True,
    Jobs_Are_Processes => False,
+   Initialize_Sync => P990001b.Initialize,
    Do_Input => P990001b.Do_Input,
    Do_Output => P990001b.Do_Output,
    Start_All_Jobs => P990001b.Start_All_Jobs,

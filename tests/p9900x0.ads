@@ -43,13 +43,15 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc for more detailed explanation.
 
-with POSIX,
+with P9900doc,
+     POSIX,
      P990000;
 use  P990000;
 generic
    Version : String;
    Needs_Clock_Realtime : Boolean;
    Jobs_Are_Processes : Boolean;
+   with procedure Initialize_Sync;
    with procedure Do_Input (Load : Natural);
    with procedure Do_Output (Load : Natural);
    with procedure Start_All_Jobs;
