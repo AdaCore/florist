@@ -75,7 +75,7 @@ procedure p030102 is
    --  Cases to be tested by child processes:
 
    Normal_Completion : constant := 1;
-   Normal_Completion_With_Ada_Status := 2;
+   Normal_Completion_With_Ada_Status : constant := 2;
    Unhandled_Exception : constant := 3;
    POSIX_Exit_Process : constant := 4;
 
@@ -168,7 +168,7 @@ procedure p030102 is
 
       if Child = Normal_Completion then
          return;
-      elsif Child = Normal_Completion with Ada_Status then
+      elsif Child = Normal_Completion_With_Ada_Status then
          Command_Line.Set_Exit_Status (77);
          return;
       elsif Child = Unhandled_Exception then
@@ -222,8 +222,10 @@ begin
 
 exception
 when E : others =>
-   if Child = 2 then raise;
+   if Child = Normal_Completion_With_Ada_Status then
+      raise;
       --  Allow child process to be terminated by unhandled exception.
-   elsif Child = 4
+   else
+      Fail (E);
    end if;
 end p030102;
