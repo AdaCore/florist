@@ -75,6 +75,7 @@ package body POSIX_Report is
       Message : String);
 
    function Option_Name (Option : POSIX_Option) return String;
+   pragma Warnings (Off, Option_Name);
 
    procedure Nonsupport_Message
      (Option : POSIX_Option;
