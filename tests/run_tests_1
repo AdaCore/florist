@@ -2,7 +2,7 @@
 # Archive version is already corrected for some of these errors.
 FLAGS="-t"
 
-RUN='rlimit 30'
+RUN=
 
 # run all the simple tests
 rm -f run_tests_1.log

@@ -1,7 +1,7 @@
 #!/bin/sh
 # These tests need to be run with special (e.g., root) permission.
 FLAGS="-t"
-RUN='rlimit 300'
+RUN=
 rm -f run_tests_2.log
 $RUN ../p120100 ${FLAGS} >> run_tests_2.log 2>&1
 $RUN ../p120400 ${FLAGS} >> run_tests_2.log 2>&1
