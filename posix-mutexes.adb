@@ -159,7 +159,7 @@ package body POSIX.Mutexes is
       elsif Result = PTHREAD_PRIO_PROTECT then return Highest_Ceiling_Priority;
       else Raise_POSIX_Error (Operation_Not_Supported);
          --  to suppress compiler warning
-         return PTHREAD_PRIO_NONE;
+         return No_Priority_Inheritance;
       end if;
    end Get_Locking_Policy;
 
