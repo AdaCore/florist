@@ -1,0 +1,154 @@
+These instructions outline the steps required to build FLORIST for
+LynxOS cross configurations. This document supplements the
+instructions found in the file INSTALL.
+
+FLORIST normally assumes it's being built on the same system it's
+being built for - that is, it assumes the host and the target are the
+same platform. To work around this limitation it's necessary to: 1.)
+configure FLORIST on the target system, eg. PowerPC LynxOS, and 2.)
+build it on the host, eg. Sparc Solaris. The general steps are
+described below and an example transcript follows.
+
+1. On the target system: Run the script configure with 'CC="gcc
+   -mthreads" ./configure' against the LynuxWorks native C compiler.
+
+   (Passing the '-mthreads' flag to the LynuxWorks C compiler forces 
+    it to link against the reentrant version the system libraries.)
+
+2. On the target system: 
+
+   a.) Compile "c-posix.c" against the LynuxWorks native C compiler
+       and run it to generate the source code for the Ada package 
+       specifications Posix, Posix.C, Posix.Limits, and Posix.Options. 
+
+   b.) Compile "c-posix-signals.c" with the LynuxWorks native C
+       compiler and run it to generate the source code for the
+       Ada package specifications POSIX.Implementation.OK_Signals
+
+3. On the target system: Compile wrappers for C-language
+   macros, *-macros.c, along with getaddrinfo.c, inet_pton.c, 
+   and inet_ntop.c.
+
+4. On the host system: Use gnatprep to tailor some Ada source files to
+   your system.
+
+5. On the host system: Compile the various POSIX Ada package
+   specifications and bodies with the Ada cross-compiler.
+
+6. Build the library libflorist.a using the LynuxWorks cross ar.
+
+Example:
+
+The following transcript demonstrates building FLORIST for a powerpc
+LynxOS (PPC$) target and a Solaris ($SPARK) host. In this example, the
+build directory is mounted by both the host and the target.
+
+ 1. Configure FLORIST on the PowerPC system against the Lynuxworks
+    native C compiler.
+
+ PPC$ CC="gcc -mthreads" ./configure
+
+ See file configure.log for results of this step.
+ checking for gcc... gcc -mthreads
+ checking whether the C compiler (gcc -mthreads  ) works... yes
+ checking whether the C compiler (gcc -mthreads  ) is a cross-compiler... no
+ checking whether we are using GNU C... yes
+ checking whether gcc -mthreads accepts -g... yes
+ checking for Xavier Leroy Linux threads... no
+ We will assume errno is safe for exception propagation.
+ -- to override, hand-edit gnatprep.config
+ LynxOS PowerPC 3.1.0 071000-F
+ Using Configuration for LynxOS 3.1.0
+ checking how to run the C preprocessor... gcc -mthreads -E
+ checking for aio.h... yes
+ checking for dirent.h... yes
+ checking for errno.h... yes
+ checking for fcntl.h... yes
+ checking for grp.h... yes
+ ...
+
+ 2. On the target system: 
+
+ a.) Compile "c-posix.c" against the LynuxWorks native C compiler
+     and run it to generate the source code for the Ada package 
+     specifications Posix, Posix.C, Posix.Limits, and Posix.Options. 
+
+ PPC$ make posix-c.ads
+
+ gcc -mthreads -O2 -DVERSION="\"3.15a\"" -DLIBS="\"-lbsd -lnsl \"" -o \
+ c-posix c-posix.c -lbsd -lnsl 
+ rm -f posix.ads posix-limits.ads posix-options.ads posix-c.ads\
+ tmpposix.ads
+ # See file "c-posix.log" for results of this step.
+ ./c-posix > c-posix.log 2>&1
+ rm -f tmpposix.ads
+
+ b.) Compile "c-posix-signals.c" with the LynuxWorks native C compiler
+     and run it to generate the source code for the Ada package 
+     specifications POSIX.Implementation.OK_Signals
+
+ PPC$ make posix-implementation-ok_signals.ads
+
+ gcc -mthreads -O2 -ansi -o c-posix-signals c-posix-signals.c -lbsd -lnsl 
+ rm -f posix-implementations-ok_signals.ads
+ # See file "c-posix-signals.log" for results of this step.
+ ./c-posix-signals -nodefaults > c-posix-signals.log 2>&1
+
+ 3. On the target system: Compile several C-language programs
+    "XXX-macros.c" against Lynuxworks' native C compiler.
+
+ PPC$ make posix-macros.o posix-macros-xti.o posix-macros-sockets.o \
+ posix-macros-select.o
+
+ gcc -mthreads -c -O2 posix-macros.c
+ gcc -mthreads -c -O2 posix-macros-xti.c
+ gcc -mthreads -c -O2 posix-macros-sockets.c
+ ...
+
+ PPC$ make c_inet_ntoa.o getaddrinfo.o inet_pton.o inet_ntop.o
+
+ gcc -mthreads -c -O2 c_inet_ntoa.c
+ gcc -mthreads -c -O2 getaddrinfo.c
+ gcc -mthreads -c -O2 inet_pton.c
+ ...
+
+ 4. On the host system: Use gnatprep to tailor some Ada source files to
+    your system.
+
+ SPARK$ make posix-implementation.adb posix-process_identification.adb \
+ posix-process_primitives.adb posix-unsafe_process_primitives.adb \
+ posix-sockets.adb posix-sockets-internet.adb posix-xti.adb
+
+ gnatprep posix-implementation.gpb posix-implementation.adb ...
+ gnatprep posix-process_primitives.gpb posix-process_primitives.adb ...
+ gnatprep posix-unsafe_process_primitives.gpb ...
+ ...
+   
+ SPARK$ make posix-implementation.ads posix-sockets.ads
+
+ gnatprep posix-implementation.gps posix-implementation.ads ...
+ gnatprep posix-sockets.gps posix-sockets.ads gnatprep.config ...
+
+ 5. On the host system: Compile the various POSIX Ada package
+    specifications and bodies with the Ada cross-compiler and 
+    build the archive.
+
+ SPARK$ powerpc-xcoff-lynxos-gnatmake -c -O2 deps -cargs -gnatpg \ 
+ -largs -lbsd -lnsl
+
+ powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg deps.adb
+ powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg ada_streams.ads
+ powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg ada_task_identification.ads
+ powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg posix.adb
+ powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg posix_asynchronous_io.ads
+ ...
+
+ 6. Build the library libflorist.a using the LynuxWorks cross ar.
+ 
+ SPARK$ mkdir floristlib
+ SPARK$ cp -p *.ad[bs] floristlib
+ SPARK$ (tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
+ SPARK$ /usr/lynx/3.1.0a/ppc/cdk/sunos-xcoff-ppc/bin/ar -r \
+ floristlib/libflorist.a floristlib/*.o
+ SPARK$	chmod 444 floristlib/*.ali
+ SPARK$	rm -f floristlib/*.o
