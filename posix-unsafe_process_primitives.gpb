@@ -71,12 +71,14 @@ package body POSIX.Unsafe_Process_Primitives is
    function Make_Path_Name
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
+      pragma Warnings (Off);
    begin
       if Directory = "" then return File; end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File;
       end if;
       return Directory & '/' & File;
+      pragma Warnings (On);
    end Make_Path_Name;
 
    ------------
@@ -95,9 +97,12 @@ package body POSIX.Unsafe_Process_Primitives is
       Result : pid_t;
       package SSL renames System.Soft_Links;
       --  save local values of soft-link data
-      NT_Sec_Stack_Addr : System.Address := SSL.Get_Sec_Stack_Addr.all;
-      NT_Exc_Stack_Addr : System.Address := SSL.Get_Exc_Stack_Addr.all;
-      NT_Jmpbuf_Address : System.Address := SSL.Get_Jmpbuf_Address.all;
+      NT_Sec_Stack_Addr : constant System.Address :=
+                            SSL.Get_Sec_Stack_Addr.all;
+      NT_Exc_Stack_Addr : constant System.Address :=
+                            SSL.Get_Exc_Stack_Addr.all;
+      NT_Jmpbuf_Address : constant System.Address :=
+                            SSL.Get_Jmpbuf_Address.all;
    begin
       Result := fork;
       if Result = -1 then Raise_POSIX_Error; end if;
@@ -221,7 +226,7 @@ package body POSIX.Unsafe_Process_Primitives is
                P := P + 1;
             end loop;
             declare
-               Pathname : POSIX_String
+               Pathname : constant POSIX_String
                  := Make_Path_Name (Path (Start .. P - 1), Filename);
             begin
                Exec (Pathname, Arg_List, Env_List);
