@@ -410,21 +410,21 @@ package body POSIX.Process_Primitives is
       Validate (Template);
 
       if Tmp = null then
-         Template.FD_Set := new FD_Set_Element (Open, Name_With_Nul'Length);
+         Template.FD_Set := new FD_Set_Element (Open, Name_With_NUL'Length);
          Tmp := Template.FD_Set;
       else
          while Tmp.Next /= null loop
             Tmp := Tmp.Next;
          end loop;
 
-         Tmp.Next := new FD_Set_Element (Open, Name_with_Nul'Length);
+         Tmp.Next := new FD_Set_Element (Open, Name_With_NUL'Length);
          Tmp := Tmp.Next;
       end if;
 
       Tmp.FD := File;
       Tmp.Next := null;
       Tmp.Action := Open;
-      Tmp.File_Name := Name_With_Nul;
+      Tmp.File_Name := Name_With_NUL;
       Tmp.File_Mode := Mode;
       Tmp.File_Options := Options;
    end Set_File_Action_To_Open;

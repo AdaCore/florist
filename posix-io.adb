@@ -633,7 +633,7 @@ package body POSIX.IO is
 
    procedure Set_Close_On_Exec
      (File : in File_Descriptor;
-      To   : in Boolean := true) is
+      To   : in Boolean := True) is
       Flags : Bits;
       Result : int;
    begin

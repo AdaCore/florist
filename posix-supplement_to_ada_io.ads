@@ -85,11 +85,11 @@ package POSIX.Supplement_to_Ada_IO is
 
    generic
       type File_Type is limited private;
-   procedure Flush_Sequential_IO (File: File_Type);
+   procedure Flush_Sequential_IO (File : File_Type);
 
    generic
       type File_Type is limited private;
-   procedure Flush_Direct_IO (File: File_Type);
+   procedure Flush_Direct_IO (File : File_Type);
 
    --  .... Change POSIX.5?
    --  This is a terrible interface!
