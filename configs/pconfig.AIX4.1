@@ -9,14 +9,15 @@
 #define pthread_sigmask sigthreadmask
 typedef unsigned char sa_family_t;
 #define aio_sigevent aio_event
-/* ??? there is an additional structure on AIX (struct liocb) to handle these
-   fields. for now, fake them. */
+/* ??? There is an additional structure on AIX (struct liocb) to handle these
+   fields. for now, fake them.
+ */
 #define aio_fildes aio_whence
 #define aio_lio_opcode  aio_flag
-
 /* typedefs for BSD unsigned things
    ??? These are defined in <sys/types.h> when _ALL_SOURCE is defined, but
-   that cause troubles in other parts of Florist */
+   that cause troubles in other parts of Florist
+ */
 typedef unsigned char   u_char;
 typedef unsigned short  u_short;
 typedef unsigned int    u_int;
