@@ -858,7 +858,7 @@ case ${UNAME_SYSTEM} in
 	;;
       *-*-osf4.0[d-z] | *-*-osf4.[1-9]*)
 	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
-	cat ./configs/Config.OSF1 >> ./Config;
+	cat ./configs/Config.Default >> ./Config;
 	;;
    esac
    ;;
@@ -1466,11 +1466,11 @@ else
 fi
 else
   echo "$ac_t""no" 1>&6
-echo $ac_n "checking for pthread_self in -ldce""... $ac_c" 1>&6
-echo "configure:1471: checking for pthread_self in -ldce" >&5
-ac_lib_var=`echo dce_pthread_self | tr ':.-/+' '____p'`
+echo $ac_n "checking for pthread_self in -lcma""... $ac_c" 1>&6
+echo "configure:1471: checking for pthread_self in -lcma" >&5
+ac_lib_var=`echo cma_pthread_self | tr ':.-/+' '____p'`
 ac_save_LIBS="$LIBS"
-LIBS="-ldce $LIBS"
+LIBS="-lcma $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 1476 "configure"
 #include "confdefs.h"
@@ -1494,17 +1494,17 @@ rm -f conftest*
 LIBS="$ac_save_LIBS"
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-if echo ${LIBS} | grep dce; then true;
+if echo ${LIBS} | grep cma; then true;
 else
-  LIBS="-ldce ${LIBS}"
+  LIBS="-lcma ${LIBS}"
 fi
 else
   echo "$ac_t""no" 1>&6
-echo $ac_n "checking for pthread_self in -l:libdce.a""... $ac_c" 1>&6
-echo "configure:1505: checking for pthread_self in -l:libdce.a" >&5
-ac_lib_var=`echo :libdce.a_pthread_self | tr ':.-/+' '____p'`
+echo $ac_n "checking for pthread_self in -l:libcma.a""... $ac_c" 1>&6
+echo "configure:1505: checking for pthread_self in -l:libcma.a" >&5
+ac_lib_var=`echo :libcma.a_pthread_self | tr ':.-/+' '____p'`
 ac_save_LIBS="$LIBS"
-LIBS="-l:libdce.a $LIBS"
+LIBS="-l:libcma.a $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 1510 "configure"
 #include "confdefs.h"
@@ -1528,9 +1528,9 @@ rm -f conftest*
 LIBS="$ac_save_LIBS"
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-if echo ${LIBS} | grep :libdce.a; then true;
+if echo ${LIBS} | grep :libcma.a; then true;
 else
-  LIBS="-l:libdce.a ${LIBS}"
+  LIBS="-l:libcma.a ${LIBS}"
 fi
 else
   echo "$ac_t""no" 1>&6
@@ -2548,6 +2548,7 @@ for ac_func in \
  getsockname\
  getsockname_r\
  getsockopt\
+ gettimeofday\
  getuid\
  gmtime_r\
  inet_addr\
@@ -2745,12 +2746,12 @@ for ac_func in \
 
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:2749: checking for $ac_func" >&5
+echo "configure:2750: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2754 "configure"
+#line 2755 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -2773,7 +2774,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:2777: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2778: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
