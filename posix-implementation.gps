@@ -144,7 +144,7 @@ package POSIX.Implementation is
    --  Strings  --
    ---------------
 
-   NUL_String : POSIX_String := (1 => POSIX.C.NUL);
+   NUL_String : POSIX_String := (1 => NUL);
    function Form_String (Str : in POSIX.C.char_ptr) return String;
    function Trim_Leading_Blank (S : String) return String;
    --  pragma Inline (Trim_Leading_Blank);
