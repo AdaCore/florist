@@ -40,8 +40,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with P9900doc,
-     POSIX_Report;
+with POSIX_Report;
 package body P990000 is
 
    use POSIX_Report;

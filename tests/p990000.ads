@@ -50,7 +50,6 @@ with Calendar,
      Ada.Real_Time,
      POSIX,
      POSIX_Calendar,
-     P9900doc,
      System;
 package P990000 is
 

@@ -52,7 +52,6 @@ with Calendar,
      POSIX_Report,
      POSIX_Timers,
      System,
-     P9900doc,
      P990000;
 package body P9900x0 is
 

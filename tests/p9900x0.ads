@@ -43,8 +43,7 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc for more detailed explanation.
 
-with P9900doc,
-     POSIX,
+with POSIX,
      P990000;
 use  P990000;
 generic
