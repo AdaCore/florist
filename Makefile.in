@@ -330,9 +330,9 @@ $(GNATPREP_BODIES): gnatprep.config $(LOCAL_GNATPREP)
 $(GNATPREP_SPECS): gnatprep.config $(LOCAL_GNATPREP)
 .SUFFIXES: .gps .gpb .ads .adb .o .c
 .gps.ads:
-	PATH=${PATH}\:.; gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
+	gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .gpb.adb:
-	PATH=${PATH}\:.; gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
+	gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .c.o:
 	gcc -c $(GCCFLAGS) $<
 #
