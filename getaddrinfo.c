@@ -28,7 +28,11 @@
 /* Needed on Dec Unix. Doesn't hurt on other OS ??? */
 #undef _OSF_SOURCE
 
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
+#else
+#include "addrinfo.h"   /* defines in here really belong in <netdb.h> */
+#endif
 
 /* NOTE: this code assumes you have the inet_pton() function as defined
  * in the BIND-4.9.4 release or later (ftp://ftp.vix.com/pub/bind).
@@ -145,18 +149,18 @@ getaddrinfo(const char *host, const char *serv,
 #define   error(e) { error = (e); goto bad; }
 
 
-/* debug -- see what the Ada binding passed in                     */
-/* printf (" getaddrinfo(): hptr=%d\n", host);                     */
-/* if (host != NULL) {printf ("                host=%s\n", host);} */
-/* printf ("                sptr=%d\n", serv);                     */
-/* if (serv != NULL) {printf ("                serv=%s\n", serv);} */
-/* printf ("                hptr=%d\n", hintsptr);                 */
-/* if (hintsptr != NULL) {                                         */
-/* printf ("         hints.flags=%d\n", hintsptr->ai_flags);       */
-/* printf ("             .family=%d\n", hintsptr->ai_family);      */
-/* printf ("           .socktype=%d\n", hintsptr->ai_socktype);    */
-/* printf ("           .protocol=%d\n", hintsptr->ai_protocol);}   */
-
+/* debug -- see what the Ada binding passed in                     
+ printf (" getaddrinfo(): hptr=%d\n", host);                     
+ if (host != NULL) {printf ("                host=%s\n", host);} 
+ printf ("                sptr=%d\n", serv);                     
+ if (serv != NULL) {printf ("                serv=%s\n", serv);} 
+ printf ("                hptr=%d\n", hintsptr);                 
+ if (hintsptr != NULL) {                                         
+ printf ("         hints.flags=%d\n", hintsptr->ai_flags);       
+ printf ("             .family=%d\n", hintsptr->ai_family);      
+ printf ("           .socktype=%d\n", hintsptr->ai_socktype);    
+ printf ("           .protocol=%d\n", hintsptr->ai_protocol);}
+*/
    /*
     * We must make a copy of the caller's hints structure, so we can
     * modify ai_family.  If the caller doesn't provide a hints structure,
@@ -323,7 +327,7 @@ getaddrinfo(const char *host, const char *serv,
 
    if ( (rc = getaddrinfo_host(host, &hent, &hptr, hentbuf, HENTBUFSIZ,
                         hints.ai_family)) != 0) {
-      printf ("Error: getaddrinfo_host\n");
+     /*   printf ("Error: getaddrinfo_host\n"); */
       error(rc);
    }
 
@@ -447,7 +451,10 @@ getaddrinfo(const char *host, const char *serv,
    return(0);
 
 bad:
+   /*   printf ("About to free any allocated memory\n");  */
    freeaddrinfo(aihead);   /* free any alloc'ed memory */
+   /*   printf ("Memory freed, error is %d\n", error);  */
+   fflush (stdout);
    return(error);
 }
 
@@ -523,7 +530,7 @@ getaddrinfo_host(const char *host,
       _res.options |= RES_USE_INET6;
 #endif   /* IPV6 */
 
-   printf ("Calling gethostbyname with host = %s\n", host);
+   /*   printf ("Calling gethostbyname with host = %s\n", host);  */
 
 #ifdef   REENTRANT
    hptr = gethostbyname_r(host, hptr, buf, bufsiz, &h_errno);
@@ -772,11 +779,23 @@ freeaddrinfo(struct addrinfo *aihead)
    struct addrinfo   *ai, *ainext;
 
    for (ai = aihead; ai != NULL; ai = ainext) {
+     /*      printf ("in the free loop\n");  */
+      fflush (stdout);
       if (ai->ai_addr != NULL)
+      {
+	/*         printf ("about to free ai_addr\n"); */
+         fflush (stdout);
          free(ai->ai_addr);      /* the socket address structure */
+      }
+      /*      printf ("freed ai_addr\n"); */
+      fflush (stdout);
       if (ai->ai_canonname != NULL)
          free(ai->ai_canonname);   /* the canonical name */
+      /*      printf ("freed ai_cannoname\n"); */
+      fflush (stdout);
       ainext = ai->ai_next;      /* can't fetch ai_next after free() */
+      /*      printf ("just got the next one to free\n");  */
+      fflush (stdout);
       free(ai);               /* the addrinfo{} itself */
    }
 }
