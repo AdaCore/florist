@@ -65,12 +65,12 @@ changequote([, ])dnl
   AC_DEFINE_UNQUOTED($ac_tr_hdr)])dnl
 done
 AC_POSIX_HEADER(xti.h, AC_DEFINE_UNQUOTED(HAVE_XTI_H)
-[    echo "-- don't want TLI because we have xti.h
+[    echo "--  don't want TLI because we have xti.h
 TLI := False" >> gnatprep.config;],
 AC_POSIX_HEADER(tli.h, AC_DEFINE_UNQUOTED(HAVE_TLI_H)
-[    echo "-- using TLI because could not find xti.h
+[    echo "--  using TLI because could not find xti.h
 TLI := True" >> gnatprep.config;],
-[    echo "-- could not find tli.h
+[    echo "--  could not find tli.h
 TLI := False" >> gnatprep.config;],
 ))
 AC_TRY_COMPILE([#include "pconfig.h"],
@@ -81,7 +81,7 @@ AC_TRY_COMPILE([#include "pconfig.h"],
  # Put BSD flag in gnatprep.config
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
  else
-    echo "-- set BSD4_3 to False if using 4.4 style socket msghdr"
+    echo "--  set BSD4_3 to False if using 4.4 style socket msghdr" \
         >> gnatprep.config
     echo "BSD4_3 := False" >> gnatprep.config;
  fi;
@@ -92,7 +92,7 @@ AC_TRY_COMPILE([#include "pconfig.h"],
 [echo "Socket interface Looks like BSD 4.3";
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
  else
-    echo "-- set BSD4_3 to False if using 4.4 style socket msghdr
+    echo "--  set BSD4_3 to False if using 4.4 style socket msghdr
     BSD4_3 := True" >> gnatprep.config;
  fi;
  if (grep _BSD4_3_ pconfig.h >/dev/null 2>&1); then true;
