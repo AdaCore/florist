@@ -149,7 +149,6 @@ procedure p030306 is
       Template : Process_Template;
       Mask     : Signal_Set;  --  initially empty
       Args     : POSIX_String_List; --  initially empty
-      Status   : Termination_Status;
       Child_ID : Process_ID;
 
    begin

@@ -59,7 +59,6 @@ with p030300a,
      POSIX_Report,
      POSIX_Signals,
      System,
-     System.Interrupts,
      System.Storage_Elements,
      Test_Parameters;
 
@@ -177,7 +176,6 @@ begin
    declare
 
       N : constant Integer := 3;
-      New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
@@ -405,7 +403,7 @@ begin
          POSIX_IO.Read (POSIX_IO.Standard_Input, Buffer, Last);
          Comment ("system call aborted OK");
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Check_Error_Code (Interrupted_Operation, "A022");
       when E2 : others => Unexpected_Exception (E2, "A023");
       end T;
