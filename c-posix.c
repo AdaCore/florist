@@ -4927,23 +4927,6 @@ void create_c() {
 #else
   GDFLT("SIGQUIT", 0);
 #endif
-#ifdef SIGRTMAX
-#ifdef SIGRTMIN
-  if ((SIGRTMAX >= 0) && (SIGRTMIN >= 0)) {
-  GCST("SIGRTMAX", SIGRTMAX);
-  GCST("SIGRTMIN", SIGRTMIN);
-  } else {
-  GDFLT("SIGRTMAX", 0);
-  GDFLT("SIGRTMIN", 1);
-  }
-#else
-  GDFLT("SIGRTMAX", 0);
-  GDFLT("SIGRTMIN", 1);
-#endif
-#else
-  GDFLT("SIGRTMAX", 0);
-  GDFLT("SIGRTMIN", 1);
-#endif
 
 /* Try to find out the range of valid signals.
    We have not yet discovered a portable C way of doing this.
@@ -4976,6 +4959,29 @@ void create_c() {
     printf("c-posix: WARNING: signal range estimate may be invalid\n");
     last_good = first_bad - 1;
   }
+  
+#ifdef SIGRTMAX
+#ifdef SIGRTMIN
+  if ((SIGRTMAX >= 0) && (SIGRTMIN >= 0)) {
+    if ((SIGRTMAX > last_good)) {
+      GCST("SIGRTMAX", last_good);
+    } else {
+      GCST("SIGRTMAX", SIGRTMAX);
+    }
+    GCST("SIGRTMIN", SIGRTMIN);
+  } else {
+    GDFLT("SIGRTMAX", 0);
+    GDFLT("SIGRTMIN", 1);
+  }
+#else
+  GDFLT("SIGRTMAX", 0);
+  GDFLT("SIGRTMIN", 1);
+#endif
+#else
+  GDFLT("SIGRTMAX", 0);
+  GDFLT("SIGRTMIN", 1);
+#endif
+
   GCST("NSIGS", last_good);
 }
 
