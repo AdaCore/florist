@@ -35,7 +35,7 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.11b compiler to install and compile Florist.  
+You will need the GNAT 3.11b2 compiler to install and compile Florist.  
 
 If you happen to have another compiler, you still may find Florist
 useful as a starting point, but some adaptation will be necessary.
