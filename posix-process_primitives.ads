@@ -71,12 +71,8 @@ package POSIX.Process_Primitives is
      (Template : in out Process_Template;
       File : in POSIX.IO.File_Descriptor;
       Name : in POSIX.Pathname;
-      Mode : in POSIX.IO.File_Mode
-           := POSIX.IO.Read_Only;
-      Options : in POSIX.IO.Open_Option_Set
-         --  := POSIX.IO.Empty_Set);
-         := POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set));
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Mode : in POSIX.IO.File_Mode := POSIX.IO.Read_Only;
+      Options : in POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set);
 
    procedure Set_File_Action_To_Duplicate
      (Template : in out Process_Template;
