@@ -37,7 +37,6 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-
 with POSIX.C,
      POSIX.Implementation,
      POSIX.Permissions.Implementation;
@@ -105,7 +104,7 @@ package body POSIX.Permissions is
    procedure Set_Allowed_Process_Permissions
      (Permissions : in Permission_Set;
       Old_Perms   : out Permission_Set) is
-      Mask : mode_t :=
+      Mask : constant mode_t :=
         not (Form_C_Permission (Permissions) and File_Access_Permission_Bits);
    begin
       Cached_Umask := Mask;

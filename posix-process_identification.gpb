@@ -216,7 +216,7 @@ package body POSIX.Process_Identification is
       Name_Ptr : char_ptr;
    begin
       Name_Ptr := getlogin;
-      if (Name_Ptr = null) then Raise_POSIX_Error; end if;
+      if Name_Ptr = null then Raise_POSIX_Error; end if;
       return Form_POSIX_String (Name_Ptr);
    end Get_Login_Name;
 
