@@ -6378,8 +6378,8 @@ void create_c() {
   g_struct_msghdr();
   gcmnt("local socket address");
   { struct sockaddr_un DUMMY;
-    ifprintf(fp,"   subtype sun_path_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sun_path));
+    ifprintf(fp,"   subtype sun_path_string is POSIX_String (1 .. %d);\n",
+             sizeof (DUMMY.sun_path));
   }
   g_struct_sockaddr_un();
   gcmnt("internet socket address");
