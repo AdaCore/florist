@@ -1029,65 +1029,11 @@ package body POSIX.Signals is
    --  Await_Signal_Or_Timeout  --
    -------------------------------
 
-   --  POSIX only provides a timeout on sigwaitinfo.
-   --  We can implement this using "sigwaitinfo" if the system
-   --  supports that optional feature, by just ignoring the "info".
-
-   --  We have implemented this using an ATC. However, sigwait
-   --  (Interrupt_Wait) is not an Async-Safe operation. We wanted to put
-   --  a Defer/Undefer_Abortion around it but that would make this operation
-   --  hang when the time expires.
-
-   --  There is conditional code to add SIGABRT to the set of
-   --  signals for which we are waiting, and to the signal mask of
-   --  the current thread, for systems where delivery of SIGABRT will
-   --  not interrupt SIGWAIT.  This seems to include both Provenzano
-   --  and Leroy threads under Linux.
-
    function Await_Signal_Or_Timeout
      (Set     : Signal_Set;
       Timeout : POSIX.Timespec) return Signal is
-      Tmp, Result : aliased int;
-      Tmp_Set : Signal_Set := Set;
-      old_mask : aliased sigset_t;
    begin
-      Check_Awaitable (Set);
-      select
-         delay To_Duration (Timeout);
-         Raise_POSIX_Error (Resource_Temporarily_Unavailable);
-      then abort
-         Defer_Abortion;
-
-         --  Add SIGABRT to set of awaited signals.
-         Void (sigaddset (Tmp_Set.C'Unchecked_Access, int (SIGABRT)));
-         --  Make sure all these signals are masked in at least this thread.
-         Void (pthread_sigmask
-           (SIG_BLOCK,
-            Tmp_Set.C'Unchecked_Access, old_mask'Unchecked_Access));
-
-         --  For safety, we should probably
-         --  save the old signal action for SIGABRT,
-         --  in case sigwait clobbers it.
-         --  This is unsafe if the signal action state is per-process,
-         --  as POSIX.1c requires.
-
-         Tmp := sigwait
-           (Tmp_Set.C'Unchecked_Access, Result'Unchecked_Access);
-
-         --  Remove SIGABRT from this thread's signal mask.
-         Void (pthread_sigmask
-           (SIG_SETMASK, old_mask'Unchecked_Access, null));
-
-         Undefer_Abortion;
-
-         if Tmp = -1 then
-            Raise_POSIX_Error (Fetch_Errno);
-         end if;
-         if Result = int (SIGABRT) then
-            Raise_POSIX_Error (Resource_Temporarily_Unavailable);
-         end if;
-      end select;
-      return Signal (Result);
+      return Signal (Await_Signal_Or_Timeout (Set, Timeout).si_signo);
    end Await_Signal_Or_Timeout;
 
    --------------------
@@ -1107,7 +1053,8 @@ package body POSIX.Signals is
    -------------------------------
 
    function Await_Signal_Or_Timeout
-     (Set : Signal_Set; Timeout : POSIX.Timespec) return Signal_Info is
+     (Set : Signal_Set; Timeout : POSIX.Timespec) return Signal_Info
+   is
       c_timeout : aliased struct_timespec;
       Info : aliased siginfo_t;
       S  : Seconds;
