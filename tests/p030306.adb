@@ -49,8 +49,7 @@
 --  been broken out, to shorten the running time of test p030300, and
 --  make isolating failures easier.
 
-with Ada_Task_Identification,
-     p030300a,
+with p030300a,
      POSIX,
      POSIX_Configurable_System_Limits,
      POSIX_Process_Identification,
@@ -58,20 +57,15 @@ with Ada_Task_Identification,
      POSIX_Report,
      POSIX_Signals,
      System,
-     System.Interrupts,
-     System.Storage_Elements,
-     Test_Parameters,
-     Unchecked_Conversion;
+     System.Storage_Elements;
 
 procedure p030306 is
-   use  Ada_Task_Identification,
-        p030300a,
+   use  p030300a,
         POSIX,
         POSIX_Process_Identification,
         POSIX_Process_Primitives,
         POSIX_Report,
         POSIX_Signals,
-        Test_Parameters,
         System;
 
    Child_Pathname : constant POSIX_String := "./p030306a";

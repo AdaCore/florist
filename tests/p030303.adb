@@ -49,7 +49,7 @@ with POSIX,
      POSIX_Report,
      POSIX_Signals;
 
-procedure p030302 is
+procedure p030303 is
    use POSIX,
        POSIX_Process_Identification,
        POSIX_Report,
@@ -70,8 +70,8 @@ begin
       Send_Signal (Get_Process_ID, SIGSEGV);
       Expect_Exception ("A001");
    exception
-   when Program_Error =>
-     Check_Message (E, "Signal_Segmentation_Violation", "A002");
+   when E : Program_Error =>
+      Check_Message (E, "Signal_Segmentation_Violation", "A002");
    when E : others => Unexpected_Exception (E, "A003");
    end;
 
@@ -84,8 +84,8 @@ begin
       Send_Signal (Get_Process_ID, SIGBUS);
       Expect_Exception ("A004");
    exception
-   when Program_Error =>
-     Check_Message (E, "Signal_Bus_Error", "A005");
+   when E : Program_Error =>
+      Check_Message (E, "Signal_Bus_Error", "A005");
    when E : others => Unexpected_Exception (E, "A006");
    end;
    

@@ -49,21 +49,18 @@
 --  been broken out, to shorten the running time of test p030300, and
 --  make isolating failures easier.
 
-with Ada_Task_Identification,
-     p030300a,
+with p030300a,
      POSIX,
      POSIX_IO,
      POSIX_Process_Identification,
      POSIX_Report,
      POSIX_Signals,
      System,
-     System.Interrupts,
      System.Storage_Elements,
      Test_Parameters;
 
 procedure p030304 is
-   use  Ada_Task_Identification,
-        p030300a,
+   use  p030300a,
         POSIX,
         POSIX_Process_Identification,
         POSIX_Report,
@@ -120,7 +117,6 @@ begin
 
    Test ("Block and Unblock Signals [3.3.8]");
    declare
-      N : constant Integer := 3;
       New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);

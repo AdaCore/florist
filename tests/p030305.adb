@@ -52,8 +52,7 @@
 --  Consider splitting this test further, to separate checks that
 --  require signal entries from those that do not.
 
-with Ada_Task_Identification,
-     p030300a,
+with p030300a,
      POSIX,
      POSIX_IO,
      POSIX_Process_Identification,
@@ -65,8 +64,7 @@ with Ada_Task_Identification,
      Test_Parameters;
 
 procedure p030305 is
-   use  Ada_Task_Identification,
-        p030300a,
+   use  p030300a,
         POSIX,
         POSIX_Process_Identification,
         POSIX_Report,
@@ -123,7 +121,6 @@ begin
 
    Test ("Block and Unblock Signals [3.3.8]");
    declare
-      N : constant Integer := 3;
       New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
