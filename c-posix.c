@@ -2788,7 +2788,12 @@ void create_posix() {
   int   EAI_Error_Last;
   char  buf[128];
   char  buf2[128];
-  int   count, n1, n2;
+  int   count;
+
+  /* The Makefile is responsible for defining LIBS correctly */
+#ifdef LIBS
+  char  libs[] = LIBS, *s1, *s2;
+#endif
 
   /* ?????
      Need to fix this so that we don't need the file tmpposix.ads,
@@ -2805,8 +2810,23 @@ void create_posix() {
   gheader("POSIX", IEEE_Header);
   fprintf(fp,"with Ada_Streams;\n");
   fprintf(fp,"with Interfaces;\n");
-  fprintf(fp,"package POSIX is\n");
-  fprintf(fp,"   --  2.4.1 Constants and Static Subtypes\n\n");
+  fprintf(fp,"package POSIX is\n\n");
+
+#ifdef LIBS
+  /* Generate one pragma Linker_Options per library */
+
+  for (s1 = libs; *s1; ) {
+    for (s2 = s1; *s2 && *s2 != ' '; s2++);
+    if (*s2) {
+      *s2 = '\0';
+      fprintf(fp,"   pragma Linker_Options (\"%s\");\n", s1);
+      s1 = s2 + 1;
+    } else
+      s1 = s2;
+  }
+#endif
+
+  fprintf(fp,"\n   --  2.4.1 Constants and Static Subtypes\n\n");
 
   fprintf(fp,"   --   Version Identification\n\n");
 
@@ -2816,6 +2836,10 @@ void create_posix() {
   GDFLT("POSIX_Version", 0);
 #endif
   fprintf(fp,"   POSIX_Ada_Version : constant := 1995_00;\n\n");
+
+#ifdef VERSION
+  fprintf(fp,"   FLORIST_Version : constant := \""VERSION"\";\n\n");
+#endif
   fprintf(fp,"   --  Optional Facilities (obsolescent, 0)\n");
   fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
 
