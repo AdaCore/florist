@@ -53,12 +53,24 @@
 
 with Ada.IO_Exceptions,
      Ada.Text_IO,
+     Interfaces.C_Streams,
      POSIX.IO,
      POSIX.Implementation,
-     POSIX.Permissions;
+     POSIX.Permissions,
+     System.Direct_IO,
+     System.File_Control_Block,
+     System.File_IO,
+     System.Sequential_IO,
+     Unchecked_Conversion;
+
 package body POSIX.Supplement_to_Ada_IO is
 
+   use Interfaces.C_Streams;
    use POSIX.Implementation;
+   use System.Direct_IO;
+   use System.Sequential_IO;
+
+   subtype System_File_Type is System.File_Control_Block.AFCB_Ptr;
 
    function Form_String (Val : Form_Values_for_Open)
       return String is
@@ -103,14 +115,28 @@ package body POSIX.Supplement_to_Ada_IO is
       Ada.Text_IO.Flush (File);
    end Flush_Text_IO;
 
-   procedure Flush_Sequential_IO is
+   procedure Flush_Sequential_IO (File: File_Type) is
+      function To_SFT is new 
+             Unchecked_Conversion (File_Type, System_File_Type);
+      F : System_File_Type;
+      Ret : Int;
+
    begin
-      Raise_POSIX_Error (Operation_Not_Supported);
+      F := To_SFT (File);
+      System.File_IO.Check_File_Open (F);
+      Ret := fflush (F.Stream);
    end Flush_Sequential_IO;
 
-   procedure Flush_Direct_IO is
+   procedure Flush_Direct_IO (File: File_Type) is
+      function To_SFT is new 
+             Unchecked_Conversion (File_Type, System_File_Type);
+      F : System_File_Type;
+      Ret : Int;
+
    begin
-      Raise_POSIX_Error (Operation_Not_Supported);
+      F := To_SFT (File);
+      System.File_IO.Check_File_Open (F);
+      Ret := fflush (F.Stream);
    end Flush_Direct_IO;
 
 end POSIX.Supplement_to_Ada_IO;
