@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1999                Florida State University (FSU).  --
+--  Copyright (c) 1996-2002                Florida State University (FSU).  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -45,7 +45,6 @@ with POSIX,
      POSIX.Process_Identification,
      POSIX.Signals,
      POSIX.Unsafe_Process_Primitives,
-     System.Interrupts,
      Unchecked_Conversion,
      Unchecked_Deallocation;
 package body POSIX.Process_Primitives is
@@ -54,9 +53,6 @@ package body POSIX.Process_Primitives is
        POSIX.Implementation,
        POSIX.Process_Identification,
        POSIX.Process_Environment;
-
-   package SI renames System.Interrupts;
-   subtype SIID is System.Interrupts.Interrupt_ID;
 
    C_File_Mode : constant array (POSIX.IO.File_Mode) of Bits :=
      (POSIX.IO.Read_Only  => O_RDONLY,
@@ -77,8 +73,6 @@ package body POSIX.Process_Primitives is
 
    function To_Process_ID is new
       Unchecked_Conversion (pid_t, Process_ID);
-   function To_Process_ID is new
-      Unchecked_Conversion (Process_Group_ID, Process_ID);
    function To_pid_t is new
       Unchecked_Conversion (Process_Group_ID, pid_t);
    function To_pid_t is new
