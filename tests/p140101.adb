@@ -49,33 +49,14 @@ with POSIX,
      POSIX_Report,
      POSIX_Signals,
      POSIX_Timers,
-     Unchecked_Conversion;
+     Test_Parameters;
 
 procedure p140101 is
 
    use POSIX,
        POSIX_Report,
        POSIX_Signals,
-       POSIX_Timers;
-
-   --  Later, move the following to Test_Parameters package:
-
-   function Invalid_Clock_ID return Clock_ID;
-   function Invalid_Clock_ID return Clock_ID is
-      type Char_Array is array (1 .. 20) of aliased Character;
-      type Clock_ID_Ptr is access all Clock_ID;
-      type Char_Ptr is access all Character;
-
-      pragma Warnings (Off);
-      function To_Clock_ID_Ptr is new
-        Unchecked_Conversion (Char_Ptr, Clock_ID_Ptr);
-      pragma Warnings (On);
-      --  The warning about alignments can be ignored.
-
-      F : aliased Char_Array := "not a valid clock ID";
-   begin
-      return To_Clock_ID_Ptr (F (1)'Access).all;
-   end Invalid_Clock_ID;
+       Test_Parameters;
 
 begin
 
@@ -174,18 +155,13 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Ahmed
    --  POSIX_Error is raised with error code Invalid_Argument if
    --  the Value parameter for Set_Time is outside
    --  the range allowed for the specified Clock.
 
    Test ("Set_Time [14.1.4] Valid Range (<0)");
-   declare
-      Valid : Clock_ID;
-      pragma Warnings (Off, Valid);
-      --  Let Valid uninitialized.
    begin
-      Set_Time (Valid, To_Timespec (-5.0));
+      Set_Time (Clock_Realtime, To_Timespec (-5.0));
          Expect_Exception ("A000");
    exception
    when E1 : POSIX_Error =>
@@ -198,12 +174,8 @@ begin
    end;
 
    Test ("Set_Time [14.1.4] Valid Range (=0)");
-   declare
-      Valid : Clock_ID;
-      pragma Warnings (Off, Valid);
-      --  Let Valid uninitialized.
    begin
-      Set_Time (Valid, To_Timespec (-0.0));
+      Set_Time (Clock_Realtime, To_Timespec (-0.0));
          Expect_Exception ("A000");
    exception
    when E1 : POSIX_Error =>
@@ -216,12 +188,8 @@ begin
    end;
 
    Test ("Set_Time [14.1.4] Valid Range (=1000_000_000)");
-   declare
-      Valid : Clock_ID;
-      pragma Warnings (Off, Valid);
-      --  Let Valid uninitialized.
    begin
-      Set_Time (Valid, To_Timespec (1000_000_000.0));
+      Set_Time (Clock_Realtime, To_Timespec (1000_000_000.0));
          Expect_Exception ("A000");
    exception
    when E1 : POSIX_Error =>
@@ -234,12 +202,8 @@ begin
    end;
 
    Test ("Set_Time [14.1.4] Valid Range (>1000_000_000)");
-   declare
-      Valid : Clock_ID;
-      pragma Warnings (Off, Valid);
-      --  Let Valid uninitialized.
    begin
-      Set_Time (Valid, To_Timespec (1000_000_001.0));
+      Set_Time (Clock_Realtime, To_Timespec (1000_000_001.0));
          Expect_Exception ("A000");
    exception
    when E1 : POSIX_Error =>
@@ -252,19 +216,15 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Ahmed
    --  POSIX_Error is raised with error code Invalid_Argument if
    --  the argument of type Timespec cannot not be interpreted
    --  as a valid time.
 
    Test ("Set_Time [14.1.4] Valid Time");
    declare
-      Value : Clock_ID;
-      pragma Warnings (Off, Value);
-      --  Let Value uninitialized.
       Time : Timespec;
    begin
-      Set_Time (Value, Time);
+      Set_Time (Clock_Realtime, Time);
    exception
    when E1 : POSIX_Error =>
       Privileged (Privilege => Set_Time_Privilege,
@@ -275,7 +235,6 @@ begin
    when E2 : others => Unexpected_Exception (E2, "A000");
    end;
    -----------------------------------------------------------------------
-   --  Ahmed
    --  Time values between two consecutive multiples of the resolution
    --  of the specified clock shall be truncated down to the smaller
    --  multiple of the resolution (Set_Time).
@@ -285,20 +244,18 @@ begin
             " consecutive multiples of the resolution is" &
             " truncated down to the smaller one");
    declare
-      Sample_Clock : Clock_ID;
-      pragma Warnings (Off, Sample_Clock);
-      --  Let Sample_Clock uninitialized.
+      Clock : constant Clock_ID := Clock_Realtime;
       Value1 : Timespec;
       Value2 : Timespec;
       Value3 : Timespec;
    begin
-      Value3 := Get_Resolution (Sample_Clock);
-      Set_Time (Sample_Clock, Value3 + To_Timespec (100.0));
-      Value1 := Get_Time (Sample_Clock);
-      Set_Time (Sample_Clock, (Value3 * 3 / 2) + To_Timespec (100.0));
-      Value2 := Get_Time (Sample_Clock);
-      Set_Time (Sample_Clock, (Value3 * 3) + To_Timespec (100.0));
-      Value3 := Get_Time (Sample_Clock);
+      Value3 := Get_Resolution (Clock);
+      Set_Time (Clock, Value3 + To_Timespec (100.0));
+      Value1 := Get_Time (Clock);
+      Set_Time (Clock, (Value3 * 3 / 2) + To_Timespec (100.0));
+      Value2 := Get_Time (Clock);
+      Set_Time (Clock, (Value3 * 3) + To_Timespec (100.0));
+      Value3 := Get_Time (Clock);
       Assert ((Value3 - Value2) > (Value2 - Value1), "A000");
    exception
    when E1 : POSIX_Error =>
