@@ -36,7 +36,6 @@
 --  [$Revision$]
 
 with POSIX.C,
-     POSIX.Implementation,
      POSIX.IO,
      POSIX.Configurable_System_Limits,
      POSIX.Permissions,
