@@ -5,7 +5,7 @@
 # for HAVE_... to config.h.in.
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
-AC_INIT(florist_sources)
+AC_INIT(posix.adb)
 [echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(config.h)
@@ -34,15 +34,24 @@ AC_SUBST(DEPS)
 echo $ac_n "checking for Xavier Leroy Linux threads... " $ac_c;
 if (grep "Leroy" /usr/include/pthread.h >/dev/null 2>&1); then
  echo "yes"
- echo "HAVE_Leroy_Threads := True" >> gnatprep.config;
+ echo "HAVE_Leroy_Threads := True" > gnatprep.config;
 else
  echo "no"
- echo "HAVE_Leroy_Threads := False" >> gnatprep.config;
+ echo "HAVE_Leroy_Threads := False" > gnatprep.config;
 fi;
 
 echo "We will assume errno is safe for exception propagation."
-echo "-- to override, hand-edit gnatprep.config"
+echo "to override, hand-edit gnatprep.config"
 echo "HAVE_Safe_Errno := True" >> gnatprep.config;
+
+echo $ac_n "checking for SGI IRIX timers... " $ac_c;
+if (grep "CLOCK_SGI_FAST" /usr/include/sys/ptimers.h >/dev/null 2>&1); then
+ echo "yes"
+ echo "HAVE_IRIX_Timers := True" >> gnatprep.config;
+else
+ echo "no"
+ echo "HAVE_IRIX_Timers := False" >> gnatprep.config;
+fi;
 
 UNAME_MACHINE=`(uname -m) 2>/dev/null`
 UNAME_RELEASE=`(uname -r) 2>/dev/null`

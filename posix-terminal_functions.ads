@@ -88,7 +88,8 @@ package POSIX.Terminal_Functions is
    subtype Bits_Per_Character is Positive range 5 .. 8;
    type Baud_Rate is
       (B0, B50, B75, B110, B134, B150, B200, B300, B600,
-       B1200, B1800, B2400, B4800, B9600, B19200, B38400);
+       B1200, B1800, B2400, B4800, B9600, B19200, B38400,
+       B57600, B115200, B230400, B460800);
    function Terminal_Modes_Of (Characteristics : Terminal_Characteristics)
       return Terminal_Modes_Set;
    procedure Define_Terminal_Modes

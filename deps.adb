@@ -75,6 +75,7 @@ with POSIX_Signals;
 with POSIX_Supplement_to_Ada_IO;
 with POSIX_Terminal_Functions;
 with POSIX_Timers;
+with POSIX.Timers.Extensions;
 with POSIX_Unsafe_Process_Primitives;
 with POSIX_User_Database;
 pragma Warnings (On);

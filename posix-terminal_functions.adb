@@ -77,6 +77,10 @@ package body POSIX.Terminal_Functions is
       if Val = POSIX.C.B9600 then return B9600; end if;
       if Val = POSIX.C.B19200 then return B19200; end if;
       if Val = POSIX.C.B38400 then return B38400; end if;
+      if Val = POSIX.C.B57600 then return B57600; end if;
+      if Val = POSIX.C.B115200 then return B115200; end if;
+      if Val = POSIX.C.B230400 then return B230400; end if;
+      if Val = POSIX.C.B460800 then return B460800; end if;
       Raise_POSIX_Error (Invalid_Argument);
       --  fake return to avoid compiler warning message
       return B38400;
@@ -320,7 +324,11 @@ package body POSIX.Terminal_Functions is
       B4800 => POSIX.C.B4800,
       B9600 => POSIX.C.B9600,
       B19200 => POSIX.C.B19200,
-      B38400 => POSIX.C.B38400);
+      B38400 => POSIX.C.B38400,
+      B57600 => POSIX.C.B57600,
+      B115200 => POSIX.C.B115200,
+      B230400 => POSIX.C.B230400,
+      B460800 => POSIX.C.B460800);
 
    function cfsetispeed
      (termios_p : termios_ptr;

@@ -53,16 +53,6 @@ libraries needed for the real-time and threads extensions.  (The
 default "end user" OS installation may try to save you disk space
 by not installing them.)
 
-Beware of the packages POSIX_Sockets, POSIX_Sockets.Internet,
-POSIX_Sockets.Local, POSIX_Sockets.ISO, POSIX_XTI,
-POSIX_XTI.Internet, POSIX_XTI.ISO, POSIX_XTI.MOSI,
-POSIX_Event_Management.  These are parts of a POSIX.5c prototype
-effort that stalled during the ballot/revision process.  We have
-since made some improvements, notably in the socket interfaces,
-but this is far from a finished work.  These package interfaces
-SHOULD NOT BE ASSUMED TO CONFORM to the approved POSIX.5c
-standard, nor are they fully implemented.
-
 Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
 
@@ -73,18 +63,6 @@ Tru64 5.1a
 HP/UX 11.00
 IRIX 6.5
 AiX 4.3
-
-Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
-and POSIX_XTI*).  We are working with members of the POSIX.5c
-Working Group to jointly develop a prototype implementation of the
-proposed standard Ada bindings for POSIX.1g (sockets and XTI).
-However, the proposed POSIX.5c interfaces are still being changed by
-the IEEE balloting group.  Draft 4 is already being written, in
-reponse to the comments on Draft3.  Therefore, what you see here
-is already obsolete.  We do not recommend using any of the
-packages POSIX_Sockets, POSIX_Sockets.Internet, POSIX_Sockets.Local,
-POSIX_Sockets.ISO, POSIX_XTI, POSIX_XTI.Internet, POSIX_XTI.ISO,
-POSIX_XTI.MOSI, POSIX_Event_Management.
 
 NORMAL INSTALLATION:
 

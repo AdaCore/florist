@@ -764,46 +764,54 @@ package body POSIX is
       return Time.Val;
    end To_Duration;
 
-   ------------------------------
-   --  Host_To_Network_Byte_Order
-   ------------------------------
+   --------------------------------
+   -- Host_To_Network_Byte_Order --
+   --------------------------------
 
-   function c_htonl (host_32 : Interfaces.Unsigned_32)
-       return Interfaces.Unsigned_32;
-   pragma Import (C, c_htonl, "c_htonl");
-   function Host_To_Network_Byte_Order (Host_32 : Interfaces.Unsigned_32)
-      return Interfaces.Unsigned_32 is
+   function Host_To_Network_Byte_Order
+     (Host_32 : Interfaces.Unsigned_32) return Interfaces.Unsigned_32
+   is
+      function c_htonl
+        (host_32 : Interfaces.Unsigned_32) return Interfaces.Unsigned_32;
+      pragma Import (C, c_htonl, "c_htonl");
+
    begin
       return c_htonl (Host_32);
    end Host_To_Network_Byte_Order;
 
-   function c_htons (host_16 : Interfaces.Unsigned_16)
-       return Interfaces.Unsigned_16;
-   pragma Import (C, c_htons, "c_htons");
-   function Host_To_Network_Byte_Order (Host_16 : Interfaces.Unsigned_16)
-      return Interfaces.Unsigned_16 is
+   function Host_To_Network_Byte_Order
+     (Host_16 : Interfaces.Unsigned_16) return Interfaces.Unsigned_16
+   is
+      function c_htons
+        (host_16 : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
+      pragma Import (C, c_htons, "c_htons");
+
    begin
       return c_htons (Host_16);
    end Host_To_Network_Byte_Order;
 
-   ------------------------------
-   --  Host_To_Network_Byte_Order
-   ------------------------------
+   --------------------------------
+   -- Host_To_Network_Byte_Order --
+   --------------------------------
 
-   function c_ntohl (host_32 : Interfaces.Unsigned_32)
-       return Interfaces.Unsigned_32;
-   pragma Import (C, c_ntohl, "c_htonl");
-   function Network_To_Host_Byte_Order (Host_32 : Interfaces.Unsigned_32)
-      return Interfaces.Unsigned_32 is
+   function Network_To_Host_Byte_Order
+     (Host_32 : Interfaces.Unsigned_32) return Interfaces.Unsigned_32
+   is
+      function c_ntohl
+        (host_32 : Interfaces.Unsigned_32) return Interfaces.Unsigned_32;
+      pragma Import (C, c_ntohl, "c_ntohl");
+
    begin
       return c_ntohl (Host_32);
    end Network_To_Host_Byte_Order;
 
-   function c_ntohs (host_16 : Interfaces.Unsigned_16)
-       return Interfaces.Unsigned_16;
-   pragma Import (C, c_ntohs, "c_htons");
-   function Network_To_Host_Byte_Order (Host_16 : Interfaces.Unsigned_16)
-      return Interfaces.Unsigned_16 is
+   function Network_To_Host_Byte_Order
+     (Host_16 : Interfaces.Unsigned_16) return Interfaces.Unsigned_16
+   is
+      function c_ntohs
+        (host_16 : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
+      pragma Import (C, c_ntohs, "c_ntohs");
+
    begin
       return c_ntohs (Host_16);
    end Network_To_Host_Byte_Order;

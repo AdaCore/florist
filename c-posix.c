@@ -56,10 +56,10 @@
 
 #include "pconfig.h"
 #include <errno.h>
+#include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 #include "config.h"
-#include <stdarg.h>
 
 #ifdef hpux
 /* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
@@ -4219,6 +4219,11 @@ void create_c() {
 #else
   GDFLT("B110", 0);
 #endif
+#ifdef B115200
+  GCST("B115200", B115200);
+#else
+  GDFLT("B115200", 0);
+#endif
 #ifdef B1200
   GCST("B1200",B1200);
 #else
@@ -4249,6 +4254,11 @@ void create_c() {
 #else
   GDFLT("B200", 0);
 #endif
+#ifdef B230400
+  GCST("B230400", B230400);
+#else
+  GDFLT("B230400", 0);
+#endif
 #ifdef B2400
   GCST("B2400", B2400);
 #else
@@ -4264,6 +4274,11 @@ void create_c() {
 #else
   GDFLT("B38400", 0);
 #endif
+#ifdef B460800
+  GCST("B460800", B460800);
+#else
+  GDFLT("B460800", 0);
+#endif
 #ifdef B4800
   GCST("B4800", B4800);
 #else
@@ -4273,6 +4288,11 @@ void create_c() {
   GCST("B50", B50);
 #else
   GDFLT("B50", 0);
+#endif
+#ifdef B57600
+  GCST("B57600", B57600);
+#else
+  GDFLT("B57600", 0);
 #endif
 #ifdef B600
   GCST("B600", B600);
@@ -4309,6 +4329,9 @@ void create_c() {
   GCST("CLOCK_REALTIME", CLOCK_REALTIME);
 #else
   GDFLT("CLOCK_REALTIME", 1);
+#endif
+#ifdef CLOCK_SGI_FAST
+  GCST("CLOCK_SGI_FAST", CLOCK_SGI_FAST);
 #endif
 #ifdef CREAD
   GCST("CREAD", CREAD);
