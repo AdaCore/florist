@@ -129,8 +129,7 @@ else
 fi]
 AC_CHECK_FUNC(getaddrinfo,,
 [AC_MSG_WARN(No getaddrinfo. Will try to use shareware.)
- echo "ADDRINFO_OBJECTS = tmpbuild/getaddrinfo.o tmpbuild/inet_pton.o\
- tmpbuild/inet_ntop.o" >> Config
+ echo "ADDRINFO_OBJECTS = getaddrinfo.o inet_pton.o inet_ntop.o" >> Config
  echo '#include "addrinfo.h"' >> pconfig.h;
 ])
 ])dnl
