@@ -120,6 +120,7 @@
 #undef HAVE_getservbyport_r
 #undef HAVE_getsockname
 #undef HAVE_getsockopt
+#undef HAVE_gettimeofday
 #undef HAVE_getuid
 /* unreferenced: 1 */
 #undef HAVE_gmtime_r
@@ -253,6 +254,7 @@
 #undef HAVE_sigfillset
 #undef HAVE_sigismember
 #undef HAVE_sigpending
+#undef HAVE_sigprocmask
 #undef HAVE_sigqueue
 #undef HAVE_sigtimedwait
 #undef HAVE_sigwait
