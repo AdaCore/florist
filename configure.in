@@ -330,16 +330,17 @@ AC_POSIX_STRUCTS(\
  termios\
  timespec\
  timeval\
- t_info\
- t_opthdr\
  t_bind\
- t_optmgmt\
- t_discon\
  t_call\
- t_unitdata\
- t_uderr\
- t_linger\
+ t_discon\
+ t_info\
+ t_iovec\
  t_kpalive\
+ t_linger\
+ t_opthdr\
+ t_optmgmt\
+ t_uderr\
+ t_unitdata\
  itimerspec\
  utimbuf\
  utsname\
