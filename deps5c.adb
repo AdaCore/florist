@@ -39,19 +39,22 @@
 
 --  This procedure is to force compilation of all the POSIX.5c packages.
 
+pragma Warnings (Off);
 with POSIX.Sockets;
 with POSIX.Sockets.Internet;
 --  with POSIX.Sockets.Local;
 --  Local interfaces are not currently working
 --  with POSIX.Sockets.ISO;
 --  ISO interfaces are not currently implemented
-with POSIX.XTI;
-with POSIX.XTI.Internet;
+--  XTI interfaces are not currently being tested
+--  with POSIX.XTI;
+--  with POSIX.XTI.Internet;
 --  with POSIX.XTI.ISO;
 --  ISO interfaces are not currently implemented
 --  with POSIX.XTI.MOSI;
 --  MOSI interfaces are not currently implemented
-with POSIX.Event_Management;
+--  with POSIX.Event_Management;
+pragma Warnings (On);
 
 procedure deps5c is
 begin
