@@ -1,7 +1,9 @@
 /* ??? On AiX, pthread.h must be included first */
 #ifdef _POSIX_C_SIGNALS_C
+#ifndef _LONG_LONG
 #define _LONG_LONG
 #include <pthread.h>
+#endif
 #endif
 #define _POSIX_C_SOURCE 199506L
 #define _POSIX_SOURCE
