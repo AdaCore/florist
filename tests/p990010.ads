@@ -43,5 +43,4 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
-with P9900doc;
 procedure P990010;
