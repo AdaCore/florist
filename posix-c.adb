@@ -36,7 +36,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-
 with Unchecked_Conversion;
 with System;
 with System.Storage_Elements;
@@ -49,16 +48,10 @@ package body POSIX.C is
    --  Advance  --
    ---------------
 
-   function To_Address is new Unchecked_Conversion (char_ptr, Address);
-   function To_Ptr is new Unchecked_Conversion (Address, char_ptr);
-
    procedure Advance (Ptr : in out char_ptr) is
    begin
       Ptr := To_Ptr (To_Address (Ptr) + char'Size / System.Storage_Unit);
    end Advance;
-
-   function To_Address is new Unchecked_Conversion (char_ptr_ptr, Address);
-   function To_Ptr is new Unchecked_Conversion (Address, char_ptr_ptr);
 
    procedure Advance (Ptr : in out char_ptr_ptr) is
    begin
