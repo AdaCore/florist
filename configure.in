@@ -113,6 +113,10 @@ case ${UNAME_SYSTEM} in
     echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
     cp ./configs/pconfig.LynxOS ./pconfig.h.in;
     ;;
+ FreeBSD)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.FreeBSD ./pconfig.h.in;
+    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
@@ -186,7 +190,8 @@ if test "x$use_pthread" = "xyes" ; then
   AC_POSIX_LIB(pthreads, pthread_self,,
   AC_POSIX_LIB(cma, pthread_self,,
   AC_POSIX_LIB(:libcma.a, pthread_self,,
-  AC_POSIX_LIB(thread, pthread_self))))))
+  AC_POSIX_LIB(thread, pthread_self,,
+  AC_POSIX_LIB(c_r, pthread_self)))))))
 fi
 
 AC_POSIX_LIB(aio, aio_read)
