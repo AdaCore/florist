@@ -79,31 +79,32 @@ begin
    begin
       if Child = Should_Not_Start then
          --  Fail because process should not have been created
-         Assert (False, "A001: creation should have failed");
+         Assert (False, "A001: P030100b: creation should have failed");
          Done;
       else
          --  Check for bad argument(s)
-         Assert (Value (Argument_List, 1) = "" and
+         Assert (Value (Argument_List, 1) = "p030100b" and
            (Child in Parents_Environment .. Explicit_Environment),
-           "A002: bad args");
+            "A002: P030100b: bad arg: " &
+             To_String (Value (Argument_List, 1)));
          if Child = Explicit_Environment then
             --   check environment variables also
             Assert (Environment_Value_Of
               (Child_Filename) = "special",
-              "A003: wrong env. value");
+              "A003: P030100b: wrong env. value");
             if Environment_Value_Of ("WAIT") = "YES" then
                Comment ("waiting for parent to send signal");
                loop
                   delay 10.0;
                end loop;
                --  Fail because parent did not kill child
-               Assert (False, "A004: not killed");
+               Assert (False, "A004: P030100b: not killed");
             end if;
          else
             --  Check environment variable
             Assert (Environment_Value_Of
               (Child_Filename) = "default",
-              "A005: wrong env. value");
+              "A005: P030100b: wrong env. value");
          end if;
       end if;
    exception when E : others =>
