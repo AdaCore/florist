@@ -341,7 +341,7 @@ package body P9900x0 is
          Comment ("set_Priority to system.Priority'last");
          Set_Priority (Parms, Process_Prio (System.Priority'Last));
       exception
-      when E: others =>
+      when E : others =>
          Unexpected_Exception (E, "A009: P9900x0: in Run_Jobs/Set_Priority");
          raise POSIX_Error;
       end;
