@@ -1,9 +1,3 @@
-THIS SOFTWARE AND THE ACCOMPANYING DOCUMENTATION ARE DISTRIBUTED
-IN THE HOPE THAT IT WILL BE USEFUL, BUT WITHOUT ANY WARRANTY;
-WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
-FOR A PARTICULAR PURPOSE -- NOTWITHSTANDING ANY STATEMENTS MADE
-BELOW IN THIS FILE.
-
 FLORIST:
 
 This directory contains the components of FLORIST, an
@@ -36,33 +30,7 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.13a compiler to install and compile Florist.  
-
-If you happen to have another compiler, you still may find Florist
-useful as a starting point, but some adaptation will be necessary.
-
-Any implementation of the POSIX Ada bindings will necessarily
-contain some dependences on peculiar features of the Ada language
-implementation with which it is intended to be used.  For example,
-the two implementations must coordinate the way they manage
-signals, and must work together to support task signal entries.
-Another place where the two must work together is in the
-implementation of Start_Process, which uses the underlying POSIX
-fork() operation.  With POSIX threads, fork() creates only thread
-in the child process, but it duplicates the entire parent process
-address space, including the runtime system data structures that
-contain references to the other threads of the parent process, and
-locks that may appear to be holding.  The code in Start_Process
-that executes between the fork() and exec() operations must have
-some way to avoid invoking Ada runtime system operations that will
-try to reference these nonexistent threads, or lock any locks that
-they might appear to be holding.
-
-In the case of Florist, there are also some other GNAT
-dependences, which are for convenience and efficiency.  For
-example, Florist relies that Duration and Calendar.Time are both
-represented as a 64-bit count of nanoseconds, so as to simplify
-conversions between these types and POSIX.Timespec.
+You will need the GNAT 3.14 compiler to install and compile Florist.  
 
 ----------------
 --  WARNINGS  --
@@ -98,15 +66,14 @@ standard, nor are they fully implemented.
 Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
 
-Sparc/Solaris 2.5.1, 2.6, 2.7, 8 (Solaris threads only)
+Sparc/Solaris 2.5.1, 2.6, 2.7, 8
 x86/Solaris 2.6
-Linux glibc2 (POSIX native threads only)
-DEC Unix 4.0b
-DEC Unix 4.0d
+Linux glibc2
+DEC Unix 4.0x
 HP/UX 10.20
-HP/UX 11.0 (POSIX native threads only)
-IRIX 6.5 (POSIX native threads only, i.e n32 only)
-AiX 4.1 (POSIX ntive threads only).
+HP/UX 11.0
+IRIX 6.5
+AiX 4.1
 
 Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
 and POSIX_XTI*).  We are working with members of the POSIX.5c
@@ -122,95 +89,19 @@ POSIX_XTI.MOSI, POSIX_Event_Management.
 
 NORMAL INSTALLATION:
 
-On the systems where the configure script and Makefile have been
-tested, the following instructions should work.  For other
-systems, give it a try.  It might work, at least partially,
-possibly with a little bit of modification to fit your particular
-system.
-
-In order to install FLORIST, you should go through the following
-steps.
-
-0. Make sure you have GNAT installed,
-   and that your environment variables are set up to provide GNAT
-   with the appropriate paths.
-   Note that Florist can only be used with native threads. See
-   README.TASKING in the GNAT distribution for more details.
-
-1. Configure FLORIST by typing "./configure".
-   This may take a long time, perhaps an hour or more.
-   You probably should capture the output, in case something goes
-   wrong and the relevant error message scrolls off your screen,
-   e.g.
-        ./configure >& configure.log
-
-   The configure script will try to find out information about the system
-   you are using.  This includes information about the GNAT version,
-   and whether each of the features of the POSIX C-language interfaces
-   is supported.  This step generates the files:
-
-   gnatprep.config       directives for gnatprep
-   pconfig.h             #includes and #defines needed to use POSIX
-   config.h              configuration for c-posix.c
-   Config                definitions to be included in Makefile
-
-   Note that if "configure" does not work for your system as-is,
-   you can tailor it by editing the files "pconfig.h.in" and
-   "Config".  Some examples of these can be found in the "configs"
-   subdirectory.
-
-   Along the way, configure will tell you about the various
-   features it is checking, and whether it finds
-   them.  Don't worry if it fails to find some features.
-   That is normal, since no operating system we know has yet
-   fully caught up to the POSIX standards.  Assuming the configuration
-   process works correctly, the unsupported features will just
-   raise POSIX_Error if you try to use them.
-
-   The POSIX.1g (sockets and XTI) interfaces are still very new, and
-   not supported widely; the configure stage will attempt to work around
-   missing features.  If it fails badly, you can still build the rest of
-   Florist.  (One should not be using the POSIX.5c interfaces anyway,
-   as explained above.)
-
-   NOTE:  If you change versions of GNAT, you will need to re-run the
-   "configure" script, and recompile Florist, since the
-   signal-handling and process primitives packages contain code that
-   interacts with the Ada tasking runtime system.
-
-   NOTE:  Do not delete the empty file "florist_sources".  The configure
-   script checks for this file, to make sure it is in the right source
-   directory.
-
-2. Build and compile FLORIST by typing "make".  This will
-   *automatically* perform many operations, including the following:
-
-  a. Compile and execute the program "c-posix.c", which
-     generates the source code for the Ada package specifications
-     Posix, Posix.C, Posix.Limits, and Posix.Options.
-
-  b. Compile several C-language programs "XXX-macros.c".
-
-  c. Perhaps compile the GNAT preprocessor, "gnatprep", if you don't
-     have it already.
-
-  d. Use gnatprep to tailor some Ada source files to your system.
-
-  e. Compile the various POSIX Ada package specifications and
-     bodies.
-
-3. If this all succeeds, you can now use Florist, see below.
+Follow the steps described in the INSTALL file.
 
 COMPILING YOUR PROGRAMS WITH FLORIST:
 
 To compile your own programs with Florist, you will need to include
 the gnatmake parameters that specify where to find the
-Florist sources and object library file. Usually the follwing command
+Florist sources and object library file. Usually the following command
 will be enough :
 
-> gnatmake -Iflorist main -largs -lflorist
+$ gnatmake -Ifloristlib main -largs -lflorist
 
 If you don't want to keep around the whole Florist installation
 directory, you should be able to copy or move the subdirectory
 "floristlib" to some other location, and then include it in
-your GNAT source and object library search paths.
+your GNAT source and object library search paths (see the GNAT documentation
+for more details).
