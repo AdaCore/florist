@@ -142,7 +142,6 @@ package body Test_Parameters is
         | 33   --  SIGLWP
         | 36   --  SIGCANCEL
         | 44   --  out of range for System.Interrupts.Interrupt_ID
-        | 45   --  out of range for System.Interrupts.Interrupt_ID
          => return True;
       when others => return False;
       end case;
@@ -167,7 +166,6 @@ package body Test_Parameters is
         | 33   --  SIGLWP
         | 36   --  SIGCANCEL
         | 44   --  out of range for System.Interrupts.Interrupt_ID
-        | 45   --  out of range for System.Interrupts.Interrupt_ID
          => return True;
       when others => return False;
       end case;
