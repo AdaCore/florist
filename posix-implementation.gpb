@@ -294,24 +294,19 @@ package body POSIX.Implementation is
             New_Mask : aliased Signal_Mask;
          begin
             Begin_Critical_Section;
+
             SIMO.Get_Interrupt_Mask (New_Mask'Unchecked_Access);
-            case Masking is
-            when No_Signals => null;
-            when RTS_Signals =>
+            SIMO.Copy_Interrupt_Mask (Old_Mask.all, New_Mask);
+            if Masking = RTS_Signals then
                for J in 1 .. SIM.Interrupt_ID'Last loop
                   if SIM.Reserve (J) and J /= SIGABRT then
                      SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, J);
                   end if;
                end loop;
-               SIMO.Delete_From_Interrupt_Mask
-                 (New_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
-            when All_Signals =>
+            else --  All_Signals
                SIMO.Fill_Interrupt_Mask (New_Mask'Unchecked_Access);
-            end case;
-            SIMO.Get_Interrupt_Mask (Old_Mask);
+            end if;
             SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
---            SIMO.Set_Interrupt_Mask
---              (New_Mask'Unchecked_Access, Old_Mask);
             End_Critical_Section;
          end;
       end if;
@@ -439,6 +434,10 @@ package body POSIX.Implementation is
       return struct_timeval' (tv_sec => S,
         tv_usec => suseconds_t (Long_Long_Integer (F * MS_per_S)));
    end To_Struct_Timeval;
+
+   -------------------------
+   --  Current Process ID --
+   -------------------------
 
 #if HAVE_Leroy_Threads then
    function getpid return pid_t;
