@@ -155,11 +155,9 @@ extern "C"
 LIBS="$ac_save_LIBS"
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   AC_MSG_RESULT(yes)
-if [[ "$1" ]]; then
 if echo ${LIBS} | grep $1; then true;
 else
   LIBS="-l$1 ${LIBS}"
-fi
 fi
 ifelse([$3], , , [$3
 ])dnl
