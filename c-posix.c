@@ -4973,6 +4973,11 @@ void create_c() {
        is reserved by the Ada runtime system.
  */
 
+#if defined(__APPLE__)
+# define BADSIG 0
+#else
+# define BADSIG (-1)
+#endif
 {sigset_t set;
   int sig;
   int result;
@@ -4982,7 +4987,7 @@ void create_c() {
   for (sig = 0; sig < 1024; sig++) {
     result = sigismember (&set, sig);
     if (result == 1) last_good = sig;
-    else if ((result == -1) && (first_bad = -1)) first_bad = sig;
+    else if ((result == BADSIG) && (first_bad = -1)) first_bad = sig;
   }
   if (last_good == 1023)
     printf("c-posix: WARNING: signal range estimate probably too small\n");

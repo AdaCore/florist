@@ -466,6 +466,12 @@ int guess_nsigs () {
        is reserved by the Ada runtime system.
  */
 
+#if defined(__APPLE__)
+# define BADSIG 0
+#else
+# define BADSIG (-1)
+#endif
+
    sigset_t set;
    int sig;
    int result;
@@ -477,7 +483,7 @@ int guess_nsigs () {
       result = sigismember (&set, sig);
       if (result == 1) {
          last_good = sig;
-      } else if ((result == -1) && (first_bad == -1)) {
+      } else if ((result == BADSIG) && (first_bad == -1)) {
          if (sig == 0) {
             fprintf (stderr, "WARNING: C library problem? "
              "sigfillset does not include zero\n");
