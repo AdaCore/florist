@@ -4994,6 +4994,11 @@ void create_c() {
 #else
   GDFLT("SIGTERM", 0);
 #endif
+#ifdef SIGTRAP
+  GCST("SIGTRAP", SIGTRAP);
+#else
+  GDFLT("SIGTRAP", 0);
+#endif
 #ifdef SIGTSTP
   GCST("SIGTSTP", SIGTSTP);
 #else
