@@ -5683,16 +5683,16 @@ void create_c() {
   g_struct_tms();
   g_struct_utimbuf();
   { struct utsname DUMMY;
-    ifprintf(fp,"   subtype utsname_sysname_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sysname));
-    ifprintf(fp,"   subtype utsname_nodename_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.nodename));
-    ifprintf(fp,"   subtype utsname_release_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.release));
-    ifprintf(fp,"   subtype utsname_version_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.version));
-    ifprintf(fp,"   subtype utsname_machine_string is
-      POSIX_String (1 .. %d);\n", sizeof (DUMMY.machine));
+    ifprintf(fp,"   subtype utsname_sysname_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sysname));
+    ifprintf(fp,"   subtype utsname_nodename_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.nodename));
+    ifprintf(fp,"   subtype utsname_release_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.release));
+    ifprintf(fp,"   subtype utsname_version_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.version));
+    ifprintf(fp,"   subtype utsname_machine_string is\n"
+"      POSIX_String (1 .. %d);\n", sizeof (DUMMY.machine));
   }
   g_struct_utsname();
 
