@@ -56,6 +56,7 @@ procedure p140101 is
    use POSIX,
        POSIX_Report,
        POSIX_Signals,
+       POSIX_Timers,
        Test_Parameters;
 
 begin
