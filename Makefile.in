@@ -18,6 +18,7 @@ GCCFLAGS = -O2
 GNATPREPFLAGS = -c -r
 # The following will be set based on
 # what the configure script discovers about the local system.
+CC = @CC@
 LIBS = @LIBS@
 DEPS = @DEPS@
 ADDRINFO_OBJECTS = @ADDRINFO_OBJECTS@
@@ -284,13 +285,13 @@ configure: configure.in aclocal.m4
 # If you are unlucky, it will require fixes to c-posix.c.
 #
 c-posix: c-posix.c config.h pconfig.h
-	gcc $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c $(LIBS)
+	$(CC) $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c $(LIBS)
 #
 # Program c-posix-signals generates another Ada package spec.
 # It is also supposed to be a "portable" POSIX C program.
 #
 c-posix-signals: c-posix-signals.c
-	gcc $(GCCFLAGS) -ansi -o c-posix-signals \
+	$(CC) $(GCCFLAGS) -ansi -o c-posix-signals \
 	    c-posix-signals.c $(LIBS)
 #
 # generate Ada source files using "c-posix" program
@@ -321,7 +322,7 @@ $(GNATPREP_SPECS): gnatprep.config
 .gpb.adb:
 	gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .c.o:
-	gcc -c $(GCCFLAGS) $<
+	$(CC) -c $(GCCFLAGS) $<
 #
 #
 # Some POSIX interfaces use macros.
