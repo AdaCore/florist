@@ -72,34 +72,30 @@ package body POSIX.Supplement_to_Ada_IO is
 
    subtype System_File_Type is System.File_Control_Block.AFCB_Ptr;
 
-   function Form_String (Val : Form_Values_for_Open)
-      return String is
+   function Form_String (Val : Form_Values_for_Open) return String is
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
       return "";
    end Form_String;
 
-   function Form_Value (Str : String)
-      return Form_Values_for_Open is
-      a : Form_Values_for_Open;
+   function Form_Value (Str : String) return Form_Values_for_Open is
+      A : Form_Values_for_Open;
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
-      return a;
+      return A;
    end Form_Value;
 
-   function Form_String (Val : Form_Values_for_Create)
-      return String is
+   function Form_String (Val : Form_Values_for_Create) return String is
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
       return "";
    end Form_String;
 
-   function Form_Value (Str : String)
-      return Form_Values_for_Create is
-      a : Form_Values_for_Create;
+   function Form_Value (Str : String) return Form_Values_for_Create is
+      A : Form_Values_for_Create;
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
-      return a;
+      return A;
    end Form_Value;
 
    --  .... We may be able to implement Flush_All, using the open file
@@ -117,8 +113,9 @@ package body POSIX.Supplement_to_Ada_IO is
 
    procedure Flush_Sequential_IO (File: File_Type) is
       function To_SFT is new 
-             Unchecked_Conversion (File_Type, System_File_Type);
-      F : System_File_Type;
+        Unchecked_Conversion (File_Type, System_File_Type);
+
+      F   : System_File_Type;
       Ret : Int;
 
    begin
@@ -129,8 +126,9 @@ package body POSIX.Supplement_to_Ada_IO is
 
    procedure Flush_Direct_IO (File: File_Type) is
       function To_SFT is new 
-             Unchecked_Conversion (File_Type, System_File_Type);
-      F : System_File_Type;
+        Unchecked_Conversion (File_Type, System_File_Type);
+
+      F   : System_File_Type;
       Ret : Int;
 
    begin
