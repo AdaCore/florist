@@ -59,7 +59,7 @@ package POSIX_Report is
    --  set to 1 if "-child" is on command line
    --  set to NNN if "-child NNN" is on command line, where NNN is a number
 
-   Test_Identifier : String := "POSIX Ada Validation Tests, Version 1.2a";
+   Test_Identifier : String := "POSIX Ada Validation Tests, Version 1.3a";
 
    --  Call this once for each test program, at the beginning.
    --  It prints a message indicating that a test is about to be
@@ -173,6 +173,7 @@ package POSIX_Report is
 
    procedure Privileged
      (Privilege : POSIX_Privilege;
+      E         : Ada.Exceptions.Exception_Occurrence;
       Message   : String);
 
    --  Call this if the test is supposed to raise an exception,
