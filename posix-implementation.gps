@@ -7,7 +7,7 @@
 --                                  S p e c                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU).     All Rights  --
+--  Copyright (c) 1996-1999 Florida State University (FSU).     All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -61,10 +61,6 @@ package POSIX.Implementation is
    --  In particular, they return different values from getpid()
    --  for each thread.
  
-#  if HAVE_Leroy_Threads then
-   This_Process : POSIX.C.pid_t;
-#  end if;
-
    -------------------------
    --  Critical Sections  --
    -------------------------
@@ -265,6 +261,21 @@ package POSIX.Implementation is
    procedure Store_Errno (value : Error_Code);
    pragma Import (C, Store_Errno, "store_errno");
 
+   --  The following operate on the Ada per-task errno value.
+   --  The difference is that this value is not affected by any
+   --  implicit OS calls that might occur during the implementation
+   --  of exception propagation.
+
+   function Get_Ada_Error_Code return Error_Code;
+#  if HAVE_Safe_Errno then
+   pragma Import (C, Get_Ada_Error_Code, "fetch_errno");
+#  end if;
+
+   procedure Set_Ada_Error_Code (Error : in Error_Code);
+#  if HAVE_Safe_Errno then
+   pragma Import (C, Set_Ada_Error_Code, "store_errno");
+#  end if;
+
    package Bogus_Error_Codes is
 
       --  These names are enclosed in this inner
@@ -379,5 +390,16 @@ package POSIX.Implementation is
    function To_Timespec (TS : POSIX.C.struct_timespec) return Timespec;
    function To_Struct_Timeval (D : Duration) return POSIX.C.struct_timeval;
    function To_Duration (TV : POSIX.C.struct_timeval) return Duration;
+
+#if HAVE_Leroy_Threads then
+   --  The following is used in POSIX.Unsafe_Process_Primitives.Fork and
+   --  POSIX.Process_Identification.Get_Process_ID to cache the ID of the
+   --  current process.  It is present only because  Xavier Leroy's
+   --  Linux threads do not conform to the POSIX C interface standard.
+   --  In particular, they return different values from getpid()
+   --  for each thread.
+
+   This_Process : POSIX.C.pid_t;
+#end if;
 
 end POSIX.Implementation;

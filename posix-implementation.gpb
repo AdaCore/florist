@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU).     All Rights  --
+--  Copyright (c) 1996-1999 Florida State University (FSU).     All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -39,7 +39,10 @@
 
 with Ada.Exceptions,
      POSIX.C,
+#    if HAVE_Safe_Errno then
+#    else
      POSIX.Error_Codes,
+#    end if;
 #    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupt_Management,
      System.Interrupt_Management.Operations,
@@ -55,6 +58,21 @@ package body POSIX.Implementation is
    package SIM renames System.Interrupt_Management;
    package SIMO renames System.Interrupt_Management.Operations;
 #  else
+#  end if;
+
+#  if HAVE_Safe_Errno then
+#  else
+
+   procedure Set_Ada_Error_Code (Error : Error_Code) is
+   begin
+      POSIX.Error_Codes.Set_Value (Error);
+   end Set_Ada_Error_Code;
+
+   function Get_Ada_Error_Code return Error_Code is
+   begin
+      return POSIX.Error_Codes.Value;
+   end Get_Ada_Error_Code;
+
 #  end if;
 
    --  .... It would be nice if we had a way to check whether we
@@ -118,7 +136,7 @@ package body POSIX.Implementation is
    begin
       --  .... see note on critical sections above
       if Error = No_Error then Tmp := Fetch_Errno; end if;
-      POSIX.Error_Codes.Set_Value (Tmp);
+      Set_Ada_Error_Code (Tmp);
       Ada.Exceptions.Raise_Exception
            (POSIX_Error'Identity, Image (Tmp));
    end Raise_POSIX_Error;
@@ -263,14 +281,19 @@ package body POSIX.Implementation is
    --  Signal Masking  --
    ----------------------
 
-   --  .... For RTS_Signals we mask all the signals identified as reserved
-   --  by the tasking RTS. However, we leave SIGABRT along since it is being
+   --  For RTS_Signals we mask all the signals identified as reserved
+   --  by the tasking RTS. However, we leave SIGABRT alone since it is being
    --  used as the signal for abortion which needs to be invoked for
    --  POSIX.Signals.Interrupt_Task.
+   --  ...Fix POSIX.5b????
+   --  It seems we are deviating here from what the standard says, but for
+   --  very good reasons.
 
    procedure Mask_Signals
      (Masking  : in Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : access Signal_Mask)
+   is
+      use type SIM.Interrupt_ID;
    begin
 #     if HAVE_INTERRUPT_MANAGEMENT then
       if Masking /= No_Signals then
@@ -282,9 +305,9 @@ package body POSIX.Implementation is
             case Masking is
             when No_Signals => null;
             when RTS_Signals =>
-               for I in 1 .. SIM.Interrupt_ID'Last loop
-                  if SIM.Reserve (I) then
-                     SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, I);
+               for J in 1 .. SIM.Interrupt_ID'Last loop
+                  if SIM.Reserve (J) and J /= SIGABRT then
+                     SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, J);
                   end if;
                end loop;
                SIMO.Delete_From_Interrupt_Mask
