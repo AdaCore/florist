@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -42,104 +42,82 @@
 
 --  Test for POSIX_Mutexes package
 
---  This test starts 4 tasks, inside each task is a section blocked of by
---  mutex-lock and unlock.  This section sets the value of a protected
---  variable then calls a delay, to allow the other tasks to run, then
---  checks to see that the variable is still set properly.
+--  There are four tasks.  Inside each task is a critical section,
+--  enclosed by mutex lock and unlock calls, which sets the value of
+--  a protected variable then calls a delay, to allow the other tasks
+--  to run, then checks to see that the variable is still set properly.
 
 with POSIX,
      POSIX_Mutexes,
-     POSIX_Report;
+     POSIX_Report,
+     Test_Parameters;
 
 procedure p110201 is
    use POSIX,
        POSIX_Mutexes,
-       POSIX_Report;
+       POSIX_Report,
+       Test_Parameters;
 
-   task type Shared_Mutex_Task (number : integer)is
-     entry StartRunning;
+   task type Shared_Mutex_Task (Task_Number : Integer) is
+     entry Start_Running;
    end Shared_Mutex_Task;
 
-   Mutex_Error : exception;
-   Task1 : Shared_Mutex_Task (number => 1);
-   Task2 : Shared_Mutex_Task (number => 2);
-   Task3 : Shared_Mutex_Task (number => 3);
-   Task4 : Shared_Mutex_Task (number => 4);
-   M : Mutex;
-   MD : Mutex_Descriptor;
-   Attr : Attributes;
-   protected_var : integer;
+   Task1 : Shared_Mutex_Task (Task_Number => 1);
+   Task2 : Shared_Mutex_Task (Task_Number => 2);
+   Task3 : Shared_Mutex_Task (Task_Number => 3);
+   Task4 : Shared_Mutex_Task (Task_Number => 4);
+   M     : Mutex;
+   MD    : Mutex_Descriptor;
+   Attr  : Attributes;
+   Shared_Var : Integer;
 
    task body Shared_Mutex_Task is
-      count : integer;
+      Count : Integer := 0;
    begin
-      accept StartRunning;
-
-      if (number = 1) then
-         while count <= 100 loop
-            Lock (MD);
-            count := count + 1;
-            protected_var := 1;
-            delay 0.1;
-            if (protected_var /= 1) then
-               raise Mutex_Error;
-            end if;
+      accept Start_Running;
+      while Count <= 20 loop
+         Lock (MD);
+         Count := Count + 1;
+         Shared_Var := Task_Number;
+         delay Delay_Unit;
+         Comment ("task" & Integer'Image (Task_Number) &
+           " in critical section:" & Integer'Image (Count));
+         if (Shared_Var /= Task_Number) then
             Unlock (MD);
-         end loop;
-
-      elsif (number = 2) then
-         while count <= 100 loop
-            Lock (MD);
-            count := count + 1;
-            protected_var := 2;
-            delay 0.1;
-            if (protected_var /= 2) then
-               raise Mutex_Error;
-            end if;
-            Unlock (MD);
-         end loop;
-
-      elsif (number = 3) then
-         while count <= 100 loop
-            Lock (MD);
-            count := count + 1;
-            protected_var := 3;
-            delay 0.1;
-            if (protected_var /= 3) then
-               raise Mutex_Error;
-            end if;
-            Unlock (MD);
-         end loop;
-
-      elsif (number = 4) then
-         while count <= 100 loop
-            Lock (MD);
-            count := count + 1;
-            protected_var := 4;
-            delay 0.1;
-            if (protected_var /= 4) then
-               raise Mutex_Error;
-            end if;
-            Unlock (MD);
-         end loop;
-      end if;
-
+            Fail ("A001: failure of mutual exclusion");
+            exit;
+         end if;
+         Unlock (MD);
+         delay Delay_Unit * Task_Number;
+      end loop;
+      Comment ("task" & Integer'Image (Task_Number) & " exiting");
    exception
-   when E1 : Mutex_Error =>
-      Unexpected_Exception (E1, "A001: failure of mutual exclusion");
-   when E2 : POSIX_Error =>
-      Optional (Mutex_Option, Operation_Not_Implemented, E2, "A002");
-   when E3 : others =>
-      Unexpected_Exception (E3, "A003");
+   when E1 : POSIX_Error =>
+      Optional (Mutex_Option, Operation_Not_Implemented, E1, "A002");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A003");
    end Shared_Mutex_Task;
 
 begin
 
-   Header ("p110201.adb", true);
+   Header ("p110201", True);
 
-   protected_var := 0;
+   Shared_Var := 0;
+
    Initialize (Attr);
-   Set_Process_Shared (Attr, true);
+
+   --  ... It would be better to write a separate test, that uses
+   --  multiple processes and shared memory to really test the
+   --  process-shared option for mutexes.
+   begin
+      Set_Process_Shared (Attr, Is_Shared => True);
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Process_Shared_Option, Operation_Not_Implemented, E1, "A004");
+   when E2 : others =>
+      Unexpected_Exception (E2, "A005");
+   end;
+
    Initialize (M, Attr);
    Finalize (Attr);
    MD := Descriptor_Of (M);
@@ -148,15 +126,16 @@ begin
 
    begin
 
-      Task1.StartRunning;
-      Task2.StartRunning;
-      Task3.StartRunning;
-      Task4.StartRunning;
+      Task1.Start_Running;
+      Task2.Start_Running;
+      Task3.Start_Running;
+      Task4.Start_Running;
 
       while not (Task1'Terminated and Task2'Terminated and
                  Task3'Terminated and Task4'Terminated) loop
          delay 0.2;
       end loop;
+      Comment ("all tasks terminated");
 
    end;
 
@@ -166,6 +145,7 @@ begin
 exception
 when E1 : POSIX_Error =>
    Optional (Mutex_Option, Operation_Not_Implemented, E1, "A004");
+   abort Task1, Task2, Task3, Task4;
 when E2 : others => Unexpected_Exception (E2, "A005");
-
+   abort Task1, Task2, Task3, Task4;
 end p110201;
