@@ -245,8 +245,7 @@ AC_POSIX_LIB(:libdce.a, pthread_self)))))
 AC_POSIX_LIB(aio, aio_read)
 
 AC_POSIX_LIB(posix4, clock_gettime,,
-AC_POSIX_LIB(rt, clock_gettime,,
-AC_POSIX_LIB(picc, clock_gettime)))
+AC_POSIX_LIB(rt, clock_gettime))
 
 AC_POSIX_LIB(nsl, gethostbyname)
 
