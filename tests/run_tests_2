@@ -1,18 +1,13 @@
 #!/bin/sh
 # These tests need to be run with special (e.g., root) permission.
 FLAGS="-t"
-ulimit -d 10000
-# ulimit -s 10000 seems too large for Linux on laptop
-ulimit -s 5000
-ulimit -t 10
-# ulimit -v is not standard for POSIX, and is not supported by Linux
-# ulimit -v 200000
+RUN='rlimit 300'
 rm -f run_tests_2.log
- ../p120100 ${FLAGS} >> run_tests_1.log 2>&1
- ../p120400 ${FLAGS} >> run_tests_1.log 2>&1
- ../p120500 ${FLAGS} >> run_tests_1.log 2>&1
- ../p120501 ${FLAGS} >> run_tests_1.log 2>&1
- ../p140100 ${FLAGS} >> run_tests_1.log 2>&1
- ../p150100 ${FLAGS} >> run_tests_1.log 2>&1
- ../p990040 ${FLAGS} >> run_tests_1.log 2>&1
- ../p990050 ${FLAGS} >> run_tests_1.log 2>&1
+$RUN ../p120100 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p120400 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p120500 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p120501 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p140100 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p150100 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p990040 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p990050 ${FLAGS} >> run_tests_2.log 2>&1
