@@ -486,9 +486,11 @@ package body POSIX.IO is
       loop
          Result := write
            (int (File), Item'Address + Written, size_t (To_Write - Written));
-         --  Exit once write is complete or failed.
+         --  Exit if write fails or zero-length write succeeds.
          exit when Result <= 0;
          To_Write := To_Write - Storage_Offset (Result);
+         --  Exit if done writing.
+         exit when To_Write = 0;
       end loop;
 
       Check_NNeg_And_Restore_Signals
