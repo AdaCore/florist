@@ -73,7 +73,6 @@
 
 with Ada.Text_IO,
      Ada.Characters.Handling,
-     Ada.Characters.Latin_1,
      Ada.Strings.Unbounded,
      POSIX,
      POSIX_Signals,
@@ -83,7 +82,6 @@ package body Test_Parameters is
 
    use Ada.Text_IO,
        Ada.Characters.Handling,
-       Ada.Characters.Latin_1,
        Ada.Strings.Unbounded,
        POSIX,
        POSIX_Signals;
@@ -302,6 +300,8 @@ package body Test_Parameters is
       return 0.1;
 #     elsif SunOS then
       return 0.02;
+#     else
+      return 0.02;
 #     end if;
    end Delay_Unit;
 
@@ -312,6 +312,8 @@ package body Test_Parameters is
       return 0.5;
 #     elsif SunOS then
       return 0.5;
+#     else
+      return 0.02;
 #     end if;
    end New_Process_Startup;
 
@@ -384,9 +386,9 @@ package body Test_Parameters is
             Ada.Strings.Unbounded.Count (Ubuf, "localhost") = 0 then
             Ubuf := To_Unbounded_String (Slice (Ubuf, 1, Last));
             if Index (Ubuf, ".") /= 0 then
-               if Index (Ubuf, "" & HT) /= 0 then
+               if Index (Ubuf, "" & ASCII.HT) /= 0 then
                   Ubuf := To_Unbounded_String
-                     (Slice (Ubuf, 1, Index (Ubuf, "" &  HT) - 1));
+                     (Slice (Ubuf, 1, Index (Ubuf, "" & ASCII.HT) - 1));
                elsif Index (Ubuf, " ") /= 0 then
                   Ubuf := To_Unbounded_String
                      (Slice (Ubuf, 1, Index (Ubuf, " ") - 1));
