@@ -42,7 +42,6 @@ with POSIX.C,
      Unchecked_Conversion,
      Unchecked_Deallocation;
 pragma Elaborate (POSIX.C);
-pragma Elaborate (POSIX.Error_Codes);
 pragma Elaborate (POSIX.Implementation);
 package body POSIX is
 
