@@ -236,13 +236,6 @@ package body POSIX.Signals is
    --  Global Data --
    ------------------
 
-   Last_Unblocker : array (Signal) of Task_ID :=
-     (others => Null_Task);
-   pragma Volatile_Components (Last_Unblocker);
-   --  Holds the ID of the last Task which Unblocked this Interrupt.
-   --  It contains Null_Task if no tasks have ever requested the
-   --  Unblocking operation or the Interrupt is currently Blocked.
-
    type Signal_Bit_Vector is array (Signal) of Boolean;
 
    --  Reserved_Signal is the union of the following sets of
