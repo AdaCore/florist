@@ -2837,9 +2837,6 @@ void create_posix() {
 #endif
   fprintf(fp,"   POSIX_Ada_Version : constant := 1995_00;\n\n");
 
-#ifdef VERSION
-  fprintf(fp,"   FLORIST_Version : constant String := \""VERSION"\";\n\n");
-#endif
   fprintf(fp,"   --  Optional Facilities (obsolescent, 0)\n");
   fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
 
@@ -3983,6 +3980,10 @@ void create_posix() {
   fprintf(fp,"      array (Integer range <>) of aliased Octet;\n");
   fprintf(fp,"   type Octet_Array_Pointer is access all Octet_Array;\n");
   fprintf(fp,"private\n");
+
+#ifdef VERSION
+  fprintf(fp,"   FLORIST_Version : constant String := \""VERSION"\";\n\n");
+#endif
 
   fprintf(fp,"   type String_List;\n");
   fprintf(fp,"   --  See package body for comments on String_List.\n");
