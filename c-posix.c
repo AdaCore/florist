@@ -1386,7 +1386,6 @@ struct t_kpalive {
   GT2(kp_timeout, long)
   GT3
 
-
 /*
  Poll/Select
  */
@@ -1939,7 +1938,14 @@ void gdfluitp(char name[]) {
    for C type with specified name and size (in bytes)
  */
 void gptp(char name[], int size) {
-  save_type(name, size, OPAQUE_TYPE, NULL);
+  if (size >= sizeof (int)) 
+  {
+    save_type(name, size, OPAQUE_TYPE, NULL);
+  }
+  else
+  {
+    save_type(name, size, CHAR_ARRAY_TYPE, NULL);
+  }
   print_type_declaration(name,fp);
 }
 
@@ -4100,7 +4106,6 @@ void create_posix() {
     }
   }
 
-
   ifprintf(fp,"end POSIX;\n");
 
   fclose (fp);
@@ -6003,7 +6008,6 @@ void create_c() {
   gmacrofunc("wifstopped","int","stat_val");
   gmacrofunc("wifstopsig","int","stat_val");
 
-
 /* c_sockets
    ----------------
  */
@@ -6473,12 +6477,10 @@ void create_c() {
   GDFLT("T_EVENTS", 0);
 #endif
 
-
 /*
  * The following are the flag definitions needed by the
  * user level library routines.
  */
-
 
 #ifdef T_MORE
   GCST("T_MORE", T_MORE );
@@ -6593,7 +6595,6 @@ void create_c() {
   GDFLT("XPG4_1", 0);
 #endif
 
-
 /*
  * The following are structure types used when dynamically
  * allocating the above structure via alloc().
@@ -6640,7 +6641,6 @@ void create_c() {
   GDFLT("T_KUNITDATA", 0);
 #endif
 
-
 /*
  * The following bits specify which fields of the above
  * structures should be allocated by t_alloc().
@@ -6666,7 +6666,6 @@ void create_c() {
 #else
   GDFLT("T_ALL", 0);
 #endif
-
 
 /*
  * The following are the states for the user.
@@ -7378,7 +7377,6 @@ void create_c() {
   fprintf(stderr,"done generating posix-c.ads\n");
 
 } /* end create_c */
-
 
 /*
    main
