@@ -9,8 +9,7 @@
 .POSIX:
 VERSION=3.16
 FLORIST_VERSION=$(VERSION)
-GNATMAKEFLAGS1B = -O2 -gnatep=florist.prep
-GNATMAKEFLAGS2B = -cargs -gnatpg -largs $(LIBS)
+GNATMAKEFLAGS1B = -O2 -gnatep=florist.prep -gnatpg
 GCCFLAGS = -O2
 # The following will be set based on
 # what the configure script discovers about the local system.
@@ -50,11 +49,7 @@ GENERATED = $(CONFIG_GENERATED) $(C-POSIX_GENERATED) \
  $(C-POSIX-SIGNALS_GENERATED)
 
 # all the executable programs
-EXECUTABLES =\
- c-posix\
- deps\
- deps_no_thread\
- deps5c
+EXECUTABLES = c-posix
 
 MACRO_OBJECTS =\
  posix-macros.o\
@@ -119,7 +114,7 @@ posix-implementation-ok_signals.ads: c-posix-signals
 .c.o:
 	$(CC) -c $(GCCFLAGS) $<
 
-.PHONY: deps deps_no_thread deps5c
+.PHONY: deps deps_no_thread
 
 #
 #
@@ -141,12 +136,8 @@ $(ADDRINFO_OBJECTS): pconfig.h
 # that should force compilation of all Florist packages;
 # "deps5c.adb" is the same, but with POSIX.5c packages added.
 #
-deps:
-	gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
-deps_no_thread:
-	gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
-deps5c:
-	gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
+deps deps_no_thread:
+	gnatmake -c $(GNATMAKEFLAGS1B) $@
 #
 # -----------------------------------
 # Create a florist library for objects
@@ -183,7 +174,7 @@ regen:
 # remove editor and compiler generated files
 clean:
 	rm -rf floristlib
-	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c
+	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
 	rm -f *CHECKING_IN*
 	rm -f $(C-POSIX_GENERATED)
 	-make -C tests clean
@@ -192,7 +183,7 @@ clean:
 distclean:
 	rm -f  $(CONFIG_HISTORY)
 	rm -rf floristlib
-	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c
+	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
 	rm -f $(GENERATED)
 	-make -C tests clean
 
