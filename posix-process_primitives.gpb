@@ -291,9 +291,9 @@ package body POSIX.Process_Primitives is
       end if;
    end Validate;
 
-   ---------------------
-   --  Open_Template  --
-   ---------------------
+   -------------------
+   -- Open_Template --
+   -------------------
 
    procedure Open_Template
     (Template : in out Process_Template) is
@@ -304,9 +304,9 @@ package body POSIX.Process_Primitives is
       Template.FD_Set := null;
    end Open_Template;
 
-   ----------------------
-   --  Close_Template  --
-   ----------------------
+   --------------------
+   -- Close_Template --
+   --------------------
 
    procedure Close_Template
      (Template : in out Process_Template) is
@@ -318,9 +318,9 @@ package body POSIX.Process_Primitives is
       Template.Is_Closed := True;
    end Close_Template;
 
-   ------------------------------
-   --  Set_Keep_Effective_IDs  --
-   ------------------------------
+   ----------------------------
+   -- Set_Keep_Effective_IDs --
+   ----------------------------
 
    procedure Set_Keep_Effective_IDs
      (Template : in out Process_Template) is
@@ -329,9 +329,9 @@ package body POSIX.Process_Primitives is
       Template.Keep_Effective_IDs := True;
    end Set_Keep_Effective_IDs;
 
-   -----------------------
-   --  Set_Signal_Mask  --
-   -----------------------
+   ---------------------
+   -- Set_Signal_Mask --
+   ---------------------
 
    procedure Set_Signal_Mask
      (Template : in out Process_Template;
@@ -341,119 +341,118 @@ package body POSIX.Process_Primitives is
       Template.Sig_Set := Mask;
    end Set_Signal_Mask;
 
-   -----------------------------------
-   --  Set_Creation_Signal_Masking  --
-   -----------------------------------
+   ---------------------------------
+   -- Set_Creation_Signal_Masking --
+   ---------------------------------
 
    procedure Set_Creation_Signal_Masking
      (Template : in out Process_Template;
-      Masked_Signals : in POSIX.Signal_Masking
-                     := POSIX.RTS_Signals) is
+      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
    begin
       Validate (Template);
       Template.Masked_Sig := Masked_Signals;
    end Set_Creation_Signal_Masking;
 
-   --------------------------------
-   --  Set_File_Action_To_Close  --
-   --------------------------------
+   ------------------------------
+   -- Set_File_Action_To_Close --
+   ------------------------------
 
    procedure Set_File_Action_To_Close
      (Template : in out Process_Template;
-      File : in POSIX.IO.File_Descriptor) is
-      tmp : FD_Set_Ptr;
+      File : in POSIX.IO.File_Descriptor)
+   is
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if Template.FD_Set = null then
+
+      if Tmp = null then
          Template.FD_Set := new FD_Set_Element (Close, 1);
-         Template.FD_Set.FD := File;
-         Template.FD_Set.Next := null;
-         Template.FD_Set.Action := Close;
-         return;
+         Tmp := Template.FD_Set;
+
+      else
+         while Tmp.Next /= null loop
+            Tmp := Tmp.Next;
+         end loop;
+
+         Tmp.Next := new FD_Set_Element (Close, 1);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (Close, 1);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Close;
+
+      Tmp.Next.FD := File;
+      Tmp.Next.Next := null;
+      Tmp.Next.Action := Close;
    end Set_File_Action_To_Close;
 
-   -------------------------------
-   --  Set_File_Action_To_Open  --
-   -------------------------------
+   -----------------------------
+   -- Set_File_Action_To_Open --
+   -----------------------------
 
    procedure Set_File_Action_To_Open
      (Template : in out Process_Template;
       File : in POSIX.IO.File_Descriptor;
       Name : in POSIX.Pathname;
-      Mode : in POSIX.IO.File_Mode
-           := POSIX.IO.Read_Only;
-      Options : in POSIX.IO.Open_Option_Set
-         --  := POSIX.IO.Empty_Set) is
-         := POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set)) is
-         --  Conversion is only to work around a GNAT3.09 problem.
-      tmp : FD_Set_Ptr;
+      Mode : in POSIX.IO.File_Mode := POSIX.IO.Read_Only;
+      Options : in POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set)
+   is
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if Template.FD_Set = null then
+
+      if Tmp = null then  
          Template.FD_Set := new FD_Set_Element (Open, Name'Length);
-         Template.FD_Set.FD := File;
-         Template.FD_Set.Next := null;
-         Template.FD_Set.Action := Open;
-         Template.FD_Set.File_Name := Name;
-         Template.FD_Set.File_Mode := Mode;
-         Template.FD_Set.File_Options := Options;
-         return;
+         Tmp := Template.FD_Set;
+
+      else
+         while Tmp.Next /= null loop
+            Tmp := Tmp.Next;
+         end loop;
+
+         Tmp.Next := new FD_Set_Element (Open, Name'Length);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (Open, Name'Length);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Open;
-      tmp.Next.File_Name := Name;
-      tmp.Next.File_Mode := Mode;
-      tmp.Next.File_Options := Options;
+
+      Tmp.Next.FD := File;
+      Tmp.Next.Next := null;
+      Tmp.Next.Action := Open;
+      Tmp.Next.File_Name := Name;
+      Tmp.Next.File_Mode := Mode;
+      Tmp.Next.File_Options := Options;
    end Set_File_Action_To_Open;
 
-   ------------------------------------
-   --  Set_File_Action_To_Duplicate  --
-   ------------------------------------
+   ----------------------------------
+   -- Set_File_Action_To_Duplicate --
+   ----------------------------------
 
    procedure Set_File_Action_To_Duplicate
      (Template : in out Process_Template;
       File : in POSIX.IO.File_Descriptor;
-      From_File : in POSIX.IO.File_Descriptor) is
-      tmp : FD_Set_Ptr;
+      From_File : in POSIX.IO.File_Descriptor)
+   is
+      Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
-      tmp := Template.FD_Set;
-      if tmp = null then
-         tmp := new FD_Set_Element (duplicate, 1);
-         tmp.FD := File;
-         tmp.Next := null;
-         tmp.Action := Duplicate;
-         tmp.Dup_From := From_File;
-         return;
+
+      if Tmp = null then
+         Template.FD_Set := new FD_Set_Element (Duplicate, 1);
+         Tmp := Template.FD_Set;
+      else
+         while Tmp.Next /= null loop
+            Tmp := Tmp.Next;
+         end loop; 
+
+         Tmp.Next := new FD_Set_Element (Duplicate, 1);
+         Tmp := Tmp.Next;
       end if;
-      while (tmp.Next /= null) loop
-         tmp := tmp.Next;
-      end loop;
-      tmp.Next := new FD_Set_Element (duplicate, 1);
-      tmp.Next.FD := File;
-      tmp.Next.Next := null;
-      tmp.Next.Action := Duplicate;
-      tmp.Next.Dup_From := From_File;
+
+      Tmp.Next.FD := File;
+      Tmp.Next.Next := null;
+      Tmp.Next.Action := Duplicate;
+      Tmp.Next.Dup_From := From_File;
    end Set_File_Action_To_Duplicate;
 
-   ---------------------
-   --  Start_Process  --
-   ---------------------
+   -------------------
+   -- Start_Process --
+   -------------------
 
    function execl
      (path : char_ptr;
@@ -540,9 +539,9 @@ package body POSIX.Process_Primitives is
       end if;
    end Start_Process;
 
-   ----------------------------
-   --  Start_Process_Search  --
-   ----------------------------
+   --------------------------
+   -- Start_Process_Search --
+   --------------------------
 
    procedure Start_Process_Search
      (Child : out POSIX.Process_Identification.Process_ID;
@@ -568,9 +567,9 @@ package body POSIX.Process_Primitives is
       end if;
    end Start_Process_Search;
 
-   ----------------------------
-   --  Start_Process_Search  --
-   ----------------------------
+   --------------------------
+   -- Start_Process_Search --
+   --------------------------
 
    procedure Start_Process_Search
      (Child : out POSIX.Process_Identification.Process_ID;
@@ -638,9 +637,9 @@ package body POSIX.Process_Primitives is
       end if;
    end Start_Process_Search;
 
-   --------------------
-   --  Exit_Process  --
-   --------------------
+   ------------------
+   -- Exit_Process --
+   ------------------
 
    procedure sys_exit (status : int);
    pragma Import (C, sys_exit, "_exit");
@@ -659,9 +658,9 @@ package body POSIX.Process_Primitives is
       sys_exit (int (Status));
    end Exit_Process;
 
-   ------------------------
-   --  Status_Available  --
-   ------------------------
+   ----------------------
+   -- Status_Available --
+   ----------------------
 
    function Status_Available
      (Status : Termination_Status) return Boolean is
@@ -669,9 +668,9 @@ package body POSIX.Process_Primitives is
       return Status.pid /= 0 and Status.pid /= -1;
    end Status_Available;
 
-   ---------------------
-   --  Process_ID_Of  --
-   ---------------------
+   -------------------
+   -- Process_ID_Of --
+   -------------------
 
    function Process_ID_Of (Status : Termination_Status)
       return POSIX.Process_Identification.Process_ID is
@@ -682,9 +681,9 @@ package body POSIX.Process_Primitives is
       return To_Process_ID (Status.pid);
    end Process_ID_Of;
 
-   ----------------------
-   --  Exit_Status_Of  --
-   ----------------------
+   --------------------
+   -- Exit_Status_Of --
+   --------------------
 
    function wifexited (stat_val : int) return int;
    pragma Import (C, wifexited, "wifexited");
@@ -702,9 +701,9 @@ package body POSIX.Process_Primitives is
       return Exit_Status (wexitstatus (Status.stat_val));
    end Exit_Status_Of;
 
-   -----------------------------
-   --  Termination_Signal_Of  --
-   -----------------------------
+   ---------------------------
+   -- Termination_Signal_Of --
+   ---------------------------
 
    function wifsignaled (stat_val : int) return int;
    pragma Import (C, wifsignaled, "wifsignaled");
@@ -722,9 +721,9 @@ package body POSIX.Process_Primitives is
       return POSIX.Signals.Signal (wtermsig (Status.stat_val));
    end Termination_Signal_Of;
 
-   --------------------------
-   --  Stopping_Signal_Of  --
-   --------------------------
+   ------------------------
+   -- Stopping_Signal_Of --
+   ------------------------
 
    function wifstopped (stat_val : int) return int;
    pragma Import (C, wifstopped, "wifstopped");
@@ -742,9 +741,9 @@ package body POSIX.Process_Primitives is
       return POSIX.Signals.Signal (wstopsig (Status.stat_val));
    end Stopping_Signal_Of;
 
-   ----------------------------
-   --  Termination_Cause_Of  --
-   ----------------------------
+   --------------------------
+   -- Termination_Cause_Of --
+   --------------------------
 
    function Termination_Cause_Of (Status : Termination_Status)
       return Termination_Cause is
@@ -767,9 +766,9 @@ package body POSIX.Process_Primitives is
       return Stopped_By_Signal;  --  to suppress compiler warning;
    end Termination_Cause_Of;
 
-   ------------------------------
-   --  Wait_For_Child_Process  --
-   ------------------------------
+   ----------------------------
+   -- Wait_For_Child_Process --
+   ----------------------------
 
    function waitpid
      (pid : pid_t;
@@ -810,9 +809,9 @@ package body POSIX.Process_Primitives is
       Check (int (Status.pid));
    end Wait_For_Child_Process;
 
-   ------------------------------
-   --  Wait_For_Child_Process  --
-   ------------------------------
+   ----------------------------
+   -- Wait_For_Child_Process --
+   ----------------------------
 
    procedure Wait_For_Child_Process
      (Status : out Termination_Status;
@@ -827,9 +826,9 @@ package body POSIX.Process_Primitives is
          Block, Trace_Stopped, Masked_Signals);
    end Wait_For_Child_Process;
 
-   ------------------------------
-   --  Wait_For_Child_Process  --
-   ------------------------------
+   ----------------------------
+   -- Wait_For_Child_Process --
+   ----------------------------
 
    procedure Wait_For_Child_Process
      (Status : out Termination_Status;
