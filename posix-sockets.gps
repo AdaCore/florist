@@ -60,6 +60,7 @@ package POSIX.Sockets is
    Default_Protocol : constant Protocol_Number := 0;
 
    type Socket_Address_Pointer is private;
+   Null_Socket_Address : constant Socket_Address_Pointer;
 
    type Socket_Message is private;
    subtype IO_Vector_Range is Positive range
@@ -74,7 +75,7 @@ package POSIX.Sockets is
    type IO_Vector_Array_Pointer is access all IO_Vector_Array;
    procedure Set_IO_Vector_Array
      (Message : in out Socket_Message;
-      Pointer : in     IO_Vector_Array_Pointer);
+      Ptr     : in     IO_Vector_Array_Pointer);
    function Get_IO_Vector_Array (Message : Socket_Message)
      return IO_Vector_Array_Pointer;
 
@@ -99,7 +100,7 @@ package POSIX.Sockets is
    procedure Set_Ancillary_Data
      (Message : in out Socket_Message;
       Data    : in     System.Address;
-      Length  : in     Positive);
+      Length  : in     POSIX.IO_Count);
    procedure Get_Ancillary_Data
      (Message : in  Socket_Message;
       Data    : out System.Address;
@@ -108,7 +109,7 @@ package POSIX.Sockets is
    procedure Accept_Connection
      (Socket            : in  POSIX.IO.File_Descriptor;
       Connection_Socket : out POSIX.IO.File_Descriptor;
-      Name              : out Socket_Address_Pointer);
+      Name              : in  Socket_Address_Pointer);
    function Accept_Connection (Socket : POSIX.IO.File_Descriptor)
      return POSIX.IO.File_Descriptor;
 
@@ -138,7 +139,7 @@ package POSIX.Sockets is
       Of_Type  : in  Socket_Type;
       Protocol : in  Protocol_Number := Default_Protocol);
 
-   type Socket_Address_Info is private;
+   type Socket_Address_Info is limited private;
    type Socket_Address_Info_List is limited private;
    procedure Make_Empty
      (Info_Item : in out Socket_Address_Info_List);
@@ -286,7 +287,7 @@ package POSIX.Sockets is
       Buffer           : in  System.Address;
       Octets_Requested : in  POSIX.IO_Count;
       Octets_Received  : out POSIX.IO_Count;
-      From             : out Socket_Address_Pointer;
+      From             : in  Socket_Address_Pointer;
       Masked_Signals   : in  POSIX.Signal_Masking;
       Options          : in  Message_Option_Set
         := Message_Option_Set (POSIX.Empty_Set));
@@ -295,7 +296,7 @@ package POSIX.Sockets is
       Buffer           : in  System.Address;
       Octets_Requested : in  POSIX.IO_Count;
       Octets_Received  : out POSIX.IO_Count;
-      From             : out Socket_Address_Pointer;
+      From             : in  Socket_Address_Pointer;
       Options          : in  Message_Option_Set
         := Message_Option_Set (POSIX.Empty_Set));
    procedure Receive_Message
@@ -371,11 +372,13 @@ package POSIX.Sockets is
 
 private
 
-   type Socket_Address (Length : POSIX.C.size_t) is record
-      C : aliased POSIX.C.Sockets.struct_sockaddr;
+   type Socket_Address is record
+      Length : POSIX.C.size_t := 0;
+      C      : aliased POSIX.C.Sockets.struct_sockaddr;
    end record;
 
    type Socket_Address_Pointer is access all Socket_Address;
+   Null_Socket_Address : constant Socket_Address_Pointer := null;
 
    type Socket_Address_Info is record
       C : aliased POSIX.C.Sockets.struct_addrinfo;

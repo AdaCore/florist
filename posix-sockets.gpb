@@ -207,11 +207,11 @@ package body POSIX.Sockets is
 
    procedure Set_IO_Vector_Array
      (Message : in out Socket_Message;
-      Pointer : in     IO_Vector_Array_Pointer) is
+      Ptr     : in     IO_Vector_Array_Pointer) is
    begin
-      Message.C.msg_iov := To_iovec_ptr (Pointer (Pointer'First)'Address);
-      Message.C.msg_iovlen := size_t (Pointer.all'Length);
-      Message.io_vector_array_ptr := Pointer;
+      Message.C.msg_iov := To_iovec_ptr (Ptr (Ptr'First)'Address);
+      Message.C.msg_iovlen := size_t (Ptr.all'Length);
+      Message.io_vector_array_ptr := Ptr;
    end Set_IO_Vector_Array;
 
    function Get_IO_Vector_Array (Message : Socket_Message)
@@ -250,7 +250,7 @@ package body POSIX.Sockets is
    procedure Set_Ancillary_Data
      (Message : in out Socket_Message;
       Data    : in     System.Address;
-      Length  : in     Positive) is
+      Length  : in     POSIX.IO_Count) is
    begin
 #     if BSD4_3 then
          null;
@@ -292,7 +292,7 @@ package body POSIX.Sockets is
    procedure Accept_Connection
      (Socket            : in  POSIX.IO.File_Descriptor;
       Connection_Socket : out POSIX.IO.File_Descriptor;
-      Name              : out Socket_Address_Pointer)
+      Name              : in  Socket_Address_Pointer)
    is
       Address_Length : aliased size_t;
    begin
@@ -1297,7 +1297,7 @@ package body POSIX.Sockets is
       Buffer           : in  System.Address;
       Octets_Requested : in  POSIX.IO_Count;
       Octets_Received  : out POSIX.IO_Count;
-      From             : out Socket_Address_Pointer;
+      From             : in  Socket_Address_Pointer;
       Masked_Signals   : in  POSIX.Signal_Masking;
       Options          : in  Message_Option_Set
         := Message_Option_Set (POSIX.Empty_Set))
@@ -1346,7 +1346,7 @@ package body POSIX.Sockets is
       Buffer           : in  System.Address;
       Octets_Requested : in  POSIX.IO_Count;
       Octets_Received  : out POSIX.IO_Count;
-      From             : out Socket_Address_Pointer;
+      From             : in  Socket_Address_Pointer;
       Options          : in  Message_Option_Set
         := Message_Option_Set (POSIX.Empty_Set))
    is
