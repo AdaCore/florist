@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU),                 --
+--  Copyright (c) 1996-1999 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -47,6 +47,7 @@ with Ada.Streams,
      POSIX.Signals,
      System,
      Unchecked_Conversion;
+
 package body POSIX.Message_Queues is
 
    use Ada.Streams;
@@ -76,12 +77,13 @@ package body POSIX.Message_Queues is
       Old_Mask : access Signal_Mask) return Message_Queue_Descriptor is
    begin
       if Result < 0 then
-         Restore_Signals_And_Raise_POSIX_Error (Masked_Signals, Old_Mask);
+         Restore_Signals_And_Raise_POSIX_Error
+           (Masked_Signals, Old_Mask);
+         return Result;
       else
          Restore_Signals (Masked_Signals, Old_Mask);
+         return Result;
       end if;
-
-      return Result;
    end Check_NNeg_And_Restore_Signals;
 
    ------------------------
@@ -187,7 +189,8 @@ package body POSIX.Message_Queues is
    begin
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := mq_open (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
-        To_int (Option_Set (Options).Option or C_File_Mode (Mode)), 0, null);
+        To_int (Option_Set (Options).Option or C_File_Mode (Mode)),
+        0, null);
       return Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Open;
