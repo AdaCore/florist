@@ -256,10 +256,10 @@ package body POSIX is
    --------------
 
    procedure Append
-     (List   : in out POSIX_String_List;
-      In_Str : in POSIX_String) is
-      Tmp : POSIX_String_List;
-      Len : constant Integer := In_Str'Length;
+     (List : in out POSIX_String_List;
+      Str  : in POSIX_String) is
+      Tmp  : POSIX_String_List;
+      Len  : constant Integer := Str'Length;
    begin
       if List = null then
          List := new String_List (Min_String_List_Length);
@@ -274,7 +274,7 @@ package body POSIX is
                Free (List); List := Tmp;
             end if;
             List.List (I) := new POSIX_String (1 .. Len + 1);
-            List.List (I)(1 .. Len) := In_Str;
+            List.List (I)(1 .. Len) := Str;
             List.List (I)(Len + 1) := NUL;
             List.Char (I) := List.List (I)(1)'Unchecked_Access;
             return;

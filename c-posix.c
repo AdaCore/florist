@@ -3238,8 +3238,8 @@ void create_posix() {
 
   my_fprintf(fp,"   procedure Make_Empty (List : in out POSIX_String_List);\n");
 
-  my_fprintf(fp,"   procedure Append (List   : in out POSIX_String_List;\n");
-  my_fprintf(fp,"                     In_Str : in POSIX_String);\n");
+  my_fprintf(fp,"   procedure Append (List : in out POSIX_String_List;\n");
+  my_fprintf(fp,"                     Str  : in POSIX_String);\n");
 
   my_fprintf(fp,"   generic\n");
   my_fprintf(fp,"      with procedure Action\n");
