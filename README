@@ -92,6 +92,7 @@ Sparc/Solaris 2.6
 x86/Solaris 2.6
 Linux glibc2
 DEC Unix 4.0b
+DEC Unix 4.0d
 HP/UX 10.20
 IRIX 6.5
 AiX 4.1
@@ -185,7 +186,7 @@ steps.
   e. Compile the various POSIX Ada package specifications and
      bodies.
 
-3. If this all succeeds, try testing the installation.
+3. If this all succeeds, you can now use Florist.
    See below, for more explanation.
 
 TESTING THE INSTALLAITON:
@@ -242,10 +243,12 @@ See tests/README for more explanation.
 
 COMPILING YOUR PROGRAMS WITH FLORIST:
 
-To compile your own programs with Florist, take a look at
-tests/Makefile, to see how the tests are compiled.  You will need
-to include the gnatmake parameters that specify where to find the
-Florist sources and object library file.
+To compile your own programs with Florist, you will need to include
+the gnatmake parameters that specify where to find the
+Florist sources and object library file. Usually the follwing command
+will be enough :
+
+> gnatmake -Iflorist main -lflorist
 
 If you don't want to keep around the whole Florist installation
 directory, you should be able to copy or move the subdirectory
