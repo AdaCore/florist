@@ -819,7 +819,7 @@ case ${UNAME_SYSTEM} in
       *-*-osf4.0[bc])
 	cp ./configs/pconfig.OSF1-4.0b ./pconfig.h.in;
 	;;
-      *-*-osf4.0[d-z] | *-*-osf4.[1-9]*)
+      *-*-osf4.0[d-z] | *-*-osf4.[1-9]* | *-*-osf5* )
 	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
 	;;
    esac
