@@ -100,6 +100,10 @@ case ${UNAME_SYSTEM} in
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.UnixWare ./pconfig.h.in;
    ;;
+ LynxOS)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.LynxOS ./pconfig.h.in;
+    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
