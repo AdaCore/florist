@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997            Florida  State  University  (FSU),  --
+--  Copyright (c) 1996-1999             Florida  State  University  (FSU),  --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -37,8 +37,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with POSIX.Error_Codes,
-     POSIX.C,
+with POSIX.C,
      POSIX.Implementation,
      Unchecked_Conversion,
      Unchecked_Deallocation;
@@ -414,7 +413,7 @@ package body POSIX is
 
    function Get_Error_Code return Error_Code is
    begin
-      return POSIX.Error_Codes.Value;
+      return POSIX.Implementation.Get_Ada_Error_Code;
    end Get_Error_Code;
 
    ----------------------
@@ -423,7 +422,7 @@ package body POSIX is
 
    procedure Set_Error_Code (Error : in Error_Code) is
    begin
-      POSIX.Error_Codes.Set_Value (Error);
+      POSIX.Implementation.Set_Ada_Error_Code (Error);
    end Set_Error_Code;
 
    ----------------------
