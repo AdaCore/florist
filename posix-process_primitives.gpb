@@ -122,8 +122,6 @@ package body POSIX.Process_Primitives is
 
    function sigemptyset (set : sigset_t_ptr) return int;
    pragma Import (C, sigemptyset, sigemptyset_LINKNAME);
-   function sigfillset (set : sigset_t_ptr) return int;
-   pragma Import (C, sigfillset, sigfillset_LINKNAME);
    function sigaddset (set : sigset_t_ptr; sig : POSIX.Signals.Signal)
      return int;
    pragma Import (C, sigaddset, sigaddset_LINKNAME);
@@ -132,11 +130,6 @@ package body POSIX.Process_Primitives is
       set : sigset_t_ptr;
       oset : sigset_t_ptr) return int;
    pragma Import (C, pthread_sigmask, pthread_sigmask_LINKNAME);
-   function sigprocmask
-     (how : int;
-      set : sigset_t_ptr;
-      oset : sigset_t_ptr) return int;
-   pragma Import (C, sigprocmask, sigprocmask_LINKNAME);
 
    procedure Check_Fatal (Result : int);
    --  See comments in Execute_Template, below.
@@ -162,9 +155,6 @@ package body POSIX.Process_Primitives is
 
    function open (path : char_ptr; oflag : int) return int;
    pragma Import (C, open, open_LINKNAME);
-
-   function fcntl (fildes : int; cmd : int; arg : int) return int;
-   pragma Import (C, fcntl, fcntl_LINKNAME);
 
    function dup2 (fildes, fildes2 : int) return int;
    pragma Import (C, dup2, dup2_LINKNAME);
@@ -449,18 +439,10 @@ package body POSIX.Process_Primitives is
    --  Start_Process  --
    ---------------------
 
-   function execl
-     (path : char_ptr;
-      arg : char_ptr) return int;
-   pragma Import (C, execl, execl_LINKNAME);
    function execv
      (path : char_ptr;
       argv : char_ptr_ptr) return int;
    pragma Import (C, execv, execv_LINKNAME);
-   function execle
-     (path : char_ptr;
-      arg : char_ptr) return int;
-   pragma Import (C, execle, execle_LINKNAME);
    function execve
      (path : char_ptr;
       argv : char_ptr_ptr;
@@ -470,10 +452,6 @@ package body POSIX.Process_Primitives is
      (file : char_ptr;
       argv : char_ptr_ptr) return int;
    pragma Import (C, execvp, execvp_LINKNAME);
-   function execlp
-     (file : char_ptr;
-      arg : char_ptr) return int;
-   pragma Import (C, execlp, execlp_LINKNAME);
 
    function UFork return POSIX.Process_Identification.Process_ID
      renames POSIX.Unsafe_Process_Primitives.Fork;
