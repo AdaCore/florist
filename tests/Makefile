@@ -7,7 +7,6 @@
 #
 .POSIX:
 #
-include ../Config
 MASTERDIR=/part1/florist/tests
 PAVT_VERSION=pavt-1.4.1
 # The following definitions are for using the default installed GNAT
@@ -16,7 +15,7 @@ GNATMAKEFLAGS1 = -I../floristlib -L../floristlib
 #
 GNATMAKEFLAGS2= -cargs -gnatay -gnatwue -largs $(LIBS) -lflorist
 GNATMAKEFLAGS2a= -cargs -largs $(LIBS) -lflorist
-GNATPREPFLAGS = -r
+GNATPREPFLAGS = -c -r
 TOOLS =\
  renumber.adb\
  run_tests_1
