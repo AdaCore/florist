@@ -44,7 +44,10 @@ package body POSIX.Process_Identification is
    use POSIX.C,
        POSIX.Implementation;
 
+#if HAVE_Leroy_Threads then
+begin
    This_Process : Process_ID;
+#end if;
 
    ---------------------
    --  Get_Process_ID --
