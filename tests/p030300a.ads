@@ -61,10 +61,13 @@ package p030300a is
        System.Storage_Elements,
        Test_Parameters;
 
+   pragma Warnings (Off);
+   --  for now, just ignore warnings on 64 bits machines.
    function "+" is
       new Unchecked_Conversion (Integer, Signal_Data);
    function "+" is
       new Unchecked_Conversion (Signal_Data, Integer);
+   pragma Warnings (On);
    function "+" is
       new Unchecked_Conversion (System.Address, Signal_Data);
    function "+" is
