@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1997-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1997-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -248,12 +248,17 @@ package body POSIX_Report is
    procedure Check_Error_Code
      (EC : POSIX.Error_Code;
       Message : String) is
-      E : POSIX.Error_Code := POSIX.Get_Error_Code;
+      EEC : POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
-      if E /= EC then
-         Fail ("incorrect error code: " & POSIX.Image (E));
-         Comment ("Expected error code: " & POSIX.Image (EC));
-         Flush;
+      if EEC /= EC then
+         if Message = "" then
+            Fail ("incorrect error code " & POSIX.Image (EEC)
+               & " [expected " & POSIX.Image (EC) & "]");
+         else
+            Fail ("incorrect error code " & POSIX.Image (EEC)
+               & " [expected " & POSIX.Image (EC) & "]"
+               & ":  " & Message);
+         end if;
       end if;
    end Check_Error_Code;
 
@@ -613,6 +618,7 @@ package body POSIX_Report is
 
    procedure Privileged
      (Privilege : POSIX_Privilege;
+      E         : Ada.Exceptions.Exception_Occurrence;
       Message : String) is
       Error : constant POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
@@ -624,9 +630,14 @@ package body POSIX_Report is
          --  appropriate privilege is equivalent to having root user-id.
          if (Uid_To_Integer
            (POSIX_Process_Identification.Get_Effective_User_ID) = 0) then
-            Fail ("should have appropriate privilege");
+            Fail (E, Message & " - user ID zero has insufficient privilege!");
+         else
+            Fail (E, Message & " - insufficient privilege");
          end if;
+         Privilege_Failure := True;
+         return;
       end if;
+      Unexpected_Exception (E, Message);
    end Privileged;
 
    procedure Privileged
@@ -639,7 +650,17 @@ package body POSIX_Report is
       Error : constant POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
       if Error = Operation_Not_Permitted then
-         Fail (E, Message & " - insufficient privilege");
+         --  .... This is temporary.
+         --  For the longer term, there should be a locally configurable
+         --  mechanism for determining whether we have appropriate
+         --  privilege for various operations.  For now, we assume that
+         --  appropriate privilege is equivalent to having root user-id.
+         if (Uid_To_Integer
+           (POSIX_Process_Identification.Get_Effective_User_ID) = 0) then
+            Fail (E, Message & " - user ID zero has insufficient privilege!");
+         else
+            Fail (E, Message & " - insufficient privilege");
+         end if;
          Privilege_Failure := True;
          return;
       end if;
@@ -749,7 +770,15 @@ package body POSIX_Report is
         Message & ": wrong child");
       if Termination_Cause_Of (Status) /= Exited then
          --  Fail when did not exit
-         Assert (False, Message & ": did not exit");
+         if Termination_Cause_Of (Status) = Terminated_By_Signal then
+            Assert (False, Message & ": terminated by signal" &
+              POSIX_Signals.Signal'Image (Termination_Signal_Of (Status)));
+         elsif Termination_Cause_Of (Status) = Stopped_By_Signal then
+            Assert (False, Message & ": stopped by signal " &
+              POSIX_Signals.Signal'Image (Stopping_Signal_Of (Status)));
+         else
+            Assert (False, Message & ": unknown exit status");
+         end if;
          return;
       end if;
       E := Exit_Status_Of (Status);
@@ -757,8 +786,15 @@ package body POSIX_Report is
          --  child process reports errors via exit status
          Increment_Error_Count (Integer (E));
       elsif E /= Expected then
-         Assert (False, Message & ": exit status ="
+         if E = Failed_Creation_Exit then
+            Assert (False, Message & ": failed process creation (41)");
+         elsif E = Unhandled_Exception_Exit then
+            Assert (False, Message & ": unhandled exception (42)");
+         elsif E = Normal_Exit then
+            Assert (False, Message & ": normal exit (0)");
+         else Assert (False, Message & ": exit status ="
            & Exit_Status'Image (E));
+         end if;
       end if;
       declare
          Sig : Signal;
