@@ -44,6 +44,7 @@
 
 with Ada.IO_Exceptions,
      System,
+     System.Storage_Elements,
      POSIX.C,
      POSIX.Implementation,
      POSIX.Permissions,
@@ -465,14 +466,33 @@ package body POSIX.IO is
       Item           : in T;
       Masked_Signals : in Signal_Masking := RTS_Signals) is
       Result : ssize_t;
+      Written : constant System.Storage_Elements.Storage_Offset := 0;
+      To_Write : System.Storage_Elements.Storage_Offset :=
+        System.Storage_Elements.Storage_Offset (Item'Size / char'Size);
       Old_Mask : aliased Signal_Mask;
+      use System.Storage_Elements;
    begin
       if Item'Size rem char'Size /= 0 then
          Raise_POSIX_Error (Operation_Not_Implemented);
       end if;
+
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
-      Result := write (int (File), Item'Address,
-        size_t (Item'Size / char'Size));
+
+      --  Write is called iteratively because it may only perform a
+      --  partial write, for example in the case the filesystem is
+      --  full. If fewer bytes are written than expected then try
+      --  again to write the remaining portion of the object.
+
+      loop
+         Result := write
+           (int (File), Item'Address + Written, size_t (To_Write - Written));
+         --  Exit if write fails or zero-length write succeeds.
+         exit when Result <= 0;
+         To_Write := To_Write - Storage_Offset (Result);
+         --  Exit if done writing.
+         exit when To_Write = 0;
+      end loop;
+
       Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Generic_Write;
