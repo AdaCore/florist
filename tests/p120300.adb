@@ -199,15 +199,15 @@ begin
             Expect_Exception ("A006");
          end if;
       exception
-         when others =>
-            null;
+      when others => null;
       end;
 
       Unmap_Memory (Start_Addr, Len);
 
       --  Map_Memory with Allow_Execute option
       --  This test need to be further elaborated. Right now we just
-      --  check if Map/Unmap_Memory return with no error ?????
+      --  check whether Map/Unmap_Memory returns with no error.
+
       Start_Addr := Map_Memory
         (Len, Allow_Execute, Map_Shared, Test_fd, Offset);
 
@@ -368,7 +368,8 @@ begin
 
       --  Map_Memory with Allow_Execute option
       --  This test need to be further elaborated. Right now we just
-      --  check if Map/Unmap_Memory return with no error ?????
+      --  check whether Map/Unmap_Memory returns with no error.
+
       Start_Addr := Map_Memory (First, Len, Allow_Execute, Map_Shared,
       Nearby_Address, Test_fd, Offset);
       --  should not fail, since this is the first one,
@@ -435,8 +436,7 @@ begin
          S := "Good!";   --  This should raise an exception.
          Expect_Exception ("A017");
       exception
-         when others =>
-            null;
+      when others => null;
       end;
 
       --  We change the memory protection to Read/Write.
