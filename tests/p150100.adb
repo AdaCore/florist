@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -40,17 +40,17 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  Test for POSIX_Message_Queues package
+--  Test for POSIX_Message_Queues package.
 
---  ... Baker still needs to review changes since last version.
---  A quick look suggests more care needs to be taken to "clean up"
---  after tests, e.g., to close and unlink message queues.
+--  Setup:  When this test is run the executable program p150100b
+--  must be accessible via the pathname "./bin/p150100b".
 
 with Ada_Streams,
      POSIX,
      POSIX_Configurable_System_Limits,
      POSIX_File_Status,
      POSIX_IO,
+     POSIX_Limits,
      POSIX_Message_Queues,
      POSIX_Permissions,
      POSIX_Process_Identification,
@@ -77,22 +77,22 @@ procedure p150100 is
    Mqd : Message_Queue_Descriptor;
    Attr : Attributes;
 
-   Child_Pathname : constant POSIX_String := "./bin/p150100a";
-   Child_Filename : constant POSIX_String := "p150100a";
+   Child_Pathname : constant POSIX_String := "./bin/p150100b";
+   Child_Filename : constant POSIX_String := "p150100b";
 
 begin
 
-   Header ("p150100");
+   Header ("p150100", Root_OK => True);
    Comment ("Parent Process Beginning.");
 
    -----------------------------------------------------------------------
-   --  Assert: The Set/Get_Max_Messages operations on the Attributes type
+   --  The Set/Get_Max_Messages operations on the Attributes type
    --  give consistent results.
 
    begin
       Test ("Set/Get_Max_Messages [15.1.1]");
       Set_Max_Messages (Attr, 10);
-      Assert (Get_Max_Messages (Attr) = 10, "A001");
+      Assert (Get_Max_Messages (Attr) = 10, "A001: get_max_messages");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
@@ -101,13 +101,13 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: The Set/Get_Message_Length operations on the Attributes type
+   --  The Set/Get_Message_Length operations on the Attributes type
    --  give consistent results.
 
    begin
       Test ("Set/Get_Message_Length [15.1.1]");
       Set_Message_Length (Attr, 100);
-      Assert (Get_Message_Length (Attr) = 100, "A004");
+      Assert (Get_Message_Length (Attr) = 100, "A004: get_message_length");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
@@ -116,7 +116,7 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: The Set/Get_Options operations on the Attributes type
+   --  The Set/Get_Options operations on the Attributes type
    --  give consistent results.
 
    begin
@@ -145,12 +145,13 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: Calls to Send shall fail if a message queue resource is
+   --  Calls to Send shall fail if a message queue resource is
    --  temporarily unavailable (such as if the message queue is full).
 
    begin
       Test ("Temporarily Unavailable Error");
       Set_Options (Attr, POSIX_Message_Queues.Non_Blocking);
+      Set_Message_Length (Attr, 100);
       Set_Max_Messages (Attr, 1);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (1),
        Read_Write, Owner_Permission_Set,
@@ -158,14 +159,14 @@ begin
        Attr, POSIX.RTS_Signals);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
-      Assert (False, "Exception Expected");
+      Expect_Exception ("A013: POSIX_Error");
       Close (Mqd);
       Unlink_Message_Queue (TP.Valid_MQ_Name (1));
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Resource_Temporarily_Unavailable then
          Optional (Message_Queues_Option, Operation_Not_Implemented, E1,
-                   "A013");
+                   "A014");
       else
          Close (Mqd);
          Unlink_Message_Queue (TP.Valid_MQ_Name (1));
@@ -173,7 +174,7 @@ begin
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: A Message Queue is actually created by the
+   --  A Message Queue is actually created by the
    --  Open_Or_Create call, can be closed, and can be reopened in any mode.
 
    begin
@@ -182,12 +183,12 @@ begin
         Read_Write, Owner_Permission_Set);
       begin
          Assert (Is_Message_Queue
-           (Get_File_Status (TP.Valid_MQ_Name (2))), "file status wrong");
+           (Get_File_Status (TP.Valid_MQ_Name (2))), "A015: file status");
       exception
       when E : POSIX_Error =>
          if Get_Error_Code = No_Such_File_Or_Directory then
             Comment ("message queue is not in file system");
-         else Unexpected_Exception (E, "get file status failed");
+         else Unexpected_Exception (E, "A016: get file status failed");
          end if;
       end;
       Close (Mqd);
@@ -199,12 +200,12 @@ begin
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A014");
-   when E2 : others => Unexpected_Exception (E2, "A015");
+        Operation_Not_Implemented, E1, "A017");
+   when E2 : others => Unexpected_Exception (E2, "A018");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: The Unlink_Message_Queue procedure works.
+   --  The Unlink_Message_Queue procedure works.
 
    begin
       Test ("Unlink_Message_Queue [15.1.4]");
@@ -216,52 +217,54 @@ begin
       Unlink_Message_Queue (TP.Valid_MQ_Name (3));
    exception
    when E1 : POSIX_Error =>
-      Optional (Message_Queues_Option, Operation_Not_Implemented, E1, "A016");
-   when E2 : others => Unexpected_Exception (E2, "A017");
+      Optional (Message_Queues_Option, Operation_Not_Implemented, E1, "A019");
+   when E2 : others => Unexpected_Exception (E2, "A020");
    end;
 
 
    -----------------------------------------------------------------------
-   --  Assert: Error Code is No_Such_File_Or_Directory when trying to
+   --  Error Code is No_Such_File_Or_Directory when trying to
    --  open an unlinked message queue.
 
    begin
       Test ("Open unlinked message queue");
       Mqd := Open (TP.Valid_MQ_Name (3), Read_Write);
+      Expect_Exception ("A021: POSIX_Error");
       Close (Mqd);
-      Assert (False, "Exception Expected");
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= No_Such_File_Or_Directory then
          Optional (Message_Queues_Option, Operation_Not_Implemented, E1,
-                    "A018");
+                    "A022");
       end if;
-   when E2 : others => Unexpected_Exception (E2, "A019");
+   when E2 : others => Unexpected_Exception (E2, "A023");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: Error Code is No_Such_File_Or_Directory when trying to
+   --  Error Code is No_Such_File_Or_Directory when trying to
    --  open a message queue which has not been created.
 
    begin
       Test ("Open never-created message queue");
       Mqd := Open (TP.Valid_MQ_Name (4), Read_Write);
+      Expect_Exception ("A024: POSIX_Error");
       Close (Mqd);
-      Assert (False, "Exception Expected");
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= No_Such_File_Or_Directory then
          Optional (Message_Queues_Option, Operation_Not_Implemented, E1,
-                   "A020");
+                   "A025");
       end if;
-   when E2 : others => Unexpected_Exception (E2, "A021");
+   when E2 : others => Unexpected_Exception (E2, "A026");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: The Open_Or_Create procedure works when attributes are
+   --  The Open_Or_Create procedure works when attributes are
    --  passed as a parameter, and that attributes remain consistent after
    --  creation of message queue.
 
+   declare
+      Local_Attr : Attributes;
    begin
       Test ("Open_Or_Create w/ Attributes");
       Set_Max_Messages (Attr, 10);
@@ -271,22 +274,22 @@ begin
        Read_Write, Owner_Permission_Set,
        POSIX_IO.Open_Option_Set (POSIX_Message_Queues.Get_Options (Attr)),
        Attr, POSIX.RTS_Signals);
-      Attr := POSIX_Message_Queues.Get_Attributes (Mqd);
+      Local_Attr := POSIX_Message_Queues.Get_Attributes (Mqd);
       Comment ("Message_Length set to " &
-       Integer'Image (Get_Message_Length (Attr)));
-      Assert (Get_Max_Messages (Attr) = 10, "max messages");
-      Assert (Get_Message_Length (Attr) = 10, "message length");
+       Integer'Image (Get_Message_Length (Local_Attr)));
+      Assert (Get_Max_Messages (Local_Attr) = 10, "A027: max messages");
+      Assert (Get_Message_Length (Local_Attr) = 10, "A028: message length");
       Close (Mqd);
       Unlink_Message_Queue (TP.Valid_MQ_Name (4));
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A022");
-   when E2 : others => Unexpected_Exception (E2, "A023");
+        Operation_Not_Implemented, E1, "A029");
+   when E2 : others => Unexpected_Exception (E2, "A030");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: Message can be sent to a queue and then received from the
+   --  Message can be sent to a queue and then received from the
    --  queue.
 
    declare
@@ -295,64 +298,64 @@ begin
       Msg  : Ada_Streams.Stream_Element_Array (1 .. 10);
    begin
       Test ("Send [15.1.5]");
-      Comment ("Message Length set to " &
-       Integer'Image (Get_Message_Length (Attr)));
+      Set_Max_Messages (Attr, 10);
+      Set_Message_Length (Attr, 10);
+      Set_Options (Attr, POSIX_Message_Queues.Non_Blocking);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (5),
-       Read_Write, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), Attr);
+       Read_Write, Owner_Permission_Set, Empty_Set, Attr);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
       Receive (Mqd, Msg, Last, Prio);
-      Assert (Prio = 1, "priority");
+      Assert (Prio = 1, "A031: incorrect priority");
       Assert (Last = 10 and then Msg = To_Stream_Element_Array ("Hello....."),
-           "A024");
+           "A032: wrong message");
       Close (Mqd);
       Unlink_Message_Queue (TP.Valid_MQ_Name (5));
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A025");
-   when E2 : others => Unexpected_Exception (E2, "A026");
+        Operation_Not_Implemented, E1, "A033");
+   when E2 : others => Unexpected_Exception (E2, "A034");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: A message can be received and that the Priority is set
+   --  A message can be received and that the Priority is set
    --  properly.
 
    declare
       Last : Ada_Streams.Stream_Element_Offset;
       Prio : Message_Priority;
       Msg  : Ada_Streams.Stream_Element_Array (1 .. 5);
-      ATR  : Attributes;
    begin
       Test ("Receive [15.1.6]");
-      Set_Message_Length (ATR, 5);
-      Set_Max_Messages (ATR, 1);
+      Set_Options (Attr, POSIX_Message_Queues.Non_Blocking);
+      Set_Message_Length (Attr, 5);
+      Set_Max_Messages (Attr, 1);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (6),
-       Read_Write, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), ATR);
+       Read_Write, Owner_Permission_Set, Empty_Set, Attr);
       Send (Mqd, To_Stream_Element_Array ("Hello"), 1);
       Receive (Mqd, Msg, Last, Prio);
-      Assert (Prio = 1, "priority");
+      Assert (Prio = 1, "A035: incorrect priority");
       Assert (Last = 5 and then Msg = To_Stream_Element_Array ("Hello"),
-              "Message Data Corrupted");
+              "A036: message data corrupted");
       Close (Mqd);
       Unlink_Message_Queue (TP.Valid_MQ_Name (6));
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A027");
-   when E2 : others => Unexpected_Exception (E2, "A028");
+        Operation_Not_Implemented, E1, "A037");
+   when E2 : others => Unexpected_Exception (E2, "A038");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: The Request_Notify and Remove_Notify functions can be
+   --  The Request_Notify and Remove_Notify functions can be
    --  called.
 
    declare
       Event : Signal_Event;
    begin
       Test ("Request/Remove_Notify [15.1.8]");
-      Mqd := Open (TP.Valid_MQ_Name (6), Read_Write);
+      Mqd := Open_Or_Create (TP.Valid_MQ_Name (6),
+       Read_Write, Owner_Permission_Set, Empty_Set, Attr);
       Set_Notification (Event, No_Notification);
       Set_Signal (Event, Signal_Kill);
       Request_Notify (Mqd, Event);
@@ -364,12 +367,12 @@ begin
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option, Realtime_Signals_Option,
-        Operation_Not_Implemented, E1, "A029");
-   when E2 : others => Unexpected_Exception (E2, "A030");
+        Operation_Not_Implemented, E1, "A039");
+   when E2 : others => Unexpected_Exception (E2, "A040");
    end;
 
    -----------------------------------------------------------------------
-   --  Assert: Communication is possible between two processes
+   --  Communication is possible between two processes
    --  using Message_queues.
 
    declare
@@ -377,33 +380,30 @@ begin
       Child_Status : Termination_Status;
       Template : Process_Template;
       Arg_List : POSIX_String_List;
-      ATR : Attributes;
    begin
       Test ("Two-process communication");
       POSIX.Append (Arg_List, Child_Filename);
       Open_Template (Template);
       Start_Process (Child_PID, Child_Pathname, Template, Arg_List);
       Comment ("Message Receiver process started.");
-      Set_Message_Length (ATR, 10);
-      Set_Max_Messages (ATR, 1);
+      Set_Options (Attr, POSIX_Message_Queues.Non_Blocking);
+      Set_Message_Length (Attr, 10);
+      Set_Max_Messages (Attr, 1);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (7),
-       Read_Write, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), ATR);
+       Read_Write, Owner_Permission_Set, Empty_Set, Attr);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
       Wait_For_Child_Process (Child_Status, Child_PID);
-      if Exit_Status_Of (Child_Status) /= Normal_Exit then
-         Fail ("Message not received by child process.");
-      end if;
+      Check_Child_Status (Child_Status, Child_PID, Normal_Exit, "A041");
       Unlink_Message_Queue (TP.Valid_MQ_Name (7));
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A031");
-   when E2 : others => Unexpected_Exception (E2, "A032");
+        Operation_Not_Implemented, E1, "A042");
+   when E2 : others => Unexpected_Exception (E2, "A043");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Bad_File_Descriptor error code is given when
+   --  The Bad_File_Descriptor error code is given when
    --  attempting to access a node with improper permissions.
 
    begin
@@ -413,42 +413,53 @@ begin
          POSIX_IO.Read_Only, Owner_Permission_Set);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
       Unlink_Message_Queue (TP.Valid_MQ_Name (8));
-      Assert (False,
-              "Expected POSIX_ERROR with Error Code Bad_File_Descriptor");
+      Expect_Exception ("A044: POSIX_Error, Bad_File_Descriptor");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A033");
-   when E2 : others => Unexpected_Exception (E2, "A034");
+        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A045");
+   when E2 : others => Unexpected_Exception (E2, "A046");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The File_Exists error code is given when attempting to
-   --  Open_Or_Create a message queue with the Exclusive option.
-   declare
-      ATR : Attributes;
+   --  The File_Exists error code is given when attempting to
+   --  Open_Or_Create a message queue with the Exclusive option,
+   --  if there already exists a message queue with the same name.
+   --  Retest for each of the two overloaded versions.
+
    begin
       Test ("File_Exists Error");
-      Set_Max_Messages (ATR, 1);
-      Set_Message_Length (ATR, 10);
-      Set_Options (ATR, Message_Queue_Options (POSIX_IO.Exclusive));
+      Set_Max_Messages (Attr, 1);
+      Set_Message_Length (Attr, 10);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (9),
         POSIX_IO.Read_Only, Owner_Permission_Set,
-        POSIX_IO.Open_Option_Set (Get_Options (ATR)),
-        ATR);
+        POSIX_IO.Empty_Set, Attr);
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (9),
        POSIX_IO.Read_Only,
-       Owner_Permission_Set, POSIX_IO.Open_Option_Set (Exclusive));
-      Assert (False, "Expected POSIX_ERROR with Error Code File_Exists");
+       Owner_Permission_Set, POSIX_IO.Exclusive);
+      Expect_Exception ("A047: POSIX_ERROR, File_Exists");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, File_Exists, E1, "A035");
-   when E2 : others => Unexpected_Exception (E2, "A036");
+        Operation_Not_Implemented, File_Exists, E1, "A048");
+   when E2 : others => Unexpected_Exception (E2, "A049");
+   end;
+
+   begin
+      Test ("File_Exists Error, second version");
+      Mqd := Open_Or_Create (TP.Valid_MQ_Name (9),
+       POSIX_IO.Read_Only,
+       Owner_Permission_Set, POSIX_IO.Exclusive, Attr);
+      Expect_Exception ("A050: POSIX_ERROR, File_Exists");
+   exception
+   when E1 : POSIX_Error =>
+      Optional (Message_Queues_Option,
+        Operation_Not_Implemented, File_Exists, E1, "A051");
+   when E2 : others => Unexpected_Exception (E2, "A052");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Bad_File_Descriptor error code is given when
+   --  The Bad_File_Descriptor error code is given when
    --  attempting to close an invalid message queue.
 
    declare
@@ -456,107 +467,98 @@ begin
    begin
       Test ("Bad File Descriptor Error");
       QD := POSIX_Message_Queues.Open (TP.Valid_MQ_Name (9),
-       POSIX_IO.Read_Only,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set));
+       POSIX_IO.Read_Only, Empty_Set);
       Close (QD);
       POSIX_Message_Queues.Close (QD);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Bad_File_Descriptor");
+      Expect_Exception ("A053: POSIX_ERROR, Bad_File_Descriptor");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A037");
-   when E2 : others => Unexpected_Exception (E2, "A038");
+        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A054");
+   when E2 : others => Unexpected_Exception (E2, "A055");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The No_Such_File_Or_Directory error code is given when
+   --  The No_Such_File_Or_Directory error code is given when
    --  attempting to unlink a nonexistent message queue.
 
    begin
       Test ("No_Such_File_Or_Directory Error");
-      Unlink_Message_Queue (TP.Valid_MQ_Name (12));
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code No_Such_File_Or_Directory");
+      Unlink_Message_Queue (TP.Valid_MQ_Name (10));
+      Expect_Exception ("A056: POSIX_Error, No_Such_File_Or_Directory");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, No_Such_File_Or_Directory, E1, "A039");
-   when E2 : others => Unexpected_Exception (E2, "A040");
+        Operation_Not_Implemented, No_Such_File_Or_Directory, E1, "A057");
+   when E2 : others => Unexpected_Exception (E2, "A058");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Bad_File_Descriptor error code is given when
+   --  The Bad_File_Descriptor error code is given when
    --  attempting to send to an invalid message queue.
 
    declare
       Uninitialized_QD : Message_Queue_Descriptor;
       pragma Warnings (Off, Uninitialized_QD);
-      --  Let this variable uninitialized.
    begin
       Test ("Send to Invalid Message Queue");
       Send (Uninitialized_QD, To_Stream_Element_Array ("Hello....."), 0);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Bad_File_Descriptor");
+      Expect_Exception ("A059: POSIX_ERROR, Bad_File_Descriptor");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A041");
-   when E2 : others => Unexpected_Exception (E2, "A042");
+        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A060");
+   when E2 : others => Unexpected_Exception (E2, "A061");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Invalid_Argument error code is given when
+   --  The Invalid_Argument error code is given when
    --  attempting to send a message with a priority that is too high.
-
-   --  ??????
-   --  This may need checking in POSIX.5b.
-   --  Florist rases Constraint_Error for this case,
-   --  Is that legal?
 
    declare
       Mqd : Message_Queue_Descriptor;
    begin
       Test ("Invalid_Argument Error");
       Mqd := Open_Or_Create (TP.Valid_MQ_Name (9),
-       Write_Only, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), Attr);
+       Write_Only, Owner_Permission_Set, Empty_Set, Attr);
       Send (Mqd, To_Stream_Element_Array ("Hello....."),
        POSIX_Configurable_System_Limits.Message_Priority_Maximum + 1);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Invalid_Argument");
+      Expect_Exception ("A062: POSIX_ERROR, Invalid_Argument");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Invalid_Argument, E1, "A043");
+        Operation_Not_Implemented, Invalid_Argument, E1, "A063");
    when Constraint_Error =>
-      null;
-   when E2 : others => Unexpected_Exception (E2, "A044");
+      Assert (POSIX_Configurable_System_Limits.Message_Priority_Maximum <=
+        POSIX_Limits.Message_Priority_Maxima'Last, "A064");
+   when E2 : others => Unexpected_Exception (E2, "A065");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Message_Too_Long error code is given when attempting
+   --  The Message_Too_Long error code is given when attempting
    --  to send a message that is longer than the maximum length.
 
    begin
       Test ("Message_Too_Long Error");
+      Set_Options (Attr, POSIX_Message_Queues.Non_Blocking);
+      Set_Max_Messages (Attr, 10);
       Set_Message_Length (Attr, 1);
-      Mqd := Open_Or_Create (TP.Valid_MQ_Name (9),
+      Mqd := Open_Or_Create (TP.Valid_MQ_Name (10),
        Write_Only, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), Attr);
+       POSIX_IO.Non_Blocking, Attr);
+      Comment ("Sending excessively long message");
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Message_Too_Long");
+      Expect_Exception ("A066: POSIX_ERROR, Message_Too_Long");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Message_Too_Long, E1, "A045");
-   when E2 : others => Unexpected_Exception (E2, "A046");
+        Operation_Not_Implemented, Message_Too_Long, E1, "A067");
+   when E2 : others => Unexpected_Exception (E2, "A068");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Bad_File_Descriptor error code is given when
-   --  attempting to receive an invalid message queue.
+   --  The Bad_File_Descriptor error code is given when
+   --  attempting to receive from an invalid message queue.
 
    declare
       QD : Message_Queue_Descriptor;
@@ -565,22 +567,19 @@ begin
       Prio : Integer;
    begin
       Test ("Receive Invalid Message Queue");
-      QD := POSIX_Message_Queues.Open (TP.Valid_MQ_Name (10),
-       POSIX_IO.Read_Only,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set));
+      Mqd := Open (TP.Valid_MQ_Name (10), Write_Only);
       Close (QD);
       Receive (QD, AR, Last, Prio);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Bad_File_Descriptor");
+      Expect_Exception ("A069: POSIX_ERROR, Bad_File_Descriptor");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A047");
-   when E2 : others => Unexpected_Exception (E2, "A048");
+        Operation_Not_Implemented, Bad_File_Descriptor, E1, "A070");
+   when E2 : others => Unexpected_Exception (E2, "A071");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Message_Too_Long error code is given when attempting
+   --  The Message_Too_Long error code is given when attempting
    --  to receive a message into an array that is shorter than the
    --  Message Length attribute of the message queue.
 
@@ -591,27 +590,25 @@ begin
    begin
       Test ("Receive to Short Array");
       Set_Message_Length (Attr, 10);
-      Mqd := Open_Or_Create (TP.Valid_MQ_Name (10),
-       Read_Write, Owner_Permission_Set,
-       POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set), Attr);
+      Mqd := Open_Or_Create (TP.Valid_MQ_Name (11),
+       Read_Write, Owner_Permission_Set, Empty_Set, Attr);
       Send (Mqd, To_Stream_Element_Array ("Hello....."), 1);
       Receive (Mqd, AR, Last, Prio);
-      Assert (False,
-       "Expected POSIX_ERROR with Error Code Message_Too_Long");
+      Expect_Exception ("A072: POSIX_Error, Message_Too_Long");
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, Message_Too_Long, E1, "A049");
-   when E2 : others => Unexpected_Exception (E2, "A050");
+        Operation_Not_Implemented, Message_Too_Long, E1, "A073");
+   when E2 : others => Unexpected_Exception (E2, "A074");
    end;
 
    ------------------------------------------------------------------------
-   --  Assert: The Generic_Message_Passing package can be used.
+   --  The Generic_Message_Passing package can be used.
 
    declare
       package Int_Queues is new Generic_Message_Queues (Integer);
       GQD : Message_Queue_Descriptor;
-      ATR : Attributes;
+      Local_Attr : Attributes;
       SI : Integer;
       RI : Integer;
       Prio : Integer;
@@ -619,39 +616,49 @@ begin
       Test ("Generic Message Queues [15.1.7]");
       SI := 2;
       Prio := 1;
-      Set_Max_Messages (ATR, 10);
-      Set_Message_Length (ATR, 4);
-      GQD := Open_Or_Create (TP.Valid_MQ_Name (11),
+      Set_Max_Messages (Local_Attr, 10);
+      Set_Message_Length (Local_Attr, 4);
+      GQD := Open_Or_Create (TP.Valid_MQ_Name (12),
        Read_Write,
-       Owner_Permission_Set, POSIX_IO.Open_Option_Set (POSIX_IO.Empty_Set),
-       ATR);
-      ATR := Get_Attributes (GQD);
-      Comment ("Max Messages = " & Integer'Image (Get_Max_Messages (ATR)));
-      Comment ("Message Length = " & Integer'Image (Get_Message_Length (ATR)));
+       Owner_Permission_Set, Empty_Set,
+       Local_Attr);
+      Local_Attr := Get_Attributes (GQD);
+      Comment ("Max Messages = " &
+        Integer'Image (Get_Max_Messages (Local_Attr)));
+      Comment ("Message Length = " &
+        Integer'Image (Get_Message_Length (Local_Attr)));
       Int_Queues.Send (GQD, SI, 1);
       Comment ("Message sent");
       Int_Queues.Receive (GQD, RI, Prio);
       Comment ("Message received");
-      if RI /= SI then
-         Fail ("Integer corrupted during transmission.");
-      end if;
-      Unlink_Message_Queue (TP.Valid_MQ_Name (11));
+      Assert (RI = SI, "A075: integer corrupted during transmission");
+      Unlink_Message_Queue (TP.Valid_MQ_Name (12));
    exception
    when E1 : POSIX_Error =>
       Optional (Message_Queues_Option,
-        Operation_Not_Implemented, E1, "A051");
-   when E2 : others => Unexpected_Exception (E2, "A052");
+        Operation_Not_Implemented, E1, "A076");
+   when E2 : others => Unexpected_Exception (E2, "A077");
    end;
 
    ------------------------------------------------------------------------
 
-   --  .... Should add a loop here, with an exception handler inside,
-   --  to loop over the array of MQ names used, and unlink them all.
+   --  Loop over the array of MQ names used, and unlink them all.
+
+   for I in 1 .. 12 loop
+      begin
+         Unlink_Message_Queue (TP.Valid_MQ_Name (I));
+      exception
+      when E1 : POSIX_Error =>
+         Optional (Message_Queues_Option,
+           Operation_Not_Implemented, No_Such_File_Or_Directory, E1, "A078");
+      when E2 : others => Unexpected_Exception (E2, "A079");
+      end;
+   end loop;
 
    ------------------------------------------------------------------------
 
    Done;
 
 exception
-when E : others => Fatal_Exception (E, "A053");
+when E : others => Fatal_Exception (E, "A080");
 end p150100;
