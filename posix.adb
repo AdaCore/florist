@@ -37,14 +37,18 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with POSIX.C,
+with Ada.Streams,
+     POSIX.C,
      POSIX.Implementation,
+     System,
      Unchecked_Conversion,
      Unchecked_Deallocation;
+
 pragma Elaborate (POSIX.C);
 pragma Elaborate (POSIX.Implementation);
 package body POSIX is
 
+   use Ada.Streams;
    use POSIX.C;
    use POSIX.Implementation;
 
@@ -54,18 +58,18 @@ package body POSIX is
    --  Unchecked Conversions  --
    -----------------------------
 
-   type String_Ptr is access all String;
-   type Stream_Element_Array_Ptr is
-      access all Ada_Streams.Stream_Element_Array;
+   type Big_POSIX_String_Ptr is access all POSIX_String (Positive'Range);
+   type Big_String_Ptr is access all String (Positive'Range);
+   type Big_Stream_Element_Array_Ptr is access all
+     Ada_Streams.Stream_Element_Array
+     (Ada_Streams.Stream_Element_Offset'Range);
 
-   function sptr_to_psptr is new Unchecked_Conversion
-      (String_Ptr, POSIX_String_Ptr);
-   function psptr_to_sptr is new Unchecked_Conversion
-      (POSIX_String_Ptr, String_Ptr);
-   function smelmptr_to_psptr is new Unchecked_Conversion
-      (Stream_Element_Array_Ptr, POSIX_String_Ptr);
-   function psptr_to_smelmptr is new Unchecked_Conversion
-      (POSIX_String_Ptr, Stream_Element_Array_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_String_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_POSIX_String_Ptr);
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_Stream_Element_Array_Ptr);
 
    -----------------------
    --  To_POSIX_String  --
@@ -74,7 +78,7 @@ package body POSIX is
    function To_POSIX_String (Str : String)
       return POSIX_String is
    begin
-      return sptr_to_psptr (Str'Unrestricted_Access).all;
+      return From_Address (Str'Address) (Str'Range);
    end To_POSIX_String;
 
    -----------------
@@ -83,7 +87,7 @@ package body POSIX is
 
    function To_String (Str : POSIX_String) return String is
    begin
-      return psptr_to_sptr (Str'Unrestricted_Access).all;
+      return From_Address (Str'Address) (Str'Range);
    end To_String;
 
    ----------------------
@@ -127,9 +131,13 @@ package body POSIX is
    -------------------------------
 
    function To_Stream_Element_Array (Buffer : POSIX_String)
-      return Ada_Streams.Stream_Element_Array is
+      return Ada_Streams.Stream_Element_Array
+   is
+      subtype Offset is Stream_Element_Offset;
    begin
-      return psptr_to_smelmptr (Buffer'Unrestricted_Access).all;
+      return From_Address (Buffer'Address)
+        ((Offset (Buffer'First) + Offset'First - 1) ..
+         (Offset (Buffer'Last) + Offset'First - 1));
    end To_Stream_Element_Array;
 
    -----------------------
@@ -137,9 +145,13 @@ package body POSIX is
    -----------------------
 
    function To_POSIX_String
-     (Buffer : Ada_Streams.Stream_Element_Array) return POSIX_String is
+     (Buffer : Ada_Streams.Stream_Element_Array) return POSIX_String
+   is
+      subtype Offset is Stream_Element_Offset;
    begin
-      return smelmptr_to_psptr (Buffer'Unrestricted_Access).all;
+      return From_Address (Buffer'Address)
+        (Positive (Buffer'First - Offset'First + 1) ..
+         Positive (Buffer'Last - Offset'First + 1));
    end To_POSIX_String;
 
    -------------------
