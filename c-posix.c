@@ -2803,11 +2803,12 @@ void create_limits() {
 #endif
 
 #ifdef SEM_VALUE_MAX
-#if SEM_VALUE_MAX > INT_MAX
-  gmaxnn("Semaphores_Value",INT_MAX);
-#else
-  gmaxnn("Semaphores_Value",SEM_VALUE_MAX);
-#endif
+  /* Semaphores_Value bounds are declared as Natural, and thus
+     cannot exceed INT_MAX. */
+  if (SEM_VALUE_MAX > INT_MAX)
+    gmaxnn("Semaphores_Value",INT_MAX);
+  else
+    gmaxnn("Semaphores_Value",SEM_VALUE_MAX);
 #else
 #ifdef _POSIX_SEM_VALUE_MAX
   gmaxn("Semaphores_Value",_POSIX_SEM_VALUE_MAX);
