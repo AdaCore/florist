@@ -73,15 +73,19 @@
 
 */
 
+#define _POSIX_C_SOURCE 199506L
+#define _REENTRANT
 #define _POSIX_C_SIGNALS_C
 #include "pconfig.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <pthread.h>
+#include <string.h>
 
 /* Uncomment the following only for debugging. */
 /* #define DEBUG */
@@ -356,6 +360,7 @@ int namedsigs = sizeof (sigs) / sizeof (int);
 int nsigs;
 int *oksigs;
 int *oksigs_nodefault;
+int *oksigs_stop;
 
 void comment (char const *msg) {
 #ifdef DEBUG
@@ -383,7 +388,8 @@ void handler_parent (int sig) {
    }
 }
 
-void print_package (int *oksigs, int *oksigs_nodefault) {
+void print_package
+  (int *oksigs, int *oksigs_nodefault, int *oksigs_stop) {
    int sig;
    FILE *fp;
 
@@ -407,16 +413,31 @@ void print_package (int *oksigs, int *oksigs_nodefault) {
       else fprintf (fp, ", ");
    }
    fprintf (fp, "\n");
-   fprintf (fp, "   --  No_Default (Sig) = True iff we need to"
+   fprintf (fp, "   --  Default_Is_Ignore (Sig) = True iff we need to"
      " override the default\n");
    fprintf (fp, "   --  treatment of Sig with a do-nothing handler"
      " before we try to\n");
    fprintf (fp, "   --  use sigwait() with it.\n\n");
-   fprintf (fp, "   No_Default : constant array (0 .. %d) of Boolean :=\n",
+   fprintf (fp, "   Default_Is_Ignore : constant array"
+     " (0 .. %d) of Boolean :=\n",
      nsigs - 1);
    fprintf (fp, "     (");
    for (sig = 0; sig < nsigs; sig++) {
       if ((oksigs[sig] != 1) && (oksigs_nodefault[sig] == 1))
+         fprintf (fp, " True");
+      else  fprintf (fp, "False");
+      if (sig == nsigs - 1) fprintf (fp, ");\n");
+      else if (sig % 10 == 9) fprintf (fp, ",\n      ");
+      else fprintf (fp, ", ");
+   }
+   fprintf (fp, "\n   --  Default_Is_Stop (Sig) = True iff the default"
+     " action of Sig\n   --  is to stop the process.\n\n");
+   fprintf (fp, "   Default_Is_Stop : constant array (0 .. %d)"
+     " of Boolean :=\n",
+     nsigs - 1);
+   fprintf (fp, "     (");
+   for (sig = 0; sig < nsigs; sig++) {
+      if (oksigs_stop[sig] == 1)
          fprintf (fp, " True");
       else  fprintf (fp, "False");
       if (sig == nsigs - 1) fprintf (fp, ");\n");
@@ -452,13 +473,19 @@ int guess_nsigs () {
    sigfillset (&set);
    for (sig = 0; sig < 1024; sig++) {
       result = sigismember (&set, sig);
-      if (result == 1) last_good = sig;
-      else if ( (result == -1) && (first_bad = -1)) first_bad = sig;
+      if (result == 1) {
+         last_good = sig;
+      } else if ((result == -1) && (first_bad == -1)) {
+         if (sig == 0) {
+            fprintf (stderr, "WARNING: C library problem? "
+             "sigfillset does not include zero\n");
+         } else  first_bad = sig;
+      }
    }
    if (last_good == 1023)
-      comment ("WARNING: signal range estimate probably too small");
+      fprintf (stderr, "WARNING: signal range estimate probably too small\n");
    if (first_bad < last_good) {
-      comment ("WARNING: signal range estimate may be invalid");
+      fprintf (stderr, "WARNING: signal range estimate may be invalid\n");
       last_good = first_bad - 1;
    }
    return last_good + 1;
@@ -505,6 +532,7 @@ void parent_process(pid_t child, int *oksigs, int sig) {
 	 exit (-1);
       }
       if (WIFSTOPPED (status)) {
+         oksigs_stop [sig] = 1;
 	 comment ("      PARENT: sending SIGCONT to stopped child");
 	 kill (child, SIGCONT);
 	 alarm (0);
@@ -538,7 +566,6 @@ void test_signal (int nodefaults, int signal) {
    int ret;
 
    act.sa_flags = 0;
-
    act.sa_handler = handler;
    if (sigaction (signal, &act, NULL)) {
       if (errno == EINVAL) {
@@ -574,10 +601,10 @@ void test_signal (int nodefaults, int signal) {
    if (sigaddset (&set, signal)) perror ("sigaddset");
    if (sigaddset (&set, SIGALRM)) perror ("sigaddset");
      comment ("  masking signal");
-   if (ret = pthread_sigmask (SIG_BLOCK, &set, NULL))
+   if ((ret = pthread_sigmask (SIG_BLOCK, &set, NULL)))
      fprintf (stderr, "  *** pthread_sigmask (SIG_BLOCK): %s\n",
        strerror (ret));
-   if (ret = pthread_sigmask (SIG_BLOCK, &set, &oset))
+   if ((ret = pthread_sigmask (SIG_BLOCK, &set, &oset)))
      fprintf (stderr, "  *** pthread_sigmask (SIG_BLOCK 2): %s\n",
        strerror (ret));
    if (sigismember (&oset, signal) == 0) {
@@ -590,6 +617,7 @@ void test_signal (int nodefaults, int signal) {
    comment ("  setting one second timeout");
    alarm (1);
    comment ("  doing sigwait");
+
 #ifndef _CMA_OS_
    if (ret = sigwait (&set, &sig)) {
 #else
@@ -623,7 +651,6 @@ void test_signals (int nodefaults, int *oksigs) {
  */
 
    int i;
-   int sig;
    int signal;
    pid_t child;
 
@@ -640,7 +667,7 @@ void test_signals (int nodefaults, int *oksigs) {
       else
         fprintf (stderr, "testing signal: %2d            ...", signal);
       fflush (stderr);
-      if (child = fork ()) 
+      if ((child = fork ()))
          parent_process (child, oksigs, signal);
       else {
          test_signal (nodefaults, signal);
@@ -650,17 +677,18 @@ void test_signals (int nodefaults, int *oksigs) {
    }
 }
 
-int main (argc, argv)
-   int argc;
-   char **argv;
-{
+int main (int argc, char *argv[]){
+
    int i;
    struct sigaction act;
 
    nsigs = guess_nsigs();
+   fprintf (stderr, "nsigs: %d\n", nsigs);
    oksigs = (int *) malloc (nsigs * sizeof (int));
    oksigs_nodefault = (int *) malloc (nsigs * sizeof (int));
-   for (i = 0; i < nsigs; i++) oksigs[i] = oksigs_nodefault[i] = 0;
+   oksigs_stop = (int *) malloc (nsigs * sizeof (int));
+   for (i = 0; i < nsigs; i++)
+     oksigs[i] = oksigs_nodefault[i] = oksigs_stop[i]= 0;
 
    act.sa_flags = 0;
    act.sa_handler = handler;
@@ -676,7 +704,7 @@ int main (argc, argv)
 
    test_signals (0, oksigs);
    test_signals (1, oksigs_nodefault);
-   print_package (oksigs, oksigs_nodefault);
+   print_package (oksigs, oksigs_nodefault, oksigs_stop);
    fprintf (stderr, "done.\n");
    return 0;
 }
