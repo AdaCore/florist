@@ -798,6 +798,7 @@ package body POSIX.Signals is
       Begin_Critical_Section;
       act.sa_flags := 0;
       act.sa_handler := Null_Handler'Address;
+      Check (sigemptyset (act.sa_mask'Unrestricted_Access));
       Result := sigaction (int (Sig),
         act'Unchecked_Access, oact'Unchecked_Access);
       End_Critical_Section;
