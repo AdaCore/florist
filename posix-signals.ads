@@ -58,6 +58,8 @@ package POSIX.Signals is
 #  else
    type Signal is range 0 .. 64;
 #  end if;
+   for Signal'Size use POSIX.C.int'Size;
+
    function Image (Sig : Signal) return String;
    function Value (Str : String) return Signal;
 
