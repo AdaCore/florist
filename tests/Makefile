@@ -12,7 +12,7 @@ include ../Config
 MASTERDIR=/part1/florist/tests
 PAVT_VERSION=pavt-1.3
 GNATMAKEFLAGS1 = -g -A../../gnarl -A../floristlib -L../floristlib
-GNATMAKEFLAGS2= -cargs -gnatg -gnata -largs $(LIBS) -lflorist
+GNATMAKEFLAGS2= -cargs -gnatag -largs $(LIBS) -lflorist
 GNATMAKEFLAGS2a= -cargs -gnata -largs $(LIBS) -lflorist
 GNATPREPFLAGS = -r
 TOOLS =\
@@ -209,7 +209,6 @@ TESTS =\
  p140101\
  p150100b\
  p150101
-SPECIAL_TESTS=\
  p020400\
  p030300\
  p140100\
@@ -218,7 +217,7 @@ SPECIAL_TESTS=\
  p990020\
  p990030
 #
-tests: $(TESTS) $(SPECIAL_TESTS)
+tests: $(TESTS)
 #
 # Tests in this group can be built by a single call to "gnatmake".
 #
@@ -229,13 +228,6 @@ tests: $(TESTS) $(SPECIAL_TESTS)
 $(TESTS):  %: %.adb posix_report.ads posix_report.adb\
   ../floristlib/libflorist.a test_parameters.ads test_parameters.adb
 	gnatmake  $(GNATMAKEFLAGS1) $@ $(GNATMAKEFLAGS2)
-#
-# Due to zealousness of the "-gnatg" style-checker,
-# the following tests need to be compiled without "-gnatg".
-#
-$(SPECIAL_TESTS):  %: %.adb posix_report.ads posix_report.adb\
-  ../floristlib/libflorist.a test_parameters.ads test_parameters.adb
-	gnatmake  $(GNATMAKEFLAGS1) $@ $(GNATMAKEFLAGS2a)
 #
 # Make a separate directory in which to run the tests,
 # so we have less chance of a wild test trashing our sources.
