@@ -4,7 +4,7 @@
 --                                                                          --
 --               P O S I X . T I M E R S . E X T E N S I O N S              --
 --                                                                          --
---                                  S p e c                                 --
+--                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
 --  This  file is a component  of FLORIST,  an implementation of the POSIX  --
@@ -31,16 +31,19 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This file contains system-dependent (and therefore non-portable)
---  extensions to POSIX.Timers.
+package body POSIX.Timers.Extensions is
 
-package POSIX.Timers.Extensions is
+   --------------------
+   -- Clock_SGI_Fast --
+   --------------------
 
-   function Clock_SGI_Fast return Clock_ID;
-   --  Only available under IRIX systems.
-   --  Return an invalid ID on non IRIX systems.
-   --  This clock has a higher resolution than Clock_Realtime and is
-   --  available to priviledged users only. This clock is SGI
-   --  specific and is not portable.
+   function Clock_SGI_Fast return Clock_ID is
+   begin
+#  if HAVE_IRIX_Timers then
+      return POSIX.C.CLOCK_SGI_FAST;
+#  else
+      return -1;
+#  end if;
+   end Clock_SGI_Fast;
 
 end POSIX.Timers.Extensions;
