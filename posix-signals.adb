@@ -1157,7 +1157,7 @@ begin
 
    --  Merge in signals that are reserved by the Ada runtime system.
    for Sig in Signal loop
-      if SIID'Base (Sig) in SIID'Range then
+      if Integer (Sig) in Integer (SIID'First) .. Integer (SIID'Last) then
          if SI.Is_Reserved (SIID (Sig)) and then (Sig /= SIGKILL
            and Sig /= SIGSTOP) then
             Reserved_Signal (Sig) := True;
