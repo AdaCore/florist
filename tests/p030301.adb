@@ -78,9 +78,9 @@ use  Ada.Streams,
      System;
 
    function To_Signal_Data is
-     new Unchecked_Conversion (Integer, Signal_Data);
+     new Unchecked_Conversion (Long_Integer, Signal_Data);
    function To_Integer is
-     new Unchecked_Conversion (Signal_Data, Integer);
+     new Unchecked_Conversion (Signal_Data, Long_Integer);
 
    Old_Mask : Signal_Set;
 
@@ -510,7 +510,7 @@ begin
       Sig_Info := Await_Signal (New_Mask);
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A038: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Long_Integer'Image (To_Integer (Get_Data (Sig_Info))));
 
       Unblock_Signals (New_Mask, New_Mask);
 
@@ -602,7 +602,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A050: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Long_Integer'Image (To_Integer (Get_Data (Sig_Info))));
 
       Assert (not Is_Member (Pending_Signals, C_Signal), "A051");
 
@@ -737,7 +737,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A059: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Long_Integer'Image (To_Integer (Get_Data (Sig_Info))));
       Assert (not Is_Member (Pending_Signals, B_Signal), "A060");
       Assert (Is_Member (Pending_Signals, C_Signal), "A061");
 
@@ -754,7 +754,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A065: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Long_Integer'Image (To_Integer (Get_Data (Sig_Info))));
       Assert (not Is_Member (Pending_Signals, B_Signal), "A066");
 
       Count := 1;
@@ -856,7 +856,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A076: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Long_Integer'Image (To_Integer (Get_Data (Sig_Info))));
 
       Count := 1;
       while Is_Member (Pending_Signals, C_Signal)
