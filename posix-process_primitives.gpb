@@ -160,7 +160,6 @@ package body POSIX.Process_Primitives is
    pragma Import (C, close, close_LINKNAME);
 
    function open (path : char_ptr; oflag : int) return int;
-   function open (path : char_ptr; oflag : int; mode : mode_t) return int;
    pragma Import (C, open, open_LINKNAME);
 
    function fcntl (fildes : int; cmd : int; arg : int) return int;
