@@ -12,16 +12,16 @@ if [ ! -h bin ]
 then rm -f ./bin;
      ln -fs .. ./bin;
 fi
-ln -fs ../p030100b
+ln -fs ../p030100b .
 $RUN ../p030100 ${FLAGS} >> run_tests_1.log 2>&1
-ln -fs ../p030101b
+ln -fs ../p030101b .
 $RUN ../p030101 ${FLAGS} >> run_tests_1.log 2>&1
 # test incomplete
 # $RUN ../p030102 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030200 ${FLAGS} >> run_tests_1.log 2>&1
 # ........p030300 hangs on Linux????????
 $RUN ../p030300 ${FLAGS} >> run_tests_1.log 2>&1
-ln -fs ../p030301b
+ln -fs ../p030301b .
 # ........p030301 hangs on Linux????????
 $RUN ../p030301 ${FLAGS} >> run_tests_1.log 2>&1
 # test incomplete
@@ -29,7 +29,7 @@ $RUN ../p030301 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030303 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030304 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p030305 ${FLAGS} >> run_tests_1.log 2>&1
-ln -fs ../p030306a
+ln -fs ../p030306a .
 $RUN ../p030306 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p040100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p040101 ${FLAGS} >> run_tests_1.log 2>&1
@@ -61,7 +61,7 @@ $RUN ../p120300 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p120400 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p120500 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p120501 ${FLAGS} >> run_tests_1.log 2>&1
-ln -fs ../p120502a
+ln -fs ../p120502a .
 $RUN ../p120502 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p140100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p140101 ${FLAGS} >> run_tests_1.log 2>&1
