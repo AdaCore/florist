@@ -241,12 +241,10 @@ package body POSIX.Implementation is
    --  Not_Implemented  --
    -----------------------
 
-   procedure sys_exit (status : int);
-   pragma Import (C, sys_exit, "_exit");
-
    function Not_Implemented_Neg_One return int is
    begin
-      Store_Errno (ENOSYS); return -1;
+      Store_Errno (ENOSYS);
+      return -1;
    end Not_Implemented_Neg_One;
 
    function Not_Implemented_Direct return int is
@@ -256,7 +254,8 @@ package body POSIX.Implementation is
 
    function Not_Supported_Neg_One return int is
    begin
-      Store_Errno (ENOTSUP); return -1;
+      Store_Errno (ENOTSUP);
+      return -1;
    end Not_Supported_Neg_One;
 
    function Not_Supported_Direct return int is
