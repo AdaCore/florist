@@ -40,7 +40,7 @@ described below and an example transcript follows.
 Example:
 
 The following transcript demonstrates building FLORIST for a powerpc
-LynxOS (PPC$) target and a Solaris ($SPARK) host. In this example, the
+LynxOS (PPC$) target and a Solaris (SPARC$) host. In this example, the
 build directory is mounted by both the host and the target.
 
  1. Configure FLORIST on the PowerPC system against the Lynuxworks
@@ -115,7 +115,7 @@ build directory is mounted by both the host and the target.
  4. On the host system: Use gnatprep to tailor some Ada source files to
     your system.
 
- SPARK$ make posix-implementation.adb posix-process_identification.adb \
+ SPARC$ make posix-implementation.adb posix-process_identification.adb \
  posix-process_primitives.adb posix-unsafe_process_primitives.adb \
  posix-sockets.adb posix-sockets-internet.adb posix-xti.adb
 
@@ -124,7 +124,7 @@ build directory is mounted by both the host and the target.
  gnatprep posix-unsafe_process_primitives.gpb ...
  ...
    
- SPARK$ make posix-implementation.ads posix-sockets.ads
+ SPARC$ make posix-implementation.ads posix-sockets.ads
 
  gnatprep posix-implementation.gps posix-implementation.ads ...
  gnatprep posix-sockets.gps posix-sockets.ads gnatprep.config ...
@@ -133,8 +133,7 @@ build directory is mounted by both the host and the target.
     specifications and bodies with the Ada cross-compiler and 
     build the archive.
 
- SPARK$ powerpc-xcoff-lynxos-gnatmake -c -O2 deps -cargs -gnatpg \ 
- -largs -lbsd -lnsl
+ SPARC$ powerpc-xcoff-lynxos-gnatmake -c -O2 -gnatpg deps
 
  powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg deps.adb
  powerpc-xcoff-lynxos-gcc -c -O2 -gnatpg ada_streams.ads
@@ -145,10 +144,10 @@ build directory is mounted by both the host and the target.
 
  6. Build the library libflorist.a using the LynuxWorks cross ar.
  
- SPARK$ mkdir floristlib
- SPARK$ cp -p *.ad[bs] floristlib
- SPARK$ (tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
- SPARK$ /usr/lynx/3.1.0a/ppc/cdk/sunos-xcoff-ppc/bin/ar -r \
+ SPARC$ mkdir floristlib
+ SPARC$ cp -p *.ad[bs] floristlib
+ SPARC$ (tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
+ SPARC$ /usr/lynx/3.1.0a/ppc/cdk/sunos-xcoff-ppc/bin/ar -r \
  floristlib/libflorist.a floristlib/*.o
- SPARK$	chmod 444 floristlib/*.ali
- SPARK$	rm -f floristlib/*.o
+ SPARC$	chmod 444 floristlib/*.ali
+ SPARC$	rm -f floristlib/*.o
