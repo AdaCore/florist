@@ -393,7 +393,7 @@ clean:
 	rm -f *CHECKING_IN*
 	rm -f $(GNATPREP_GENERATED) $(C-POSIX_GENERATED)
 	touch florist
-	cd tests; make clean
+	-make -C tests clean
 # remove all generated files, including configuration history
 realclean:
 	rm -f  $(CONFIG_HISTORY) $(CONFIG_GENERATED)
@@ -402,7 +402,7 @@ realclean:
 	rm -f *CHECKING_IN*
 	rm -f $(GNATPREP_GENERATED) $(C-POSIX_GENERATED)
 	touch florist
-	cd tests; make clean
+	-make -C tests clean
 #
 # The following targets are only for use by the implementors.
 #
@@ -415,7 +415,7 @@ checkin:
 	-checkin $(FLORIST_SOURCES) $(DEBUG_SOURCES) $(TOOLS) $(DOCS)
 	-checkout Makefile
 	touch florist
-	cd tests; make distclean
+	-make -C tests distclean
 # check out all sources, ready for editing
 neat: 
 	-checkout $(FLORIST_SOURCES) $(DEBUG_SOURCES) $(TOOLS) $(DOCS)
