@@ -1323,6 +1323,9 @@ begin
    declare
       Uninitialized_Process_ID : Process_ID;
       Uninitialized_Group_ID : Process_ID;
+      pragma Warnings (Off, Uninitialized_Process_ID);
+      pragma Warnings (Off, Uninitialized_Group_ID);
+      --  Let these variables uninitialized.
    begin
       -----------------------------------------------------------------
       --  Sending Signal_Null can be used to check the validity of
