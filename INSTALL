@@ -18,6 +18,17 @@ steps.
 
         ./configure --disable-threads >& configure.log
 
+   Note that disabling thread support will remove support for the following
+   packages that depend on threads:
+
+     - POSIX.Asynchronous_IO
+     - POSIX.Condition_Variables
+     - POSIX.Message_Queues
+     - POSIX.Mutexes
+     - POSIX.Process_Primitives
+     - POSIX.Process_Signals
+     - POSIX.Timers
+
    The configure script will try to find out information about the system
    you are using.  This includes information about the GNAT version,
    and whether each of the features of the POSIX C-language interfaces
