@@ -6,7 +6,7 @@
 --                             C - P O S I X . C                            --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997 Florida State University (FSU),                --
+--  Copyright (c) 1996-1999 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -408,15 +408,17 @@ void g_tcflag_t(){gdfluitp("tcflag_t");}
 #endif
 
 #ifdef HAVE_clockid_t
-void g_clockid_t(){guitp("clockid_t", sizeof(clockid_t));}
+void g_clockid_t(){gsitp("clockid_t", sizeof(clockid_t));}
 #else
-void g_clockid_t(){gdfluitp("clockid_t");}
+void g_clockid_t(){gdflsitp("clockid_t");}
 #endif
 
 #ifdef HAVE_mqd_t
-void g_mqd_t(){guitp("mqd_t", sizeof(mqd_t));}
+void g_mqd_t(){gsitp("mqd_t", sizeof(mqd_t));}
 #else
-void g_mqd_t(){gdfluitp("mqd_t");}
+/* mqd_t must  be signed, since the value -1 is used for error return
+ */
+void g_mqd_t(){gdflsitp("mqd_t");}
 #endif
 
 #ifdef HAVE_fd_set
@@ -753,8 +755,9 @@ struct termios {
 
 #ifdef HAVE_suseconds_t
 #else
-  typedef int suseconds_t;
+  typedef long suseconds_t;
 #endif 
+
 #ifdef HAVE_struct_timeval
   GT1(timeval, 1)
 #else
@@ -769,9 +772,8 @@ struct timeval {
   GT3
 
 struct timeval struct_timeval_dummy;
-void g_su_seconds_t()
+void g_suseconds_t()
  {gsitp("suseconds_t", sizeof(struct_timeval_dummy.tv_usec));}
-
 
 #ifdef HAVE_struct_iovec
   GT1(iovec, 1)
@@ -5556,8 +5558,8 @@ void create_c() {
   g_gid_t();
   g_uid_t();
   g_mode_t();
+  g_suseconds_t();
   g_ssize_t();
-  g_su_seconds_t();
   g_DIR();
   g_ino_t();
   g_dev_t();
@@ -5784,7 +5786,9 @@ void create_c() {
   GFUNCD(pthread_mutexattr_init,HAVE_pthread_mutexattr_init);
   GFUNCD(pthread_mutexattr_setprioceiling,
     HAVE_pthread_mutexattr_setprioceiling);
-  GFUNCDNS(pthread_mutexattr_setprotocol,HAVE_pthread_mutexattr_setprotocol);
+  GFUNCD(pthread_mutexattr_setprotocol,HAVE_pthread_mutexattr_setprotocol);
+  /* if not supported, the error code is Operation_Not_Implemented,
+     i.e., ENOSYS */
   GFUNCD(pthread_mutexattr_setpshared,HAVE_pthread_mutexattr_setpshared);
   /*  GFUNCD(pthread_once,HAVE_pthread_once); */
   /*  GFUNCD(pthread_self,HAVE_pthread_self); */
