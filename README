@@ -35,7 +35,7 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.11b2 compiler to install and compile Florist.  
+You will need the GNAT 3.12a compiler to install and compile Florist.  
 
 If you happen to have another compiler, you still may find Florist
 useful as a starting point, but some adaptation will be necessary.
@@ -123,6 +123,8 @@ steps.
 0. Make sure you have GNAT installed,
    and that your environment variables are set up to provide GNAT
    with the appropriate paths.
+   Note that Florist can only be used with native threads. See
+   README.TASKING in the GNAT distribution for more details.
 
 1. Configure FLORIST by typing "./configure".
    This may take a long time, perhaps an hour or more.
