@@ -178,7 +178,7 @@ case ${UNAME_SYSTEM} in
 	;;
       *-*-osf4.0[d-z] | *-*-osf4.[1-9]*)
 	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
-	cat ./configs/Config.OSF1 >> ./Config;
+	cat ./configs/Config.Default >> ./Config;
 	;;
    esac
    ;;
@@ -268,8 +268,8 @@ AC_POSIX5C_HEADERS(
 AC_POSIX_LIB(pthread, pthread_self,,
 AC_POSIX_LIB(pthread, __pthread_self,,
 AC_POSIX_LIB(pthreads, pthread_self,,
-AC_POSIX_LIB(dce, pthread_self,,
-AC_POSIX_LIB(:libdce.a, pthread_self,,
+AC_POSIX_LIB(cma, pthread_self,,
+AC_POSIX_LIB(:libcma.a, pthread_self,,
 AC_POSIX_LIB(thread, pthread_self))))))
 
 AC_POSIX_LIB(aio, aio_read)
@@ -469,6 +469,7 @@ AC_POSIX_FUNCS(\
  getsockname\
  getsockname_r\
  getsockopt\
+ gettimeofday\
  getuid\
  gmtime_r\
  inet_addr\
