@@ -98,15 +98,15 @@ standard, nor are they fully implemented.
 Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
 
-Sparc/Solaris 2.5.1
-Sparc/Solaris 2.6
+Sparc/Solaris 2.5.1, 2.6, 2.7, 8 (Solaris threads only)
 x86/Solaris 2.6
-Linux glibc2
+Linux glibc2 (POSIX native threads only)
 DEC Unix 4.0b
 DEC Unix 4.0d
 HP/UX 10.20
-IRIX 6.5
-AiX 4.1
+HP/UX 11.0 (POSIX native threads only)
+IRIX 6.5 (POSIX native threads only, i.e n32 only)
+AiX 4.1 (POSIX ntive threads only).
 
 Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
 and POSIX_XTI*).  We are working with members of the POSIX.5c
