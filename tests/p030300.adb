@@ -655,6 +655,11 @@ begin
       Set_Blocked_Signals (Mask1, Mask2);
       Set_Blocked_Signals (Mask2, Mask3);
       for Sig in Signal loop
+         Comment (Boolean'Image (Is_Reserved (Sig)) &
+                  Boolean'Image (Is_Member (Mask1, Sig)) &
+                  Boolean'Image (Is_Member (Mask2, Sig)) &
+                  Boolean'Image (Is_Member (Mask3, Sig)) &
+                  Image (Sig));
          if not Is_Reserved (Sig) then
             Assert (Is_Member (Mask1, Sig) = Is_Member (Mask3, Sig),
               "A136: " & Image (Sig));
