@@ -163,6 +163,10 @@ package POSIX.Implementation is
       --  X.Char(i) = X.List(i)(1)'Unchecked_access
    end record;
    type String_List_Ptr is access all String_List;
+   --  No_Strict_Aliasing is necessary here to avoid potential
+   --  optimization issues when making unchecked conversions to
+   --  String_List_Ptr.
+   pragma No_Strict_Aliasing (String_List_Ptr);
    Null_String_List : aliased String_List :=
      (Length => 1, List => (1 => null), Char => (1 => null));
    Null_String_List_Ptr : constant String_List_Ptr :=
