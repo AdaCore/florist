@@ -7190,7 +7190,13 @@ void create_c() {
   GFUNC(endnetent, HAVE_endnetent);
   GFUNC(endprotoent, HAVE_endprotoent);
   GFUNC(endservent, HAVE_endservent);
-  GFUNC(getaddrinfo, HAVE_getaddrinfo);
+  /* Assume the following three are always there, since
+     if getaddrinfo is not implemented we will provide our
+     own freeware version. 
+   */
+  GFUNC(getaddrinfo, 1);
+  GFUNC(freeaddrinfo, 1);
+  GFUNC(getnameinfo, 1);
   GFUNC(gethostbyaddr, HAVE_gethostbyaddr);
   GFUNC(gethostbyaddr_r, HAVE_gethostbyaddr_r);
   GFUNC(gethostbyname, HAVE_gethostbyname);
