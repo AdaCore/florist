@@ -61,7 +61,7 @@
 #include <stdlib.h>
 #include "config.h"
 
-#ifdef hpux
+#ifdef __hpux__
 /* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
   _XOPEN_SOURCE_EXTENDED is defined. Since we need this macro (_XOPEN.*)
   to get other POSIX definitions, we kludge here by undefining this unwanted
