@@ -4310,6 +4310,9 @@ void create_c() {
 #else
   GDFLT("CLOCK_REALTIME", 1);
 #endif
+#ifdef CLOCK_SGI_FAST
+  GCST("CLOCK_SGI_FAST", CLOCK_SGI_FAST);
+#endif
 #ifdef CREAD
   GCST("CREAD", CREAD);
 #else
