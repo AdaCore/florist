@@ -241,22 +241,22 @@ private
    Non_Blocking             : constant Open_Option_Set
      := Open_Option_Set (Option_Set'(Option => POSIX.C.O_NONBLOCK));
    Append                   : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_APPEND));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_APPEND));
    --  ....  Change POSIX.5?
    --  This Append hides operation on String_Lists, and vice versa,
    --  if we "use" both this package and POSIX.
    Truncate                 : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_TRUNC));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_TRUNC));
    Exclusive                : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_EXCL));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_EXCL));
    Not_Controlling_Terminal : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_NOCTTY));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_NOCTTY));
    File_Synchronized        : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_SYNC));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_SYNC));
    Data_Synchronized        : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_DSYNC));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_DSYNC));
    Read_Synchronized        : constant Open_Option_Set
-     := Open_Option_Set (Option_Set' (Option => POSIX.C.O_RSYNC));
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_RSYNC));
 
    --  P1003.5c/D4 additions
 
@@ -265,8 +265,8 @@ private
 
    type IO_Vector is record
       C : aliased POSIX.C.Sockets.struct_iovec :=
-         POSIX.C.Sockets.struct_iovec ' (iov_base => null,
-                                         iov_len  => 0);
+         POSIX.C.Sockets.struct_iovec'(iov_base => null,
+                                       iov_len  => 0);
    end record;
 
 end POSIX.IO;

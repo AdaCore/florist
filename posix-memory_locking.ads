@@ -45,7 +45,7 @@ package POSIX.Memory_Locking is
    procedure Unlock_All;
 private
    Current_Pages : constant Memory_Locking_Options :=
-     Memory_Locking_Options (Option_Set' (Option => POSIX.C.MCL_CURRENT));
+     Memory_Locking_Options (Option_Set'(Option => POSIX.C.MCL_CURRENT));
    Future_Pages  : constant Memory_Locking_Options :=
-     Memory_Locking_Options (Option_Set' (Option => POSIX.C.MCL_FUTURE));
+     Memory_Locking_Options (Option_Set'(Option => POSIX.C.MCL_FUTURE));
 end POSIX.Memory_Locking;
