@@ -12,8 +12,8 @@ FLORIST_VERSION=florist-3.12w
 VERSION=$(FLORIST_VERSION)
 GNATMAKEFLAGS1 = -g -O2 -j4
 GNATMAKEFLAGS1B = -g -O2 -j4 -c -a
-GNATMAKEFLAGS2 = -cargs -gnatdj -gnatpg -largs $(LIBS)
-GNATMAKEFLAGS2B = -cargs -gnatdj -gnatpg -largs $(LIBS)
+GNATMAKEFLAGS2 = -cargs -gnatp -largs $(LIBS)
+GNATMAKEFLAGS2B = -cargs -gnatp -largs $(LIBS)
 GCCFLAGS = -g -O2
 # GNATPREPFLAGS = -c -r
 # Older versions of gnatprep don't generate comments that
