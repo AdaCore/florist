@@ -115,7 +115,7 @@ package body POSIX.Process_Primitives is
    procedure Void (Ignore : int);
    pragma Inline (Void);
    procedure Void (Ignore : int) is
-      pragma Unreferenced (Ignore);
+      pragma Warnings (Off, Ignore);
    begin
       null;
    end Void;
@@ -783,7 +783,7 @@ package body POSIX.Process_Primitives is
       Trace_Stopped  : in Boolean := True;
       Masked_Signals : in POSIX.Signal_Masking
                      := POSIX.RTS_Signals) is
-      pragma Unreferenced (Masked_Signals);
+      pragma Warnings (Off, Masked_Signals);
       Options : Bits := 0;
    begin
       if Trace_Stopped then

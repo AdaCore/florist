@@ -377,7 +377,7 @@ package body POSIX.Signals is
    end Null_Handler;
 
    procedure Void (Ignore : int) is
-      pragma Unreferenced (Ignore);
+      pragma Warnings (Off, Ignore);
    begin
       null;
    end Void;

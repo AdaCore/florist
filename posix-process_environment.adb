@@ -421,7 +421,7 @@ package body POSIX.Process_Environment is
         (Name : POSIX_String;
          Value : POSIX_String;
          Quit : in out Boolean) is
-         pragma Unreferenced (Quit);
+         pragma Warnings (Off, Quit);
       begin Set_Environment_Variable (Name, Value);
       end Copy_One;
       procedure Copy_All is
@@ -447,7 +447,7 @@ package body POSIX.Process_Environment is
       T_Target : POSIX_String_List;
       procedure Copy_One (Str : POSIX_String; Done : in out Boolean);
       procedure Copy_One (Str : POSIX_String; Done : in out Boolean) is
-         pragma Unreferenced (Done);
+         pragma Warnings (Off, Done);
       begin Append (T_Target, Str);
       end Copy_One;
       procedure Copy_All is new For_Every_Item (Copy_One);
@@ -513,7 +513,7 @@ package body POSIX.Process_Environment is
         (Name : POSIX_String;
          Value : POSIX_String;
          Done : in out Boolean) is
-         pragma Unreferenced (Value);
+         pragma Warnings (Off, Value);
       begin
          if Name = Is_Environment_Variable.Name then
             Result := True;
@@ -559,7 +559,7 @@ package body POSIX.Process_Environment is
       Strings : POSIX_String_List;
       procedure Clear_One (Str : POSIX_String; Done : in out Boolean);
       procedure Clear_One (Str : POSIX_String; Done : in out Boolean) is
-         pragma Unreferenced (Done);
+         pragma Warnings (Off, Done);
       begin Check (Unsetenv (Str (Str'First)'Unchecked_Access));
       end Clear_One;
       procedure Clear_All is new For_Every_Item (Clear_One);
