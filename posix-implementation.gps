@@ -54,13 +54,6 @@ package POSIX.Implementation is
    --  It is internal to the FLORIST implementation of the POSIX.5 API,
    --  and may be changed or replaced in future versions of FLORIST.
 
-   --  The following is used in POSIX.Unsafe_Process_Primitives.Fork and
-   --  POSIX.Process_Identification.Get_Process_ID to cache the ID of the
-   --  current process.  It is present only because  Xavier Leroy's
-   --  Linux threads do not conform to the POSIX C interface standard.
-   --  In particular, they return different values from getpid()
-   --  for each thread.
- 
    -------------------------
    --  Critical Sections  --
    -------------------------
