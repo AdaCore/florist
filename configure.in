@@ -187,6 +187,11 @@ case ${UNAME_SYSTEM} in
    cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
    cat ./configs/Config.Default >> ./Config;
    ;;
+ UnixWare)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   cp ./configs/pconfig.UnixWare ./pconfig.h.in;
+   cat ./configs/Config.Default >> ./Config;
+   ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
