@@ -78,7 +78,7 @@ package body POSIX is
    function To_POSIX_String (Str : String)
       return POSIX_String is
    begin
-      return From_Address (Str'Address) (Str'Range);
+      return From_Address (Str'Address) (1 .. Str'Length);
    end To_POSIX_String;
 
    -----------------
@@ -87,7 +87,7 @@ package body POSIX is
 
    function To_String (Str : POSIX_String) return String is
    begin
-      return From_Address (Str'Address) (Str'Range);
+      return From_Address (Str'Address) (1 .. Str'Length);
    end To_String;
 
    ----------------------
