@@ -6,8 +6,7 @@
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
 AC_INIT(florist_sources)
-[echo See file "configure.log" for results of this step.
-echo It takes a LONG time \(half an hour or so on a 100Mhz SPARC\).]
+[echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(config.h)
 PRODUCT=florist
