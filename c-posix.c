@@ -54,10 +54,6 @@
 
  */
 
-/* For HP-UX with DCE threads,
-   we need pthread.h first, to get the desired
-   effect, in the presence of #define sigaction cma_sigaction.
- */
 #include "pconfig.h"
 #include <errno.h>
 #include <string.h>
