@@ -567,6 +567,28 @@ void test_signal (int nodefaults, int signal) {
 
    act.sa_flags = 0;
    act.sa_handler = handler;
+
+#ifdef LYNX_SIGTHREADKILL_HACK
+
+   /* 
+      Attempting to test SIGTHREADKILL on LynxOS will kill both 
+      the child and the parent process: The call to sigaction fails
+      and falls through to kill (0, SIGKILL).
+
+      This code works around a problem specific to LynxOS, where
+      signal 24 is reserved by the user space portion of the
+      pthreads implementation.  It should be replaced by a general
+      mechanism for skipping problematic signals.
+   */
+
+   if (signal == SIGTHREADKILL) {
+     fprintf (stderr, "Reserved by C library.\n");
+     fflush (stderr);
+     exit (-1);
+   }
+
+#endif /* LYNX_SIGTHREADKILL_HACK */
+
    if (sigaction (signal, &act, NULL)) {
       if (errno == EINVAL) {
         fprintf (stderr, "cannot be caught\n");
