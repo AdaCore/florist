@@ -40,8 +40,6 @@ TOOLS = \
  Makefile\
  MANIFEST\
  aclocal.m4\
- gnatprep.ads\
- gnatprep.adb\
  config.h.in\
  configure\
  configure.in
@@ -263,7 +261,6 @@ ALL_SOURCES = $(GENERATED) $(FLORIST_SOURCES)
 
 # all the executable programs
 EXECUTABLES =\
- gnatprep\
  c-posix\
  deps\
  deps_no_thread\
