@@ -40,7 +40,8 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
-with POSIX_Report;
+with P9900doc,
+     POSIX_Report;
 package body P990000 is
 
    use POSIX_Report;
@@ -70,7 +71,7 @@ package body P990000 is
          --  time-delay loops.
       end if;
 
-   exception when E : others => Fatal_Exception (E, "A002: P990000a");
+   exception when E : others => Fatal_Exception (E, "A001: P990000a");
    end Do_Unit_Work;
    procedure Do_Input (Load : Natural) is
    begin
