@@ -146,6 +146,11 @@ case ${UNAME_SYSTEM} in
            cp ./configs/pconfig.HP-UX10.x ./pconfig.h.in;
            cat ./configs/Config.Default >> ./Config;
            ;;
+     B.11.*)
+           echo "making Config"
+           cp ./configs/pconfig.HP-UX11.00 ./pconfig.h.in;
+           cat ./configs/Config.Default >> ./Config;
+           ;;
      *) echo "Unexpected HP-UX release; using default."
            cp ./configs/pconfig.Default ./pconfig.h.in;
            cat ./configs/Config.Default >> ./Config;
