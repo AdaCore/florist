@@ -293,6 +293,7 @@ if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
 else
   AC_MSG_RESULT(no)
 fi
+])
 
 dnl AC_POSIX_COMP_OVERLAY(STRUCTNAME, COMPNAME1, COMPNAME2)
 dnl check for COMPNAME1 but only if it does not overlay in memory
