@@ -156,7 +156,7 @@ package body POSIX is
    begin
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
-         if Str (I) = '/' or Str (I) = Nul or Str (I) = ' ' then
+         if Str (I) = '/' or Str (I) = NUL or Str (I) = ' ' then
             return False;
          end if;
       end loop;
@@ -177,7 +177,7 @@ package body POSIX is
    begin
       if To_String (Str)'Length = 0 then return False; end if;
       for I in Str'Range loop
-         if Str (I) = Nul or Str (I) = ' ' then
+         if Str (I) = NUL or Str (I) = ' ' then
             return False;
          end if;
       end loop;
@@ -274,7 +274,7 @@ package body POSIX is
             end if;
             List.List (I) := new POSIX_String (1 .. Len + 1);
             List.List (I)(1 .. Len) := Str;
-            List.List (I)(Len + 1) := Nul;
+            List.List (I)(Len + 1) := NUL;
             List.Char (I) := List.List (I)(1)'Unchecked_Access;
             return;
          end if;
