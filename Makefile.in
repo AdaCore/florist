@@ -378,7 +378,7 @@ floristlib: $(MACRO_OBJECTS) deps $(ADDRINFO_OBJECTS) $(FLORIST_SOURCES)
 	(tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
 	rm -f floristlib/deps.o floristlib/deps.ali
 	ar -r floristlib/libflorist.a floristlib/*.o
-	-cd floristlib; gcc -shared -o libflorist-shared.so *.o
+	-cd floristlib; gcc -shared -fPIC -o libflorist-shared.so *.o
 	chmod 444 floristlib/*.ali
 	rm -f floristlib/*.o
 #
