@@ -1339,7 +1339,7 @@ if eval "test \"`echo '$ac_cv_func_'getaddrinfo`\" = yes"; then
 
 else
   echo "$ac_t""no" 1>&6
-echo "configure: warning: No getaddrinfo. Will try to use shareware." 1>&2
+echo "configure: warning: No getaddrinfo provided by the OS. Will use our own version." 1>&2
  ADDRINFO_OBJECTS="getaddrinfo.o inet_pton.o inet_ntop.o"
  
  echo '#include "addrinfo.h"' >> pconfig.h;

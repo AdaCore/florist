@@ -118,7 +118,7 @@ AC_CHECK_FUNC(getaddrinfo,
 [ADDRINFO_OBJECTS=""
  AC_SUBST(ADDRINFO_OBJECTS)
 ],
-[AC_MSG_WARN(No getaddrinfo. Will try to use shareware.)
+[AC_MSG_WARN(No getaddrinfo provided by the OS. Will use our own version.)
  ADDRINFO_OBJECTS="getaddrinfo.o inet_pton.o inet_ntop.o"
  AC_SUBST(ADDRINFO_OBJECTS)
  echo '#include "addrinfo.h"' >> pconfig.h;
