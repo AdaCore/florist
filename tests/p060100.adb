@@ -633,8 +633,8 @@ begin
    begin
       if Is_A_Terminal (POSIX_IO.Standard_Error) then
          declare
-         Tty_Name : POSIX_String := Get_Terminal_Name
-           (POSIX_IO.Standard_Error);
+            Tty_Name : POSIX_String := Get_Terminal_Name
+              (POSIX_IO.Standard_Error);
          begin
             Comment ("tty_name = " & To_String (Tty_Name));
          end;
