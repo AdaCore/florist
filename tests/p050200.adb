@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -73,7 +73,7 @@ procedure p050200 is
    Default_Permission_Set : constant Permission_Set :=
      (Owner_Read    | Owner_Write | Owner_Execute | Group_Read |
       Group_Execute | Others_Read | Others_Execute => True,
-      others => false);
+      others => False);
 
    type File_Types is
      (Unknown,
@@ -268,7 +268,7 @@ begin
    Comment ("Testing Error Handling for Permission_Denied");
    Comment ("Create A_New_Directory with only Owner_Write access");
    Create_Directory
-     ("A_New_Directory", (Owner_Write => true, others => false));
+     ("A_New_Directory", (Owner_Write => True, others => False));
    Comment ("Try Create_Directory under A_New_Directory");
    begin
       Create_Directory ("A_New_Directory/Sub_Directory",
@@ -352,7 +352,7 @@ begin
 
    Comment ("Create a directory A_New_Directory with owner write only");
    Create_Directory
-     ("A_New_Directory", (Owner_Write => true, others => false));
+     ("A_New_Directory", (Owner_Write => True, others => False));
 
    Comment ("Try create A_New_Directory again, should fail");
    begin
@@ -615,11 +615,11 @@ begin
       Link ("A_New_FIFO", Get_Working_Directory);
       Expect_Exception ("A088");
    exception
-   when POSIX_Error => Check_Error_Code (File_Exists, "A000");
+   when POSIX_Error => Check_Error_Code (File_Exists, "A089");
    end;
    Status_B := Get_File_Status ("A_New_FIFO");
    Comment ("Verify the Link_Count remains unchanged if Link fails");
-   Assert (Link_Count_Of (Status_B) = 2, "A089");
+   Assert (Link_Count_Of (Status_B) = 2, "A090");
    Comment ("Testing linking directories");
    begin
       Comment ("First create A_New_Directory_1");
@@ -644,14 +644,14 @@ begin
    Mod_Time_2 := Last_Modification_Time_Of (Status_A);
    delay 1.0;
    Rename ("A_New_FIFO", "A_FIFO_Dir/A_Renamed_FIFO");
-   Assert (not Is_FIFO ("A_New_FIFO"), "A090");
-   Assert (Is_FIFO ("A_FIFO_Dir/A_Renamed_FIFO"), "A091");
+   Assert (not Is_FIFO ("A_New_FIFO"), "A091");
+   Assert (Is_FIFO ("A_FIFO_Dir/A_Renamed_FIFO"), "A092");
    begin
       Comment ("Try renaming a nonexistent file");
       Rename (Valid_Nonexistent_File_Name, "Valid_File_Name");
-      Expect_Exception ("A092");
+      Expect_Exception ("A093");
    exception
-   when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A000");
+   when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A094");
    end;
 
    ------------------------------------------------------------------
@@ -667,7 +667,7 @@ begin
 
    Status_B := Get_File_Status ("A_FIFO_Dir");
    Assert (Link_Count_Of (Status_B) = 2,
-     "A093: " & Integer'Image (Link_Count_Of (Status_B)));
+     "A095: " & Integer'Image (Link_Count_Of (Status_B)));
    Check_Status (Status_B, Directory, SC_Time_1, Last_Status_Change);
    Check_Status (Status_B, Directory, Mod_Time_1, Last_Modification);
    Status_A := Get_File_Status (Get_Working_Directory);
@@ -680,11 +680,11 @@ begin
    --  file, Rename returns successfully and performs no other action.
 
    Comment ("A_New_FIFO_Link is the link to previous A_New_FIFO");
-   Assert (Is_FIFO ("A_New_FIFO_Link"), "A094");
+   Assert (Is_FIFO ("A_New_FIFO_Link"), "A096");
    Comment ("Rename A_FIFO_Dir/A_Renamed_FIFO to A_New_FIFO_Link");
    Rename ("A_FIFO_Dir/A_Renamed_FIFO", "A_New_FIFO_Link");
    Status_B := Get_File_Status ("A_New_FIFO_Link");
-   Assert (Link_Count_Of (Status_B) = 2, "A095");
+   Assert (Link_Count_Of (Status_B) = 2, "A097");
    Unlink ("A_New_FIFO_Link");
    begin
       Unlink ("A_FIFO_Dir/A_Renamed_FIFO");
@@ -699,7 +699,7 @@ begin
       Comment ("Remove A_New_Directory_2");
       Remove_Directory ("A_New_Directory_2");
    exception when E : POSIX_Error =>
-      Unexpected_Exception (E, "A096: Renaming failed");
+      Unexpected_Exception (E, "A098: Renaming failed");
       Comment ("Remove both A_New_Directory_1 and A_New_Directory_2");
       Remove_Directory ("A_New_Directory_1");
       Remove_Directory ("A_New_Directory_2");
@@ -720,10 +720,10 @@ begin
          is
             Name : constant POSIX_String  := Filename_Of (D);
          begin
-            Assert (Name'First = 1, "A097");
+            Assert (Name'First = 1, "A099");
             if Name = "A_Test_File" then
                --  Check if test_file occurs more than once
-               Assert (Saw_test_File = False, "A098");
+               Assert (Saw_test_File = False, "A100");
                Saw_test_File := True;
             end if;
          end Check_One_File;
@@ -745,7 +745,7 @@ begin
            (D : Directory_Entry;
             Quit : in out Boolean) is
          begin
-            Assert (First_Call = True, "A099");
+            Assert (First_Call = True, "A101");
             First_Call := False;
             Quit := True;
          end Check_One_File;
@@ -770,7 +770,7 @@ begin
            (D : Directory_Entry;
             Quit : in out Boolean) is
          begin
-            Assert (First_Call = True, "A100");
+            Assert (First_Call = True, "A102");
             First_Call := False;
             raise My_exception;
          end Check_One_File;
@@ -779,7 +779,7 @@ begin
            For_Every_Directory_Entry (Check_One_File);
       begin
          Iterate (".");
-         Expect_Exception ("A101");
+         Expect_Exception ("A103");
       exception
       when My_exception => null;
       end;
@@ -793,9 +793,9 @@ begin
       begin
          Change_Owner_And_Group
            (Valid_Nonexistent_File_Name, Get_Real_User_ID, Get_Real_Group_ID);
-         Expect_Exception ("A102");
+         Expect_Exception ("A104");
       exception
-      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A103");
+      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A105");
       end;
 
       Test ("Change_Permissions [5.2.5]");
@@ -803,18 +803,18 @@ begin
       Status_B := Get_File_Status ("A_New_Directory");
       Check_Status (Status_B, Directory, SC_Time_1, None);
       Assert (Permission_Set_Of (Status_B)
-        = Access_Permission_Set, "A104");
+        = Access_Permission_Set, "A106");
       begin
          Change_Permissions
            (Valid_Nonexistent_File_Name, Access_Permission_Set);
-         Expect_Exception ("A105");
+         Expect_Exception ("A107");
       exception
-      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A106");
+      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A108");
       end;
 
       Remove_Directory ("A_New_Directory");
 
-   exception when E : others => Unexpected_Exception (E, "A107");
+   exception when E : others => Unexpected_Exception (E, "A109");
    end;
 
    ----------------------------------------------------------------
@@ -843,9 +843,9 @@ begin
          Set_File_Times ("A_New_Directory", Access_Time, Mod_Time);
          Status_B := Get_File_Status ("A_New_Directory");
          Check_Equal
-           (Last_Access_Time_Of (Status_B), Access_Time, "A108");
+           (Last_Access_Time_Of (Status_B), Access_Time, "A110");
          Check_Equal
-           (Last_Modification_Time_Of (Status_B), Mod_Time, "A109");
+           (Last_Modification_Time_Of (Status_B), Mod_Time, "A111");
       end;
 
       Test ("Set_File_Times, defaults [5.2.5]");
@@ -863,13 +863,13 @@ begin
          Comment ("Last_Modification =" &
            Image (Last_Modification_Time_Of (Status_B)));
          Check_Precedes
-           (Before, Last_Access_Time_Of (Status_B), "A110");
+           (Before, Last_Access_Time_Of (Status_B), "A112");
          Check_Precedes
-           (Last_Access_Time_Of (Status_B), After, "A111");
+           (Last_Access_Time_Of (Status_B), After, "A113");
          Check_Precedes
-           (Before, Last_Modification_Time_Of (Status_B), "A112");
+           (Before, Last_Modification_Time_Of (Status_B), "A114");
          Check_Precedes
-           (Last_Modification_Time_Of (Status_B), After, "A113");
+           (Last_Modification_Time_Of (Status_B), After, "A115");
       end;
 
       Test ("Set_File_Times, nonexistent file [5.2.5]");
@@ -882,30 +882,30 @@ begin
          Comment ("Mod_Time =" & Image (Mod_Time));
          Set_File_Times
            (Valid_Nonexistent_File_Name, Access_Time, Mod_Time);
-         Expect_Exception ("A114");
-      exception
-      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A115");
-      end;
-
-      Test ("Set_File_Times, defaults, nonexistent file");
-      begin
-         Set_File_Times (Valid_Nonexistent_File_Name);
          Expect_Exception ("A116");
       exception
       when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A117");
       end;
 
+      Test ("Set_File_Times, defaults, nonexistent file");
+      begin
+         Set_File_Times (Valid_Nonexistent_File_Name);
+         Expect_Exception ("A118");
+      exception
+      when POSIX_Error => Check_Error_Code (No_Such_File_Or_Directory, "A119");
+      end;
+
       Remove_Directory ("A_New_Directory");
 
-   exception when E : others => Unexpected_Exception (E, "A118");
+   exception when E : others => Unexpected_Exception (E, "A120");
    end;
 
    -----------------------------------------------------------------------
 
-   Assert (Is_File_Present ("A_Test_File"), "A119");
+   Assert (Is_File_Present ("A_Test_File"), "A121");
    Unlink ("A_Test_File");
 
-   Assert (Is_File_Present ("A_Test_FIFO"), "A120");
+   Assert (Is_File_Present ("A_Test_FIFO"), "A122");
    Unlink ("A_Test_FIFO");
 
    abort Watchdog;
@@ -914,5 +914,5 @@ begin
 
    Done;
 
-exception when E : others =>  Fatal_Exception (E, "A121");
+exception when E : others =>  Fatal_Exception (E, "A123");
 end p050200;
