@@ -67,13 +67,12 @@ Florist is currently supported on the following configurations. It
 may or may not work on non supported configurations:
 
 Sparc/Solaris 2.5.1, 2.6, 2.7, 8
-x86/Solaris 2.6
-Linux glibc2
+Linux Redhat 7.x
 DEC Unix 4.0x
-HP/UX 10.20
-HP/UX 11.0
+Tru64 5.1a
+HP/UX 11.00
 IRIX 6.5
-AiX 4.1
+AiX 4.3
 
 Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
 and POSIX_XTI*).  We are working with members of the POSIX.5c
