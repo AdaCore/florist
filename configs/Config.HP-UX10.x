@@ -1,1 +1,1 @@
-LIBS = -lnsl_s -lcma -lflorist 
+LIBS = -lnsl_s -ldce -lflorist 
