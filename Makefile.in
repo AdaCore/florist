@@ -12,6 +12,12 @@ FLORIST_VERSION=$(VERSION)
 GNATMAKEFLAGS1B = -O2 -gnatpg
 GNATPREPFLAGS = -c -r
 GCCFLAGS = -O2
+
+# How to invoke ranlib.
+RANLIB = ranlib
+# Test to use to see whether ranlib exists on the system.
+RANLIB_TEST = [ -f /usr/bin/ranlib -o -f /bin/ranlib ]
+
 # The following will be set based on
 # what the configure script discovers about the local system.
 CC = @CC@
@@ -161,6 +167,11 @@ floristlib: $(MACRO_OBJECTS) $(DEPS) $(ADDRINFO_OBJECTS)
 	(tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
 	rm -f floristlib/$(DEPS).o floristlib/$(DEPS).ali
 	ar -r floristlib/libflorist.a floristlib/*.o
+	if $(RANLIB_TEST) ; then \
+	   $(RANLIB) floristlib/libflorist.a ; \
+	else \
+	   true; \
+	fi
 	chmod 444 floristlib/*.ali
 	rm -f floristlib/*.o
 #
