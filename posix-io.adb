@@ -119,11 +119,9 @@ package body POSIX.IO is
    function Open
      (Name           : Pathname;
       Mode           : File_Mode;
-      Options        : Open_Option_Set := --  Empty_Set;
-         Open_Option_Set (POSIX.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
-      Masked_Signals : Signal_Masking := RTS_Signals)
-     return File_Descriptor is
+      Options        : Open_Option_Set := Empty_Set;
+      Masked_Signals : Signal_Masking := RTS_Signals) return File_Descriptor
+   is
       Result : int;
       Name_With_NUL : POSIX_String := Name & NUL;
       Old_Mask : aliased Signal_Mask;
@@ -302,10 +300,6 @@ package body POSIX.IO is
          raise Ada.IO_Exceptions.End_Error;
       end if;
    end Read;
-
-   --  .... Change POSIX.5?????
-   --  The type of Last really should be Natural, since it is
-   --  an index in a POSIX_String array.
 
    procedure NONSTANDARD_Read
      (File           : in File_Descriptor;

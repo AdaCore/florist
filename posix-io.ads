@@ -76,11 +76,10 @@ package POSIX.IO is
    function Open
      (Name           : POSIX.Pathname;
       Mode           : File_Mode;
-      Options        : Open_Option_Set := --  Empty_Set;
-         Open_Option_Set (POSIX.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options        : Open_Option_Set := Empty_Set;
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
       return File_Descriptor;
+
    function Open_Or_Create
      (Name           : POSIX.Pathname;
       Mode           : File_Mode;
@@ -90,7 +89,9 @@ package POSIX.IO is
          --  Conversion is only to work around a GNAT3.09 problem.
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
       return File_Descriptor;
+
    function Is_Open (File : File_Descriptor) return Boolean;
+
    procedure Close
      (File           : in File_Descriptor;
       Masked_Signals : in POSIX.Signal_Masking
