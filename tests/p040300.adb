@@ -40,13 +40,11 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  .... A legacy test, not in real-time area; could be improved.
-
 --  Test package POSIX_Process_Environment and operations on
 --  current working directory.
 
---  Setup: Before running this test set PWD to the current working
---  directory, (PWD=`pwd`) and export PWD.
+--  Setup: Run this test with envionment variable PWD set to ".".
+--  If you are using "sh": "PWD=`pwd`; export PWD".
 
 with POSIX,
      POSIX_Files,
