@@ -7,7 +7,7 @@
 --                                B o d y                                   --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
+--  Copyright (c) 1998-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
@@ -97,34 +97,36 @@ package body P990003b is
             Mode => Write_Only,
             Permissions => (Owner_Write => True, Others => False),
             Options => Exclusive);
-         Comment ("created file");
          --  We are the first to create the file, so we can safely
          --  initialize it while others do not have read permission.
+         Dummy_Data.Check := 9999;
          Write (FD, To_Buf_Ptr (Dummy_Data'Address).all, Last);
          --  The above will set the size, and initialize the file.
-         Assert (Last = IO_Count (Length), "A001");
+         Assert (Last = IO_Count (Length), "A001: P99003b");
          Change_Permissions (FD, Owner_Permission_Set);
+         Close (FD);
       exception
       when E : POSIX_Error =>
-         if Get_Error_Code = File_Exists then
-            --  The file already exists.
-            Comment ("shared memory file aready exists");
-            loop
-               begin
-                  FD := Open
-                    (Name => Shared_Data_Filename,
-                     Mode => Read_Write);
-                  exit;
-               exception
-               when POSIX_Error =>
-                  Check_Error_Code (Permission_Denied, "A002");
-                  delay 1.0;
-                  Comment ("retrying open");
-               end;
-            end loop;
-         else Fatal_Exception (E, "A003: P990003b");
+         if Get_Error_Code = File_Exists then null;
+            --  We will just open the file, below.
+         else Fatal_Exception (E, "A002: P990003b");
          end if;
       end;
+
+      --  The file already exists.
+      loop
+         begin
+            FD := Open
+              (Name => Shared_Data_Filename,
+               Mode => Read_Write);
+            exit;
+         exception
+         when POSIX_Error =>
+            Check_Error_Code (Permission_Denied, "A003: P99003b");
+            delay 1.0;
+            Comment ("retrying open");
+         end;
+      end loop;
 
       --  Map the file into shared memory.
 
@@ -135,13 +137,11 @@ package body P990003b is
          File => FD,
          Offset => 0);
 
-      Comment ("returning from Address_For_Data_Area");
-
       return Result;
 
    exception
    when E : others =>
-      Unexpected_Exception (E, "A004: p990003b");
+      Unexpected_Exception (E, "A004: P990003b");
       return System.Null_Address;
    end Address_For_Data_Area;
 
@@ -152,14 +152,13 @@ package body P990003b is
    for Data'Address use Data_Address;
 
    pragma Import (Ada, Data);
-   --  The reason we considered the Import pragma here is that
+   --  The reason we have the Import pragma here is that
    --  we don't want the compiler to try to initialize the shared
    --  object Data, since it may already contain data values written
    --  there by another process.
 
    function Shared_Data return P990000.Shared_Data_Ptr is
    begin
-      Comment ("in Shared_Data...");
       return Data'Access;
    end Shared_Data;
 
@@ -169,14 +168,14 @@ package body P990003b is
 
    procedure Finalize is
    begin
-      Comment ("unmapping FD");
       Unmap_Memory (Data_Address, Storage_Offset (Length));
-      Comment ("closing FD");
       Close (FD);
-      Comment ("unlinking file");
       POSIX_Files.Unlink (Shared_Data_Filename);
    end Finalize;
 
 begin
-   Optional (Memory_Mapped_Files_Option, "A000: P990003b");
+   Optional (Memory_Mapped_Files_Option, "A005: P990003b");
+   Assert (Data.Check = 9999, "A006: P99003b");
+
+exception when E : others => Fatal_Exception (E, "A007: P990003b");
 end P990003b;
