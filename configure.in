@@ -9,102 +9,27 @@ AC_INIT(florist_sources)
 [echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(config.h)
-PRODUCT=florist
-VERSION=0.0.0
-AC_DEFINE_UNQUOTED(PRODUCT, "$PRODUCT")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
-AC_SUBST(PRODUCT)
-AC_SUBST(VERSION)
 AC_PROG_CC
 
-rm -f Config pconfig.h
-# Kludge for apparent inheritance of read-only status of pconfig.h.in,
-# probably from RCS checkouts.
-chmod 644 pconfig.h.in
+rm -f pconfig.h
 
-[if ( test ! -d lib ); then mkdir lib; fi
-# configure gnatprep parameters
-rm -f gnatprep.config
-cat > gnat_ver.gpb << EOF
-EOF
-if (gnatprep gnat_ver.gpb gnat_ver.adb /dev/null)
-then
-  echo "have gnatprep already; will use that version"
+AC_ARG_ENABLE(threads,
+[  --disable-threads       Do not try to build pthread support],
+, use_pthread=yes)
+
+if test "x$use_pthread" = "xyes" ; then
+  DEPS=deps
+  SIGNALS_GENERATED=posix-implementation-ok_signals.ads
 else
-  echo "missing gnatprep; Makefile will build it"
-  echo "LOCAL_GNATPREP = gnatprep" >> Config
+  AC_MSG_WARN(No pthread support.)
+  DEPS=deps_no_thread
+  SIGNALS_GENERATED=
 fi
-rm -f gnat_ver.gpb gnat_ver.gpb
 
-cat > gnat_ver.adb << EOF
-with system.interrupt_management;
-use system.interrupt_management;
-procedure gnat_ver is
-begin null;
-end gnat_ver;
-EOF
+AC_SUBST(SIGNALS_GENERATED)
+AC_SUBST(DEPS)
 
-echo $ac_n "checking whether GNAT has Interrupt_Management... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_INTERRUPT_MANAGEMENT := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_INTERRUPT_MANAGEMENT := False" >> gnatprep.config;
-fi;
-
-rm -f gnat_ver.adb gnat_ver.o
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin 
-   if (NT_GNAT_Exception = NT_GNAT_Exception) then null; end if;
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether GNAT has NT_GNAT_Exception... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_NT_GNAT_Exception := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_NT_GNAT_Exception := False" >> gnatprep.config;
-fi;
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin system.tasking_soft_links.abort_defer.all;
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether GNAT has Abort_Defer soft link... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "yes"
- echo "HAVE_Soft_Abort_Defer := True" >> gnatprep.config;
-else
- echo "no"
- echo "HAVE_Soft_Abort_Defer := False" >> gnatprep.config;
-fi;
-rm -f gnat_ver.adb gnat_ver.o
-
-cat > gnat_ver.adb << EOF
-with system.tasking_soft_links;
-procedure gnat_ver is
-begin system.tasking_soft_links.Set_Exc_Stack_Addr (System.Null_Address);
-end gnat_ver;
-EOF
-
-echo $ac_n "checking whether Set_Exc_Stack_Addr needs Self_ID... " $ac_c;
-if (gcc -c gnat_ver.adb 2>/dev/null); then
- echo "no"
- echo "HAVE_Set_Exc_Stack_Addr_With_Self_ID := False" >> gnatprep.config;
-else
- echo "yes"
- echo "HAVE_Set_Exc_Stack_Addr_With_Self_ID := True" >> gnatprep.config;
-fi;
-rm -f gnat_ver.adb gnat_ver.o
+[
 
 echo $ac_n "checking for Xavier Leroy Linux threads... " $ac_c;
 if (grep "Leroy" /usr/include/pthread.h >/dev/null 2>&1); then
@@ -115,26 +40,14 @@ else
  echo "HAVE_Leroy_Threads := False" >> gnatprep.config;
 fi;
 
-echo "We will assume errno is unsafe for exception propagation."
+echo "We will assume errno is safe for exception propagation."
 echo "-- to override, hand-edit gnatprep.config"
-echo "HAVE_Safe_Errno := False" >> gnatprep.config;
+echo "HAVE_Safe_Errno := True" >> gnatprep.config;
 
 UNAME_MACHINE=`(uname -m) 2>/dev/null`
 UNAME_RELEASE=`(uname -r) 2>/dev/null`
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`
 UNAME_VERSION=`(uname -v) 2>/dev/null`
-
-if [ "${UNAME_SYSTEM}" = "Linux" ]; then
-echo Linux := True >> gnatprep.config;
-else 
-echo Linux := False >> gnatprep.config;
-fi
-
-if [ "${UNAME_SYSTEM}" = "SunOS" ]; then
-echo SunOS := True >> gnatprep.config;
-else 
-echo SunOS := False >> gnatprep.config;
-fi
 
 echo ${UNAME_SYSTEM} ${UNAME_MACHINE} ${UNAME_RELEASE} ${UNAME_VERSION}
 case ${UNAME_SYSTEM} in
@@ -144,16 +57,13 @@ case ${UNAME_SYSTEM} in
      B.10.*)
            echo "making Config"
            cp ./configs/pconfig.HP-UX10.x ./pconfig.h.in;
-           cat ./configs/Config.Default >> ./Config;
            ;;
      B.11.*)
            echo "making Config"
            cp ./configs/pconfig.HP-UX11.00 ./pconfig.h.in;
-           cat ./configs/Config.Default >> ./Config;
            ;;
      *) echo "Unexpected HP-UX release; using default."
            cp ./configs/pconfig.Default ./pconfig.h.in;
-           cat ./configs/Config.Default >> ./Config;
            ;;
    esac;
    ;;
@@ -161,46 +71,38 @@ case ${UNAME_SYSTEM} in
 # .... need to add cases here for versions 2.5.1 and 2.6, at least
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
  Linux)
 # .... need to add cases here for different thread and C libraries
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.Linux ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
  OSF1)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    case `gcc -dumpmachine` in
       *-*-osf4.0[bc])
 	cp ./configs/pconfig.OSF1-4.0b ./pconfig.h.in;
-	cat ./configs/Config.Default >> ./Config;
 	;;
       *-*-osf4.0[d-z] | *-*-osf4.[1-9]*)
 	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
-	cat ./configs/Config.Default >> ./Config;
 	;;
    esac
    ;;
  IRIX*)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.IRIX6.x ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
  AIX)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
  UnixWare)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.UnixWare ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
-   cat ./configs/Config.Default >> ./Config;
    ;;
 esac; 
 
@@ -265,12 +167,14 @@ AC_POSIX5C_HEADERS(
  sys/un.h\
 )
 
-AC_POSIX_LIB(pthread, pthread_self,,
-AC_POSIX_LIB(pthread, __pthread_self,,
-AC_POSIX_LIB(pthreads, pthread_self,,
-AC_POSIX_LIB(cma, pthread_self,,
-AC_POSIX_LIB(:libcma.a, pthread_self,,
-AC_POSIX_LIB(thread, pthread_self))))))
+if test "x$use_pthread" = "xyes" ; then
+  AC_POSIX_LIB(pthread, pthread_self,,
+  AC_POSIX_LIB(pthread, __pthread_self,,
+  AC_POSIX_LIB(pthreads, pthread_self,,
+  AC_POSIX_LIB(cma, pthread_self,,
+  AC_POSIX_LIB(:libcma.a, pthread_self,,
+  AC_POSIX_LIB(thread, pthread_self))))))
+fi
 
 AC_POSIX_LIB(aio, aio_read)
 
@@ -288,7 +192,7 @@ AC_POSIX_LIB(bsd, accept))
 AC_POSIX_LIB(resolv, h_errno)
 
 echo using "LIBS=${LIBS}"
-echo "LIBS=${LIBS}" >> Config
+AC_SUBST(LIBS)
 
 AC_POSIX_VAR(t_errno)
 AC_POSIX_VAR(t_nerr)
@@ -661,4 +565,4 @@ AC_POSIX_FUNCS(\
  __posix_ttyname_r\
 )
 
-AC_OUTPUT(,[test -z "$CONFIG_HEADERS" || date > stamp-h])
+AC_OUTPUT(Makefile, [test -z "$CONFIG_HEADERS" || date > stamp-h])
