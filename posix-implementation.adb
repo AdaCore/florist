@@ -56,6 +56,17 @@ package body POSIX.Implementation is
    package SIMO renames System.Interrupt_Management.Operations;
 
 #  if HAVE_Safe_Errno then
+
+   procedure Set_Ada_Error_Code (Error : Error_Code) is
+   begin
+      Store_Errno (Error);
+   end Set_Ada_Error_Code;
+
+   function Get_Ada_Error_Code return Error_Code is
+   begin
+      return Fetch_Errno;
+   end Get_Ada_Error_Code;
+
 #  else
 
    procedure Set_Ada_Error_Code (Error : Error_Code) is

@@ -254,14 +254,8 @@ package POSIX.Implementation is
    --  of exception propagation.
 
    function Get_Ada_Error_Code return Error_Code;
-#  if HAVE_Safe_Errno then
-   pragma Import (C, Get_Ada_Error_Code, "fetch_errno");
-#  end if;
 
    procedure Set_Ada_Error_Code (Error : in Error_Code);
-#  if HAVE_Safe_Errno then
-   pragma Import (C, Set_Ada_Error_Code, "store_errno");
-#  end if;
 
    package Bogus_Error_Codes is
 
@@ -378,7 +372,6 @@ package POSIX.Implementation is
    function To_Struct_Timeval (D : Duration) return POSIX.C.struct_timeval;
    function To_Duration (TV : POSIX.C.struct_timeval) return Duration;
 
-#if HAVE_Leroy_Threads then
    --  The following is used in POSIX.Unsafe_Process_Primitives.Fork and
    --  POSIX.Process_Identification.Get_Process_ID to cache the ID of the
    --  current process.  It is present only because  Xavier Leroy's
@@ -387,6 +380,5 @@ package POSIX.Implementation is
    --  for each thread.
 
    This_Process : POSIX.C.pid_t;
-#end if;
 
 end POSIX.Implementation;
