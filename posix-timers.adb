@@ -47,7 +47,6 @@ package body POSIX.Timers is
    use POSIX.Implementation;
 
    function To_int is new Unchecked_Conversion (Bits, int);
-   function To_Bits is new Unchecked_Conversion (int, Bits);
    function To_Struct_Sigevent is new Unchecked_Conversion
      (POSIX.Signals.Signal_Event, POSIX.C.struct_sigevent);
 
