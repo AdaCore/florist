@@ -699,8 +699,8 @@ fi
 
 
 rm -f Config pconfig.h
-# temporary kludge for apparent inheritance of
-# read-only status from somewhere?????
+# Kludge for apparent inheritance of read-only status of pconfig.h.in,
+# probably from RCS checkouts.
 chmod 644 pconfig.h.in
 
 if ( test ! -d lib ); then mkdir lib; fi
@@ -788,7 +788,7 @@ fi;
 rm -f gnat_ver.adb gnat_ver.o
 
 echo $ac_n "checking for Xavier Leroy Linux threads... " $ac_c;
-if (grep "Leroy" /usr/include/pthread.h 2>/dev/null); then
+if (grep "Leroy" /usr/include/pthread.h >/dev/null 2>&1); then
  echo "yes"
  echo "HAVE_Leroy_Threads := True" >> gnatprep.config;
 else
