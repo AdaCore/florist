@@ -43,8 +43,7 @@
 --  Simulate mix of periodic jobs with rate monotone priorities.
 --  See P9900doc.ads for more detailed explanation.
 
-with P9900doc,
-     P9900x0,
+with P9900x0,
      P990001b,  --  POSIX mutexes and CVs
      P990002c,  --  POSIX_Calendar and CV time wait
      P990003a;  --  locally shared data
