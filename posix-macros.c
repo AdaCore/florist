@@ -212,9 +212,14 @@ void store_errno(int value) {
   errno = value;
 }
 
-/* The following function redefinition is provided to work around a problem
-   found in the Linux tests. Somehow it returns -1 for valid fd values */
+/* The following redefinitions work around problems on systems where
+   the stat family of functions are implemented using macros. (eg.
+   Tru64 5.1A and Linux.) */
 
-int fstat_mod (int fd, struct stat *buf) {
-  return fstat (fd, buf);
+int stat_func(const char *path, struct stat *buf) {
+  return stat(path, buf);
+}
+
+int fstat_func(int fd, struct stat *buf) {
+  return fstat(fd, buf);
 }

@@ -63,12 +63,12 @@ package body POSIX.File_Status is
       (Duration, POSIX_Time);
 
    function stat (path : char_ptr; buf : stat_ptr) return int;
-   pragma Import (C, stat, stat_LINKNAME);
+   pragma Import (C, stat, "stat_func");
 
    function fstat (fildes : int; buf : stat_ptr) return int;
-   pragma Import (C, fstat, "fstat_mod");
-   --  pragma Import (C, fstat, fstat_LINKNAME);
-   --  .... We had to provide a redefined function for this in posix-macro.c
+   pragma Import (C, fstat, "fstat_func");
+
+   --  We had to redefine these functions in posix-macro.c.
    --  See the file for more info.
 
    -----------------------
