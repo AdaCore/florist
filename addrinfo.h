@@ -1,10 +1,13 @@
-#ifndef	__addrinfo_h
+#if ! defined (__addrinfo_h) && ! defined (AI_PASSIVE)
 #define	__addrinfo_h
 
 /*
  * Everything here really belongs in <netdb.h>.
  * These defines are separate for now, to avoid having to modify the
  * system's header.
+ * The test for AI_PASSIVE in the first line will prevent compilation
+ * of this file on any system where these defines ARE included in
+ * <netdb.h>, e.g. Solaris 2.8
  */
 
 struct addrinfo {
