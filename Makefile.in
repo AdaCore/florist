@@ -10,11 +10,11 @@
 MASTERDIR=/part1/florist
 FLORIST_VERSION=florist-3.12w
 VERSION=$(FLORIST_VERSION)
-GNATMAKEFLAGS1 = -g -O2 -j4
-GNATMAKEFLAGS1B = -g -O2 -j4 -c
+GNATMAKEFLAGS1 = -O2 -j4
+GNATMAKEFLAGS1B = -O2 -fPIC -j4
 GNATMAKEFLAGS2 = -cargs -gnatp -largs $(LIBS)
 GNATMAKEFLAGS2B = -cargs -gnatp -largs $(LIBS)
-GCCFLAGS = -g -O2
+GCCFLAGS = -O2 -fPIC
 # GNATPREPFLAGS = -c -r
 # Older versions of gnatprep don't generate comments that
 # are acceptable for the -gnatg option, so drop the "-c".
@@ -363,7 +363,7 @@ deps5c: Makefile $(ALL_SOURCES) florist
 # If we have modified the Ada runtime system, we need to recompile that also.
 #
 build: Makefile build.adb $(ALL_SOURCES) florist
-	gnatmake  $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
+	gnatmake -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
 #
 # -----------------------------------
 # Create a florist library for objects
@@ -378,6 +378,7 @@ floristlib: $(MACRO_OBJECTS) deps $(ADDRINFO_OBJECTS) $(FLORIST_SOURCES)
 	(tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
 	rm -f floristlib/deps.o floristlib/deps.ali
 	ar -r floristlib/libflorist.a floristlib/*.o
+	-cd floristlib; gcc -shared -o libflorist-shared.so *.o
 	chmod 444 floristlib/*.ali
 	rm -f floristlib/*.o
 #
