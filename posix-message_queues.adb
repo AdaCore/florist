@@ -75,9 +75,8 @@ package body POSIX.Message_Queues is
       Masked_Signals : Signal_Masking;
       Old_Mask : access Signal_Mask) return Message_Queue_Descriptor is
    begin
-      if Result = -(1) then
-         Restore_Signals_And_Raise_POSIX_Error
-           (Masked_Signals, Old_Mask);
+      if Result < 0 then
+         Restore_Signals_And_Raise_POSIX_Error (Masked_Signals, Old_Mask);
       else
          Restore_Signals (Masked_Signals, Old_Mask);
       end if;
@@ -188,7 +187,7 @@ package body POSIX.Message_Queues is
    begin
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := mq_open (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
-        To_int (C_File_Mode (Mode)), 0, null);
+        To_int (Option_Set (Options).Option or C_File_Mode (Mode)), 0, null);
       return Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Open;
@@ -212,7 +211,7 @@ package body POSIX.Message_Queues is
    begin
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := mq_open (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
-        To_int (C_File_Mode (Mode) or O_CREAT),
+        To_int (Option_Set (Options).Option or C_File_Mode (Mode) or O_CREAT),
         Form_C_Permission (Permissions), null);
       return Check_NNeg_And_Restore_Signals
         (Result, Masked_Signals, Old_Mask'Unchecked_Access);
