@@ -35,31 +35,10 @@ executable file might be covered by the GNU Public License.
 
 PREREQUISITES:
 
-You will need the GNAT 3.11b compiler and the Gnu "make" utility to
-install and compile Florist.  
+You will need the GNAT 3.11b compiler to install and compile Florist.  
 
 If you happen to have another compiler, you still may find Florist
 useful as a starting point, but some adaptation will be necessary.
-If you normally use another implementation of "make", we recommend
-you just download a copy of Gnu make to use for the installation
-process; otherwise, you will have to modify the Makefile's to work
-around the places where we are using pattern-matching rules.
-
-It is natural to ask why we have these dependences.  We certainly
-don't like them, and are willing to accept advice on how to reduce
-them.  In particular, we tried to get by using a POSIX.2-compliant
-Makefile, but could not figure a way to do so without making the
-file much longer and harder to maintain.
-
-The dependences on GNAT are to some extent unavoidable, though we
-think that with more work we may be able to automate the treatment
-better, as we have attempted manage dependences on the host
-operating system.  This is the hard part, and the fundamental job,
-of a POSIX Ada binding-- to make writing portable applications
-easier, by taking into the implementation of the binding the
-responsibility for dealing with the differences between various
-operating systems and compilers, and hiding them from application
-programs.
 
 Any implementation of the POSIX Ada bindings will necessarily
 contain some dependences on peculiar features of the Ada language
@@ -105,12 +84,17 @@ includes the header files and libraries needed for the real-time
 and threads extensions.  (The default "end user" OS installation
 may try to save you disk space by not installing them.)
 
-We are still working on Florist, to improve it.  If you have
-problems with it, please report them.  Our first priorities are to
-make Forist more portable to the various POSIX-like operating
-systems, to test it better, to catch and correct any defects.  We
-are also interested in ways to improve efficiency, where that is
-possible.
+Florist is currently supported on the following configurations. It
+may or may not work on non supported configurations:
+
+Sparc/Solaris 2.5.1
+Sparc/Solaris 2.6
+x86/Solaris 2.6
+Linux glibc2
+DEC Unix 4.0b
+HP/UX 10.20
+IRIX 6.5
+AiX 4.1
 
 Beware of the Draft 2 POSIX.5c prototype packages (POSIX_Sockets*
 and POSIX_XTI*).  We are working with members of the POSIX.5c
@@ -135,7 +119,7 @@ system.
 In order to install FLORIST, you should go through the following
 steps.
 
-0. Make sure you have GNAT and Gnu make installed,
+0. Make sure you have GNAT installed,
    and that your environment variables are set up to provide GNAT
    with the appropriate paths.
 
@@ -189,11 +173,7 @@ steps.
 
   a. Compile and execute the program "c-posix.c", which
      generates the source code for the Ada package specifications
-     POSIX, POSIX.C, POSIX.LIMITS, and POSIX.OPTIONS.
-     If this stage fails, you will need to do some work.
-     The best thing is to capture the error messages,
-     and e-mail them to me.  I will work with you to figure out
-     what needs to be done to support your system.
+     Posix, Posix.C, Posix.Limits, and Posix.Options.
 
   b. Compile several C-language programs "XXX-macros.c".
 
@@ -204,10 +184,6 @@ steps.
 
   e. Compile the various POSIX Ada package specifications and
      bodies.
-
-  [We apologize for the complexity of the above configuration process,
-   and how long it takes.  We have some ideas for simplifying it and
-   speeding it up in future versions.]
 
 3. If this all succeeds, try testing the installation.
    See below, for more explanation.
@@ -242,9 +218,7 @@ privilege, and you will probably not be running them with that
 privilege, at least for the first time.  There will be other
 failures if the underlying OS does not fully support the POSIX
 standards, or if Florist does not fully support a given
-functionaliy. See the file PASSFAIL, for a summary of the known
-(real) failures for Solaris 2.6, You should expect to find more
-test failures if you are porting to a new system.
+functionality.
 
 In the case of a test failure you will want more verbose output,
 which you can obtain by running the tests with the "-v" option.
@@ -285,10 +259,10 @@ the dual origins of this implementation, which we hope combines
 the virtues of two earlier implementations of the POSIX Ada
 bindings: one being FOREST, done by Kenneth Almquist, and the
 other being the FSU POSIX.5 implementation primarily by Lin
-Wan-Hua and Li Yi-Gang.  My original intent was to literally merge
-the code of these two versions, but they were so different that I
-ended up writing essentially all new code.  However, the those
-other implementations still formed the conceptual starting point
+Wan-Hua and Li Yi-Gang. The original intent was to literally merge
+the code of these two versions, but they were so different that we
+ended up writing essentially all new code.  However, the other
+implementations still formed the conceptual starting point
 for FLORIST.
 
 This work and the earlier POSIX Ada binding developments were
