@@ -17,6 +17,7 @@ configs/Config.OSF1
 configs/pconfig.AIX4.1
 configs/pconfig.Default
 configs/pconfig.HP-UX10.x
+configs/pconfig.HP-UX11.00
 configs/pconfig.IRIX6.x
 configs/pconfig.Linux
 configs/pconfig.SunOS5.6
