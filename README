@@ -261,7 +261,7 @@ the gnatmake parameters that specify where to find the
 Florist sources and object library file. Usually the follwing command
 will be enough :
 
-> gnatmake -Iflorist main -lflorist
+> gnatmake -Iflorist main -largs -lflorist
 
 If you don't want to keep around the whole Florist installation
 directory, you should be able to copy or move the subdirectory
