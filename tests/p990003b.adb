@@ -151,13 +151,11 @@ package body P990003b is
 
    for Data'Address use Data_Address;
 
-   --    pragma Import (Ada, Data);
-   --  The reason we considered the Import pragma is that
+   pragma Import (Ada, Data);
+   --  The reason we considered the Import pragma here is that
    --  we don't want the compiler to try to initialize the shared
    --  object Data, since it may already contain data values written
    --  there by another process.
-   --  However, we ran into problems here when the linker wanted to
-   --  find a definition of an external name "Data".
 
    function Shared_Data return P990000.Shared_Data_Ptr is
    begin
