@@ -629,7 +629,7 @@ package body POSIX is
 
    function "+" (Left, Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => Left.Val + Right.Val);
+      return Timespec'(Val => Left.Val + Right.Val);
    end "+";
 
    -----------
@@ -649,7 +649,7 @@ package body POSIX is
 
    function "-" (Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => -Right.Val);
+      return Timespec'(Val => -Right.Val);
    end "-";
 
    -----------
@@ -658,7 +658,7 @@ package body POSIX is
 
    function "-" (Left, Right : Timespec) return Timespec is
    begin
-      return Timespec' (Val => Left.Val - Right.Val);
+      return Timespec'(Val => Left.Val - Right.Val);
    end "-";
 
    -----------
@@ -668,7 +668,7 @@ package body POSIX is
    function "-" (Left : Timespec; Right : Nanoseconds)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val - Duration (Right) / NS_per_S);
+      return Timespec'(Val => Left.Val - Duration (Right) / NS_per_S);
    end "-";
 
    -----------
@@ -678,7 +678,7 @@ package body POSIX is
    function "*" (Left : Timespec; Right : Integer)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val * Duration (Right));
+      return Timespec'(Val => Left.Val * Duration (Right));
    end "*";
 
    -----------
@@ -688,7 +688,7 @@ package body POSIX is
    function "*" (Left : Integer; Right : Timespec)
      return Timespec is
    begin
-      return Timespec' (Val => Left * Right.Val);
+      return Timespec'(Val => Left * Right.Val);
    end "*";
 
    -----------
@@ -698,7 +698,7 @@ package body POSIX is
    function "/" (Left : Timespec; Right : Integer)
      return Timespec is
    begin
-      return Timespec' (Val => Left.Val / Right);
+      return Timespec'(Val => Left.Val / Right);
    end "/";
 
    -----------
@@ -752,7 +752,7 @@ package body POSIX is
 
    function To_Timespec (D : Duration)  return Timespec is
    begin
-      return Timespec' (Val => D);
+      return Timespec'(Val => D);
    end To_Timespec;
 
    -------------------
