@@ -92,42 +92,42 @@ package body POSIX.Permissions.Implementation is
    -----------------------------
 
    function Form_Ada_Permission (perm : in mode_t) return Permission_Set is
-      a_perm : Permission_Set := (others => false);
+      a_perm : Permission_Set := (others => False);
       c_perm : mode_t;
    begin
       c_perm := perm;
       if (c_perm and S_IXOTH) /= 0  then
-         a_perm (Others_Execute) := true;
+         a_perm (Others_Execute) := True;
       end if;
       if (c_perm and S_IWOTH) /= 0 then
-         a_perm (Others_Write) := true;
+         a_perm (Others_Write) := True;
       end if;
       if (c_perm and S_IROTH) /= 0 then
-         a_perm (Others_Read) := true;
+         a_perm (Others_Read) := True;
       end if;
       if (c_perm and S_IXGRP) /= 0 then
-         a_perm (Group_Execute) := true;
+         a_perm (Group_Execute) := True;
       end if;
       if (c_perm and S_IWGRP) /= 0 then
-         a_perm (Group_Write) := true;
+         a_perm (Group_Write) := True;
       end if;
       if (c_perm and S_IRGRP) /= 0 then
-         a_perm (Group_Read) := true;
+         a_perm (Group_Read) := True;
       end if;
       if (c_perm and S_IXUSR) /= 0 then
-         a_perm (Owner_Execute) := true;
+         a_perm (Owner_Execute) := True;
       end if;
       if (c_perm and S_IWUSR) /= 0 then
-         a_perm (Owner_Write) := true;
+         a_perm (Owner_Write) := True;
       end if;
       if (c_perm and S_IRUSR) /= 0 then
-         a_perm (Owner_Read) := true;
+         a_perm (Owner_Read) := True;
       end if;
       if (c_perm and S_ISGID) /= 0 then
-         a_perm (Set_Group_ID) := true;
+         a_perm (Set_Group_ID) := True;
       end if;
       if (c_perm and S_ISUID) /= 0 then
-         a_perm (Set_User_ID) := true;
+         a_perm (Set_User_ID) := True;
       end if;
       return a_perm;
    end Form_Ada_Permission;
