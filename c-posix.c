@@ -2838,7 +2838,7 @@ void create_posix() {
   fprintf(fp,"   POSIX_Ada_Version : constant := 1995_00;\n\n");
 
 #ifdef VERSION
-  fprintf(fp,"   FLORIST_Version : constant := \""VERSION"\";\n\n");
+  fprintf(fp,"   FLORIST_Version : constant String := \""VERSION"\";\n\n");
 #endif
   fprintf(fp,"   --  Optional Facilities (obsolescent, 0)\n");
   fprintf(fp,"   --  See package POSIX.Limits for preferred interfaces.\n\n");
