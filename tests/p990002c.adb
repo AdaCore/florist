@@ -45,6 +45,7 @@ with P990000,
      POSIX_Calendar,
      POSIX_Mutexes,
      POSIX_Condition_Variables,
+     POSIX_Configurable_System_Limits,
      POSIX_Report;
 package body P990002c is
 
@@ -53,6 +54,7 @@ package body P990002c is
        POSIX_Calendar,
        POSIX_Mutexes,
        POSIX_Condition_Variables,
+       POSIX_Configurable_System_Limits,
        POSIX_Report;
 
    Data : Shared_Data_Ptr;
@@ -78,39 +80,35 @@ package body P990002c is
    procedure Initialize_Scheduling (Shared_Data : Shared_Data_Ptr) is
    begin
       Data := Shared_Data;
-      Start_Time := Data.Start_Timespec;
+      Assert (Data.Check = 9999, "A001: p99002c");
+      Start_Time := To_Timespec (Data.Start_POSIX_Time);
+      Comment ("Clock - Start_Time", Clock - Start_Time);
       Stop_Time := Start_Time +
         POSIX.To_Timespec (POSIX.Seconds (Seconds_To_Run), 0);
+      Comment ("Stop_Time - Clock", Stop_Time - Clock);
       Next_Request_Time := (others => Start_Time);
-      exception when E : others => Fatal_Exception (E, "A001: P990002c");
+   exception when E : others => Fatal_Exception (E, "A002: p990002c");
    end Initialize_Scheduling;
 
    function Reschedule (Job : Jobs) return Boolean is
-      Last_Completion_Time,
-      Time_To_Next_Request : Timespec;
-      Missed_Periods : Integer;
+      Last_Completion_Time : Timespec;
    begin
+      if Data.Missed_Deadlines then
+         --  there is at least one task that has already missed its
+         --  deadline, so no need to continue anymore
+         return False;
+      end if;
       Next_Request_Time (Job) := Next_Request_Time (Job) +
         To_Timespec (Period (Job));
       Last_Completion_Time := Clock;
-      Time_To_Next_Request :=
-        Next_Request_Time (Job) - Last_Completion_Time;
-      if Time_To_Next_Request < Zero then
-         if not Data.Missed_Deadlines then
-            Data.Missed_Deadlines := True;
-            Comment ("lateness", Time_To_Next_Request);
-         end if;
-         Missed_Periods := 0;
-         while Time_To_Next_Request < Zero loop
-            Time_To_Next_Request := Time_To_Next_Request +
-              To_Timespec (Period (Job));
-            Missed_Periods := Missed_Periods + 1;
-         end loop;
-         Next_Request_Time (Job) :=
-           Next_Request_Time (Job) +
-             Missed_Periods * To_Timespec (Period (Job));
+      if Next_Request_Time (Job) <= Last_Completion_Time then
+         Data.Missed_Deadlines := True;
+         Comment ("lateness",
+           Last_Completion_Time - Next_Request_Time (Job));
+         return False;
       end if;
       if Next_Request_Time (Job) >= Stop_Time then
+         --  if the test has been running for enough time
          return False;
       end if;
       Lock (MD);
@@ -120,14 +118,16 @@ package body P990002c is
          exception
          when POSIX_Error =>
             --  The only error return here shoud be if we timed out.
-            Assert (Get_Error_Code = Timed_Out, "A002: P990002c");
-         when E : others => Unexpected_Exception (E, "A003: P990002c");
+            Assert (Get_Error_Code = Timed_Out, "A003: p990002c");
+            Assert (Clock >= Next_Request_Time (Job), "A004: p99002c");
+         when E : others => Unexpected_Exception (E, "A005: p990002c");
+            Unlock (MD);
          end;
          exit when Clock >= Next_Request_Time (Job);
       end loop;
       Unlock (MD);
       return True;
-      exception when E : others => Fatal_Exception (E, "A004: P990002c");
+   exception when E : others => Fatal_Exception (E, "A006: p990002c");
       return False;
    end Reschedule;
 
@@ -137,7 +137,7 @@ package body P990002c is
    end Finalize;
 
 begin
-   Optional (Mutex_Option, "A005: P990002c");
+   Optional (Mutex_Option, "A007: p990002c");
    Initialize (MA);
    begin
       Set_Locking_Policy (MA, Highest_Ceiling_Priority);
@@ -146,7 +146,7 @@ begin
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Operation_Not_Supported then
          Optional (Mutex_Option, Mutex_Priority_Ceiling_Option,
-           Operation_Not_Implemented, E1, "A006: P990002c");
+           Operation_Not_Implemented, E1, "A008: p990002c");
       end if;
       Initialize (MA);
       Initialize (M, MA);
@@ -155,5 +155,5 @@ begin
    Initialize (CA);
    Initialize (C, CA);
    CD := Descriptor_Of (C);
-   exception when E : others => Fatal_Exception (E, "A007: P990002c");
+exception when E : others => Fatal_Exception (E, "A009: p990002c");
 end P990002c;
