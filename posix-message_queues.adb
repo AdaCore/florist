@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1999 Florida State University (FSU),                 --
+--  Copyright (c) 1996-2002 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -54,10 +54,6 @@ package body POSIX.Message_Queues is
    use POSIX.C;
    use POSIX.Implementation;
    use POSIX.Permissions.Implementation;
-
-   --  check that Stream_Element and char are the same size
-   Assertion : constant := Boolean'Pos
-     (Boolean'Pred (Stream_Element'Size = char'Size));
 
    function To_int is new Unchecked_Conversion (Bits, int);
    function To_Bits is new Unchecked_Conversion (int, Bits);
