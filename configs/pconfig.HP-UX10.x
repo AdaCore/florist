@@ -1,0 +1,2 @@
+#define _XOPEN_SOURCE_EXTENDED
+#define _REENTRANT

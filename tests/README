@@ -1,0 +1,187 @@
+file: florist/tests/README [$Revision$]
+
+THIS SOFTWARE AND THE ACCOMPANYING DOCUMENTATION ARE DISTRIBUTED
+IN THE HOPE THAT IT WILL BE USEFUL, BUT WITHOUT ANY WARRANTY;
+WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+FOR A PARTICULAR PURPOSE -- NOTWITHSTANDING ANY STATEMENTS MADE
+BELOW IN THIS FILE.
+
+POSIX.5B VALIDATION TESTS:
+
+This directory contains working drafts of validation tests for
+IEEE Standard 1003.5b.  These test programs, which are derived
+from programs originally written as tests of Florist, have been
+developed under contract to Logicon Eagle Technologies for the
+U.S. Department of Defense, Defense Information Systems Agency,
+Center for Standards.
+
+PREREQUISITES:
+
+The tests are supposed to be 100\% portable, but the procedures
+for compiling them and running them will depend on the environment
+in which you are working.
+
+The Makefile here has been used successfully in the following
+environment:
+
+  make utility             :  GNU Make version 3.74
+  Ada compiler             :  GNATMAKE 3.10p
+  POSIX.5b implementation  :  Florist 1.2, 29 March 1998
+  OS                       :  Solaris 2.6
+  architecture             :  SPARCstation 20 HS14
+
+The Makefile depends on the "make" utility, how to call the Ada
+compiler, and where the sources and library files associated with
+the implementation of POSIX.5b are installed.  
+
+The Makefile in this directory is designed to work with the Gnu
+"make" utility.  (It will probably work with other "make"
+utilities, except for the pattern-matching rules, which use the
+extended Gnu syntax.)
+
+The Makefile is set up to work with the Florist implementation of
+POSIX.5/.5b, and the GNAT Ada compiler.  It assumes you have
+compiled Florist, that the sources and object library are in the
+directory ./floristlib.
+
+With this Makefile you can compile all the tests using the command
+"make tests".  You can run all the tests by typing "make
+run_tests".  The tests will be run in a subdirectory called
+"test.dir", and the results will be logged to the file
+"test.dir/run_tests_1.log".  It will take quite a long time to run
+all the tests, even when they all pass.  In particular, the "p99*"
+series of tests normally take a long time.  There is also high
+probability that one of the tests may crash the test run, or
+"hang".  In the latter case, you will need to kill the test run,
+and run the remaining tests in smaller groups.  Try commenting the
+bad tests out of the script "run_tests_1", and running them
+individually.
+
+VERBOSITY CONTROLS:
+
+You can modify how much output the test produces, using the
+following command line options.
+
+-t  = Terse output.  This eliminates all but the first and last
+      lines of output
+
+-v  = Verbose output.  This provides additional output, that
+      may be helpful in narrowing down the nature of a test
+      failure.
+
+The output of the default verbosity level is described below.
+
+NORMAL TEST OUTPUT:
+
+Each test will produce an initial line giving the name of the test
+and some version information, e.g.
+
+,.,. p020400 POSIX Ada Validation Tests, Version 1.2
+
+By default, the test will then produce a series of lines to
+indicate its progress through various internal subdivisions, like
+the following:
+
+---- *-Subtest: package POSIX
+---- *-Subtest: version query functions
+---- *-Subtest: optional facility subtypes
+---- *-Subtest: bytes and I/O counts
+---- *-Subtest: Blocking_Behavior type
+---- *-Subtest: Signal_Masking type
+---- *-Subtest: POSIX_Character
+---- *-Subtest: POSIX_String type
+---- *-Subtest: POSIX_String_List type
+---- *-Subtest: Option_Set type
+---- *-Subtest: Error_Code type
+---- *-Subtest: uname-derived functions
+---- *-Subtest: Timespec type
+
+If the test passes it will then terminate and produce the message:
+
+==== Test Completed Successfully.
+
+ORDINARY FAILURES:
+
+Any messages of the following form indicate a failure at some
+point within the test:
+
+     !!TEST FAILED: ...
+
+If the test fails and successfully terminates, it will produce a
+message of the form:
+
+==== Failed ...some number... tests.
+
+EXTREME FAILURES:
+
+Some tests may hang, or terminate without completing.  We have
+tried to design the tests so that they can tolerate some
+anticipated kinds of failures and still run to completion, but the
+range of possible failures is practically infinite.  In these
+cases, it may help to use the "-v" option to see more precisely
+how far the test got before the problem occurred.
+
+UNSUPPORTED FEATURES:
+
+Some tests will produce "Nonsupport of ......" message after the
+"Completed successfully" message. This indicates that the feature
+you are testing is not provided by the POSIX Ada binding
+implementation.  This should only happen if it the corresponding
+capablity is not provided by the underlying operating system.
+This is not a failure, unless the implementation actually claims
+to support the feature, or there are other tests where the feature
+appears to be supported.
+
+You can use the "-v" command-line argument option when you run the
+test to see messages indicating each of the points where the
+test found a feature unsupported.
+
+PRIVILEGE FAILURES:
+
+Some tests attempt to perform operations that may require special
+privilege.  These tests passed when we ran them on Solaris 2.6
+with "root" privilege, but running strange programs with root
+permission is always a risky thing to do.  You will need to review
+these tests and determine what needs to be done on your system to
+give them the appropriate privilege, and arrange to test them in
+an environment where they will do no serious harm if the run amok.
+
+TAILORABLE FEATURES:
+
+The POSIX standards provide considerable leeway for variation
+among implementations.  For example, an implementation may impose
+arbitrary restrictions on the form of the name of a message queue.
+In order to accomodate these variations, we have attempted to
+parameterize the tests, and to isolate the implementation dependent
+constants (such as message queue names) in a single package, named
+Test_Parameters.  You may need to edit this package to fit the
+implementation being tested.
+
+OTHER SETUP:
+
+Some tests require other external setup, before the test program
+is executed.  For example, some require setting an environment
+variable, and some require putting an executable file in a known
+location.  See the script "run_tests_1" for examples.
+
+STATUS:
+
+At the moment, these tests are still under development.  We are
+making them publicly available as they are, because we would like
+review and comment, and because we believe they are already
+helpful for checking out an impelementation of the POSIX Ada
+bindings.  If a test fails it generally means either the
+underlying operating system or the implementation of the Ada
+binding (e.g., Florist) is at fault, but beware that there is also
+a chance that the test is at fault.
+
+I am interested in receiving bug reports.  Such reports should be
+sent to
+             baker@cs.fsu.edu
+
+Please understand that my ability to respond to bug reports will
+be limited, and will depend on continued funding.
+
+Ted Baker
+FSU POSIX/Ada Realtime Project
+29 March 1998

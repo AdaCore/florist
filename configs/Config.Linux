@@ -1,0 +1,4 @@
+# file: Linux/Config
+# Linux-specific configuration information
+LIBS =
+

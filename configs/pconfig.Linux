@@ -1,0 +1,4 @@
+/* file: pconfig.h.in
+   Linux version
+ */
+#define _BSD_SOURCE

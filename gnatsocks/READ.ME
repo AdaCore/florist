@@ -1,0 +1,47 @@
+GNATSOCKS
+
+This directory contains the code of GNATSOCKS, a simple
+object-oriented Ada interface for doing socket I/O.  This is a
+personal project of mine, which I wrote originally for use by the
+students in my "Software Engineering with Ada" course, so that
+they could see how Ada 95 tagged types and imported subprograms
+work, and so that they would not have to waste time fiddling with
+the details of the UNIX C-language socket interfaces.  The
+interfaces were inspired by the Java socket I/O classes.
+
+I'm making this code available to the general public in hope that
+it may be of some use, but anyone who uses it should beware that I
+do not consider it complete, nor have I tested it beyond the few
+simple test programs that are in this directory.
+
+The original Gnatsocks used hand-coded interfaces to the
+C-language socket I/O interfaces of the Solaris 2.6 operating
+system.  The present version has been recoded in the form of an
+add-on to Florist (the FSU implementation of the POSIX Ada
+bindings).  However, Gnatsocks does not depend on all of Florist
+-- just on the configuration mechanism and the a few packages
+(POSIX, POSIX.C, POSIX.C.Sockets).
+
+--Ted Baker (12 May 1998)
+
+READ.ME			this file
+Makefile		type "make" to compile everything
+
+sockets.ads		socket ADT
+sockets.adb		   implementation
+sockets-internet.ads	extension for internet sockets
+sockets-internet.adb       implementation
+sockets-unix.ads	extension for UNIX sockets
+sockets-unix.adb           implementation
+
+sockettest.adb		test program, reads one line from port 12
+echoserver.adb		test program, echos input from port 8189
+test_socketsadb		test program, calls and checks various interfaces
+
+os_interface.ads	low-level interface to Solaris socket libraries
+os_interface.adb	   implementation
+errno_c.c		low-level interface to C errno values
+
+Comments, suggestions, and bug-fixes are welcome.
+
+--Ted Baker (16 March 1997)

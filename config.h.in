@@ -1,0 +1,430 @@
+/* When adding new names (header-files, types, functions, etc.)
+   to this file, don't forget to also add the corresponding names
+   to configure.in.
+
+   There are some non-POSIX names here, that we have learned by
+   experience are defined on certain systems and may be used in place
+   of the proper POSIX names.  In particular, the names of the form
+   __posix_XXX are not real POSIX names, but rather are stand-ins for
+   the proper POSIX function XXX, specific to Solaris 2.6.  I apologize
+   for this ugly hack.  Suggestions for a cleaner workaround would be
+   welcome (see related comment on SOLARIS in the file README).
+
+ */
+
+/* header files
+ */
+
+#undef HAVE_DIRENT_H
+
+
+/* functions
+ */
+
+#undef HAVE_accept
+#undef HAVE_access
+#undef HAVE_aio_cancel
+#undef HAVE_aio_error
+#undef HAVE_aio_fsync
+#undef HAVE_aio_read
+#undef HAVE_aio_return
+#undef HAVE_aio_suspend
+#undef HAVE_aio_write
+
+#undef HAVE_bind
+
+#undef HAVE_cfgetispeed
+#undef HAVE_cfgetospeed
+#undef HAVE_cfsetispeed
+#undef HAVE_cfsetospeed
+#undef HAVE_chdir
+#undef HAVE_chmod
+#undef HAVE_chown
+#undef HAVE_clock_getres
+#undef HAVE_clock_gettime
+#undef HAVE_clock_settime
+#undef HAVE_close
+#undef HAVE_closedir
+#undef HAVE_connect
+#undef HAVE_ctermid
+#undef HAVE_ctime
+#undef HAVE_ctime_r
+
+#undef HAVE_dup
+#undef HAVE_dup2
+
+/* not referenced: 1 */
+#undef HAVE_endhostent
+#undef HAVE_endnetent
+#undef HAVE_endprotoent
+/* not referenced: 1 */
+#undef HAVE_endservent
+#undef HAVE_execl
+#undef HAVE_execle
+#undef HAVE_execlp
+#undef HAVE_execv
+#undef HAVE_execve
+#undef HAVE_execvp
+
+#undef HAVE_fchmod
+#undef HAVE_fcntl
+#undef HAVE_fdatasync
+#undef HAVE_fork
+#undef HAVE_fpathconf
+#undef HAVE_fstat
+#undef HAVE_fsync
+#undef HAVE_ftruncate
+
+#undef HAVE_getaddrinfo
+#undef HAVE_getcwd
+#undef HAVE_getegid
+#undef HAVE_getenv
+#undef HAVE_geteuid
+#undef HAVE_getgid
+/* not referenced: 2 */
+#undef HAVE_getgrgid
+#undef HAVE_getgrgid_r
+/* not referenced: 2 */
+#undef HAVE_getgrnam
+#undef HAVE_getgrnam_r
+#undef HAVE_getgroups
+/* not referenced: 5 */
+#undef HAVE_gethostbyaddr
+#undef HAVE_gethostbyaddr_r
+#undef HAVE_gethostbyname
+#undef HAVE_gethostbyname_r
+#undef HAVE_gethostname
+#undef HAVE_getlogin
+#undef HAVE_getlogin_r
+#undef HAVE_getnetbyaddr_r
+#undef HAVE_getnetbyname_r
+/* not referenced: 2 */
+#undef HAVE_getnetbyaddr
+#undef HAVE_getnetbyname
+#undef HAVE_getpeername
+#undef HAVE_getpgrp
+#undef HAVE_getpid
+#undef HAVE_getppid
+#undef HAVE_getprotobyname_r
+#undef HAVE_getprotobynumber_r
+/* not referenced: 2 */
+#undef HAVE_getprotobyname
+#undef HAVE_getprotobynumber
+#undef HAVE_getpwnam
+#undef HAVE_getpwnam_r
+#undef HAVE_getpwuid
+/* unreferenced: 4 */
+#undef HAVE_getservbyname
+#undef HAVE_getservbyname_r
+#undef HAVE_getservbyport
+#undef HAVE_getservbyport_r
+#undef HAVE_getsockname
+#undef HAVE_getsockopt
+#undef HAVE_getuid
+/* unreferenced: 1 */
+#undef HAVE_gmtime_r
+
+/* not referenced: 5 */
+#undef HAVE_inet_addr
+#undef HAVE_inet_lnaof
+#undef HAVE_inet_makeaddr
+#undef HAVE_inet_netof
+#undef HAVE_inet_network
+#undef HAVE_inet_ntoa
+#undef HAVE_isatty
+/* not referenced: 1 */
+#undef HAVE_isfdtype
+
+#undef HAVE_kill
+
+#undef HAVE_link
+#undef HAVE_lio_listio
+#undef HAVE_listen
+#undef HAVE_lseek
+
+#undef HAVE_mkdir
+#undef HAVE_mkfifo
+#undef HAVE_mlock
+#undef HAVE_mlockall
+#undef HAVE_mmap
+#undef HAVE_mprotect
+#undef HAVE_mq_close
+#undef HAVE_mq_getattr
+#undef HAVE_mq_notify
+#undef HAVE_mq_open
+#undef HAVE_mq_receive
+#undef HAVE_mq_send
+#undef HAVE_mq_setattr
+#undef HAVE_mq_unlink
+#undef HAVE_msync
+#undef HAVE_munlock
+#undef HAVE_munlockall
+#undef HAVE_munmap
+
+#undef HAVE_open
+#undef HAVE_opendir
+
+#undef HAVE_pathconf
+#undef HAVE_pipe
+#undef HAVE_poll
+
+#undef HAVE_pthread_cond_broadcast
+#undef HAVE_pthread_cond_destroy
+#undef HAVE_pthread_cond_init
+#undef HAVE_pthread_cond_signal
+#undef HAVE_pthread_cond_timedwait
+#undef HAVE_pthread_cond_wait
+#undef HAVE_pthread_condattr_destroy
+#undef HAVE_pthread_condattr_getpshared
+#undef HAVE_pthread_condattr_init
+#undef HAVE_pthread_condattr_setpshared
+
+#undef HAVE_pthread_mutex_destroy
+#undef HAVE_pthread_mutex_getprioceiling
+#undef HAVE_pthread_mutex_init
+#undef HAVE_pthread_mutex_lock
+#undef HAVE_pthread_mutex_setprioceiling
+#undef HAVE_pthread_mutex_trylock
+#undef HAVE_pthread_mutex_unlock
+#undef HAVE_pthread_mutexattr_destroy
+#undef HAVE_pthread_mutexattr_getprioceiling
+#undef HAVE_pthread_mutexattr_getprotocol
+#undef HAVE_pthread_mutexattr_getpshared
+#undef HAVE_pthread_mutexattr_init
+#undef HAVE_pthread_mutexattr_setprioceiling
+#undef HAVE_pthread_mutexattr_setprotocol
+#undef HAVE_pthread_mutexattr_setpshared
+
+#undef HAVE_pthread_sigmask
+
+#undef HAVE_putenv
+
+#undef HAVE_read
+#undef HAVE_readdir
+/* not referenced: 1 */
+#undef HAVE_readdir_r
+#undef HAVE_recv
+#undef HAVE_recvfrom
+#undef HAVE_recvmsg
+#undef HAVE_rename
+#undef HAVE_rmdir
+
+#undef HAVE_sched_get_priority_max
+#undef HAVE_sched_get_priority_min
+#undef HAVE_sched_getparam
+#undef HAVE_sched_getscheduler
+#undef HAVE_sched_rr_get_interval
+#undef HAVE_sched_setparam
+#undef HAVE_sched_setscheduler
+#undef HAVE_sched_yield
+
+#undef HAVE_select
+#undef HAVE_sem_close
+#undef HAVE_sem_destroy
+#undef HAVE_sem_getvalue
+#undef HAVE_sem_init
+#undef HAVE_sem_open
+#undef HAVE_sem_post
+#undef HAVE_sem_trywait
+#undef HAVE_sem_unlink
+#undef HAVE_sem_wait
+#undef HAVE_send
+#undef HAVE_sendmsg
+#undef HAVE_sendto
+#undef HAVE_setenv
+#undef HAVE_setgid
+/* not referenced: 1 */
+#undef HAVE_sethostent
+#undef HAVE_setnetent
+#undef HAVE_setpgid
+#undef HAVE_setprotoent
+/* not referenced: 1 */
+#undef HAVE_setservent
+#undef HAVE_setsid
+#undef HAVE_setsockopt
+#undef HAVE_setuid
+#undef HAVE_shm_open
+#undef HAVE_shm_unlink
+#undef HAVE_shutdown
+#undef HAVE_sigaction
+#undef HAVE_sigaddset
+#undef HAVE_sigdelset
+#undef HAVE_sigemptyset
+#undef HAVE_sigfillset
+#undef HAVE_sigismember
+#undef HAVE_sigpending
+#undef HAVE_sigqueue
+#undef HAVE_sigtimedwait
+#undef HAVE_sigwait
+#undef HAVE_sigwaitinfo
+#undef HAVE_sockatmark
+#undef HAVE_socket
+#undef HAVE_socketpair
+#undef HAVE_stat
+#undef HAVE_sysconf
+
+#undef HAVE_t_accept
+/* not referenced: 1 */
+#undef HAVE_t_alloc
+#undef HAVE_t_bind
+/* not referenced: 1 */
+#undef HAVE_t_blocking
+#undef HAVE_t_close
+#undef HAVE_t_connect
+#undef HAVE_t_error
+#undef HAVE_t_free
+#undef HAVE_t_getinfo
+#undef HAVE_t_getprotaddr
+#undef HAVE_t_getstate
+#undef HAVE_t_listen
+#undef HAVE_t_look
+/* not referenced: 1 */
+#undef HAVE_t_nonblocking
+#undef HAVE_t_open
+#undef HAVE_t_optmgmt
+#undef HAVE_t_rcv
+#undef HAVE_t_rcvconnect
+#undef HAVE_t_rcvdis
+#undef HAVE_t_rcvrel
+#undef HAVE_t_rcvreldata
+#undef HAVE_t_rcvudata
+#undef HAVE_t_rcvuderr
+#undef HAVE_t_rcvv
+#undef HAVE_t_rcvvudata
+#undef HAVE_t_snd
+#undef HAVE_t_snddis
+#undef HAVE_t_sndrel
+#undef HAVE_t_sndreldata
+#undef HAVE_t_sndudata
+#undef HAVE_t_sndv
+#undef HAVE_t_sndvudata
+#undef HAVE_t_strerror
+#undef HAVE_t_sync
+#undef HAVE_t_unbind
+
+#undef HAVE_tcdrain
+#undef HAVE_tcflow
+#undef HAVE_tcflush
+#undef HAVE_tcgetattr
+#undef HAVE_tcgetpgrp
+#undef HAVE_tcsendbreak
+#undef HAVE_tcsetattr
+#undef HAVE_tcsetpgrp
+#undef HAVE_time
+#undef HAVE_timer_create
+#undef HAVE_timer_delete
+#undef HAVE_timer_getoverrun
+#undef HAVE_timer_gettime
+#undef HAVE_timer_settime
+#undef HAVE_times
+#undef HAVE_ttyname
+/* not referenced: 1 */
+#undef HAVE_ttyname_r
+
+#undef HAVE_umask
+#undef HAVE_uname
+#undef HAVE_unlink
+#undef HAVE_unsetenv
+#undef HAVE_utime
+
+#undef HAVE_waitpid
+#undef HAVE_write
+
+/* SOLARIS hacks
+ */
+
+#undef HAVE___posix_ctime_r
+#undef HAVE___posix_readdir_r
+#undef HAVE___posix_sigwait
+#undef HAVE___posix_ttyname_r
+
+/* types
+ */
+
+#undef HAVE_cc_t
+#undef HAVE_clockid_t
+#undef HAVE_clock_t
+#undef HAVE_dev_t
+#undef HAVE_fd_set
+#undef HAVE_in_addr_t
+#undef HAVE_in_port_t
+#undef HAVE_inet_netof
+#undef HAVE_ino_t
+#undef HAVE_mqd_t
+#undef HAVE_nlink_t
+#undef HAVE_pthread_attr_t
+#undef HAVE_pthread_cond_t
+#undef HAVE_pthread_condattr_t
+#undef HAVE_pthread_key_t
+#undef HAVE_pthread_mutex_t
+#undef HAVE_pthread_mutexattr_t
+#undef HAVE_pthread_once_t
+#undef HAVE_pthread_t
+#undef HAVE_sa_family_t
+#undef HAVE_sem_t
+#undef HAVE_siginfo_t
+#undef HAVE_sigset_t
+#undef HAVE_sigval
+#undef HAVE_speed_t
+#undef HAVE_suseconds_t
+#undef HAVE_tcflag_t
+#undef HAVE_timer_t
+
+/* error return macros or variables
+ */
+#undef HAVE_t_errno
+#undef HAVE_t_nerr
+
+/* struct types
+ */
+
+#undef HAVE_struct_addrinfo
+#undef HAVE_struct_aiocb
+#undef HAVE_struct_cmsghdr
+#undef HAVE_struct_dirent
+#undef HAVE_struct_flock
+#undef HAVE_struct_group
+#undef HAVE_struct_hostent
+#undef HAVE_struct_itimerspec
+#undef HAVE_struct_in_addr
+#undef HAVE_struct_ip_opts
+#undef HAVE_struct_iovec
+#undef HAVE_struct_linger
+#undef HAVE_struct_msghdr
+#undef HAVE_struct_mq_attr
+#undef HAVE_struct_netbuf
+#undef HAVE_struct_netent
+#undef HAVE_struct_passwd
+#undef HAVE_struct_pollfd
+#undef HAVE_struct_protoent
+#undef HAVE_struct_sched_param
+#undef HAVE_struct_servent
+#undef HAVE_struct_sigaction
+#undef HAVE_struct_cma_sigaction
+#undef HAVE_struct_sigevent
+#undef HAVE_struct_sockaddr
+#undef HAVE_struct_sockaddr_in
+#undef HAVE_struct_sockaddr_un
+#undef HAVE_struct_stat
+#undef HAVE_struct_termios
+#undef HAVE_struct_timespec
+#undef HAVE_struct_timeval
+#undef HAVE_struct_tm
+#undef HAVE_struct_tms
+#undef HAVE_struct_t_info
+#undef HAVE_struct_t_opthdr
+#undef HAVE_struct_t_bind
+#undef HAVE_struct_t_optmgmt
+#undef HAVE_struct_t_discon
+#undef HAVE_struct_t_call
+#undef HAVE_struct_t_unitdata
+#undef HAVE_struct_t_uderr
+#undef HAVE_struct_t_linger
+#undef HAVE_struct_t_kpalive
+#undef HAVE_struct_utimbuf
+#undef HAVE_struct_utsname
+#undef HAVE_component_sa_sigaction
+#undef HAVE_component_sigev_notify_function
+#undef HAVE_component_msg_control
+#undef HAVE_component_msg_controllen
+#undef HAVE_component_msg_flags
