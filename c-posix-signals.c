@@ -39,7 +39,6 @@
    =======================
    [$Revision$]
 
-
    This program generates the file
    posix-implementation-ok_signals.ads,
    which is an Ada package specification that defines a
@@ -602,13 +601,19 @@ void test_signal (int nodefaults, int signal) {
       }
    }
    if (! nodefaults) {
-     act.sa_handler = SIG_IGN;
-     if (sigaction (signal, &act, NULL)) {
-        fprintf (stderr, "  *** sigaction: %s\n", strerror (errno));
-        fflush (stderr);
-        kill (0, SIGKILL);
-        exit (-1);
-     }
+      act.sa_handler = SIG_IGN;
+      if (sigaction (signal, &act, NULL)) {
+         if (errno == EINVAL) {
+            fprintf (stderr, "cannot be ignored\n");
+            fflush (stderr);
+	    exit (-1);
+	 } else {
+            fprintf (stderr, "  *** sigaction: %s\n", strerror (errno));
+            fflush (stderr);
+            kill (0, SIGKILL);
+            exit (-1);
+         }
+      }
    }
    if (! nodefaults) {
      act.sa_handler = SIG_DFL;
@@ -663,7 +668,6 @@ void test_signal (int nodefaults, int signal) {
    }
    exit (-1);
 }
-
 
 void test_signals (int nodefaults, int *oksigs) {
 
