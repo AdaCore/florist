@@ -89,7 +89,7 @@ package body POSIX.Unsafe_Process_Primitives is
 #  if HAVE_Leroy_Threads then
    function getpid return pid_t;
    pragma Import (C, getpid, getpid_LINKNAME);
-#  end if
+#  end if;
 
    function Fork return POSIX.Process_Identification.Process_ID is
       Result : pid_t;
