@@ -400,12 +400,13 @@ package body POSIX.Process_Primitives is
       Mode : in POSIX.IO.File_Mode := POSIX.IO.Read_Only;
       Options : in POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set)
    is
+      Name_With_NUL : POSIX_String := Name & NUL;
       Tmp : FD_Set_Ptr := Template.FD_Set;
    begin
       Validate (Template);
 
       if Tmp = null then  
-         Template.FD_Set := new FD_Set_Element (Open, Name'Length);
+         Template.FD_Set := new FD_Set_Element (Open, Name_With_Nul'Length);
          Tmp := Template.FD_Set;
 
       else
@@ -413,14 +414,14 @@ package body POSIX.Process_Primitives is
             Tmp := Tmp.Next;
          end loop;
 
-         Tmp.Next := new FD_Set_Element (Open, Name'Length);
+         Tmp.Next := new FD_Set_Element (Open, Name_With_Nul'Length);
          Tmp := Tmp.Next;
       end if;
 
       Tmp.FD := File;
       Tmp.Next := null;
       Tmp.Action := Open;
-      Tmp.File_Name := Name;
+      Tmp.File_Name := Name_With_Nul;
       Tmp.File_Mode := Mode;
       Tmp.File_Options := Options;
    end Set_File_Action_To_Open;
