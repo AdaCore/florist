@@ -40,9 +40,9 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  This package contains test-harness details that may need tailoring
---  to fit the local implementation.  For now, we try to keep the tailorable
---  part to the body of the package.
+--  This package encapsulates implementation-dependences
+--  from the tests.  The specification should not be modified,
+--  but the body will need to be tailored to each implementation.
 
 --  The Valid_XX_Name functions must return
 --  a distinct name for each positive value N.
@@ -86,15 +86,57 @@ package Test_Parameters is
    --  String that is a valid filename, but for which no file exists
    --  in the directory where the tests are run.
 
+   type Signal_Action is
+     (Unspecified, Ignore, Continue, Stop, Termination);
+
+   function Default_Action (Sig : POSIX_Signals.Signal)
+     return Signal_Action;
+   --  Returns the default action of Sig.
+   --  SIGCHLD => Ignore
+   --  SIGCONT => Continue
+   --  SIGSTOP | SIGTSTP | SIGTTIN | SIGTTOU => Stop
+   --  SIGHUP  | SIGINT  | SIGKILL | SIGPIPE |
+   --  SIGQUIT | SIGTERM | SIGUSR1 | SIGUSR2 => Termination
+   --  others => implementation-dependent
+
    function Is_Reserved_Signal
      (Sig : POSIX_Signals.Signal) return Boolean;
-   --  Signals not defined by the standard, that are reserved by the
-   --  implementation. See [2.2.2.117].
+   --  Returns True only for signals that are reserved by the
+   --  implementation.  See [2.2.2.117].
+   --  These must include SIGABRT, SIGALRM, SIGFPE, SIGILL,
+   --  SIGSEGV, and SIGBUS.
+   --  The only other signals allowed to be reserved are those that are
+   --  not named in POSIX.5 that are not in the realtime range.
+   --  This applies to Await_Signal [3.3.15]
 
    function Action_Cannot_Be_Set
      (Sig : POSIX_Signals.Signal) return Boolean;
-   --  Signals for which the application cannot set the action.
-   --  See [3.3.9.3].
+   --  Signals for which "action is not permitted to be set by the
+   --  application", as in the description of Ignore_Signal [3.3.9].
+   --  We assume these are the same as the
+   --  signals that are "not permitted to be accepted or caught",
+   --  as in the description of Enable_Queueing [3.3.14].
+   --  Since [3.3.2] says
+   --  "an implementation shall not impose restrictions on the ability
+   --  of an application to send, accept, block, or ignore the signals
+   --  defined by this standard, except as specified in this standard"
+   --  we conclude that these signals are just SIGKILL and SIGSTOP,
+   --  plus the reserved signals and SIGNULL.
+
+   function Default_Is_Ignore
+     (Sig : POSIX_Signals.Signal) return Boolean;
+   --  Signals for which the default action is to ignore the signal,
+   --  including signals that stop or continue the process.
+   --  These must include SIGCHLD, SIGURG, SIGIO, SIGCONT,
+   --  SIGSTOP, SIGTSTP, SIGTTIN, SIGTTOU.
+   --  The only other signals allowed here are signals not named
+   --  in POSIX.5 that are not in the realtime range, that the
+   --  implementation chooses to ignore by default.
+
+   function Try_Install_Empty_Handler (Sig : POSIX_Signals.Signal)
+     return Boolean;
+   --  If POSIX.5c is supported: call Install_Empty_Handler and return True;
+   --  else just return False.
 
    function Signal_Mask_Is_Process_Wide return Boolean;
    --  See [3.3.1]
@@ -104,6 +146,10 @@ package Test_Parameters is
    --  Returns a valid semaphore name.
    --  The values must be distinct for values of N in the range
    --  1 .. POSIX_Limits.Portable_Semaphores_Maximum.
+
+   function Invalid_Semaphore_Name
+     (N : Positive) return POSIX_String;
+   --  Returns an invalid semaphore name.
 
    function Delay_Unit return Duration;
    --  A value that is at least as large as the minimum delay
@@ -115,10 +161,29 @@ package Test_Parameters is
    --  A value that is long enough that if a "short" test
    --  test does not complete within it we can assume the test has hung.
 
+   function New_Process_Startup return Duration;
+   --  A value that is large enough to allow a new process to
+   --  be loaded (from disk) and start up.
+
    function Unused_Group_Name return POSIX_String;
    --  A string that has no corresponding group.
 
    function Invalid_Clock_ID return POSIX_Timers.Clock_ID;
    --  An invalid clock ID.
+
+   function Invalid_Timespec return POSIX.Timespec;
+   --  An invalid value of type Timespec, preferably with
+   --  the nanoseconds component outside the range 0 .. 1.0E9;
+
+   function Valid_Internet_Address return POSIX.POSIX_String;
+   --  A valid internet address in dotted decimal notation
+
+   function Valid_Internet_Name return POSIX.POSIX_String;
+   --  A valid internet (network) name
+
+   function Continue_Generates_Signal return Boolean;
+   --  This returns True iff continuation of a stopped process
+   --  generates an instance of SIGCHLD for the parent process,
+   --  when SA_NOCLDSTOP is not specified for the parent.
 
 end Test_Parameters;
