@@ -352,7 +352,7 @@ begin
          Assert (Get_Error_Code = Invalid_Argument and
            Action_Cannot_Be_Set (Sig), "A020: " & Image (Sig)
              & " " & Image (Get_Error_Code));
-      when E2 : others => Unexpected_Exception (E2, "A021");
+      when E : others => Unexpected_Exception (E, "A021");
       end Test_Signal;
 
    begin
@@ -509,7 +509,7 @@ begin
       exception
       when POSIX_Error =>
          Check_Error_Code (Interrupted_Operation, "A050");
-      when E2 : others => Unexpected_Exception (E2, "A051");
+      when E : others => Unexpected_Exception (E, "A051");
       end T;
    begin
       delay 3 * DU;

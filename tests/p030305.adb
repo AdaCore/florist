@@ -63,13 +63,13 @@ with p030300a,
      Test_Parameters;
 
 procedure p030305 is
-   use  p030300a,
-        POSIX,
-        POSIX_Process_Identification,
-        POSIX_Report,
-        POSIX_Signals,
-        Test_Parameters,
-        System;
+   use p030300a,
+       POSIX,
+       POSIX_Process_Identification,
+       POSIX_Report,
+       POSIX_Signals,
+       Test_Parameters,
+       System;
 
    Old_Mask : Signal_Set;
 
@@ -405,7 +405,7 @@ begin
       exception
       when POSIX_Error =>
          Check_Error_Code (Interrupted_Operation, "A022");
-      when E2 : others => Unexpected_Exception (E2, "A023");
+      when E : others => Unexpected_Exception (E, "A023");
       end T;
    begin
       delay 3*DU;
