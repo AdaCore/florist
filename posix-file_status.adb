@@ -44,7 +44,6 @@ with POSIX.C,
      POSIX.Permissions,
      POSIX.Permissions.Implementation,
      POSIX.Process_Identification,
-     System,
      Unchecked_Conversion;
 package body POSIX.File_Status is
 
@@ -298,12 +297,6 @@ package body POSIX.File_Status is
    begin
       return s_isfifo (struct_stat (File_Status).st_mode) /= 0;
    end Is_FIFO;
-
-   -------------------
-   --  To_Stat_Ptr  --
-   -------------------
-
-   function To_Stat_Ptr is new Unchecked_Conversion (System.Address, stat_ptr);
 
    ------------------------
    --  Is_Shared_Memory  --
