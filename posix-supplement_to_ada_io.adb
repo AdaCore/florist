@@ -57,18 +57,14 @@ with Ada.IO_Exceptions,
      POSIX.IO,
      POSIX.Implementation,
      POSIX.Permissions,
-     System.Direct_IO,
      System.File_Control_Block,
      System.File_IO,
-     System.Sequential_IO,
      Unchecked_Conversion;
 
 package body POSIX.Supplement_to_Ada_IO is
 
    use Interfaces.C_Streams;
    use POSIX.Implementation;
-   use System.Direct_IO;
-   use System.Sequential_IO;
 
    subtype System_File_Type is System.File_Control_Block.AFCB_Ptr;
 
@@ -111,12 +107,12 @@ package body POSIX.Supplement_to_Ada_IO is
       Ada.Text_IO.Flush (File);
    end Flush_Text_IO;
 
-   procedure Flush_Sequential_IO (File: File_Type) is
-      function To_SFT is new 
+   procedure Flush_Sequential_IO (File : File_Type) is
+      function To_SFT is new
         Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
-      Ret : Int;
+      Ret : int;
 
    begin
       F := To_SFT (File);
@@ -124,12 +120,12 @@ package body POSIX.Supplement_to_Ada_IO is
       Ret := fflush (F.Stream);
    end Flush_Sequential_IO;
 
-   procedure Flush_Direct_IO (File: File_Type) is
-      function To_SFT is new 
+   procedure Flush_Direct_IO (File : File_Type) is
+      function To_SFT is new
         Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
-      Ret : Int;
+      Ret : int;
 
    begin
       F := To_SFT (File);
