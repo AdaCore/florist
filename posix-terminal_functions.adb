@@ -93,7 +93,7 @@ package body POSIX.Terminal_Functions is
       return Terminal_Characteristics is
       Pt : Terminal_Characteristics;
    begin
-      Pt.Valid := true;
+      Pt.Valid := True;
       Check (tcgetattr (int (File), Pt.termios'Unchecked_Access));
       return Pt;
    end Get_Terminal_Characteristics;
