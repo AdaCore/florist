@@ -329,6 +329,8 @@ begin
    Test ("Error_Code type [2.4.6]");
    declare
       Uninitialized : Error_Code;
+      pragma Warnings (Off, Uninitialized);
+      --  Let this variable uninitialized.
    begin
       declare
          Dummy1 : constant String := Image (Uninitialized);

@@ -491,6 +491,8 @@ begin
 
    declare
       Uninitialized_QD : Message_Queue_Descriptor;
+      pragma Warnings (Off, Uninitialized_QD);
+      --  Let this variable uninitialized.
    begin
       Test ("Send to Invalid Message Queue");
       Send (Uninitialized_QD, To_Stream_Element_Array ("Hello....."), 0);

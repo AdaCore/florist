@@ -72,6 +72,8 @@ procedure p140100 is
    Interval_Roundup : Boolean := False;
 
    Uninitialized_Clock : Clock_ID;  --  never initialized
+   pragma Warnings (Off, Uninitialized_Clock);
+
    Uninitialized_Works : Boolean := False;
 
    Timer : Timer_ID;
