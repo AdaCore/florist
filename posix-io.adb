@@ -630,6 +630,7 @@ package body POSIX.IO is
      (File : in File_Descriptor;
       To   : in Boolean := True) is
       Flags : Bits;
+      pragma Warnings (Off);
       Result : int;
    begin
       Begin_Critical_Section;
@@ -647,6 +648,8 @@ package body POSIX.IO is
       end if;
       Result := fcntl (int (File), F_GETFD);
       --  should not fail since previous call did not fail
+      --  ??? Is it the case that the value of Result should not be checked
+      pragma Warnings (Off);
       End_Critical_Section;
    end Set_Close_On_Exec;
 
