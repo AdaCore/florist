@@ -292,7 +292,7 @@ configure: configure.in aclocal.m4
 # If you are unlucky, it will require fixes to c-posix.c.
 #
 c-posix: c-posix.c config.h pconfig.h
-	gcc $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c
+	gcc $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c $(LIBS)
 #
 # Program c-posix-signals generates another Ada package spec.
 # It is also supposed to be a "portable" POSIX C program.
