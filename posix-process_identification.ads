@@ -83,7 +83,7 @@ package POSIX.Process_Identification is
    function Get_Real_Group_ID return Group_ID;
    function Get_Effective_Group_ID return Group_ID;
    procedure Set_Group_ID (ID : in Group_ID);
-   subtype Group_List_Index is positive range 1 .. POSIX.Groups_Maxima'Last;
+   subtype Group_List_Index is Positive range 1 .. POSIX.Groups_Maxima'Last;
    type Group_List is array (Group_List_Index range <>) of aliased Group_ID;
    --  ... Applications may not rely on "aliased" here being portable.
    --  We have added it to allow for simpler implementation.
