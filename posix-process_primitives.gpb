@@ -160,7 +160,7 @@ package body POSIX.Process_Primitives is
 #     if HAVE_INTERRUPT_MANAGEMENT then
       package SIM renames System.Interrupt_Management;
       package SIMO renames System.Interrupt_Management.Operations;
-      New_Mask : aliased SIM.Interrupt_Mask;
+      Creation_Mask, New_Mask : aliased SIM.Interrupt_Mask;
 #     else
 #     end if;
    begin
@@ -209,21 +209,21 @@ package body POSIX.Process_Primitives is
       --  exception.
 
 #     if HAVE_INTERRUPT_MANAGEMENT then
-      SIMO.Empty_Interrupt_Mask (New_Mask'Unchecked_Access);
+      SIMO.Empty_Interrupt_Mask (Creation_Mask'Unchecked_Access);
       case Template.Masked_Sig is
       when No_Signals => null;
       when RTS_Signals =>
          for I in 1 .. SIM.Interrupt_ID'Last loop
             if SIM.Reserve (I) then
-               SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, I);
+               SIMO.Add_To_Interrupt_Mask (Creation_Mask'Unchecked_Access, I);
             end if;
          end loop;
          SIMO.Delete_From_Interrupt_Mask
-           (New_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
+           (Creation_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
       when All_Signals =>
-         SIMO.Fill_Interrupt_Mask (New_Mask'Unchecked_Access);
+         SIMO.Fill_Interrupt_Mask (Creation_Mask'Unchecked_Access);
       end case;
-      SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
+      SIMO.Set_Interrupt_Mask (Creation_Mask'Unchecked_Access);
 #     else
 #     end if;
 
@@ -273,6 +273,12 @@ package body POSIX.Process_Primitives is
       end loop;
 #     if HAVE_INTERRUPT_MANAGEMENT then
       SIMO.Empty_Interrupt_Mask (New_Mask'Unchecked_Access);
+      for I in 1 .. SIM.Interrupt_ID'Last loop
+         if POSIX.Signals.Is_Member (Template.Sig_Set,
+           POSIX.Signals.Signal (I)) then
+            SIMO.Add_To_Interrupt_Mask (New_Mask'Unchecked_Access, I);
+         end if;
+      end loop;
       SIMO.Set_Interrupt_Mask (New_Mask'Unchecked_Access);
 #     else
 #     end if;
@@ -378,9 +384,9 @@ package body POSIX.Process_Primitives is
          Tmp := Tmp.Next;
       end if;
 
-      Tmp.Next.FD := File;
-      Tmp.Next.Next := null;
-      Tmp.Next.Action := Close;
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Close;
    end Set_File_Action_To_Close;
 
    -----------------------------
@@ -411,12 +417,12 @@ package body POSIX.Process_Primitives is
          Tmp := Tmp.Next;
       end if;
 
-      Tmp.Next.FD := File;
-      Tmp.Next.Next := null;
-      Tmp.Next.Action := Open;
-      Tmp.Next.File_Name := Name;
-      Tmp.Next.File_Mode := Mode;
-      Tmp.Next.File_Options := Options;
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Open;
+      Tmp.File_Name := Name;
+      Tmp.File_Mode := Mode;
+      Tmp.File_Options := Options;
    end Set_File_Action_To_Open;
 
    ----------------------------------
@@ -444,10 +450,10 @@ package body POSIX.Process_Primitives is
          Tmp := Tmp.Next;
       end if;
 
-      Tmp.Next.FD := File;
-      Tmp.Next.Next := null;
-      Tmp.Next.Action := Duplicate;
-      Tmp.Next.Dup_From := From_File;
+      Tmp.FD := File;
+      Tmp.Next := null;
+      Tmp.Action := Duplicate;
+      Tmp.Dup_From := From_File;
    end Set_File_Action_To_Duplicate;
 
    -------------------
