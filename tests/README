@@ -17,7 +17,7 @@ Center for Standards.
 
 PREREQUISITES:
 
-The tests are supposed to be 100\% portable, but the procedures
+The tests are supposed to be 100% portable, but the procedures
 for compiling them and running them will depend on the environment
 in which you are working.
 
@@ -25,9 +25,9 @@ The Makefile here has been used successfully in the following
 environment:
 
   make utility             :  GNU Make version 3.74
-  Ada compiler             :  GNATMAKE 3.10p
-  POSIX.5b implementation  :  Florist 1.2, 29 March 1998
-  OS                       :  Solaris 2.6
+  Ada compiler             :  GNATMAKE 3.13a
+  POSIX.5b implementation  :  Florist 1.4, 31 Dec 1998
+  OS                       :  Solaris 2.7
   architecture             :  SPARCstation 20 HS14
 
 The Makefile depends on the "make" utility, how to call the Ada
@@ -166,22 +166,5 @@ location.  See the script "run_tests_1" for examples.
 
 STATUS:
 
-At the moment, these tests are still under development.  We are
-making them publicly available as they are, because we would like
-review and comment, and because we believe they are already
-helpful for checking out an impelementation of the POSIX Ada
-bindings.  If a test fails it generally means either the
-underlying operating system or the implementation of the Ada
-binding (e.g., Florist) is at fault, but beware that there is also
-a chance that the test is at fault.
-
-I am interested in receiving bug reports.  Such reports should be
-sent to
-             baker@cs.fsu.edu
-
-Please understand that my ability to respond to bug reports will
-be limited, and will depend on continued funding.
-
-Ted Baker
-FSU POSIX/Ada Realtime Project
-29 March 1998
+These are the final versions of the tests delivered to the
+Government under the POSIX.5b Test Suite project.
