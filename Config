@@ -1,0 +1,4 @@
+# file: Default/Config
+# default configuration for new operating system
+ADDRINFO_OBJECTS = getaddrinfo.o inet_pton.o inet_ntop.o
+LIBS=-lresolv -lsocket -lnsl -lposix4 -lpthread 

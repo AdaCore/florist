@@ -28,11 +28,7 @@
 /* Needed on Dec Unix. Doesn't hurt on other OS ??? */
 #undef _OSF_SOURCE
 
-#ifdef HAVE_NETDB_H
 #include <netdb.h>
-#else
-#include "addrinfo.h"   /* defines in here really belong in <netdb.h> */
-#endif
 
 /* NOTE: this code assumes you have the inet_pton() function as defined
  * in the BIND-4.9.4 release or later (ftp://ftp.vix.com/pub/bind).
