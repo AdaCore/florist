@@ -231,9 +231,10 @@ package body POSIX.Implementation is
    --  Nulterminate  --
    --------------------
 
-   type String_Ptr is access all String;
-   function sptr_to_psptr is new Unchecked_Conversion
-      (String_Ptr, POSIX_String_Ptr);
+   type Big_POSIX_String_Ptr is access all POSIX_String (Positive'Range);
+
+   function From_Address is new Unchecked_Conversion
+     (System.Address, Big_POSIX_String_Ptr);
 
    procedure Nulterminate
      (To : out POSIX_String;
@@ -243,8 +244,7 @@ package body POSIX.Implementation is
       if To'Length <= L then
          raise Constraint_Error;
       end if;
-      To (1 .. L) :=
-        sptr_to_psptr (From'Unrestricted_Access).all;
+      To (1 .. L) := From_Address (From'Address) (1 .. L);
       To (L + 1) := NUL;
    end Nulterminate;
 
