@@ -42,32 +42,23 @@
 
 --  Common declarations used by tests of package POSIX_Signals.
 
-with POSIX,
-     POSIX_Report,
-     POSIX_Signals,
+with POSIX_Signals,
      POSIX_Timers,
      System,
-     System.Storage_Elements,
      Test_Parameters,
      Unchecked_Conversion;
 
 package p030300a is
 
-   use POSIX,
-       POSIX_Report,
-       POSIX_Signals,
+   use POSIX_Signals,
        POSIX_Timers,
        System,
-       System.Storage_Elements,
        Test_Parameters;
 
-   pragma Warnings (Off);
-   --  for now, just ignore warnings on 64 bits machines.
    function "+" is
       new Unchecked_Conversion (Integer, Signal_Data);
    function "+" is
       new Unchecked_Conversion (Signal_Data, Integer);
-   pragma Warnings (On);
    function "+" is
       new Unchecked_Conversion (System.Address, Signal_Data);
    function "+" is
@@ -90,14 +81,26 @@ package p030300a is
       SIGCONT, SIGSTOP, SIGTSTP,
       SIGTTIN, SIGTTOU);
 
+   Is_Reserved_Defined_Signal : constant array (Signal) of Boolean :=
+     (SIGILL  | SIGABRT | SIGFPE  | SIGBUS | SIGSEGV | SIGALRM => True,
+      others => False);
+
+   --  Cannot_Be_Blocked is initialized in the package body to the
+   --  set of signals for which the standard permits the blocking and
+   --  unblocking operations to have no effect.
+
+   Cannot_Be_Blocked : array (Signal) of Boolean;
+
+   -----------------------------------------------------------------------
+   --  The signals SIGABRT, SIGARLM, SIGFPR, SIGILL, SIGSEGV, and SIGBUS
+   --  are reserved.  The implementation may reserve other signals whose
+   --  names are not defined by the standard. [2.2.2.117].
+
    Job_Control_Signals : constant Signal_List :=
      (SIGCHLD, SIGCONT, SIGSTOP, SIGTSTP,
       SIGTTIN, SIGTTOU);
 
-   type Signal_Action is
-     (Unspecified, Ignore, Continue, Stop, Termination);
-
-   Default_Action : array (Signal) of Signal_Action :=
+   Required_Default_Action : array (Signal) of Signal_Action :=
      (SIGCHLD => Ignore,
       SIGCONT => Continue,
       SIGSTOP | SIGTSTP | SIGTTIN | SIGTTOU => Stop,
@@ -115,8 +118,8 @@ package p030300a is
    DU : constant Duration := Test_Parameters.Delay_Unit;
    --  DU is a common unit of delay duration.
 
-   function Is_Reserved (Sig : Signal) return Boolean;
-   --  Is_Reserved returns True iff Sig is reserced
+   LDU : constant Duration := Test_Parameters.New_Process_Startup;
+   --  LDU is enough time for a new process to load and start up
 
    function Arg_Sig return Signal;
    --  Arg_Sig returns the value NNN if there is a command-line
@@ -124,6 +127,7 @@ package p030300a is
 
    type Child_Action is
      (Not_Specified,
+      Delay_Then_Exit,
       Block_And_Await,
       Block_And_Await_With_Info,
       Block_And_Await_With_No_Info,
@@ -131,22 +135,61 @@ package p030300a is
       Block_Unignore_And_Await,
       Unblock_And_Unignore);
 
-   --  Not_Initially_Masked is a set of signals that this test
+   --  Not_Initially_Masked is a set of signals that a test
    --  discovers are not initially masked in all tasks, and so
    --  certain further tests cannot safely use these signals.
-   --  It is up to the individual test to populat this set, if
+   --  It is up to the individual test to populate this set, if
    --  the test uses it.
 
    Not_Initially_Masked : Signal_Set;
 
+   --  Fails_Blocking_Test is used to reduce the cascade of error
+   --  messages or terminated process that would occur if we perform
+   --  tests on a signal that is not reserved but which we
+   --  are unable to block.  In practice, failure of the initial
+   --  test of block-ability means the implementation has reserved
+   --  a signal that the POSIX.5/5b standards do not permit the
+   --  implementation to reserve.
+   --  It is up to the individual test to populate this set, if
+   --  the test uses it.
+
+   Fails_Blocking_Test : array (Signal) of Boolean := (others => False);
+
    --  It is up to the individual test to populate Do_Not_Test,
    --  if it uses it.
 
-   Do_Not_Test : Signal_Set;
+   Do_Not_Test : array (Signal) of Boolean := (others => False);
+   Local_Failure : exception;
+
+   type Yes_No_Maybe is (
+     Yes,   --  expect to time out
+     No,    --  expect to not time out
+     Maybe  --  either is OK
+     );
+
+   procedure Try_Await_Signal
+      (Sig : Signal;
+       New_Mask : Signal_Set;
+       Timeout : Duration;
+       Expect_Timeout : Yes_No_Maybe;
+       Msg : String);
+   --  Try_Await_Signal calls Await_Signal_With_Timeout.
+   --  If the default action for Sig is to ignore it, it tries
+   --  to first install an empty handler, and afterward remove it.
+   --  If installing the empty handler does not work, it expects
+   --  to time out.
+   --  It also checks for early timeouts.
+   --  Raises Local_Failure if the unexpected happens.
+
+   function Try_Await_Signal
+      (Sig : Signal;
+       New_Mask : Signal_Set;
+       Timeout : Duration;
+       Expect_Timeout : Yes_No_Maybe;
+       Msg : String) return Signal_Info;
+   --  Same effect as above, but returns Signal_Info.
+
+   procedure Clear_Signal (Sig : Signal; Msg : String);
+   --  Clear_Signal clears out any pending occurrences of Sig.
 
 end p030300a;
-
-
-
-
-
