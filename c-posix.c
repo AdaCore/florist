@@ -65,9 +65,8 @@
    by running "autoconf" on "configure.in".
  */ 
 
-/* .... The following two #defines probably belong in config.h
-   consider moving it there, and changing the associated comment,
-   much further below.
+/* .... The following #define may belong in pconfig.h.
+   Consider moving it there?
  */
 
 /* TRY_MACRO_LINKNAMES activates a workaround for header files
@@ -936,7 +935,7 @@ struct sockaddr_un {
   GT1(sockaddr_un, 0)
 #endif
   GT2(sun_family, sa_family_t)
-  GT2A(sun_path, sun_path, char, sizeof (DUMMY.sun_path))
+  GT2A(sun_path, sun_path_string, char, sizeof (DUMMY.sun_path))
   GT3
 
 #ifdef HAVE_struct_sockaddr_in
@@ -1069,7 +1068,12 @@ struct netent {
   GT2(n_name, char *)
   GT2(n_aliases, char **)
   GT2(n_addrtype, int)
-  GT2(n_net, unsigned int)
+  GT2(n_net, in_addr_t)
+  /* POSIX 1003.1g/D6.4 says n_net should be unsigned long,
+     but it should be 4 bytes and unsigned long might be longer
+     than that on some systems.
+     Solaris 2.6 uses in_addr_t, which seems safer.
+   */
   GT3
 
 #ifdef HAVE_struct_protoent
@@ -1482,14 +1486,14 @@ void print_type_declaration(char const name[], FILE *fp) {
     fprintf(fp,"   end record;\n   for %s use record\n", extended_name);   
     for (p = type->comps; p && p->compname; p++) {
       /* GNAT isn't able to handle overlapping components, so we add a simple
-	 minded test to prevent the most common cases */
+         minded test to prevent the most common cases */
       if (p->offset == prev_offset)
-	fprintf(fp,"      --  *** OVERLAPPING component ***\n"
-		   "      --  %s at %d range 0 .. %d;\n", p->compname,
-		   p->offset, p->size*bits_per_byte-1);
+        fprintf(fp,"      --  *** OVERLAPPING component ***\n"
+                   "      --  %s at %d range 0 .. %d;\n", p->compname,
+                   p->offset, p->size*bits_per_byte-1);
       else
-	fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
-	  p->offset, p->size*bits_per_byte-1);
+        fprintf(fp,"      %s at %d range 0 .. %d;\n", p->compname,
+          p->offset, p->size*bits_per_byte-1);
       prev_offset = p->offset;
     }
     fprintf(fp,"   end record;\n");
@@ -1717,8 +1721,7 @@ void print_ada_type (char const typename[]) {
     fprintf(fp,"struct_sigevent");
   else if (!strcmp (typename, "struct sockaddr *"))
     fprintf(fp,"sockaddr_ptr");
-  else if (!strcmp (typename, "struct iovec *"))
-    fprintf(fp,"iovec_ptr");
+  else if (!strcmp (typename, "struct iovec *")) fprintf(fp,"iovec_ptr");
   else if (!strcmp (typename, "struct addrinfo *"))
     fprintf(fp,"addrinfo_ptr");
   else if (!strcmp (typename, "struct timespec"))
@@ -1729,23 +1732,13 @@ void print_ada_type (char const typename[]) {
     fprintf(fp,"System.Address");
   else if (!strcmp (typename, "void (*)()")) fprintf(fp,"System.Address");
   else if (!strcmp (typename, "volatile void *")) fprintf(fp,"System.Address");
-  else if (!strcmp (typename, "sun_path")) {
-#ifndef HAVE_struct_sockaddr_un
-     struct sockaddr_un {
-	sa_family_t sun_family;
-	char sun_path [100];
-     };
-#endif
-     struct sockaddr_un DUMMY;
-     fprintf(fp,"POSIX_String (1 .. %d)",  sizeof (DUMMY.sun_path));
-  } else if (!strcmp (typename, "fd_mask")) {
-     fprintf(fp,"fd_mask_array (1 .. %d)",
-	      sizeof(fd_set)/sizeof(unsigned int));
-  }
-  else if (!strncmp (typename, "void (*)(", 9) &&
-	   typename [strlen (typename) - 1] == ')')
-  /* translate "void (*)(...)" into System.Address */
-    fprintf(fp,"System.Address");
+  else if (!strcmp (typename, "fd_mask")) {
+    fprintf(fp,"fd_mask_array (1 .. %d)",
+              sizeof(fd_set)/sizeof(unsigned int));
+  } else if (!strncmp (typename, "void (*)(", 9) &&
+           typename [strlen (typename) - 1] == ')')
+   /* translate "void (*)(...)" into System.Address */
+   fprintf(fp,"System.Address");
   else fprintf(fp,"%s", typename);
 }
 
@@ -5569,8 +5562,8 @@ void create_c() {
   g_struct_passwd();
   g_struct_sigaction();
   g_struct_sched_param();
-  g_struct_stat();
   fprintf(fp,"   type cc_t_array is array (0 .. NCCS - 1) of cc_t;\n");
+  g_struct_stat();
   g_struct_termios();
   gcmnt("timeval structure");
   g_struct_timeval();
@@ -5622,8 +5615,12 @@ void create_c() {
   /*  GFUNC(creat,HAVE_creat); */
   GFUNC(ctermid,HAVE_ctermid);
   GFUNC(ctime,HAVE_ctime);
-#if defined(SOLARIS_HACK) && (HAVE___posix_ctime_r == 1)
-  gfuncsol("ctime_r","__posix_ctime_r");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_ctime_r == 1) {
+    gfuncsol("ctime_r","__posix_ctime_r");
+  } else {
+    GFUNC(ctime_r,HAVE_ctime_r);
+  }
 #else
   GFUNC(ctime_r,HAVE_ctime_r);
 #endif
@@ -5774,8 +5771,12 @@ void create_c() {
   /*  GFUNC(rand_r,HAVE_rand_r); */
   GFUNC(read,HAVE_read);
   GFUNC(readdir,HAVE_readdir);
-#if defined(SOLARIS_HACK) && (HAVE___posix_readdir_r == 1)
-  gfuncsol("readdir_r","__posix_readdir_r");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_readdir_r == 1) {
+    gfuncsol("readdir_r","__posix_readdir_r");
+  } else {
+    GFUNC(readdir_r,HAVE_readdir_r);
+  }
 #else
   GFUNC(readdir_r,HAVE_readdir_r);
 #endif
@@ -5828,8 +5829,12 @@ void create_c() {
   /*  GFUNC(sigsetjmp,HAVE_sigsetjmp); */
   /*  GFUNC(sigsuspend,HAVE_sigsuspend); */
   GFUNC(sigtimedwait,HAVE_sigtimedwait);
-#if defined(SOLARIS_HACK) && (HAVE___posix_sigwait == 1)
-  gfuncsol("sigwait","__posix_sigwait");
+#if defined(SOLARIS_HACK)
+  if (HAVE___posix_sigwait == 1) {
+    gfuncsol("sigwait","__posix_sigwait");
+  } else {
+    GFUNC(sigwait,HAVE_sigwait);
+  }
 #else
   GFUNC(sigwait,HAVE_sigwait);
 #endif
@@ -6226,6 +6231,10 @@ void create_c() {
   gcmnt("message header");
   g_struct_msghdr();
   gcmnt("local socket address");
+  { struct sockaddr_un DUMMY;
+    fprintf(fp,"   subtype sun_path_string is
+      POSIX_String (1 .. %d);\n", sizeof (DUMMY.sun_path));
+  }
   g_struct_sockaddr_un();
   gcmnt("internet socket address");
   g_struct_sockaddr_in();
