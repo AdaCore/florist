@@ -215,7 +215,7 @@ procedure p120501 is
          P.Unmap_And_Close_Shared_Memory (Shmd);
          Unlink_Shared_Memory (Object_Name);
       exception
-      when E1 : POSIX_Error =>
+      when POSIX_Error =>
          Check_Error_Code (No_Such_File_Or_Directory, "A004");
       end;
 
@@ -244,7 +244,7 @@ begin
    begin
       Unlink_Shared_Memory (Object_Name);
    exception
-   when E1 : POSIX_Error =>
+   when POSIX_Error =>
       Check_Error_Code (No_Such_File_Or_Directory, "A008");
    end;
 

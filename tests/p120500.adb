@@ -178,7 +178,6 @@ begin
 
    declare
       Shmd : File_Descriptor;
-      Option : Open_Option_Set;
       Test_perm : Permission_Set := Owner_Permission_Set;
    begin
       Test ("creation with invalid name");
@@ -200,7 +199,6 @@ begin
    declare
       Shmd : File_Descriptor;
       acc : Shared_Access;
-      Option : Open_Option_Set;
    begin
       Test ("Access Shared Memory [12.5.2]");
       Shmd := Open_Or_Create_And_Map_Shared_Memory

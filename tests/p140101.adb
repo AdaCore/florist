@@ -291,7 +291,6 @@ begin
       Value1 : Timespec;
       Value2 : Timespec;
       Value3 : Timespec;
-      Time : Timespec;
    begin
       Value3 := Get_Resolution (Sample_Clock);
       Set_Time (Sample_Clock, Value3 + To_Timespec (100.0));
@@ -323,7 +322,6 @@ begin
       Event : Signal_Event;
       Sample_Timer : Timer_ID;
       New_State : Timer_State;
-      Old_State : Timer_State;
       Value1 : Timespec;
       Value2 : Timespec;
       Value3 : Timespec;

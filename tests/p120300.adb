@@ -199,7 +199,7 @@ begin
             Assert (False, "A006: Expected Exception");
          end if;
       exception
-         when E1 : others =>
+         when others =>
             null;
       end;
 
@@ -360,7 +360,7 @@ begin
             --  above should raise an exception.
             Assert (False, "A013: No exception raised");
          end if;
-      exception when E : others => null;
+      exception when others => null;
       end;
 
       Comment ("Unmap memory");
@@ -435,7 +435,7 @@ begin
          S := "Good!";   --  This should raise an exception.
          Assert (False, "A017: exception not raised");
       exception
-         when E1 : others =>
+         when others =>
             null;
       end;
 
