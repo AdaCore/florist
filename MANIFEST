@@ -10,21 +10,16 @@ configure.in
 configure
 c_inet_ntoa.c
 config.h.in
-configs/Config.AIX4.1
 configs/Config.Default
-configs/Config.HP-UX10.x
-configs/Config.IRIX6.3
-configs/Config.Linux
 configs/Config.OSF1
-configs/Config.SunOS5.6
 configs/pconfig.AIX4.1
 configs/pconfig.Default
 configs/pconfig.HP-UX10.x
-configs/pconfig.IRIX6.3
+configs/pconfig.IRIX6.x
 configs/pconfig.Linux
 configs/pconfig.OSF1
 configs/pconfig.SunOS5.6
-Makefile
+configs/pconfig.OSF1-4.0d
 c-posix.c
 deps.adb
 deps.ads
@@ -81,7 +76,7 @@ posix-generic_shared_memory.adb
 posix-generic_shared_memory.ads
 posix-group_database.adb
 posix-group_database.ads
-posix-implementation.gpb
+Makefile
 posix-implementation.gps
 posix-io.adb
 posix-io.ads
@@ -277,6 +272,7 @@ tests/p990020a.ads
 tests/p990030.adb
 tests/p990030.ads
 tests/p990030a.ads
+tests/Makefile
 tests/p990040.ads
 tests/p990040a.ads
 tests/p990040b.adb
@@ -300,7 +296,6 @@ tests/xti/Makefile
 tests/xti/test_tcp_connect.adb
 tests/xti/test_tcp_listen.adb
 tests/p030102.ads
-tests/Makefile
 tests/p030100.adb
 posix-supplement_to_ada_io.ads
 posix-terminal_functions.adb
@@ -355,3 +350,4 @@ posix_user_database.ads
 system_storage_elements.ads
 posix-signals.gps
 c-posix-signals.c
+posix-implementation.gpb
