@@ -44,6 +44,7 @@
 
 #define _REENTRANT
 
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/types.h>
