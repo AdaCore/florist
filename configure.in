@@ -262,25 +262,19 @@ AC_POSIX_LIB(pthreads, pthread_self,,
 AC_POSIX_LIB(dce, pthread_self,,
 AC_POSIX_LIB(:libdce.a, pthread_self)))))
 
-AC_POSIX_LIB(aio, aio_read)
+AC_POSIX_LIBS("" posix4 aio, aio_read)
 
-AC_POSIX_LIB(posix4, clock_gettime,,
-AC_POSIX_LIB(rt, clock_gettime))
+AC_POSIX_LIBS("" posix4 rt picc, clock_gettime)
 
-AC_POSIX_LIB(nsl, gethostbyname)
+AC_POSIX_LIBS("" nsl, gethostbyname)
 
-AC_POSIX_LIB(nsl, t_bind,,
-AC_POSIX_LIB(nsl_s, t_bind))
+AC_POSIX_LIBS("" nsl nsl_s, t_bind)
 
-AC_POSIX_LIB(socket, socketpair,,
-AC_POSIX_LIB(BSD, socketpair,,
-AC_POSIX_LIB(bsd, socketpair)))
+AC_POSIX_LIBS("" socket BSD bsd, socketpair)
 
-AC_POSIX_LIB(socket, accept,,
-AC_POSIX_LIB(BSD, accept,,
-AC_POSIX_LIB(bsd, accept)))
+AC_POSIX_LIBS("" socket BSD bsd, accept)
 
-AC_POSIX_LIB(resolv, h_errno)
+AC_POSIX_LIBS("" resolv, h_errno)
 
 echo using "LIBS=${LIBS}"
 echo "LIBS=${LIBS}" >> Config

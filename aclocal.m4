@@ -134,7 +134,13 @@ done])
 
 dnl AC_POSIX_LIB(LIBRARY, FUNCTION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 AC_DEFUN(AC_POSIX_LIB,
-[AC_MSG_CHECKING([for $2 in -l$1])
+[
+ac_save_LIBS="$LIBS"
+if [[ "$1" ]]
+then
+   LIBS="-l$1 ${LIBS}"
+fi
+AC_MSG_CHECKING([for $2 with LIBS=${LIBS}])
 dnl Use a cache variable name containing both the library and function name,
 dnl because the test really is for library $1 defining function $2, not
 dnl just for library $1.  Separate tests with the same $1 and different $2s
