@@ -5,7 +5,7 @@
 # for HAVE_... to config.h.in.
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
-AC_INIT(florist_sources)
+AC_INIT(posix.adb)
 [echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(config.h)
