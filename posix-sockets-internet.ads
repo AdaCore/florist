@@ -72,7 +72,7 @@ package POSIX.Sockets.Internet is
      return Internet_Port;
    procedure Set_Internet_Port
       (Name  : in out Internet_Socket_Address;
-       Value : in     Internet_Port);
+       Port  : in     Internet_Port);
 
    type Internet_Address is private;
    Unspecified_Internet_Address : constant Internet_Address;
@@ -102,7 +102,7 @@ package POSIX.Sockets.Internet is
      return POSIX.POSIX_String;
    --  Network Database Functions
    type Network_Info is private;
-   type Network_Number is range 0 .. 65535;
+   type Network_Number is range 0 .. (2**32 -1);
    Unspecified_Network_Number : constant Network_Number;
    type Database_Array is new POSIX.Octet_Array;
    type Database_Array_Pointer is access all Database_Array;
@@ -235,11 +235,12 @@ package POSIX.Sockets.Internet is
        To     : in Socket_Option_Value);
 
    type IP_Ancillary_Data is private;
+   type IP_Ancillary_Data_Pointer is access all IP_Ancillary_Data;
    procedure Set_Ancillary_Data
       (Message : in out Socket_Message;
-       Data    : in     IP_Ancillary_Data);
-   function Get_Ancillary_Data
-      (Message : Socket_Message)
+       Data    : in     IP_Ancillary_Data_Pointer);
+   function Get_Destination_Address
+      (Data : IP_Ancillary_Data)
      return Internet_Address;
    function Get_Header_Included
       (Socket : POSIX.IO.File_Descriptor)
@@ -251,6 +252,8 @@ package POSIX.Sockets.Internet is
 private
 
    type Internet_Socket_Address is record
+      Length : POSIX.C.size_t := POSIX.C.Sockets.struct_sockaddr_in'Size /
+                                 System.Storage_Unit;
       C : aliased POSIX.C.Sockets.struct_sockaddr_in :=
         struct_sockaddr_in' (sin_family => AF_INET,
                              sin_port   => 0,
