@@ -3201,7 +3201,7 @@ void create_posix() {
   my_fprintf(fp,"   type POSIX_String is array (Positive range <>) ");
   my_fprintf(fp,"of aliased POSIX_Character;\n");
 
-  my_fprintf(fp,"   function To_POSIX_String (Str : string) ");
+  my_fprintf(fp,"   function To_POSIX_String (Str : String) ");
   my_fprintf(fp,"return POSIX_String;\n");
 
   my_fprintf(fp,"   function To_POSIX_String (Str : Wide_String) ");
@@ -4007,11 +4007,11 @@ void create_posix() {
       if (x.l == 0x00010203) {
          network_byte_order = 1;
          my_fprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
-           " : boolean := True;\n\n");
+           " : Boolean := True;\n\n");
       } else {
          network_byte_order = 0;
          my_fprintf(fp,"   Host_Byte_Order_Is_Net_Byte_Order"
-           " : boolean := False;\n\n");
+           " : Boolean := False;\n\n");
       }
     } else quit ("short is not 16-bit","");
   } else quit ("int is not 32-bit","");
