@@ -147,10 +147,12 @@ ac_lib_var=`echo $1[_]$2 | tr ':.-/+' '____p'`
 ac_save_LIBS="$LIBS"
 LIBS="-l$1 $LIBS"
 AC_TRY_LINK([/* Override any gcc2 internal prototype to avoid an error.  */
-]ifelse(AC_LANG, CPLUSPLUS, [#ifdef __cplusplus
+]
+AC_LANG_CASE(CPLUSPLUS,
+[#ifdef __cplusplus
 extern "C"
 #endif
-])dnl
+],[])dnl
 [char $2();
 ],
   [$2()],
