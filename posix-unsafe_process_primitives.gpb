@@ -105,6 +105,9 @@ package body POSIX.Unsafe_Process_Primitives is
       Result := fork;
       if Result = -1 then Raise_POSIX_Error; end if;
       if Result = 0 then
+#        if HAVE_Leroy_Threads then
+         This_Process := getpid;
+#        end if;
          --  reset soft links to non-tasking versions of operations
 #        if HAVE_Soft_Abort_Defer
          TSL.Abort_Defer        := TSL.Abort_Defer_NT'Access;
