@@ -1,1 +1,1 @@
-LIBS = -lnsl_s -l:libdce.a -lflorist 
+LIBS = -lnsl_s -lcma -lflorist 
