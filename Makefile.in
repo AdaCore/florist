@@ -10,11 +10,11 @@
 MASTERDIR=/part1/florist
 VERSION=3.13a
 FLORIST_VERSION=$(VERSION)
-GNATMAKEFLAGS1 = -O2 -j4
-GNATMAKEFLAGS1B = -O2 -fPIC -j4
-GNATMAKEFLAGS2 = -cargs -gnatp -largs $(LIBS)
-GNATMAKEFLAGS2B = -cargs -gnatp -largs $(LIBS)
-GCCFLAGS = -O2 -fPIC
+GNATMAKEFLAGS1 = -O2
+GNATMAKEFLAGS1B = -O2
+GNATMAKEFLAGS2 = -cargs -gnatpg -largs $(LIBS)
+GNATMAKEFLAGS2B = -cargs -gnatpg -largs $(LIBS)
+GCCFLAGS = -O2
 # GNATPREPFLAGS = -c -r
 # Older versions of gnatprep don't generate comments that
 # are acceptable for the -gnatg option, so drop the "-c".
@@ -378,7 +378,6 @@ floristlib: $(MACRO_OBJECTS) deps $(ADDRINFO_OBJECTS) $(FLORIST_SOURCES)
 	(tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
 	rm -f floristlib/deps.o floristlib/deps.ali
 	ar -r floristlib/libflorist.a floristlib/*.o
-	-cd floristlib; gcc -shared -fPIC -o libflorist-shared.so *.o $(LIBS)
 	chmod 444 floristlib/*.ali
 	rm -f floristlib/*.o
 #
