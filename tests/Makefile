@@ -13,8 +13,8 @@ PAVT_VERSION=pavt-1.4.1
 # runtime system.
 GNATMAKEFLAGS1 = -I../floristlib -L../floristlib
 #
-GNATMAKEFLAGS2= -cargs -gnatay -gnatwue -largs $(LIBS) -lflorist
-GNATMAKEFLAGS2a= -cargs -largs $(LIBS) -lflorist
+GNATMAKEFLAGS2= -cargs -gnatay -gnatwue -largs -lflorist
+GNATMAKEFLAGS2a= -cargs -largs -lflorist
 GNATPREPFLAGS = -c -r
 TOOLS =\
  renumber.adb\
