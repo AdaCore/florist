@@ -83,7 +83,8 @@ GNATPREP_BODIES = \
 
 GNATPREP_SPECS = \
  posix-implementation.ads\
- posix-sockets.ads
+ posix-sockets.ads\
+ posix-timers-extensions.ads
 
 GNATPREP_GENERATED = $(GNATPREP_BODIES) $(GNATPREP_SPECS)
 
@@ -100,6 +101,7 @@ GNATPREP_SOURCES = \
  posix-sockets.gps\
  posix-sockets.gpb\
  posix-sockets-internet.gpb\
+ posix-timers-extensions.gps\
  posix-xti.gpb
 
 # non-generated Ada and C source files for Florist
