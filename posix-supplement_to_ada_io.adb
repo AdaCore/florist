@@ -112,7 +112,9 @@ package body POSIX.Supplement_to_Ada_IO is
         Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
+      pragma Warnings (Off);
       Ret : int;
+      pragma Warnings (On);
 
    begin
       F := To_SFT (File);
@@ -125,7 +127,9 @@ package body POSIX.Supplement_to_Ada_IO is
         Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
+      pragma Warnings (Off);
       Ret : int;
+      pragma Warnings (On);
 
    begin
       F := To_SFT (File);
