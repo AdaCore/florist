@@ -51,12 +51,7 @@ GENERATED = $(CONFIG_GENERATED) $(C-POSIX_GENERATED) \
 # all the executable programs
 EXECUTABLES = c-posix
 
-MACRO_OBJECTS =\
- posix-macros.o\
- posix-macros-xti.o\
- posix-macros-sockets.o\
- posix-macros-select.o\
- c_inet_ntoa.o
+MACRO_OBJECTS = posix-macros.o posix-macros-sockets.o
 
 # default target, get the gnat version and the system type and then
 # set up files and call make again (in uname)
@@ -136,7 +131,7 @@ $(ADDRINFO_OBJECTS): pconfig.h
 # that should force compilation of all Florist packages;
 # "deps5c.adb" is the same, but with POSIX.5c packages added.
 #
-deps deps_no_thread:
+deps deps_no_thread: $(GENERATED)
 	gnatmake -c $(GNATMAKEFLAGS1B) $@
 #
 # -----------------------------------
@@ -175,7 +170,6 @@ regen:
 clean:
 	rm -rf floristlib
 	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
-	rm -f *CHECKING_IN*
 	rm -f $(C-POSIX_GENERATED)
 	-make -C tests clean
 
