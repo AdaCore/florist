@@ -363,7 +363,7 @@ package body POSIX.Implementation is
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
       if F < 0.0 then S := S - 1; F := F + 1.0; end if;
-      return struct_timespec' (tv_sec => S,
+      return struct_timespec'(tv_sec => S,
         tv_nsec => long (Long_Long_Integer (F * NS_per_S)));
    end To_Struct_Timespec;
 
@@ -413,7 +413,7 @@ package body POSIX.Implementation is
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
       if F < 0.0 then S := S - 1; F := F + 1.0; end if;
-      return struct_timeval' (tv_sec => S,
+      return struct_timeval'(tv_sec => S,
         tv_usec => suseconds_t (Long_Long_Integer (F * MS_per_S)));
    end To_Struct_Timeval;
 
