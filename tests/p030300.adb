@@ -44,61 +44,98 @@
 --  section 3.3 of POSIX.5b.  It does not test functionality that relies
 --  on support for multiple processes, or multiple tasks.
 
---  Run this test in a fashion that initially all signals are unmasked
+--  Setup:  Run this test in a fashion that initially all signals are unmasked
 --  in the process.
 
 with Ada_Task_Identification,
      p030300a,
      POSIX,
+     POSIX_Asynchronous_IO,
+     POSIX_Files,
+     POSIX_IO,
      POSIX_Limits,
+     POSIX_Message_Queues,
+     POSIX_Permissions,
      POSIX_Process_Identification,
      POSIX_Report,
      POSIX_Signals,
      POSIX_Timers,
      System,
+     System.Interrupts,
      System.Storage_Elements,
      Test_Parameters;
 
 procedure p030300 is
-   use  Ada_Task_Identification,
-        p030300a,
-        POSIX,
-        POSIX_Limits,
-        POSIX_Process_Identification,
-        POSIX_Report,
-        POSIX_Signals,
-        POSIX_Timers,
-        Test_Parameters,
-        System;
+   use Ada_Task_Identification,
+       p030300a,
+       POSIX,
+       POSIX_Asynchronous_IO,
+       POSIX_Files,
+       POSIX_IO,
+       POSIX_Limits,
+       POSIX_Message_Queues,
+       POSIX_Permissions,
+       POSIX_Process_Identification,
+       POSIX_Report,
+       POSIX_Signals,
+       POSIX_Timers,
+       Test_Parameters,
+       System;
 
    Old_Mask : Signal_Set;
 
 begin
+
 
    Header ("p030300");
 
    ----------------------------------------------------------------------
    --  The implementation is only allowed to reserve additional signals
    --  that are not defined (named) in the standard.
+   --  The implementation must reserve the signals
+   --  that are not defined as reserved in the standard.
+   --  An implementation shall not impose restrictions on the ability
+   --  of an application to send, accept, block, or ignore the signals
+   --  defined by this standard, except as specified in this standard.
+   --  [3.3.2]
+   --  The implementation of the tailorable functions Is_Reserved_Signal and
+   --  Action_Cannot_Be_Set, in package Test_Parameters, must be consistent
+   --  with the above requirements.
+
+   for I in Defined_Signals'Range loop
+      Assert (not Is_Reserved_Signal (Defined_Signals (I))
+        or else Is_Reserved_Defined_Signal (Defined_Signals (I)),
+        "A001: p030300a " & Image (Defined_Signals (I)) & " is reserved");
+      Assert (Is_Reserved_Signal (Defined_Signals (I))
+        or else not Is_Reserved_Defined_Signal (Defined_Signals (I)),
+        "A002: p030300a " & Image (Defined_Signals (I)) & " is not reserved");
+   end loop;
+
+   for Sig in 1 .. Signal'Last loop
+      Assert (not Action_Cannot_Be_Set (Sig) or else
+        Is_Reserved_Signal (Sig) or else
+        Sig = SIGKILL or else
+        Sig = SIGSTOP, "A003: " & Image (Sig));
+      Assert (not Is_Reserved_Signal (Sig) or else
+        Sig /= SIGKILL or else
+        Sig /= SIGSTOP or else
+        Action_Cannot_Be_Set (Sig), "A004: " & Image (Sig));
+   end loop;
+
+   ----------------------------------------------------------------------
+   --  The default actions specified in Test_Parameters must be
+   --  consistent with the requirements of the standard.
 
    declare
-      Reserved_Signals : Signal_Set;
+      Act, Req_Act : Signal_Action;
    begin
-      Add_Signal (Reserved_Signals, SIGABRT);
-      Add_Signal (Reserved_Signals, SIGALRM);
-      Add_Signal (Reserved_Signals, SIGFPE);
-      Add_Signal (Reserved_Signals, SIGILL);
-      Add_Signal (Reserved_Signals, SIGSEGV);
-      Add_Signal (Reserved_Signals, SIGBUS);
-      --  Notwithstanding the fact that the standard does not list
-      --  SIGABRT and SIGSTOP as reserved signals, they cannot be
-      --  used with sigwait(), because they cannot be masked.
-      Add_Signal (Reserved_Signals, SIGKILL);
-      Add_Signal (Reserved_Signals, SIGSTOP);
-      for I in Defined_Signals'Range loop
-         Assert (not Is_Reserved_Signal (Defined_Signals (I))
-           or else Is_Member (Reserved_Signals, Defined_Signals (I)),
-           "A001: p030300a " & Image (Defined_Signals (I)) & " is reserved");
+      for Sig in Signal loop
+         Req_Act := Required_Default_Action (Sig);
+         Act := Default_Action (Sig);
+         Assert (Act /= Unspecified, "A005: " & Image (Sig));
+         if Req_Act /= Unspecified then
+            Assert (Act = Req_Act, "A006: " & Image (Sig));
+         end if;
       end loop;
    end;
 
@@ -118,13 +155,13 @@ begin
    begin
       Set := Blocked_Signals;
       for Sig in Signal loop
-         if not Is_Reserved (Sig)
-           and then not Is_Member (Set, Sig) then
-            Comment ("WARNING: " & Image (Sig) & " not blocked in env. task");
+         if Sig /= SIGNULL
+           and then Is_Member (Set, Sig) then
+            Comment ("WARNING: " & Image (Sig) & " blocked in env. task");
          end if;
       end loop;
    exception
-   when E1 : others => Unexpected_Exception (E1, "A002");
+   when E1 : others => Unexpected_Exception (E1, "A007");
    end;
 
    ---------------------------------------------------------------------
@@ -144,15 +181,15 @@ begin
          exception
          when E1 : POSIX_Error =>
             if Get_Error_Code = Invalid_Argument then
-               Fail ("A003: " & Image (Sig) & " is invalid");
+               Fail ("A008: " & Image (Sig) & " is invalid");
             else
-               Unexpected_Exception (E1, "A004");
+               Unexpected_Exception (E1, "A009");
             end if;
-            when E2 : others => Unexpected_Exception (E2, "A005");
+            when E2 : others => Unexpected_Exception (E2, "A010");
          end;
       end loop;
    exception
-   when E1 : others => Unexpected_Exception (E1, "A006");
+   when E1 : others => Unexpected_Exception (E1, "A011");
    end;
 
    ---------------------------------------------------------------------
@@ -169,104 +206,102 @@ begin
       --  ... in uppercase.
 
       Assert
-        (Image (Signal_Null) = "SIGNAL_NULL", "A007");
+        (Image (Signal_Null) = "SIGNAL_NULL", "A012");
       Assert
-        (Image (SIGNULL) = Image (Signal_Null), "A008");
-
+        (Image (SIGNULL) = Image (Signal_Null), "A013");
       Assert
-        (Image (Signal_Abort) = "SIGNAL_ABORT", "A009");
+        (Image (Signal_Abort) = "SIGNAL_ABORT", "A014");
       Assert
-        (Image (SIGABRT) = Image (Signal_Abort), "A010");
-
+        (Image (SIGABRT) = Image (Signal_Abort), "A015");
       Assert
-        (Image (Signal_Alarm) = "SIGNAL_ALARM", "A011");
+        (Image (Signal_Alarm) = "SIGNAL_ALARM", "A016");
       Assert
-        (Image (SIGALRM) = Image (Signal_Alarm), "A012");
+        (Image (SIGALRM) = Image (Signal_Alarm), "A017");
       Assert
         (Image (Signal_Floating_Point_Error) =
-         "SIGNAL_FLOATING_POINT_ERROR", "A013");
+         "SIGNAL_FLOATING_POINT_ERROR", "A018");
       Assert
-        (Image (SIGFPE) = Image (Signal_Floating_Point_Error), "A014");
+        (Image (SIGFPE) = Image (Signal_Floating_Point_Error), "A019");
       Assert
-        (Image (Signal_Hangup) = "SIGNAL_HANGUP", "A015");
+        (Image (Signal_Hangup) = "SIGNAL_HANGUP", "A020");
       Assert
-        (Image (SIGHUP) = Image (Signal_Hangup), "A016");
+        (Image (SIGHUP) = Image (Signal_Hangup), "A021");
       Assert
         (Image (Signal_Illegal_Instruction) =
-         "SIGNAL_ILLEGAL_INSTRUCTION", "A017");
+         "SIGNAL_ILLEGAL_INSTRUCTION", "A022");
       Assert
-        (Image (SIGILL) = Image (Signal_Illegal_Instruction), "A018");
+        (Image (SIGILL) = Image (Signal_Illegal_Instruction), "A023");
       Assert
-        (Image (Signal_Interrupt) = "SIGNAL_INTERRUPT", "A019");
+        (Image (Signal_Interrupt) = "SIGNAL_INTERRUPT", "A024");
       Assert
-        (Image (SIGINT) = Image (Signal_Interrupt), "A020");
+        (Image (SIGINT) = Image (Signal_Interrupt), "A025");
       Assert
-        (Image (Signal_Kill) = "SIGNAL_KILL", "A021");
+        (Image (Signal_Kill) = "SIGNAL_KILL", "A026");
       Assert
-        (Image (SIGKILL) = Image (Signal_Kill), "A022");
+        (Image (SIGKILL) = Image (Signal_Kill), "A027");
       Assert
-        (Image (Signal_Pipe_Write) = "SIGNAL_PIPE_WRITE", "A023");
+        (Image (Signal_Pipe_Write) = "SIGNAL_PIPE_WRITE", "A028");
       Assert
-        (Image (SIGPIPE) = Image (Signal_Pipe_Write), "A024");
+        (Image (SIGPIPE) = Image (Signal_Pipe_Write), "A029");
       Assert
-        (Image (Signal_Quit) = "SIGNAL_QUIT", "A025");
+        (Image (Signal_Quit) = "SIGNAL_QUIT", "A030");
       Assert
-        (Image (SIGQUIT) = Image (Signal_Quit), "A026");
+        (Image (SIGQUIT) = Image (Signal_Quit), "A031");
       Assert
         (Image (Signal_Segmentation_Violation) =
-         "SIGNAL_SEGMENTATION_VIOLATION", "A027");
+         "SIGNAL_SEGMENTATION_VIOLATION", "A032");
       Assert
-        (Image (SIGSEGV) = Image (Signal_Segmentation_Violation), "A028");
+        (Image (SIGSEGV) = Image (Signal_Segmentation_Violation), "A033");
       Assert
-        (Image (Signal_Terminate) = "SIGNAL_TERMINATE", "A029");
+        (Image (Signal_Terminate) = "SIGNAL_TERMINATE", "A034");
       Assert
-        (Image (SIGTERM) = Image (Signal_Terminate), "A030");
+        (Image (SIGTERM) = Image (Signal_Terminate), "A035");
       Assert
-        (Image (Signal_User_1) = "SIGNAL_USER_1", "A031");
+        (Image (Signal_User_1) = "SIGNAL_USER_1", "A036");
       Assert
-        (Image (SIGUSR1) = Image (Signal_User_1), "A032");
+        (Image (SIGUSR1) = Image (Signal_User_1), "A037");
       Assert
-        (Image (Signal_User_2) = "SIGNAL_USER_2", "A033");
+        (Image (Signal_User_2) = "SIGNAL_USER_2", "A038");
       Assert
-        (Image (SIGUSR2) = Image (Signal_User_2), "A034");
+        (Image (SIGUSR2) = Image (Signal_User_2), "A039");
 
       if Is_Supported (Memory_Protection_Option) then
          Assert
-           (Image (Signal_Bus_Error) = "SIGNAL_BUS_ERROR", "A035");
+           (Image (Signal_Bus_Error) = "SIGNAL_BUS_ERROR", "A040");
          Assert
-           (Image (SIGBUS) = Image (Signal_Bus_Error), "A036");
+           (Image (SIGBUS) = Image (Signal_Bus_Error), "A041");
       end if;
 
       if Is_Supported (Job_Control_Option) then
          Assert
-           (Image (Signal_Child) = "SIGNAL_CHILD", "A037");
+           (Image (Signal_Child) = "SIGNAL_CHILD", "A042");
          Assert
-           (Image (SIGCHLD) = Image (Signal_Child), "A038");
+           (Image (SIGCHLD) = Image (Signal_Child), "A043");
          Assert
-           (Image (Signal_Continue) = "SIGNAL_CONTINUE", "A039");
+           (Image (Signal_Continue) = "SIGNAL_CONTINUE", "A044");
          Assert
-           (Image (SIGCONT) = Image (Signal_Continue), "A040");
+           (Image (SIGCONT) = Image (Signal_Continue), "A045");
          Assert
-           (Image (Signal_Stop) = "SIGNAL_STOP", "A041");
+           (Image (Signal_Stop) = "SIGNAL_STOP", "A046");
          Assert
-           (Image (SIGSTOP) = Image (Signal_Stop), "A042");
+           (Image (SIGSTOP) = Image (Signal_Stop), "A047");
          Assert
-           (Image (Signal_Terminal_Stop) = "SIGNAL_TERMINAL_STOP", "A043");
+           (Image (Signal_Terminal_Stop) = "SIGNAL_TERMINAL_STOP", "A048");
          Assert
-           (Image (SIGTSTP) = Image (Signal_Terminal_Stop), "A044");
+           (Image (SIGTSTP) = Image (Signal_Terminal_Stop), "A049");
          Assert
-           (Image (Signal_Terminal_Input) = "SIGNAL_TERMINAL_INPUT", "A045");
+           (Image (Signal_Terminal_Input) = "SIGNAL_TERMINAL_INPUT", "A050");
          Assert
-           (Image (SIGTTIN) = Image (Signal_Terminal_Input), "A046");
+           (Image (SIGTTIN) = Image (Signal_Terminal_Input), "A051");
          Assert
-           (Image (Signal_Terminal_Output) = "SIGNAL_TERMINAL_OUTPUT", "A047");
+           (Image (Signal_Terminal_Output) = "SIGNAL_TERMINAL_OUTPUT", "A052");
          Assert
-           (Image (SIGTTOU) = Image (Signal_Terminal_Output), "A048");
+           (Image (SIGTTOU) = Image (Signal_Terminal_Output), "A053");
       end if;
 
    exception
       --  No exceptions shall be raised by Image.
-      when E1 : others => Unexpected_Exception (E1, "A049");
+      when E1 : others => Unexpected_Exception (E1, "A054");
    end;
 
    begin
@@ -277,103 +312,103 @@ begin
       --  Value shall return the corresponding signal value.
 
       Assert
-        (Value ("Signal_Null") = Signal_Null, "A050");
+        (Value ("Signal_Null") = Signal_Null, "A055");
       Assert
-        (Value ("SIGNULL") = Signal_Null, "A051");
+        (Value ("SIGNULL") = Signal_Null, "A056");
       Assert
-        (Value ("Signal_Abort") = Signal_Abort, "A052");
+        (Value ("Signal_Abort") = Signal_Abort, "A057");
       Assert
-        (Value ("siGnal_aBort") = Signal_Abort, "A053");
+        (Value ("siGnal_aBort") = Signal_Abort, "A058");
       Assert
-        (Value ("SIGABRT") = Signal_Abort, "A054");
+        (Value ("SIGABRT") = Signal_Abort, "A059");
       Assert
-        (Value ("siGabrt") = Signal_Abort, "A055");
+        (Value ("siGabrt") = Signal_Abort, "A060");
       Assert
-        (Value (" Signal_Abort ") = Signal_Abort, "A056");
+        (Value (" Signal_Abort ") = Signal_Abort, "A061");
       Assert
-        (Value ("Signal_Alarm") = Signal_Alarm, "A057");
+        (Value ("Signal_Alarm") = Signal_Alarm, "A062");
       Assert
-        (Value ("SIGALRM") = Signal_Alarm, "A058");
+        (Value ("SIGALRM") = Signal_Alarm, "A063");
       Assert
         (Value ("Signal_Floating_Point_Error") =
-         Signal_Floating_Point_Error, "A059");
+         Signal_Floating_Point_Error, "A064");
       Assert
-        (Value ("SIGFPE") = Signal_Floating_Point_Error, "A060");
+        (Value ("SIGFPE") = Signal_Floating_Point_Error, "A065");
       Assert
-        (Value ("Signal_Hangup") = Signal_Hangup, "A061");
+        (Value ("Signal_Hangup") = Signal_Hangup, "A066");
       Assert
-        (Value ("SIGHUP") = Signal_Hangup, "A062");
+        (Value ("SIGHUP") = Signal_Hangup, "A067");
       Assert
         (Value ("Signal_Illegal_Instruction") =
-         Signal_Illegal_Instruction, "A063");
+         Signal_Illegal_Instruction, "A068");
       Assert
-        (Value ("SIGILL") = Signal_Illegal_Instruction, "A064");
+        (Value ("SIGILL") = Signal_Illegal_Instruction, "A069");
       Assert
-        (Value ("Signal_Interrupt") = Signal_Interrupt, "A065");
+        (Value ("Signal_Interrupt") = Signal_Interrupt, "A070");
       Assert
-        (Value ("SIGINT") = Signal_Interrupt, "A066");
+        (Value ("SIGINT") = Signal_Interrupt, "A071");
       Assert
-        (Value ("Signal_Kill") = Signal_Kill, "A067");
+        (Value ("Signal_Kill") = Signal_Kill, "A072");
       Assert
-        (Value ("SIGKILL") = Signal_Kill, "A068");
+        (Value ("SIGKILL") = Signal_Kill, "A073");
       Assert
-        (Value ("Signal_Pipe_Write") = Signal_Pipe_Write, "A069");
+        (Value ("Signal_Pipe_Write") = Signal_Pipe_Write, "A074");
       Assert
-        (Value ("SIGPIPE") = Signal_Pipe_Write, "A070");
+        (Value ("SIGPIPE") = Signal_Pipe_Write, "A075");
       Assert
-        (Value ("Signal_Quit") = Signal_Quit, "A071");
+        (Value ("Signal_Quit") = Signal_Quit, "A076");
       Assert
-        (Value ("SIGQUIT") = Signal_Quit, "A072");
+        (Value ("SIGQUIT") = Signal_Quit, "A077");
       Assert
         (Value ("Signal_SegmeNTATION_Violation") =
-         Signal_Segmentation_Violation, "A073");
+         Signal_Segmentation_Violation, "A078");
       Assert
-        (Value ("SIGSEGV") = Signal_Segmentation_Violation, "A074");
+        (Value ("SIGSEGV") = Signal_Segmentation_Violation, "A079");
       Assert
-        (Value ("Signal_Terminate") = Signal_Terminate, "A075");
+        (Value ("Signal_Terminate") = Signal_Terminate, "A080");
       Assert
-        (Value ("SIGTERM") = Signal_Terminate, "A076");
+        (Value ("SIGTERM") = Signal_Terminate, "A081");
       Assert
-        (Value ("Signal_User_1") = Signal_User_1, "A077");
+        (Value ("Signal_User_1") = Signal_User_1, "A082");
       Assert
-        (Value ("SIGUSR1") = Signal_User_1, "A078");
+        (Value ("SIGUSR1") = Signal_User_1, "A083");
       Assert
-        (Value ("Signal_User_2") = Signal_User_2, "A079");
+        (Value ("Signal_User_2") = Signal_User_2, "A084");
       Assert
-        (Value ("SIGUSR2") = Signal_User_2, "A080");
+        (Value ("SIGUSR2") = Signal_User_2, "A085");
 
       if Is_Supported (Memory_Protection_Option) then
          Assert
-           (Value ("Signal_Bus_ERROR") = Signal_Bus_Error, "A081");
+           (Value ("Signal_Bus_ERROR") = Signal_Bus_Error, "A086");
          Assert
-           (Value ("SIGBUS") = Signal_Bus_Error, "A082");
+           (Value ("SIGBUS") = Signal_Bus_Error, "A087");
       end if;
 
       if Is_Supported (Job_Control_Option) then
          Assert
-           (Value ("Signal_Child") = Signal_Child, "A083");
+           (Value ("Signal_Child") = Signal_Child, "A088");
          Assert
-           (Value ("SIGCHLD") = Signal_Child, "A084");
+           (Value ("SIGCHLD") = Signal_Child, "A089");
          Assert
-           (Value ("Signal_Continue") = Signal_Continue, "A085");
+           (Value ("Signal_Continue") = Signal_Continue, "A090");
          Assert
-           (Value ("SIGCONT") = Signal_Continue, "A086");
+           (Value ("SIGCONT") = Signal_Continue, "A091");
          Assert
-           (Value ("Signal_Stop") = Signal_Stop, "A087");
+           (Value ("Signal_Stop") = Signal_Stop, "A092");
          Assert
-           (Value ("SIGSTOP") = Signal_Stop, "A088");
+           (Value ("SIGSTOP") = Signal_Stop, "A093");
          Assert
-           (Value ("Signal_Terminal_Stop") = Signal_Terminal_Stop, "A089");
+           (Value ("Signal_Terminal_Stop") = Signal_Terminal_Stop, "A094");
          Assert
-           (Value ("SIGTSTP") = Signal_Terminal_Stop, "A090");
+           (Value ("SIGTSTP") = Signal_Terminal_Stop, "A095");
          Assert
-           (Value ("Signal_Terminal_Input") = Signal_Terminal_Input, "A091");
+           (Value ("Signal_Terminal_Input") = Signal_Terminal_Input, "A096");
          Assert
-           (Value ("SIGTTIN") = Signal_Terminal_Input, "A092");
+           (Value ("SIGTTIN") = Signal_Terminal_Input, "A097");
          Assert
-           (Value ("Signal_Terminal_Output") = Signal_Terminal_Output, "A093");
+           (Value ("Signal_Terminal_Output") = Signal_Terminal_Output, "A098");
          Assert
-           (Value ("SIGTTOU") = Signal_Terminal_Output, "A094");
+           (Value ("SIGTTOU") = Signal_Terminal_Output, "A099");
       end if;
 
       -----------------------------------------------------------------------
@@ -381,7 +416,7 @@ begin
 
       for Sig in Signal loop
          Assert (Value (Image (Sig)) = Sig,
-           "A095: image/value of "  & Image (Sig)
+           "A100: image/value of "  & Image (Sig)
              & " " & Image (Sig) & " "
              & POSIX_Signals.Image (Value (Image (Sig))));
       end loop;
@@ -394,23 +429,24 @@ begin
          Sig : Signal;
       begin
          Sig := Value ("Garbage");
-         Assert (False, "A096");
+         Assert (False, "A101");
       exception
-         when Constraint_Error => null;
-         when E2 : others => Unexpected_Exception (E2, "A097");
+         when E1 : Constraint_Error => null;
+         when E2 : others => Unexpected_Exception (E2, "A102");
       end;
 
    exception
-      when E1 : others => Unexpected_Exception (E1, "A098");
+      when E1 : others => Unexpected_Exception (E1, "A103");
    end;
 
    ---------------------------------------------------------------------
-   --  For all the reserved signals, Await_Signal raises POSIX_Error
-   --  with Invalid_Argument. [3.3.15]
+   --  For all the reserved signals,
+   --  Await_Signal raises POSIX_Error with Invalid_Argument. [3.3.15]
+
+   Test ("Await_Signal on reserved signals [3.3.15]");
 
    for Sig in Signal loop
-      if Is_Reserved (Sig)
-        and then Sig /= SIGNULL then
+      if Is_Reserved_Signal (Sig) then
          declare
             Set : Signal_Set;
             Result : Signal;
@@ -418,12 +454,12 @@ begin
             Delete_All_Signals (Set);
             Add_Signal (Set, Sig);
             Result := Await_Signal (Set);
-            Expect_Exception ("A099: reserved " & Image (Sig));
+            Expect_Exception ("A104: reserved " & Image (Sig));
          exception
          when POSIX_Error =>
-            Check_Error_Code (Invalid_Argument, "A100: reserved signal");
+            Check_Error_Code (Invalid_Argument, "A105: reserved signal");
          when E : others =>
-            Unexpected_Exception (E, "A101");
+            Unexpected_Exception (E, "A106");
          end;
       end if;
    end loop;
@@ -446,7 +482,7 @@ begin
    ---------------------------------------------------------------------
    --  Signal_Null has the value zero.
 
-   Assert (Signal_Null = 0, "A102");
+   Assert (Signal_Null = 0, "A107");
 
    ---------------------------------------------------------------------
    --  if the Realtime Signals option is supported, the range
@@ -457,12 +493,12 @@ begin
    if Is_Supported (Realtime_Signals_Option) then
       Assert (Integer (Realtime_Signal'Last - Realtime_Signal'First + 1)
         >= POSIX_Limits.Portable_Realtime_Signals_Maximum,
-        "A103: Too few realtime signals:" &
+        "A108: Too few realtime signals:" &
         Image (Realtime_Signal'Last - Realtime_Signal'First + 1));
       for Sig in Realtime_Signal'Range loop
          for I in Defined_Signals'Range loop
             Assert (Sig /= Defined_Signals (I),
-              "A104: " & Image (Sig) & " in Realtime_Signal");
+              "A109: " & Image (Sig) & " in Realtime_Signal");
          end loop;
       end loop;
    end if;
@@ -480,10 +516,10 @@ begin
 
       for Sig in 1 .. Signal'Last loop
          begin
-            Assert (not Is_Member (Set, Sig), "A105");
+            Assert (not Is_Member (Set, Sig), "A110");
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A106");
-         when E1 : others => Unexpected_Exception (E1, "A107");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A111");
+         when E1 : others => Unexpected_Exception (E1, "A112");
          end;
       end loop;
 
@@ -493,7 +529,7 @@ begin
       --  the parameter Sig or the value of the parameter Sig is
       --  Signal_Null.
 
-      Assert (Is_Member (Set, Signal_Null), "A108");
+      Assert (Is_Member (Set, Signal_Null), "A113");
 
       -------------------------------------------------------------
       --  Add_All_Signals updates Set so that it
@@ -503,10 +539,10 @@ begin
 
       for Sig in 1 .. Signal'Last loop
          begin
-            Assert (Is_Member (Set, Sig), "A109");
+            Assert (Is_Member (Set, Sig), "A114");
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A110");
-         when E1 : others => Unexpected_Exception (E1, "A111");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A115");
+         when E1 : others => Unexpected_Exception (E1, "A116");
          end;
       end loop;
 
@@ -516,17 +552,17 @@ begin
 
       Add_All_Signals (Set_3);
       Set_2 := Set;
-      Assert (Set = Set_2, "A112");
-      Assert (Set = Set_3, "A113");
-      Assert (Set_2 = Set_3, "A114");
+      Assert (Set = Set_2, "A117");
+      Assert (Set = Set_3, "A118");
+      Assert (Set_2 = Set_3, "A119");
 
       for Sig in 1 .. Signal'Last loop
          begin
             --  Check Signal membership
-            Assert (Is_Member (Set, Sig), "A115");
+            Assert (Is_Member (Set, Sig), "A120");
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A116");
-         when E1 : others => Unexpected_Exception (E1, "A117");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A121");
+         when E1 : others => Unexpected_Exception (E1, "A122");
          end;
       end loop;
 
@@ -538,10 +574,10 @@ begin
 
       for Sig in 1 .. Signal'Last loop
          begin
-            Assert (not Is_Member (Set, Sig), "A118");
+            Assert (not Is_Member (Set, Sig), "A123");
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A119");
-         when E1 : others => Unexpected_Exception (E1, "A120");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A124");
+         when E1 : others => Unexpected_Exception (E1, "A125");
          end;
       end loop;
 
@@ -553,13 +589,13 @@ begin
       for Sig in 1 .. Signal'Last loop
          begin
             Add_Signal (Set, Sig);
-            Assert (Is_Member (Set, Sig), "A121");
+            Assert (Is_Member (Set, Sig), "A126");
             for Sig2 in Sig + 1 .. Signal'Last loop
-               Assert (not Is_Member (Set, Sig2), "A122");
+               Assert (not Is_Member (Set, Sig2), "A127");
             end loop;
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A123");
-         when E1 : others => Unexpected_Exception (E1, "A124");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A128");
+         when E1 : others => Unexpected_Exception (E1, "A129");
          end;
       end loop;
 
@@ -571,15 +607,15 @@ begin
       for Sig in 1 .. Signal'Last loop
          begin
             Delete_Signal (Set, Sig);
-            Assert (not Is_Member (Set, Sig), "A125");
+            Assert (not Is_Member (Set, Sig), "A130");
             for Sig2 in Signal loop
                Assert (Sig2 = Sig or else
-                 Is_Member (Set, Sig2), "A126");
+                 Is_Member (Set, Sig2), "A131");
             end loop;
             Add_Signal (Set, Sig);
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A127");
-         when E1 : others => Unexpected_Exception (E1, "A128");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A132");
+         when E1 : others => Unexpected_Exception (E1, "A133");
          end;
       end loop;
 
@@ -591,15 +627,15 @@ begin
 
       for Sig in 1 .. Signal'Last loop
          begin
-            Assert (not Is_Member (Set, Sig), "A129");
+            Assert (not Is_Member (Set, Sig), "A134");
          exception
-         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A130");
-         when E1 : others => Unexpected_Exception (E1, "A131");
+         when POSIX_Error => Check_Error_Code (Invalid_Argument, "A135");
+         when E1 : others => Unexpected_Exception (E1, "A136");
          end;
       end loop;
 
    exception
-      when E1 : others => Unexpected_Exception (E1, "A132");
+      when E1 : others => Unexpected_Exception (E1, "A137");
    end;
 
    ---------------------------------------------------------------------
@@ -615,30 +651,31 @@ begin
 
    declare
       Mask1, Mask2, Mask3, Mask4 : Signal_Set;
+      New_Mask : Signal_Set;
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
       begin
-         Comment ("testing " & Image (Sig));
+         Comment ("Testing " & Image (Sig));
          Mask1 := Blocked_Signals;
          Add_Signal (Mask1, Sig);
          Block_Signals (Mask1, Mask2);
          --  At this point, if Sig is not reserved, it is masked.
          --  Masking of other signals is not changed.
          Mask3 := Blocked_Signals;
-         Assert (Is_Reserved (Sig) or else Is_Member (Mask3, Sig),
-           "A133: " & Image (Sig));
+         Assert (Cannot_Be_Blocked (Sig) or else Is_Member (Mask3, Sig),
+           "A138: " & Image (Sig));
          Unblock_Signals (Mask1, Mask2);
          for I in Signal loop
             Assert ((I = Sig)
               or else (Is_Member (Mask1, I) = Is_Member (Mask3, I)),
-              "A134:" & Image (I));
+              "A139:" & Image (I));
          end loop;
          --  At this point, all user-unmaskable signals are unmasked.
          Mask3 := Blocked_Signals;
          for I in Signal loop
-            if not Is_Reserved (I) and then I /= SIGNULL then
-               Assert (not Is_Member (Mask3, I), "A135: " & Image (I));
+            if not Is_Reserved_Signal (I) and then I /= SIGNULL then
+               Assert (not Is_Member (Mask3, I), "A140: " & Image (I));
             end if;
          end loop;
       end Test_Signal;
@@ -655,14 +692,14 @@ begin
       Set_Blocked_Signals (Mask1, Mask2);
       Set_Blocked_Signals (Mask2, Mask3);
       for Sig in Signal loop
-         Comment (Boolean'Image (Is_Reserved (Sig)) &
-                  Boolean'Image (Is_Member (Mask1, Sig)) &
-                  Boolean'Image (Is_Member (Mask2, Sig)) &
-                  Boolean'Image (Is_Member (Mask3, Sig)) &
+         Comment (Boolean'Image (Is_Reserved_Signal (Sig)) & ' ' & 
+                  Boolean'Image (Is_Member (Mask1, Sig)) & ' ' &
+                  Boolean'Image (Is_Member (Mask2, Sig)) & ' ' &
+                  Boolean'Image (Is_Member (Mask3, Sig)) & ' ' &
                   Image (Sig));
-         if not Is_Reserved (Sig) then
+         if not Is_Reserved_Signal (Sig) then
             Assert (Is_Member (Mask1, Sig) = Is_Member (Mask3, Sig),
-              "A136: " & Image (Sig));
+              "A141: " & Image (Sig));
          end if;
       end loop;
 
@@ -676,8 +713,12 @@ begin
       Set_Blocked_Signals (Mask1, Mask3);
       Mask4 := Blocked_Signals;
       for Sig in Signal loop
-         if not Is_Reserved (Sig) then
-            Assert (Is_Member (Mask4, Sig), "A137: " & Image (Sig));
+         if not Is_Member (Mask4, Sig) then
+            Fails_Blocking_Test (Sig) := True;
+            Assert (Cannot_Be_Blocked (Sig), "A142: " & Image (Sig));
+         elsif Is_Reserved_Signal (Sig) then
+            Fails_Blocking_Test (Sig) := True;
+            --  Do not try blocking and unblocking reserved signals.
          end if;
       end loop;
 
@@ -690,7 +731,7 @@ begin
       --  Set_Blocked_Signals returns the old mask in Old_Mask
 
       Set_Blocked_Signals (Mask2, Mask3);
-      Assert (Mask1 = Mask3, "A138");
+      Assert (Mask1 = Mask3, "A143");
 
       Delete_All_Signals (Mask1);
       Set_Blocked_Signals (Mask1, Mask3);
@@ -699,11 +740,13 @@ begin
       --  all user-unmaskable signals should be unmasked
 
       for Sig in Signal loop
-         Test_Signal (Sig);
+         if not Fails_Blocking_Test (Sig) then
+            Test_Signal (Sig);
+         end if;
       end loop;
 
    exception
-      when E1 : others => Unexpected_Exception (E1, "A139");
+      when E1 : others => Unexpected_Exception (E1, "A144");
    end;
 
    ------------------------------------------------------------------------
@@ -713,12 +756,53 @@ begin
    declare
 
       New_Mask : Signal_Set;
-
+      Not_Applicable : exception;
       procedure Test_Signal (Sig : Signal);
-      procedure Test_Signal (Sig : Signal) is
 
+      procedure Test_Signal (Sig : Signal) is
       begin
-         Comment ("testing " & Image (Sig));
+         Comment ("Testing " & Image (Sig));
+
+         ---------------------------------------------------------------
+         --  Ignore_Signal, Unignore_Signal, or Is_Ignored raises
+         --  POSIX_Error with Invalid_Argument if Sig is a signal for
+         --  which the signal action is not permitted to be set by the
+         --  application.
+
+         if Action_Cannot_Be_Set (Sig) then
+            begin
+               if Is_Ignored (Sig) then null;
+               end if;
+               Expect_Exception ("A145: " & Image (Sig));
+            exception
+            when E1 : POSIX_Error =>
+               Assert (Get_Error_Code = Invalid_Argument,
+                 "A146: " & Image (Sig) & " " & Image (Get_Error_Code));
+            end;
+            begin
+               Ignore_Signal (Sig);
+               Expect_Exception ("A147: " & Image (Sig));
+               Unignore_Signal (Sig);
+               Expect_Exception ("A148: " & Image (Sig));
+            exception
+            when E1 : POSIX_Error =>
+               Assert (Get_Error_Code = Invalid_Argument,
+                 "A149: " & Image (Sig) & " " & Image (Get_Error_Code));
+            end;
+            begin
+               Unignore_Signal (Sig);
+               Expect_Exception ("A150: " & Image (Sig));
+            exception
+            when E1 : POSIX_Error =>
+               Assert (Get_Error_Code = Invalid_Argument,
+                 "A151: " & Image (Sig) & " " & Image (Get_Error_Code));
+            end;
+            raise Not_Applicable;
+         end if;
+
+         ---------------------------------------------------------------
+         --  If we get here the signal should be one that we expect to
+         --  be able to ignore and unignore.
 
          Block_Signals (All_Signal_Mask, Old_Mask);
 
@@ -726,16 +810,19 @@ begin
          --  When signal is not ignored, signals sent to the process
          --  can be caught using Await_Signal.
 
-         Assert (not Is_Ignored (Sig), "A140");
-         if Action_Cannot_Be_Set (Sig) then
-            Expect_Exception ("A141: " & Image (Sig));
-            Set_Error_Code (Invalid_Argument);
-            raise POSIX_Error;
-         end if;
+         begin
+            Assert (not Is_Ignored (Sig), "A152");
+            Add_Signal (New_Mask, Sig);
+            Block_Signals (New_Mask, Old_Mask);
+            Send_Signal (Get_Process_ID, Sig);
+            Try_Await_Signal (Sig, New_Mask, DU, No, "A153");
+         exception
+         when Local_Failure => null;
+         when E : others => Unexpected_Exception (E, "A154: " & Image (Sig));
+         end;
 
          --------------------------------------------------------------
-         --  N signals were sent and N were received, so there should
-         --  be no more pending occurrences of Sig at this point.
+         --  There should be no pending occurrences of Sig at this point.
          --  If this check fails, it may mean that Send_Signal
          --  delivers the signal to ALL the threads in a process,
          --  rather than just one.
@@ -746,7 +833,7 @@ begin
             Set := Pending_Signals;
             for Sig in Signal loop
                Assert (Sig = SIGNULL or not Is_Member (Set, Sig),
-                 "A142: " & Image (Sig) & " is pending");
+                 "A155: " & Image (Sig) & " is pending");
             end loop;
          end;
 
@@ -761,23 +848,14 @@ begin
          --  actions for the signals in Set is unspecified. [3.3.15]
          --  Therefore, task T waits until the signal has been sent,
          --  has been unmasked, and has been masked again, before trying
-         --  to await it.
+         --  to await it with the expection of the signal being ignored.
 
-         Comment ("should now be ignoring signals");
+         Comment ("Should now be ignoring signals");
 
          Ignore_Signal (Sig);
 
-         Assert (Is_Ignored (Sig), "A143");
+         Assert (Is_Ignored (Sig), "A156");
 
-         ---------------------------------------------------------------
-         --  When signal is unignored, signals sent to the process
-         --  cause the default action (again).  It should again be
-         --  possible to use Await_Signal to catch the signal, if the
-         --  default action allows the signal to be caught.
-
-         declare
-            The_Sig : Signal;
-            Timeout : Timespec := To_Timespec (DU);
          begin
             Add_Signal (New_Mask, Sig);
             Block_Signals (New_Mask, Old_Mask);
@@ -785,14 +863,10 @@ begin
             --  Unblocking the signal should ensure it is discarded.
             Unblock_Signals (New_Mask, Old_Mask);
             Block_Signals (New_Mask, Old_Mask);
-            The_Sig := Await_Signal_Or_Timeout (New_Mask, Timeout);
-            Comment ("received " & Image (The_Sig) & " (not ignored)");
-            Expect_Exception ("A144");
+            Try_Await_Signal (Sig, New_Mask, DU, Yes, "A157");
          exception
-         when POSIX_Error =>
-            Comment ("TIMED OUT waiting for " & Image (Sig) & " (OK)");
-            Check_Error_Code (EAGAIN, "A145: " & Image (Sig));
-         when E : others => Unexpected_Exception (E, "A146");
+         when Local_Failure => null;
+         when E : others => Unexpected_Exception (E, "A158");
          end;
 
          ---------------------------------------------------------------
@@ -801,22 +875,20 @@ begin
          --  possible to use Await_Signal to catch the signal, if the
          --  default action allows the signal to be caught.
 
-         Comment ("should stop ignoring signals");
+         Comment ("Should stop ignoring signals");
 
          Unignore_Signal (Sig);
-         Assert (not Is_Ignored (Sig), "A147");
+         Assert (not Is_Ignored (Sig), "A159");
 
-         declare
-            The_Sig : Signal;
-            Timeout : Timespec := To_Timespec (DU);
          begin
             Add_Signal (New_Mask, Sig);
             Block_Signals (New_Mask, Old_Mask);
             Send_Signal (Get_Process_ID, Sig);
-            The_Sig := Await_Signal_Or_Timeout (New_Mask, Timeout);
-            Assert (The_Sig = Sig, "A148");
+            Comment ("Awaiting signal " & Image (Sig));
+            Try_Await_Signal (Sig, New_Mask, DU, No, "A160");
          exception
-         when E : others => Unexpected_Exception (E, "A149");
+         when Local_Failure => null;
+         when E : others => Unexpected_Exception (E, "A161: " & Image (Sig));
          end;
 
          --------------------------------------------------------------------
@@ -832,33 +904,33 @@ begin
             Block_Signals (Old_Set, Set);
             Unignore_Signal (Sig);
          exception
-         when E : others => Unexpected_Exception (E, "A150");
+         when E : others => Unexpected_Exception (E, "A162");
          end;
 
       exception
-      when POSIX_Error =>
-         Assert (Get_Error_Code = Invalid_Argument and
-           Action_Cannot_Be_Set (Sig), "A151: " & Image (Sig)
-             & " " & Image (Get_Error_Code));
-      when E2 : others => Unexpected_Exception (E2, "A152");
+      when Not_Applicable => null;
+      when E : others => Unexpected_Exception (E, "A163: " & Image (Sig));
       end Test_Signal;
 
       procedure Test_Signal_2 (Sig : Signal);
+
       procedure Test_Signal_2 (Sig : Signal) is
       begin
-         Comment ("testing " & Image (Sig) & " with entry");
+         Comment ("Testing " & Image (Sig) & " with entry");
 
          ----------------------------------------------------------------
          --  Ensure all blockable signals are blocked
          --  in the environment task.
 
+         Comment ("Blocking all signals");
          Block_Signals (All_Signal_Mask, Old_Mask);
 
          ---------------------------------------------------------------
          --  When signal is not ignored, signals sent to the process
          --  cause the handler to execute.
 
-         Assert (not Is_Ignored (Sig), "A153");
+         Comment ("Checking Is_Ignored");
+         Assert (not Is_Ignored (Sig), "A164");
 
          ---------------------------------------------------------------
          --  For the Ignore_Signal operation if the signal is bound to
@@ -868,8 +940,9 @@ begin
          --  Thus, signals sent to the process do not cause the handler
          --  to execute.
 
+         Comment ("Ignoring signal");
          Ignore_Signal (Sig);
-         Assert (Is_Ignored (Sig), "A154");
+         Assert (Is_Ignored (Sig), "A165");
 
          ---------------------------------------------------------------
          --  When signal is unignored, the default action is restored.
@@ -880,38 +953,46 @@ begin
          --  may be to terminate the process.  Therefore, this check
          --  is deferred to a separate test.
 
+         Comment ("Unignoring signal");
          Unignore_Signal (Sig);
-         Assert (not Is_Ignored (Sig), "A155");
+         Assert (not Is_Ignored (Sig), "A166");
 
          --------------------------------------------------------------------
          --  Now make sure any pending occurrences of the signal will be
          --  cleared out safely when we next unblock signals.
 
+         Comment ("Ignoring signal");
          Ignore_Signal (Sig);
+         Unignore_Signal (Sig);
 
       exception
-      when E1 : others => Unexpected_Exception (E1, "A156");
+      when E1 : others => Unexpected_Exception (E1, "A167: " & Image (Sig));
       end Test_Signal_2;
 
    begin
       for Sig in Signal loop
          begin
-            Test_Signal (Sig);
+            if not Fails_Blocking_Test (Sig) then
+               Test_Signal (Sig);
+            end if;
          exception
-         when E : others => Unexpected_Exception (E, "A157");
+         when E : others => Unexpected_Exception (E, "A168");
          end;
       end loop;
       for Sig in Signal loop
          begin
-            Test_Signal_2 (Sig);
+            if not Action_Cannot_Be_Set (Sig) and then
+              not Fails_Blocking_Test (Sig) then
+               Test_Signal_2 (Sig);
+            end if;
          exception
          when E1 : POSIX_Error =>
             if Is_Supported (Signal_Entries_Option)
               and then Get_Error_Code /= Invalid_Argument
             then
-               Unexpected_Exception (E1, "A158");
+               Unexpected_Exception (E1, "A169");
             end if;
-         when E2 : others => Unexpected_Exception (E2, "A159");
+         when E2 : others => Unexpected_Exception (E2, "A170");
          end;
       end loop;
    end;
@@ -923,13 +1004,13 @@ begin
    Test ("Controlling Generation of Signal for Child Process [3.3.10]");
 
    begin
-      Assert (Stopped_Child_Signal_Enabled, "A160");
+      Assert (Stopped_Child_Signal_Enabled, "A171");
       Set_Stopped_Child_Signal; -- by default, Enable := True
-      Assert (Stopped_Child_Signal_Enabled, "A161");
+      Assert (Stopped_Child_Signal_Enabled, "A172");
       Set_Stopped_Child_Signal (Enable => False);
-      Assert (not Stopped_Child_Signal_Enabled, "A162");
+      Assert (not Stopped_Child_Signal_Enabled, "A173");
    exception
-   when E : others => Unexpected_Exception (E, "A163");
+   when E : others => Unexpected_Exception (E, "A174");
    end;
 
    --  To check that this operation actually works, a child process
@@ -953,12 +1034,12 @@ begin
       Set := Pending_Signals;
       for Sig in Signal loop
          Assert (Sig = SIGNULL or not Is_Member (Set, Sig),
-           "A164: " & Image (Sig) & " is pending");
+           "A175: " & Image (Sig) & " is pending");
       end loop;
 
-      Comment ("sending " & Image (SIGUSR1));
+      Comment ("Sending " & Image (SIGUSR1));
       Send_Signal (Get_Process_ID, SIGUSR1);
-      Comment ("sending " & Image (SIGHUP));
+      Comment ("Sending " & Image (SIGHUP));
       Send_Signal (Get_Process_ID, SIGHUP);
 
       -----------------------------------------------------------
@@ -968,9 +1049,9 @@ begin
       Set := Pending_Signals;
       for Sig in Signal loop
          if Sig = SIGUSR1 or Sig = SIGHUP or Sig = SIGNULL then
-            Assert (Is_Member (Set, Sig), "A165");
+            Assert (Is_Member (Set, Sig), "A176");
          else
-            Assert (not Is_Member (Set, Sig), "A166: " & Image (Sig)
+            Assert (not Is_Member (Set, Sig), "A177: " & Image (Sig)
               & " is pending");
          end if;
       end loop;
@@ -979,29 +1060,11 @@ begin
       --  Now make sure any pending occurrences of the signal will be
       --  cleared out safely.
 
-      declare
-         Set, Old_Set : Signal_Set;
-         procedure Clear_Signal (Sig : Signal);
-         procedure Clear_Signal (Sig : Signal) is
-         begin
-            Add_Signal (Set, Sig);
-            Ignore_Signal (Sig);
-            Unblock_Signals (Set, Old_Set);
-            Block_Signals (Old_Set, Set);
-            Unignore_Signal (Sig);
-         exception
-         when E : others =>
-            Unexpected_Exception (E, "A167: " & Image (Sig));
-         end Clear_Signal;
-      begin
-         Clear_Signal (SIGUSR1);
-         Clear_Signal (SIGHUP);
-      exception
-      when E : others => Unexpected_Exception (E, "A168");
-      end;
+      Clear_Signal (SIGUSR1, "A178");
+      Clear_Signal (SIGHUP, "A179");
 
    exception
-   when E : others => Unexpected_Exception (E, "A169");
+   when E : others => Unexpected_Exception (E, "A180");
    end;
 
    Unblock_Signals (All_Signal_Mask, Old_Mask);
@@ -1022,14 +1085,14 @@ begin
          Set_Notification (Sig_E, No_Notification);
          Set_Notification (Sig_E, Sig_N);
          Set_Data (Sig_E, Sig_D);
-         Assert (Sig = Get_Signal (Sig_E), "A170");
-         Assert (Signal_Notification = Get_Notification (Sig_E), "A171");
-         Assert (Int_Data = +(Get_Data (Sig_E)), "A172");
+         Assert (Sig = Get_Signal (Sig_E), "A181");
+         Assert (Signal_Notification = Get_Notification (Sig_E), "A182");
+         Assert (Int_Data = +(Get_Data (Sig_E)), "A183");
       exception
-         when E1 : others => Unexpected_Exception (E1, "A173");
+         when E1 : others => Unexpected_Exception (E1, "A184");
       end Test_Signal;
    begin
-      Assert (Signal_Notification /= No_Notification, "A174");
+      Assert (Signal_Notification /= No_Notification, "A185");
       for Sig in Signal loop
          Test_Signal (Sig);
       end loop;
@@ -1045,9 +1108,9 @@ begin
       S : Signal_Data;
    begin
       S := +I;
-      Assert (+S = I and +I = S, "A175");
+      Assert (+S = I and +I = S, "A186");
       S := +A;
-      Assert (+S = A and +A = S, "A176");
+      Assert (+S = A and +A = S, "A187");
       declare
          T : POSIX_Timers.Timer_ID;
          Event : Signal_Event;
@@ -1055,7 +1118,7 @@ begin
          Set_Notification (Event, No_Notification);
          T := Create_Timer (Clock_Realtime, Event);
          S := +T;
-         Assert (+S = T and +T = S, "A177");
+         Assert (+S = T and +T = S, "A188");
       exception
       when E1 : POSIX_Error =>
          if Get_Error_Code /= Invalid_Argument then
@@ -1068,11 +1131,11 @@ begin
             --  POSIX.1b.  Therefore, we allow Operation_Not_Implemented
             --  as well as Operation_Not_Supported.
 
-            Optional (Timers_Option, Operation_Not_Implemented, E1, "A178");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A189");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A179");
+      when E2 : others => Unexpected_Exception (E2, "A190");
       end;
-   exception when E : others => Unexpected_Exception (E, "A180");
+   exception when E : others => Unexpected_Exception (E, "A191");
    end;
 
    --  .... Functional testing of signal notification is done separately,
@@ -1099,15 +1162,15 @@ begin
          Set_Signal (Sig_I, Sig);
          Set_Source (Sig_I, From_Timer);
          Set_Data (Sig_I, Signal_Data'(+10));
-         Assert (Sig = Get_Signal (Sig_I), "A181");
-         Assert (From_Timer = Get_Source (Sig_I), "A182");
-         Assert (+10 = Get_Data (Sig_I), "A183");
+         Assert (Sig = Get_Signal (Sig_I), "A192");
+         Assert (From_Timer = Get_Source (Sig_I), "A193");
+         Assert (+10 = Get_Data (Sig_I), "A194");
       exception
       when E1 : POSIX_Error =>
          --  delivery until the signal is unmasked.
          Optional (Realtime_Signals_Option,
-           Operation_Not_Supported, E1, "A184");
-      when E2 : others => Unexpected_Exception (E2, "A185");
+           Operation_Not_Supported, E1, "A195");
+      when E2 : others => Unexpected_Exception (E2, "A196");
       end Test_Signal;
 
    begin
@@ -1115,15 +1178,15 @@ begin
       for I in Signal_Sources'Range loop
          for J in Signal_Sources'Range loop
             Assert ((I = J) = (Signal_Sources (I) = Signal_Sources (J)),
-              "A186" & Integer'Image (I) & " " & Integer'Image (J));
+              "A197" & Integer'Image (I) & " " & Integer'Image (J));
          end loop;
          if Signal_Sources (I) = From_Send_Signal then
             Assert (not Has_Data (Signal_Sources (I)),
-              "A187: source" & Integer'Image (I)
+              "A198: source" & Integer'Image (I)
               & " has no data");
          else
             Assert (Has_Data (Signal_Sources (I)),
-              "A188" & Integer'Image (I));
+              "A199" & Integer'Image (I));
          end if;
       end loop;
 
@@ -1142,86 +1205,142 @@ begin
       subtype Test_Range is Integer range 700 .. 700 + N - 1;
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
-         Timeout : Timespec := To_Timespec (2*DU);
+         Timeout : Duration := 2*DU;
          Info : Signal_Info;
          Set : Signal_Set;
+         Installed_Empty_Handler : Boolean := False;
       begin
+         Comment ("Testing " & Image (Sig));
          Add_Signal (Set, Sig);
          Block_Signals (All_Signal_Mask, Old_Mask);
          Set_Signal (Info, Sig);
          Set_Source (Info, From_Timer);
          Set_Data (Info, Signal_Data'(+10));
-         Enable_Queueing (SIGUSR1);
+         Assert (Is_Member (Pending_Signals, Sig) = (Sig = SIGNULL), "A200");
+         if Sig /= SIGNULL then
+            Comment ("Enable queueing");
+            if Try_Install_Empty_Handler (Sig) then
+               Installed_Empty_Handler := True;
+            end if;
+            Enable_Queueing (Sig);
+         end if;
          for I in Test_Range loop
-            Queue_Signal (Get_Process_ID, Sig, +I);
+               Comment ("Queue_Signal " & Image (Sig) & " :"
+                 & Integer'Image (I));
+               Queue_Signal (Get_Process_ID, Sig, +I);
          end loop;
-         for I in Test_Range loop
-            Info := Await_Signal_Or_Timeout (Set, Timeout);
-            Assert (Get_Signal (Info) = Sig, "A189");
-            Assert (Get_Source (Info) = From_Queue_Signal, "A190");
-            Assert (Get_Data (Info) = +777, "A191");
-         end loop;
-         Disable_Queueing (SIGUSR1);
+
+         ---------------------------------------------------------------
+         --  If the parameter Sig is equal to Signal_Null, no signal
+         --  shall be queued, but error checking shall be performed.
+         --  [3.3.19]
+
+         if Sig = Signal_Null then
+            Comment ("Expect to timeout on SIGNULL");
+            begin
+               Info :=
+                 Try_Await_Signal (Sig, Set, Timeout, Yes, "A201");
+            exception
+            when Local_Failure => null;
+            when E1 : POSIX_Error =>
+               Comment ("TIMED OUT waiting for " & Image (Sig) & " (OK)");
+               Check_Error_Code (EAGAIN, "A202: " & Image (Sig));
+            when E2 : others => Unexpected_Exception (E2, "A203");
+            end;
+            return;
+         end if;
+
+         Comment ("Await signals");
+         begin
+            for I in Test_Range loop
+               if Installed_Empty_Handler then
+                  Info := Try_Await_Signal (Sig, Set, Timeout, No, "A204");
+               else
+                  Info := Try_Await_Signal (Sig, Set, Timeout, Maybe, "A205");
+               end if;
+               Assert (Get_Signal (Info) = Sig, "A206");
+               Assert (Get_Source (Info) = From_Queue_Signal,
+                 "A207: " & Image (Sig) & ' '
+                 & Signal_Source'Image (Get_Source (Info)));
+               Assert (Get_Data (Info) = +I, "A208: " & Image (Sig) & ' '
+                 & Integer'Image (+Get_Data (Info)));
+               Comment ("Get_Data (Info) = "
+                 & Integer'Image (+Get_Data (Info)));
+            end loop;
+         exception
+         when Local_Failure => null;
+         when E : others =>
+            Unexpected_Exception (E, "A209");
+            Clear_Signal (Sig, "A210");
+         end;
+         Comment ("Disable queueing");
+         Disable_Queueing (Sig);
          --  Data may still be queued, even if queuing is disabled.
          --  Either way, we should get at least one of the signals.
          for I in Test_Range loop
+            Comment ("Queue_Signal " & Image (Sig) & " :"
+              & Integer'Image (I));
             Queue_Signal (Get_Process_ID, Sig, +I);
          end loop;
          for I in Test_Range loop
             Set_Source (Info, From_Timer);
             Set_Data (Info, +0);
             begin
-               Info := Await_Signal_Or_Timeout (Set, Timeout);
-               Comment ("received signal: " & Integer'Image (I));
-            exception
-            when E : POSIX_Error =>
-               if I = Test_Range'First then
-                  Unexpected_Exception (E, "A192");
+               if I = Test_Range'First and Installed_Empty_Handler then
+                  Info := Try_Await_Signal (Sig, Set, Timeout, No, "A211");
                else
-                  Check_Error_Code (Resource_Temporarily_Unavailable, "A193");
+                  Info := Try_Await_Signal (Sig, Set, Timeout, Maybe, "A212");
                end if;
+               Comment ("received signal: " & Integer'Image (I));
+               Assert (Get_Signal (Info) = Sig, "A213");
+               Assert (Get_Source (Info) = From_Queue_Signal
+                 or Get_Source (Info) = From_Timer, "A214");
+
+               ----------------------------------------------------------
+               --  If queueing is not enabled the  Data attribute
+               --  is undefined. [3.3.16.2]
+
+            exception
+            when Local_Failure => null;
+            when E : others => Unexpected_Exception (E, "A215");
             end;
-            Assert (Get_Signal (Info) = Sig, "A194");
-            Assert (Get_Source (Info) = From_Queue_Signal
-              or Get_Source (Info) = From_Timer, "A195");
-            Assert (Get_Data (Info) = +777
-              or Get_Data (Info) = +0, "A196");
          end loop;
-         Enable_Queueing (Sig);
-         for I in Test_Range loop
-            Queue_Signal (Get_Process_ID, Sig, +I);
-         end loop;
-         for I in Test_Range loop
-            Info := Await_Signal_Or_Timeout (Set, Timeout);
-            Assert (Get_Signal (Info) = Sig, "A197");
-            Assert (Get_Source (Info) = From_Queue_Signal, "A198");
-            Assert (Get_Data (Info) = +777, "A199");
-         end loop;
+
+         if Installed_Empty_Handler then
+            Unignore_Signal (Sig);
+         end if;
+
       exception
       when E1 : POSIX_Error =>
          Optional (Realtime_Signals_Option,
-           Operation_Not_Implemented, E1, "A200");
-      when E2 : others => Unexpected_Exception (E2, "A201");
+           Operation_Not_Implemented, E1, "A216: " & Image (Sig));
+      when E2 : others => Unexpected_Exception (E2, "A217");
       end Test_Signal;
    begin
-      for Sig in Signal loop
-         case Sig is
-         when SIGABRT | SIGALRM | SIGFPE | SIGILL | SIGSEGV |
-              SIGBUS | SIGKILL | SIGSTOP =>
-            null;
-            --  It is too risky to send reserved signals to the process.
-         when others =>
+      for Sig in 1 .. Signal'Last loop
+         if not Fails_Blocking_Test (Sig)
+           and then not (Default_Action (Sig) in Ignore .. Stop) then
             Test_Signal (Sig);
-         end case;
+            --  Clear out any signals possibly left if test failed.
+            Clear_Signal (Sig, "A218");
+            --  Repeat the test, to make sure resources can be reused.
+            Test_Signal (Sig);
+            --  Clear out any signals possibly left if test failed.
+            Clear_Signal (Sig, "A219");
+         end if;
       end loop;
    exception
    when E1 : POSIX_Error =>
       Optional (Realtime_Signals_Option,
-        Operation_Not_Supported, E1, "A202");
-   when E2 : others => Unexpected_Exception (E2, "A203");
+        Operation_Not_Supported, E1, "A220");
+   when E2 : others => Unexpected_Exception (E2, "A221");
    end;
 
    Unblock_Signals (All_Signal_Mask, Old_Mask);
+
+   ---------------------------------------------------------------------
+   --  .... It would be good to also check the behavior if queuing
+   --  is not enabled.
 
    ---------------------------------------------------------------------
    --  The POSIX.5 standard does not specify whether a signal entry
@@ -1239,70 +1358,72 @@ begin
             case Sig is
             when Signal_Abort =>
                Assert (Signal_Abort_Ref = Signal_Reference (SIGABRT),
-                    "A204");
+                    "A222");
             when Signal_Hangup =>
                Assert (Signal_Hangup_Ref = Signal_Reference (SIGHUP),
-                    "A205");
+                    "A223");
             when Signal_Interrupt =>
                Assert (Signal_Interrupt_Ref = Signal_Reference (SIGINT),
-                    "A206");
+                    "A224");
             when Signal_Pipe_Write =>
                Assert (Signal_Pipe_Write_Ref = Signal_Reference (SIGPIPE),
-                    "A207");
+                    "A225");
             when Signal_Quit =>
                Assert (Signal_Quit_Ref = Signal_Reference (SIGQUIT),
-                    "A208");
+                    "A226");
             when Signal_Terminate =>
                Assert (Signal_Terminate_Ref = Signal_Reference (SIGTERM),
-                    "A209");
+                    "A227");
             when Signal_User_1 =>
                Assert (Signal_User_1_Ref = Signal_Reference (SIGUSR1),
-                    "A210");
+                    "A228");
             when Signal_User_2 =>
                Assert (Signal_User_2_Ref = Signal_Reference (SIGUSR2),
-                    "A211");
+                    "A229");
             when Signal_Child =>
                Assert (Signal_Child_Ref = Signal_Reference (SIGCHLD),
-                    "A212");
+                    "A230");
             when Signal_Continue =>
                Assert (Signal_Continue_Ref = Signal_Reference (SIGCONT),
-                    "A213");
+                    "A231");
             when Signal_Terminal_Stop =>
                Assert (Signal_Terminal_Stop_Ref = Signal_Reference (SIGTSTP),
-                    "A214");
+                    "A232");
             when Signal_Terminal_Input =>
                Assert (Signal_Terminal_Input_Ref = Signal_Reference (SIGTTIN),
-                    "A215");
+                    "A233");
             when Signal_Terminal_Output =>
                Assert (Signal_Terminal_Output_Ref = Signal_Reference (SIGTTOU),
-                    "A216");
+                    "A234");
             when others =>
                null;
             end case;
          exception
          when E1 : POSIX_Error =>
-            if Is_Reserved (Sig) then
-               Check_Error_Code (Invalid_Argument, "A217");
+            if Is_Reserved_Signal (Sig) then
+               Check_Error_Code (Invalid_Argument, "A235");
             else
-               Unexpected_Exception (E1, "A218");
+               Unexpected_Exception (E1, "A236: " & Image (Sig));
             end if;
-         when E2 : others => Unexpected_Exception (E2, "A219");
+         when E2 : others => Unexpected_Exception (E2, "A237");
          end;
       exception
       when E1 : POSIX_Error =>
          if Is_Supported (Signal_Entries_Option)
            and then Get_Error_Code /= Invalid_Argument
          then
-            Unexpected_Exception (E1, "A220");
+            Unexpected_Exception (E1, "A238");
          end if;
-      when E2 : others => Unexpected_Exception (E2, "A221");
+      when E2 : others => Unexpected_Exception (E2, "A239");
       end Test_Signal;
    begin
       for Sig in Signal loop
-         Test_Signal (Sig);
+         if not Fails_Blocking_Test (Sig) then
+            Test_Signal (Sig);
+         end if;
       end loop;
    exception
-   when E : others => Unexpected_Exception (E, "A222");
+   when E : others => Unexpected_Exception (E, "A240");
    end;
 
    --  Active tests of signal entries are in other programs.
@@ -1318,7 +1439,6 @@ begin
       Uninitialized_Group_ID : Process_ID;
       pragma Warnings (Off, Uninitialized_Process_ID);
       pragma Warnings (Off, Uninitialized_Group_ID);
-      --  Let these variables uninitialized.
    begin
       -----------------------------------------------------------------
       --  Sending Signal_Null can be used to check the validity of
@@ -1334,12 +1454,12 @@ begin
          Send_Signal (Uninitialized_Process_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable process?");
       exception
-      when POSIX_Error =>
+      when E1 : POSIX_Error =>
          if Get_Error_Code = Operation_Not_Permitted then
             Comment ("UNLIKELY: garbage ID is real process?");
-         else Check_Error_Code (No_Such_Process, "A223");
+         else Check_Error_Code (No_Such_Process, "A241");
          end if;
-      when E : others => Unexpected_Exception (E, "A224");
+      when E : others => Unexpected_Exception (E, "A242");
       end;
 
       --  This setup is not 100% reliable.  With finite probability,
@@ -1352,16 +1472,16 @@ begin
          Send_Signal (Uninitialized_Group_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable group?");
       exception
-      when POSIX_Error =>
+      when E1 : POSIX_Error =>
          if Get_Error_Code = Operation_Not_Permitted then
             Comment ("UNLIKELY: garbage ID is real group?");
-         else Check_Error_Code (No_Such_Process, "A225");
+         else Check_Error_Code (No_Such_Process, "A243");
          end if;
-      when E : others => Unexpected_Exception (E, "A226");
+      when E : others => Unexpected_Exception (E, "A244");
       end;
 
    exception
-   when E : others => Unexpected_Exception (E, "A227");
+   when E : others => Unexpected_Exception (E, "A245");
    end;
 
    --  Active tests of Send_Signal are in other programs.
@@ -1381,10 +1501,10 @@ begin
       end if;
    exception
    when POSIX_Error =>
-      Check_Error_Code (Invalid_Argument, "A228");
+      Check_Error_Code (Invalid_Argument, "A246");
    when Program_Error =>
       Comment ("raised Program_Error (correctly)");
-   when E : others => Unexpected_Exception (E, "A229");
+   when E : others => Unexpected_Exception (E, "A247");
    end;
 
    --  Active tests of Interrupt_Task are in other programs.
@@ -1393,5 +1513,5 @@ begin
 
    Done;
 exception
-   when E : others => Fatal_Exception (E, "A230");
+   when E : others => Fatal_Exception (E, "A248");
 end p030300;
