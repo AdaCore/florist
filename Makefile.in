@@ -10,7 +10,7 @@
 MASTERDIR=/part1/florist
 VERSION=3.15w
 FLORIST_VERSION=$(VERSION)
-GNATMAKEFLAGS1B = -O2 -gnatep=gnatprep.conf
+GNATMAKEFLAGS1B = -O2 -gnatep=florist.prep
 GNATMAKEFLAGS2B = -cargs -gnatpg -largs $(LIBS)
 GCCFLAGS = -O2
 # The following will be set based on
@@ -157,7 +157,6 @@ FLORIST_SOURCES = ada_streams.ads\
  posix-process_environment.adb\
  posix-process_environment.ads\
  posix_process_environment.ads\
- posix-process_identification.gpb\
  posix-process_identification.ads\
  posix_process_identification.ads\
  posix-process_primitives.ads\
