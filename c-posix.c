@@ -755,7 +755,7 @@ struct termios {
 
 #ifdef HAVE_suseconds_t
 #else
-  typedef long suseconds_t;
+  typedef int suseconds_t;
 #endif 
 
 #ifdef HAVE_struct_timeval
