@@ -35,6 +35,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision: 1.1]
 
+with Unchecked_Conversion;
 package POSIX.Process_Environment is
    pragma Elaborate_Body;
 
@@ -118,4 +119,11 @@ package POSIX.Process_Environment is
 private
    type Environment_List;
    type Environment is access Environment_List;
+
+   function To_Environment is
+      new Unchecked_Conversion (POSIX_String_List, Environment);
+
+   function To_POSIX_String_List is
+      new Unchecked_Conversion (Environment, POSIX_String_List);
+
 end POSIX.Process_Environment;
