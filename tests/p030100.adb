@@ -40,6 +40,9 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
+--  Setup:  When this test is run the executable program p030300b must
+--  be accessible via the pathnames "./bin/p030100b" and "./p030100b".
+
 with POSIX,
      POSIX_Configurable_System_Limits,
      POSIX_Files,
@@ -503,7 +506,7 @@ begin
       begin
          Comment ("Set up argument list");
          Make_Empty (Args);
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Parents_Environment)));
          Pass_Through_Verbosity (Args);
@@ -556,7 +559,7 @@ begin
       begin
          Comment ("Reset argument list");
          Make_Empty (Args);
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Explicit_Environment)));
          Pass_Through_Verbosity (Args);
@@ -585,7 +588,7 @@ begin
          Start_Process_Search
            (Pid, Child_Filename, Template, Env, Args);
          Wait_For_Child_Process (Status, Pid);
-         Check_Child_Status (Status, Pid, 0, "100");
+         Check_Child_Status (Status, Pid, 0, "A100");
       exception
       when E : others => Unexpected_Exception (E, "A101");
       end;
@@ -668,7 +671,7 @@ begin
 
       begin
          Comment ("Set up argument list");
-         POSIX.Append (Args, "");
+         POSIX.Append (Args, Child_Filename);
          POSIX.Append (Args, "-child" &
            To_POSIX_String (Integer'Image (Parents_Environment)));
          Pass_Through_Verbosity (Args);
