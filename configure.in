@@ -44,6 +44,15 @@ echo "We will assume errno is safe for exception propagation."
 echo "-- to override, hand-edit gnatprep.config"
 echo "HAVE_Safe_Errno := True" >> gnatprep.config;
 
+echo $ac_n "checking for SGI IRIX timers... " $ac_c;
+if (grep "CLOCK_SGI_FAST" /usr/include/sys/ptimers.h >/dev/null 2>&1); then
+ echo "yes"
+ echo "HAVE_IRIX_Timers := True" >> gnatprep.config;
+else
+ echo "no"
+ echo "HAVE_IRIX_Timers := False" >> gnatprep.config;
+fi;
+
 UNAME_MACHINE=`(uname -m) 2>/dev/null`
 UNAME_RELEASE=`(uname -r) 2>/dev/null`
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`
