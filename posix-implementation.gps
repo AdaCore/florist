@@ -86,6 +86,7 @@ package POSIX.Implementation is
    --  or within an abort-deferred section!
 
    procedure Raise_POSIX_Error (Error : Error_Code := No_Error);
+   pragma No_Return (Raise_POSIX_Error);
 
    procedure Check (Condition : Boolean; Error : Error_Code);
    --  if Condition is false, raise POSIX_Error with
