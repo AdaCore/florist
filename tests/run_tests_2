@@ -1,13 +1,25 @@
 #!/bin/sh
-# These tests need to be run with special (e.g., root) permission.
+# run all the tests that can reasonably run in a batch
+# that need special privileges on Solaris 2.7.
+# 
+# FLAGS determines the degree of verbosity of the output.
+# Setting it to "-t" give the tersest form of output.
 FLAGS="-t"
 RUN=
+#
+# remove the old log file
+#
 rm -f run_tests_2.log
+#
+# run the tests
+#
+if [ ! -h bin ]
+then rm -f ./bin;
+     ln -fs .. ./bin;
+fi
 $RUN ../p120100 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p120400 ${FLAGS} >> run_tests_2.log 2>&1
+ln -fs ../p120101
+$RUN ../p120101 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p120200 ${FLAGS} >> run_tests_2.log 2>&1
 $RUN ../p120500 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p120501 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p140100 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p150100 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p990040 ${FLAGS} >> run_tests_2.log 2>&1
-$RUN ../p990050 ${FLAGS} >> run_tests_2.log 2>&1
+$RUN ../p140101 ${FLAGS} >> run_tests_2.log 2>&1
