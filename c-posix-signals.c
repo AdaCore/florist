@@ -587,7 +587,18 @@ void test_signal (int nodefaults, int signal) {
    comment ("  setting one second timeout");
    alarm (1);
    comment ("  doing sigwait");
+#ifndef _CMA_OS_
    if (ret = sigwait (&set, &sig)) {
+#else
+   ret = sigwait (&set);
+   if (ret == -1)
+      ret = errno;
+   else {
+      sig = ret;
+      ret = 0;
+   }
+   if (ret) {
+#endif
      fprintf (stderr, "*** sigwait: %s\n", strerror (ret));
    } else if (sig == signal) {
      fprintf (stderr, "works OK.\n");
