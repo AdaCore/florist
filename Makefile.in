@@ -6,22 +6,15 @@
 # If you need to modify the "configure" file, you will need
 # autoconf version 2.12, or maybe a later version will also work.
 #
-# If you have trouble with this file, please e-mail baker@cs.fsu.edu
-# reporting the problem, and if you solved it, what you did to solve it.
-# I am interested in improving the automated build process, but
-# here I have only Solaris, so I need help from people with other systems.
-#
-# See file JOBS_TO_DO for planned modifications ot this Makefile
-#
-# --Ted Baker (December 1997)
-#
 .POSIX:
 MASTERDIR=/part1/florist
 FLORIST_VERSION=florist-3.12w
+VERSION=$(FLORIST_VERSION) (XXXXXX)
 GNATMAKEFLAGS1 = -g -j4
 GNATMAKEFLAGS1B = -g -j4 -c -a
 GNATMAKEFLAGS2 = -cargs -gnatdj -gnatapg -largs $(LIBS)
 GNATMAKEFLAGS2B = -cargs -gnatdj -gnatapg -largs $(LIBS)
+GCCFLAGS = -g -O2
 # GNATPREPFLAGS = -c -r
 # Older versions of gnatprep don't generate comments that
 # are acceptable for the -gnatg option, so drop the "-c".
@@ -299,14 +292,14 @@ configure: configure.in aclocal.m4
 # If you are unlucky, it will require fixes to c-posix.c.
 #
 c-posix: c-posix.c config.h pconfig.h
-	gcc -g -o c-posix c-posix.c
+	gcc $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c
 #
 # Program c-posix-signals generates another Ada package spec.
 # It is also supposed to be a "portable" POSIX C program.
 #
 c-posix-signals: c-posix-signals.c
-	gcc $(GCC_ADDITIONAL_FLAGS) -g -o c-posix-signals c-posix-signals.c \
-	    $(LIBS)
+	gcc $(GCCFLAGS) $(GCC_ADDITIONAL_FLAGS) -o c-posix-signals \
+	    c-posix-signals.c $(LIBS)
 #
 # generate Ada source files using "c-posix" program
 #
@@ -341,7 +334,7 @@ $(GNATPREP_SPECS): gnatprep.config $(LOCAL_GNATPREP)
 .gpb.adb:
 	PATH=${PATH}\:.; gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .c.o:
-	gcc -c -g $<
+	gcc -c $(GCCFLAGS) $<
 #
 #
 # Some POSIX interfaces use macros.
