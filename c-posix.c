@@ -3184,13 +3184,13 @@ void create_posix() {
 #ifdef _POSIX_PIPE_BUF
   gpmaxi("Pipe_Limit",_POSIX_PIPE_BUF);
 #else
-  gpmaxid("Pipe_Limit", 512);
+  gpmaxi("Pipe_Limit", 512);
 #endif
 #ifdef PIPE_BUF
-  gmaxi("Pipe_Limit", PIPE_BUF);
+  gmaxii("Pipe_Limit", PIPE_BUF);
 #else
 #ifdef _POSIX_PIPE_BUF
-  gmaxii("Pipe_Limit", _POSIX_PIPE_BUF);
+  gmaxi("Pipe_Limit", _POSIX_PIPE_BUF);
 #else
   gmaxi("Pipe_Limit", 512);
 #endif
