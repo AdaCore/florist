@@ -81,16 +81,6 @@
 
 #define TRY_MACRO_LINKNAMES
 
-/* SOLARIS_HACK activates a workaround for a trick that appeared
-   in the Solaris 2.6 header files, of defining local function bodies
-   for certain POSIX function names, which are wrappers that in turn
-   call a real library function whose name is of the form __posix_XXX.
-
-   ....We need to fix the configuration process to auto-detect this!
-
- */
-#define SOLARIS_HACK
-
 /* Macros
    ======
  */
@@ -5636,7 +5626,7 @@ void create_c() {
   /*  GFUNC(creat,HAVE_creat); */
   GFUNC(ctermid,HAVE_ctermid);
   GFUNC(ctime,HAVE_ctime);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_ctime_r)
+#if defined(SOLARIS_HACK) && (HAVE___posix_ctime_r == 1)
   gfuncsol("ctime_r","__posix_ctime_r");
 #else
   GFUNC(ctime_r,HAVE_ctime_r);
@@ -5788,7 +5778,7 @@ void create_c() {
   /*  GFUNC(rand_r,HAVE_rand_r); */
   GFUNC(read,HAVE_read);
   GFUNC(readdir,HAVE_readdir);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_readdir_r)
+#if defined(SOLARIS_HACK) && (HAVE___posix_readdir_r == 1)
   gfuncsol("readdir_r","__posix_readdir_r");
 #else
   GFUNC(readdir_r,HAVE_readdir_r);
@@ -5842,7 +5832,7 @@ void create_c() {
   /*  GFUNC(sigsetjmp,HAVE_sigsetjmp); */
   /*  GFUNC(sigsuspend,HAVE_sigsuspend); */
   GFUNC(sigtimedwait,HAVE_sigtimedwait);
-#if defined(SOLARIS_HACK) && defined (HAVE___posix_sigwait)
+#if defined(SOLARIS_HACK) && (HAVE___posix_sigwait == 1)
   gfuncsol("sigwait","__posix_sigwait");
 #else
   GFUNC(sigwait,HAVE_sigwait);
