@@ -58,11 +58,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-/* Define a dummy va_list so that it doesn't conflict (on some systems) with
-   the one previousely defined (e.g in stdio.h) */
-#define va_list va_list_dummy
 #include <stdarg.h>
-#undef va_list
 #include "config.h"
 
 /* Files pconfig.h and config.h are generated
@@ -70,12 +66,12 @@
    by running "autoconf" on "configure.in".
  */ 
 
+static int indent = 0;
+extern void my_fprintf (FILE *f, char *fmt, ...);
+
 /* .... The following #define may belong in pconfig.h.
    Consider moving it there?
  */
-
-static int indent = 0;
-extern void my_fprintf (FILE *f, char *fmt, ...);
 
 /* TRY_MACRO_LINKNAMES activates a workaround for header files
    that define macros for certain POSIX function names, so that
