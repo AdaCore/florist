@@ -223,7 +223,7 @@ TESTS =\
 .gpb.adb:
 	PATH=${PATH}\:.:..; gnatprep $< $@ ../gnatprep.config $(GNATPREPFLAGS)
 .c.o:
-      gcc -c -g $<
+	gcc -c -g $<
 #
 tests: $(TESTS)
 #
