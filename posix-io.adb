@@ -58,10 +58,6 @@ package body POSIX.IO is
 
    function To_int is new Unchecked_Conversion (Bits, int);
    function To_Bits is new Unchecked_Conversion (int, Bits);
-   function To_char_ptr is
-     new Unchecked_Conversion (System.Address, char_ptr);
-   function To_Address is
-     new Unchecked_Conversion (char_ptr, System.Address);
 
    C_File_Mode : constant array (File_Mode) of Bits :=
      (Read_Only  => O_RDONLY,
