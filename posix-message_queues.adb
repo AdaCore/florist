@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-2002 Florida State University (FSU),                 --
+--  Copyright (c) 1996-2003 Florida State University (FSU),                 --
 --  All Rights Reserved.                                                    --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -350,7 +350,7 @@ package body POSIX.Message_Queues is
             size_t ((Message'Size + char'Size - 1) / char'Size),
             unsigned (Priority));
          Check_NNeg_And_Restore_Signals
-           (int (Result), Masked_Signals, Old_Mask'Unchecked_Access);
+           (Result, Masked_Signals, Old_Mask'Unchecked_Access);
       end Send;
 
       ---------------
