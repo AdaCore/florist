@@ -137,7 +137,7 @@ procedure p140100 is
       exception
       when E1 : POSIX_Error =>
          if Get_Error_Code /= Invalid_Argument then
-            Optional (Timers_Option, Operation_Not_Supported, E1, "A010");
+            Optional (Timers_Option, Operation_Not_Implemented, E1, "A010");
          end if;
       when E2 : others => Unexpected_Exception (E2, "A011");
       end;
@@ -157,7 +157,7 @@ procedure p140100 is
          exception
          when E1 : POSIX_Error =>
             if Get_Error_Code /= Invalid_Argument then
-               Optional (Timers_Option, Operation_Not_Supported, E1, "A013");
+               Optional (Timers_Option, Operation_Not_Implemented, E1, "A013");
             end if;
          when E2 : others => Unexpected_Exception (E2, "A014");
          end;
@@ -631,7 +631,7 @@ begin
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A066");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A066");
       end if;
    when E2 : others => Unexpected_Exception (E2, "A067");
    end;
@@ -651,7 +651,7 @@ begin
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A069");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A069");
       end if;
    when E2 : others => Unexpected_Exception (E2, "A070");
    end;
@@ -670,7 +670,7 @@ begin
    exception
    when E1 : POSIX_Error =>
       if Get_Error_Code /= Invalid_Argument then
-         Optional (Timers_Option, Operation_Not_Supported, E1, "A071");
+         Optional (Timers_Option, Operation_Not_Implemented, E1, "A071");
       end if;
    when E2 : others => Unexpected_Exception (E2, "A072");
    end;
@@ -689,7 +689,7 @@ begin
    --  exception
    --  when E1 : POSIX_Error =>
    --   if Get_Error_Code /= Invalid_Argument then
-   --      Optional (Timers_Option, Operation_Not_Supported, E1, "A074");
+   --      Optional (Timers_Option, Operation_Not_Implemented, E1, "A074");
    --   end if;
    --  when E2 : others => Unexpected_Exception (E2, "A075");
    --  end;
@@ -707,7 +707,7 @@ begin
    --  exception
    --  when E1 : POSIX_Error =>
    --   if Get_Error_Code /= Invalid_Argument then
-   --      Optional (Timers_Option, Operation_Not_Supported, E1, "A077");
+   --      Optional (Timers_Option, Operation_Not_Implemented, E1, "A077");
    --   end if;
    --  when E2 : others => Unexpected_Exception (E2, "A078");
    --  end;
@@ -718,13 +718,13 @@ begin
    --  in this process, it should succeed.
    --  This should work both with and without signal notification.
 
-   Test ("Create_Timer [4.1.5], valid clock ID");
+   Test ("Create_Timer [14.1.5], valid clock ID");
    declare
       Event : Signal_Event;
    begin
       Set_Notification (Event, No_Notification);
       Timer := Create_Timer (Clock_Realtime, Event);
-      Test ("Delete_Timer [4.1.6], valid timer ID");
+      Test ("Delete_Timer [14.1.6], valid timer ID");
       Delete_Timer (Timer);
       Set_Signal (Event, SIGUSR1);
       Set_Notification (Event, Signal_Notification);
@@ -732,7 +732,7 @@ begin
       Delete_Timer (Timer);
    exception
    when E1 : POSIX_Error =>
-      Optional (Timers_Option, Operation_Not_Supported, E1, "A079");
+      Optional (Timers_Option, Operation_Not_Implemented, E1, "A079");
    when E2 : others => Unexpected_Exception (E2, "A080");
    end;
 

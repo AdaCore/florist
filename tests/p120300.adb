@@ -196,7 +196,7 @@ begin
             S := "First";  --  Wrote this
             --  If Memory_Protection_Option is supported this should raise an
             --  exception
-            Assert (False, "A006: Expected Exception");
+            Expect_Exception ("A006");
          end if;
       exception
          when others =>
@@ -358,7 +358,7 @@ begin
             S := "First";  --  Wrote this
             --  If Memory_Protection_Option is supported the
             --  above should raise an exception.
-            Assert (False, "A013: No exception raised");
+            Expect_Exception ("A013");
          end if;
       exception when others => null;
       end;
@@ -433,7 +433,7 @@ begin
          Assert (S = "hello", "A016: mapped string does not match");
 
          S := "Good!";   --  This should raise an exception.
-         Assert (False, "A017: exception not raised");
+         Expect_Exception ("A017");
       exception
          when others =>
             null;

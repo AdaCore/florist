@@ -300,7 +300,7 @@ begin
    exception
    when E1 : POSIX_Error =>
       --  Fail because Open_Or_Create failed
-      Assert (False, "A021");
+      Unexpected_Exception (E1, "A021");
    when E2 : others =>
       Unexpected_Exception (E2, "A022");
    end;
@@ -376,7 +376,6 @@ begin
 
    declare
       Sem_Def : Semaphore_Descriptor;
-
    begin
       Test ("Wait for an Invalid_Argument [11.1.7]");
       Wait (Sem_Def, Masking);
@@ -469,10 +468,6 @@ begin
 
    ----------------------------------------------------------------------
 
-   declare
-      Sem_A : Semaphore;
-      Sem_Def : Semaphore_Descriptor;
-      Temp_Int : Integer;
    begin
       Test ("Get_Value for Invalid_Argument [11.1.9]");
       --  Temp_Int := Get_Value (Sem_Def);
@@ -488,7 +483,6 @@ begin
 
    ----------------------------------------------------------------------
 
-   declare
    begin
       Test ("Next Test");
    exception
