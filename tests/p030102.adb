@@ -49,28 +49,22 @@
 
 with Ada.Command_Line,
      POSIX,
-     POSIX_Configurable_System_Limits,
-     POSIX_Files,
-     POSIX_IO,
      POSIX_Process_Environment,
      POSIX_Process_Identification,
      POSIX_Process_Primitives,
      POSIX_Report,
-     POSIX_Signals,
-     POSIX_Unsafe_Process_Primitives,
-     Text_IO;
+     POSIX_Signals;
 
 procedure p030102 is
 
    use POSIX,
-       POSIX_Files,
-       POSIX_IO,
        POSIX_Process_Environment,
        POSIX_Process_Identification,
        POSIX_Process_Primitives,
        POSIX_Report,
-       POSIX_Signals,
-       POSIX_Unsafe_Process_Primitives;
+       POSIX_Signals;
+
+   This_Program_Pathname : constant POSIX_String := "./p030102";
 
    --  Cases to be tested by child processes:
 
@@ -92,12 +86,12 @@ procedure p030102 is
    begin
       Assert (Child_ID /= Null_Process_ID, "null id");
       if not Status_Available (Status) then
-         Fail ("status not available");
+         Fail ("A000: status not available");
          return;
       end if;
       Assert (Process_ID_Of (Status) = Child_ID, "child ID");
       if Termination_Cause_Of (Status) /= Exited then
-         Fail ("did not exit");
+         Fail ("A000: did not exit");
          return;
       end if;
       E := Exit_Status_Of (Status);
@@ -105,7 +99,7 @@ procedure p030102 is
          --  child process reports errors via exit status
          Increment_Error_Count (Integer (E));
       elsif E /= Expected then
-         Fail ("unexpected exit status" & Exit_Status'Image (E));
+         Fail ("A000: unexpected exit status" & Exit_Status'Image (E));
       end if;
       declare
          Sig : Signal;
@@ -113,8 +107,10 @@ procedure p030102 is
          Sig := Stopping_Signal_Of (Status);
          Assert (False, "Stopping_Signal_Of invalid status");
       exception
-      when POSIX_Error => Check_Exception (Invalid_Argument);
-      when E : others => Fail (E);
+      when POSIX_Error =>
+         Check_Error_Code (Invalid_Argument, "A000");
+      when E : others =>
+         Unexpected_Exception (E, "A000");
       end;
       declare
          Sig : Signal;
@@ -122,8 +118,10 @@ procedure p030102 is
          Sig := Termination_Signal_Of (Status);
          Assert (False, "Termination_Signal_Of invalid status");
       exception
-      when POSIX_Error => Check_Exception (Invalid_Argument);
-      when E : others => Fail (E);
+      when POSIX_Error =>
+         Check_Error_Code (Invalid_Argument, "A000");
+      when E : others =>
+         Unexpected_Exception (E, "A000");
       end;
    exception when E : others => Fail (E, "checking child status");
    end Check_Child_Status;
@@ -161,7 +159,8 @@ procedure p030102 is
          Assert (Ada.Command_Line.Argument (1) =
            To_String (Value (Argument_List, 2)),
            "inconsistent first argument");
-      exception when E : others => Fail (E);
+      exception when E : others =>
+         Unexpected_Exception (E, "A000");
       end;
 
       -----------------------------------------------------------
@@ -169,19 +168,19 @@ procedure p030102 is
       if Child = Normal_Completion then
          return;
       elsif Child = Normal_Completion_With_Ada_Status then
-         Command_Line.Set_Exit_Status (77);
+         Ada.Command_Line.Set_Exit_Status (77);
          return;
       elsif Child = Unhandled_Exception then
          raise Program_Error;
       elsif Child = POSIX_Exit_Process then
          Exit_Process (78);
-      else Fail ("abnormal -child argument value");
+      else Fail ("A000: abnormal -child argument value");
       end if;
 
    exception when E : others =>
       if Child = Unhandled_Exception then raise;
       end if;
-      Fail (E);
+      Unexpected_Exception (E, "A000");
    end p030102b;
 
 begin
@@ -202,7 +201,6 @@ begin
       Template : Process_Template;
       Args : POSIX_String_List;
    begin
-      Set_Environment_Value_Of ("PATH", This_Program_Pathlist);
       Open_Template (Template);
       Comment ("Set up argument list");
       POSIX.Append (Args, "");
@@ -213,7 +211,8 @@ begin
       Check_Child_Status (Status, Pid, Normal_Exit);
       Close_Template (Template);
    exception
-   when E : others => Fail (E);
+   when E : others =>
+      Unexpected_Exception (E, "A000");
    end;
 
    --------------------------------------------------------------------
@@ -222,10 +221,12 @@ begin
 
 exception
 when E : others =>
-   if Child = Normal_Completion_With_Ada_Status then
-      raise;
+   if Child = 2 then raise;
       --  Allow child process to be terminated by unhandled exception.
-   else
-      Fail (E);
+   elsif Child = 4 then
+      --  ?????
+      --  .... incomplete
+      null;
+   else Unexpected_Exception (E, "A000");
    end if;
 end p030102;
