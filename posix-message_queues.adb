@@ -143,6 +143,14 @@ package body POSIX.Message_Queues is
    begin
       return Message_Queue_Options
         (Option_Set '(Option => To_Bits (int (Attrs.Attrs.mq_flags))));
+      --  ????
+      --  The above conversion of long value to int is risky.
+      --  If the high-order bits are used, we may need to consider
+      --  reimplementing Option_Set as long, or changing the POSIX.5b spec.
+      --  .... Change POSIX.5b?
+      --  It was a mistake to use Option_Set here for a value that the
+      --  C-language interface says is a "long".  Option_Set in other places
+      --  is only used to map bit-vectors of type "int".
    end Get_Options;
 
    -------------------------
