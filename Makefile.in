@@ -3,11 +3,6 @@
 # This builds the "Florist" implementation of POSIX.5b,
 # and some test programs for it.
 #
-# Because of the pattern-matching rules, you will need
-# Gnu make to use this.
-# If you don't have Gnu make, you can try editing the file
-# to use another pattern-matching syntax.
-#
 # If you need to modify the "configure" file, you will need
 # autoconf version 2.12, or maybe a later version will also work.
 #
@@ -20,16 +15,16 @@
 #
 # --Ted Baker (December 1997)
 #
-# .POSIX:
+.POSIX:
 MASTERDIR=/part1/florist
-FLORIST_VERSION=florist-2.1
-GNATMAKEFLAGS1 = -g -j4 -aI..
-GNATMAKEFLAGS1B = -g -j4 -c -a -aI..
+FLORIST_VERSION=florist-3.12w
+GNATMAKEFLAGS1 = -g -j4
+GNATMAKEFLAGS1B = -g -j4 -c -a
 GNATMAKEFLAGS2 = -cargs -gnatdj -gnatapg -largs $(LIBS)
 GNATMAKEFLAGS2B = -cargs -gnatdj -gnatapg -largs $(LIBS)
 # GNATPREPFLAGS = -c -r
 # Older versions of gnatprep don't generate comments that
-# are acceptable for the -gnatg option.
+# are acceptable for the -gnatg option, so drop the "-c".
 GNATPREPFLAGS = -r
 # The following will be overridden by Config, based on
 # what the configure script discovers about the local system.
@@ -86,6 +81,7 @@ C-POSIX-SIGNALS_GENERATED = \
 GNATPREP_BODIES = \
  posix-implementation.adb\
  posix-signals.adb\
+ posix-process_identification.adb\
  posix-process_primitives.adb\
  posix-unsafe_process_primitives.adb\
  posix-sockets.adb\
@@ -185,7 +181,7 @@ FLORIST_SOURCES = $(GNATPREP_SOURCES)\
  posix-process_environment.adb\
  posix-process_environment.ads\
  posix_process_environment.ads\
- posix-process_identification.adb\
+ posix-process_identification.gpb\
  posix-process_identification.ads\
  posix_process_identification.ads\
  posix-process_primitives.ads\
@@ -268,11 +264,11 @@ EXECUTABLES =\
  deps\
  deps5c
 MACRO_OBJECTS =\
- tmpbuild/posix-macros.o\
- tmpbuild/posix-macros-xti.o\
- tmpbuild/posix-macros-sockets.o\
- tmpbuild/posix-macros-select.o\
- tmpbuild/c_inet_ntoa.o
+ posix-macros.o\
+ posix-macros-xti.o\
+ posix-macros-sockets.o\
+ posix-macros-select.o\
+ c_inet_ntoa.o
 
 # default target, get the gnat version and the system type and then
 # set up files and call make again (in uname)
@@ -330,35 +326,32 @@ posix-implementation-ok_signals.ads: c-posix-signals
 # compile local gnatprep, if necessary
 #
 gnatprep: gnatprep.adb
-	if ( test ! -d tmpbuild ); then mkdir tmpbuild; fi
-	cd tmpbuild; gnatmake -aI.. gnatprep; mv gnatprep .. ; rm -f gnatprep.*
+	gnatmake gnatprep; rm -f gnatprep.*
 #
 # Some other Ada source files are tailored to the
 # particular OS using the "gnatprep" program.
 # The sources for these end in ".gpb" and ".gps".
 #
-$(GNATPREP_BODIES): %.adb: %.gpb gnatprep.config $(LOCAL_GNATPREP)
-$(GNATPREP_SPECS): %.ads: %.gps gnatprep.config $(LOCAL_GNATPREP)
-.SUFFIXES: .gps .gpb .ads .adb
+$(GNATPREP_BODIES): gnatprep.config $(LOCAL_GNATPREP)
+$(GNATPREP_SPECS): gnatprep.config $(LOCAL_GNATPREP)
+.SUFFIXES: .gps .gpb .ads .adb .o .c
 .gps.ads:
 	PATH=${PATH}\:.; gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .gpb.adb:
 	PATH=${PATH}\:.; gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
+.c.o:
+	gcc -c -g $<
 #
 #
 # Some POSIX interfaces use macros.
 # To make these usable from Ada, we have C subprograms.
 #
-$(MACRO_OBJECTS): tmpbuild/%.o: %.c pconfig.h
-	@if [ ! -d tmpbuild ]; then mkdir tmpbuild; fi
-	cd tmpbuild; gcc -c -g ../$<
+$(MACRO_OBJECTS): pconfig.h
 #
 # Some POSIX interfaces use macros.
 # To make these usable from Ada, we have C subprograms.
 #
-$(ADDRINFO_OBJECTS): tmpbuild/%.o: %.c pconfig.h
-	@if [ ! -d tmpbuild ]; then mkdir tmpbuild; fi
-	cd tmpbuild; gcc -c -g ../$<
+$(ADDRINFO_OBJECTS): pconfig.h
 #
 # ------------------------------------
 # compilation of Florist packages
@@ -369,15 +362,9 @@ $(ADDRINFO_OBJECTS): tmpbuild/%.o: %.c pconfig.h
 # "deps5c.adb" is the same, but with POSIX.5c packages added.
 #
 deps: Makefile $(ALL_SOURCES) florist
-	@if [ ! -d tmpbuild ]; then mkdir tmpbuild; fi
-	@if [ ! -f tmpbuild/deps.adb ]; then\
-           ln -s ../deps.adb tmpbuild/deps.adb; fi
-	cd tmpbuild; gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
+	gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
 deps5c: Makefile $(ALL_SOURCES) florist
-	@if [ ! -d tmpbuild ]; then mkdir tmpbuild; fi
-	@if [ ! -f tmpbuild/deps5c.adb ]; then\
-           ln -s ../deps5c.adb tmpbuild/deps5c.adb; fi
-	cd tmpbuild; gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
+	gnatmake  -c $(GNATMAKEFLAGS1B) $@ $(GNATMAKEFLAGS2B)
 #
 # If we have modified the Ada runtime system, we need to recompile that also.
 #
@@ -395,7 +382,7 @@ floristlib: $(MACRO_OBJECTS) deps $(ADDRINFO_OBJECTS) $(FLORIST_SOURCES)
 	mkdir floristlib
 	cp -p *.ads floristlib
 	cp -p *.adb floristlib
-	(cd tmpbuild; tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
+	(tar cpf - *.o *.ali) | (cd floristlib; tar xpf -)
 	rm -f floristlib/deps.o floristlib/deps.ali
 	ar -r floristlib/libflorist.a floristlib/*.o
 	chmod 444 floristlib/*.ali
@@ -419,7 +406,7 @@ regen:
 	rm -f $(C-POSIX_GENERATED) $(GNATPREP_GENERATED)
 # remove editor and compiler generated files
 clean:
-	rm -rf tmpbuild floristlib
+	rm -rf floristlib
 	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c
 	rm -f *CHECKING_IN*
 	rm -f $(GNATPREP_GENERATED) $(C-POSIX_GENERATED)
@@ -440,7 +427,6 @@ realclean:
 # check all sources into RCS directory
 # and remove everything except "Makefile"
 checkin:
-	rm -rf tmpbuild
 	rm -f *.o *.ali $(EXECUTABLES) a.out *# *~ b_*.c $(GENERATED)\
           $(CONFIG_HISTORY)
 	rm -f *CHECKING_IN*
@@ -482,22 +468,3 @@ distribution:  $(FLORIST_SOURCES) $(DEBUG_SOURCES) $(TOOLS) $(DOCS)
 	gzip ${FLORIST_VERSION}.tar
 #
 #
-# ----------------------
-# -- REVISION HISTORY --
-# ----------------------
-
-# ----------------------------
-# revision 1.23
-# date: 1998/03/30 13:43:30;  author: baker;  state: Exp;  lines: +2 -1
-# add identification file florist_sources, used by configure
-# ----------------------------
-# revision 1.24
-# date: 1998/04/01 15:38:20;  author: baker;  state: Exp;  lines: +1 -3
-# add new test programs
-# ----------------------------
-# revision 1.25  locked by: baker;
-# date: 1998/06/30 13:46:42;  author: baker;  state: Exp;  lines: +14 -7
-# Updated to work better on Linux.
-# -------------------------------
-# New changes after this line.
-# Change version number to 2.1.
