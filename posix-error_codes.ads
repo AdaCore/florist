@@ -1,4 +1,3 @@
---  $Revision$
 ------------------------------------------------------------------------------
 --                                                                          --
 --            FLORIST (FSU Implementation of POSIX.5) COMPONENTS            --
@@ -8,7 +7,8 @@
 --                                  S p e c                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996 Florida State University (FSU), All Rights Reserved. --
+--  Copyright (c) 1996-1999     Florida State University (FSU), All Rights  --
+--  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +35,17 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
+--  [$Revision$]
 
+--  It may seem that this mechanism should not be necessary, since the
+--  errno value supported by the C-language interface is per-thread.
+--  Unfortunately, that per-thread value may be overwritten by
+--  implicit OS service calls that take place between the point an
+--  exception is raised and the point that it is handled.  For
+--  example, if raising an exception involves calling longjmp(), the
+--  longjmp() call may overwrite the previous errno value.  Since this
+--  mechanism does add overhead, we are making its use selectable, via
+--  gnatprep.
 
 with Ada.Task_Attributes;
 package POSIX.Error_Codes is
