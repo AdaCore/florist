@@ -88,10 +88,9 @@ c-posix: c-posix.c config.h pconfig.h
 	$(CC) $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -o c-posix c-posix.c $(LIBS)
 #
 # Program c-posix-signals generates another Ada package spec.
-# It is also supposed to be a "portable" POSIX C program.
 #
 c-posix-signals: c-posix-signals.c
-	$(CC) $(GCCFLAGS) -ansi -o c-posix-signals \
+	$(CC) $(GCCFLAGS) -o c-posix-signals \
 	    c-posix-signals.c $(LIBS)
 #
 # generate Ada source files using "c-posix" program
