@@ -58,7 +58,11 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+/* Define a dummy va_list so that it doesn't conflict (on some systems) with
+   the one previousely defined (e.g in stdio.h) */
+#define va_list va_list_dummy
 #include <stdarg.h>
+#undef va_list
 #include "config.h"
 
 /* Files pconfig.h and config.h are generated
