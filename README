@@ -257,6 +257,12 @@ directory, you should be able to copy or move the subdirectory
 "floristlib" to some other location, and then include it in
 your GNAT source and object library search paths.
 
+USING FLORIST AS A SHARED LIBRARY
+
+On some targets, Florist will also be built as a shared library. To use
+the shared florist library instead of the static library, replace -lflorist
+by -lflorist-shared in you command line or in your pragma Linker_Options.
+
 BACKGROUND:
 
 The name FLORIST is a meld of "FLORIDA" and "FOREST", indicating
