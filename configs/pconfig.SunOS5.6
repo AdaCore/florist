@@ -13,4 +13,9 @@
  
  */
 #define SOLARIS_HACK
- 
+
+/* Need to include stdarg.h first to ensure that the GNU stdarg will be
+   used. Defining _VA_LIST ensures that no further definition of va_list will
+   be attempted. */
+#include <stdarg.h>
+#define _VA_LIST
