@@ -3,4 +3,4 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #define _REENTRANT
 #define si_value _data
-type unsigned long u_long
+typedef unsigned long u_long
