@@ -1,2 +1,2 @@
-#OSF1 (DEC UNIX)
-LIBS = -lresolv -lbsd -lrt -laio -lpthread
+#OSF1 (DEC UNIX V4.0d)
+GCC_ADDITIONAL_FLAGS=-ansi
