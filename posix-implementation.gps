@@ -38,10 +38,7 @@
 --  [$Revision$]
 
 with POSIX.C,
-#    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupt_Management,
-#    else
-#    end if;
      Unchecked_Conversion;
 package POSIX.Implementation is
    pragma Elaborate_Body;
@@ -208,11 +205,7 @@ package POSIX.Implementation is
 
    --  The following two also defer/undefer abortion, as side-effects.
 
-#  if HAVE_INTERRUPT_MANAGEMENT then
    subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
-#  else
-   subtype Signal_Mask is Integer;
-#  end if;
 
    procedure Mask_Signals
      (Masking  : in Signal_Masking;
