@@ -45,9 +45,7 @@
 
 --  This test covers features that require special privilege.
 
-with Calendar,
-     POSIX,
-     POSIX_Limits,
+with POSIX,
      POSIX_Report,
      POSIX_Signals,
      POSIX_Timers,
@@ -67,8 +65,13 @@ procedure p140101 is
       type Char_Array is array (1 .. 20) of aliased Character;
       type Clock_ID_Ptr is access all Clock_ID;
       type Char_Ptr is access all Character;
+
+      pragma Warnings (Off);
       function To_Clock_ID_Ptr is new
         Unchecked_Conversion (Char_Ptr, Clock_ID_Ptr);
+      pragma Warnings (On);
+      --  The warning about alignments can be ignored.
+
       F : aliased Char_Array := "not a valid clock ID";
    begin
       return To_Clock_ID_Ptr (F (1)'Access).all;
@@ -179,6 +182,8 @@ begin
    Test ("Set_Time [14.1.4] Valid Range (<0)");
    declare
       Valid : Clock_ID;
+      pragma Warnings (Off, Valid);
+      --  Let Valid uninitialized.
    begin
       Set_Time (Valid, To_Timespec (-5.0));
          Expect_Exception ("A000");
@@ -195,6 +200,8 @@ begin
    Test ("Set_Time [14.1.4] Valid Range (=0)");
    declare
       Valid : Clock_ID;
+      pragma Warnings (Off, Valid);
+      --  Let Valid uninitialized.
    begin
       Set_Time (Valid, To_Timespec (-0.0));
          Expect_Exception ("A000");
@@ -211,6 +218,8 @@ begin
    Test ("Set_Time [14.1.4] Valid Range (=1000_000_000)");
    declare
       Valid : Clock_ID;
+      pragma Warnings (Off, Valid);
+      --  Let Valid uninitialized.
    begin
       Set_Time (Valid, To_Timespec (1000_000_000.0));
          Expect_Exception ("A000");
@@ -227,6 +236,8 @@ begin
    Test ("Set_Time [14.1.4] Valid Range (>1000_000_000)");
    declare
       Valid : Clock_ID;
+      pragma Warnings (Off, Valid);
+      --  Let Valid uninitialized.
    begin
       Set_Time (Valid, To_Timespec (1000_000_001.0));
          Expect_Exception ("A000");
@@ -249,6 +260,8 @@ begin
    Test ("Set_Time [14.1.4] Valid Time");
    declare
       Value : Clock_ID;
+      pragma Warnings (Off, Value);
+      --  Let Value uninitialized.
       Time : Timespec;
    begin
       Set_Time (Value, Time);
@@ -273,6 +286,8 @@ begin
             " truncated down to the smaller one");
    declare
       Sample_Clock : Clock_ID;
+      pragma Warnings (Off, Sample_Clock);
+      --  Let Sample_Clock uninitialized.
       Value1 : Timespec;
       Value2 : Timespec;
       Value3 : Timespec;
@@ -349,20 +364,3 @@ when E1 : POSIX_Error =>
    Done;
 when E2 : others => Fatal_Exception (E2, "A000");
 end p140101;
-
-
-----------------------
--- REVISION HISTORY --
-----------------------
-
---  ----------------------------
---  revision 1.1
---  date: 1998/06/09 20:28:40;  author: moussa;  state: Exp;
---  Initial revision
---  =============================================================================
---  ----------------------------
---  revision 1.2
---  date: 1998/06/22 14:46:08;  author: moussa;  state: Exp;  lines: +81 -27
---  *** empty log message ***
---  ----------------------------
---  New changes after this line.  Each line starts with: "--  "
