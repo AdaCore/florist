@@ -2114,7 +2114,7 @@ void gfuncd(char const name[], char const xname[], int have_it) {
         " the macro expands to a linkable name.\n");
       ifprintf(fp,"   --  This is risky...\n");
       if (strlen(name) > 20) {
-        ifprintf(fp,"   %s_LINKNAME : constant String :=", name);
+        ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
         ifprintf(fp,"      \"%s\";\n", xname);
       } else ifprintf
         (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
