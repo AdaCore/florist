@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU).    All Rights   --
+--  Copyright (c) 1996-1999 Florida State University (FSU).    All Rights   --
 --  Reserved.                                                               --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
@@ -37,7 +37,7 @@
 ------------------------------------------------------------------------------
 --  [$Revision$]
 
---  Please take care in future maintenance updates to avoid making
+--  Please take care in future maintenance updates to avoid adding
 --  direct system calls that modify the signal action or signal
 --  masking, and to coordinate changes with the GNAT runtime.
 
@@ -71,24 +71,6 @@
 --  no earlier Florist users are dependent on the way these operations
 --  "worked" before.  We had to make the changes.
 
---  If the version of GNAT is out of sync with the version of Florist
---  there will be two distinct degrees of "reserved" signals.
-
---  1) Signals that the OS does not allow us to accept with sigwait or to
---     block with pthread_sigmask, or which are required to be reserved by
---     the POSIX Ada binding standard.
---     We call these "Reserved_Signals".
-
---  2) Signals that the GNAT runtime system reserves, and so we cannot
---     pass to operations like SI.Block_Signal.
---     We call these "SI_Reserved_Signals".
-
---  For simplicity, we merge Reserved_Signals into SI_Reserved_Signals,
---  so that we Resered_Signals is a subset of SI_Reserved_Signals.
-
---  If the versions of Florist and GNAT are in sync., these two sets
---  of reserved signals should be identical.
-
 --  Ideally, there should be no operations in here that directly modify the
 --  signal state of the process or thread.  For safety, all such operations
 --  should be implemented by calls to operations in System.Interrupts.
@@ -110,9 +92,11 @@ with Ada_Task_Identification,
 #    if HAVE_INTERRUPT_MANAGEMENT then
      System.Interrupts,
      System.Interrupt_Management,
-     System.Task_Primitives.Operations;
+     System.Task_Primitives.Operations,
 #    else
 #    end if;
+     Unchecked_Conversion;
+
 package body POSIX.Signals is
 
    use POSIX.C,
@@ -265,23 +249,38 @@ package body POSIX.Signals is
    --  It contains Null_Task if no tasks have ever requested the
    --  Unblocking operation or the Interrupt is currently Blocked.
 
-   --  Reserved_Signal is the set of reserved signals, as defined
-   --  by the POSIX.5 standard, augmented with the unblockable and
-   --  uncatchable signals, SIGKILL and SIGSTOP.  The reserved signals
-   --  includes the named required reserved signals, plus any other
-   --  signals that are reserved by the implementation.  It is initialized
-   --  in the begin-end block of the package body, below.
-
    type Signal_Bit_Vector is array (Signal) of Boolean;
 
+   --  Reserved_Signal is the union of the following sets of
+   --  signals:
+
+   --  (1) The reserved signals, as defined
+   --  by the POSIX.5 standard.  The reserved signals
+   --  include the named required reserved signals, plus any other
+   --  signals that are reserved by the implementation.
+
+   --  (2)  The signals for which the
+   --  implementation does not allow us to set the action.
+
+   --  (3) The signals for which sigwait is not safe.
+
+   --  (4) The set of signals, as defined by
+   --  the Ada runtime system, for which it is unsafe to call
+   --  System.Interrupt_Management.Ignore_Signal.
+
+   --  (5) The set of signals, as defined by
+   --  the Ada runtime system, for which user-defined signal entries
+   --  are not supported.
+
+   --  (6) The set of signals, as defined by
+   --  the Ada runtime system, for which it is unsafe to call
+   --  System.Interrupt_Management.Block_Signals.
+
+   --  This constant is initialized
+   --  in the begin-end block of the package body, below, because
+   --  it depends on values in POSIX.Implementation.OK_Signals.
+
    Reserved_Signal : Signal_Bit_Vector;
-
-   --  SI_Reserved_Signal is the set of signals that are safe to pass to
-   --  calls the operations of System.Interrupts, such as SI.Block_Signal.
-   --  These signals also cannot be attached to Ada task entries.
-   --  (This need not be the same as Reserved_Signal.)
-
-   SI_Reserved_Signal : Signal_Bit_Vector;
 
    --  Signal_Disposition is use by Set_Blocked_Signals, to decide who
    --  should mask or unmask a given signal.
@@ -352,22 +351,20 @@ package body POSIX.Signals is
    pragma Inline (Void);
 
    --  The Await_Signal operations report Invalid_Argument for
-   --  SIGKILL, SIGSTOP, and the reserved signals.
+   --  the reserved signals and for signals that are attached to
+   --  a task entry.  By extension, we treat signals that are
+   --  attached to protected procedures as if they were attached
+   --  to a task entry.
 
    procedure Check_Awaitable
      (Set : Signal_Set) is
    begin
       for Sig in Signal loop
          if Reserved_Signal (Sig) then
-            --  The OS will not allow using sigwait with this signal.
-            if sigismember (Set.C'Unchecked_Access, int (Sig)) = 1 then
+            if Sig /= SIGKILL and then Sig /= SIGSTOP and then
+              sigismember (Set.C'Unchecked_Access, int (Sig)) = 1 then
                Raise_POSIX_Error (Invalid_Argument);
             end if;
-         elsif SI_Reserved_Signal (Sig) then
-            --  The Ada runtime system will not allow attaching this signal
-            --  to a task entry or protected procedure, but we can use it
-            --  safely with sigwait.
-            null;
          else
             --  This signal might be attached to a
             --  task entry or protected procedure
@@ -520,11 +517,7 @@ package body POSIX.Signals is
       --  are managed by System.Interrupts and those that we manage
       --  directly here.
       for Sig in Signal loop
-         if SI_Reserved_Signal (Sig) then
-            --  The OS and/or Ada runtime system will not allow us to
-            --  change the mask of this signal.
-            null;
-         else
+         if not Reserved_Signal (Sig) then
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
@@ -590,15 +583,8 @@ package body POSIX.Signals is
       Begin_Critical_Section;
       Prev_Mask := Blocked_Signals;
       Void (sigemptyset (os_new_mask'Unchecked_Access));
-      --  Partition the signals between those that
-      --  are managed by System.Interrupts and those that we manage
-      --  directly here.
       for Sig in Signal loop
-         if SI_Reserved_Signal (Sig) then
-            --  The OS and/or Ada runtime system will not allow us to
-            --  change the mask of this signal.
-            null;
-         else
+         if not Reserved_Signal (Sig) then
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
@@ -656,11 +642,7 @@ package body POSIX.Signals is
       --  are managed by System.Interrupts and those that we manage
       --  directly here.
       for Sig in Signal loop
-         if SI_Reserved_Signal (Sig) then
-            --  The OS and/or Ada runtime system will not allow us to
-            --  change the mask of this signal.
-            null;
-         else
+         if not Reserved_Signal (Sig) then
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
@@ -704,17 +686,24 @@ package body POSIX.Signals is
    function Blocked_Signals return Signal_Set is
       Old_Mask : Signal_Set;
    begin
-      --  Get thread-level signal mask, directly from OS.
+      --  Get thread-level signal mask, directly from OS, since
+      --  for a badly matched GNARL and operating system, there
+      --  may be more values in POSIX.Signal
+      --  than System.Interrupts.Interrupt_ID
       if pthread_sigmask
         (SIG_BLOCK, null, Old_Mask.C'Unchecked_Access) = 0 then
          null;
       end if;
 #     if HAVE_INTERRUPT_MANAGEMENT
-      --  Merge in view from System.Interrupts.
+      --  Delete any ublocked signals from System.Interrupts.
       for Sig in Signal loop
-         if not SI_Reserved_Signal (Sig) then
+         if not Reserved_Signal (Sig) then
             if SI.Is_Blocked (SIID (Sig)) then
-               Void (sigaddset (Old_Mask.C'Unchecked_Access, int (Sig)));
+               null;
+               --  Void (sigaddset (Old_Mask.C'Unchecked_Access, int (Sig)));
+               --  Rely that we cannot have a signal that is unmasked
+               --  in the current thread and is also logically
+               --  blocked by the signal manager.
             else
                Void (sigdelset (Old_Mask.C'Unchecked_Access, int (Sig)));
             end if;
@@ -736,7 +725,7 @@ package body POSIX.Signals is
 
    procedure Ignore_Signal (Sig : in Signal) is
    begin
-      if SI_Reserved_Signal (Sig) then
+      if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
       else
 #        if HAVE_INTERRUPT_MANAGEMENT
@@ -753,12 +742,12 @@ package body POSIX.Signals is
 
    procedure Unignore_Signal (Sig : in Signal) is
    begin
-      if SI_Reserved_Signal (Sig) then
+      if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
       else
 #        if HAVE_INTERRUPT_MANAGEMENT
-         SI.Unignore_Interrupt (SIID (Sig));
-#        else
+            SI.Unignore_Interrupt (SIID (Sig));
+#        else 
          Raise_POSIX_Error (Operation_Not_Implemented);
 #        end if;
       end if;
@@ -769,16 +758,14 @@ package body POSIX.Signals is
    ----------------
 
    function Is_Ignored (Sig : Signal) return Boolean is
+      act : aliased struct_sigaction;
    begin
-      if SI_Reserved_Signal (Sig) then
+      if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
          return False;
       else
-#        if HAVE_INTERRUPT_MANAGEMENT
-         return SI.Is_Ignored (SIID (Sig));
-#        else
-         Raise_POSIX_Error (Operation_Not_Implemented);
-#        end if;
+         Check (sigaction (int (Sig), null, act'Unchecked_Access));
+         return act.sa_handler = To_Address (SIG_IGN);
       end if;
    end Is_Ignored;
 
@@ -787,6 +774,14 @@ package body POSIX.Signals is
    ---------------------------
 
    --  This is a POSIX.5c addition.
+
+   --  .... This functionality needs to be merged into the
+   --  Ada runtime system (s-interr.adb) so as to ensure mutual
+   --  exclusion between these changes to signal handler state
+   --  and changes that are done there.
+   --  The best solution may be to export operations for
+   --  locking/unlocking, rather than to add new entries to the
+   --  signal manager task.
 
    procedure Install_Empty_Handler (Sig : Signal) is
       act, oact : aliased struct_sigaction;
@@ -808,6 +803,14 @@ package body POSIX.Signals is
    ------------------------------
    -- Set_Stopped_Child_Signal --
    ------------------------------
+
+   --  .... This functionality needs to be merged into the
+   --  Ada runtime system (s-interr.adb) so as to ensure mutual
+   --  exclusion between these changes to signal handler state
+   --  and changes that are done there.
+   --  The best solution may be to export operations for
+   --  locking/unlocking, rather than to add new entries to the
+   --  signal manager task.
 
    procedure Set_Stopped_Child_Signal (Enable : in Boolean := True) is
       Action, Oact : aliased struct_sigaction;
@@ -1003,6 +1006,20 @@ package body POSIX.Signals is
    --  Enable_Queueing  --
    -----------------------
 
+   --  .... POSIX.5 needs fixing here, to reflect the fact that
+   --  Enabling/Disabling queueing on a signal might not have
+   --  any effect unless there is a handler (even null) installed,
+   --  or to require that this operation install a null handler,
+   --  as a side-effect.
+
+   --  .... This functionality needs to be merged into the
+   --  Ada runtime system (s-interr.adb) so as to ensure mutual
+   --  exclusion between these changes to signal handler state
+   --  and changes that are done there.
+   --  The best solution may be to export operations for
+   --  locking/unlocking, rather than to add new entries to the
+   --  signal manager task.
+
    procedure Enable_Queueing
      (Sig : in Signal) is
       Action : aliased struct_sigaction;
@@ -1069,86 +1086,53 @@ package body POSIX.Signals is
    --  a Defer/Undefer_Abortion around it but that would make this operation
    --  hang when the time expires.
 
-   --  The following commented-out code is work-around developed earlier
-   --  for use with the Provenzano/MIT threads, where sigwait is not
-   --  interruptible.  (See sigwait.c)
-
-   --  package SIM renames System.Interrupt_Management;
-   --  package SIMO renames System.Interrupt_Management.Operations;
-
-   --  function Await_Signal_Or_Timeout
-   --    (Set     : Signal_Set;
-   --     Timeout : POSIX.Timespec) return Signal is
-   --     Result : SIM.SIID := SIM.SIID (Signal_Null);
-   --     Int_Mask : aliased SIM.Interrupt_Mask;
-   --     Start_Time : POSIX_Time := Clock;
-   --  begin
-   --     select
-   --        delay To_Duration (Timeout);
-   --        Raise_POSIX_Error (Resource_Temporarily_Unavailable);
-   --        --  In case the ATC is timed out before the abortable part
-   --        --  went into the "sigwait."
-   --     then abort
-   --        SIMO.Empty_Interrupt_Mask (Int_Mask'Unchecked_Access);
-   --        for I in Signal_Set'Range loop
-   --           if Set (I) then
-   --              SIMO.Add_To_Interrupt_Mask
-   --                (Int_Mask'Unchecked_Access, SIM.SIID (I));
-   --           end if;
-   --        end loop;
-   --        SIMO.Add_To_Interrupt_Mask
-   --          (Int_Mask'Unchecked_Access, SIM.Abort_Task_Interrupt);
-   --        --  Add Abort_Task_Interrupt In the waiting set.
-   --        Defer_Abortion;
-   --        Result := SIMO.Interrupt_Wait (Int_Mask'Unchecked_Access);
-   --        --  Beware that this is a non-standard use of sigwait.
-   --        --  The effect of sigwait on sigaction is undefined.
-   --        --  This works for pre-Leroy-threads Linux and Solaris,
-   --        --  but with Leroy threads it seems to fail.
-   --        Undefer_Abortion;
-   --        if Signal (Result) = Signal_Null then
-   --           Raise_POSIX_Error (Fetch_Errno);
-   --        end if;
-   --     end select;
-   --     if Signal (Result) = Signal (SIM.Abort_Task_Interrupt) then
-   --        if Clock > Start_Time + To_Duration (Timeout) then
-   --        --  If it is being aborted it is due to the timer expiration.
-   --           Raise_POSIX_Error (Resource_Temporarily_Unavailable);
-   --        else
-   --           pragma Assert (False);
-   --           --  Undefer_Abortion should have raised Abort_Signal
-   --        end if;
-   --     end if;
-
-   --     return Signal (Result);
-   --  end Await_Signal_Or_Timeout;
+   --  There is conditional code to add SIGABRT to the set of
+   --  signals for which we are waiting, and to the signal mask of
+   --  the current thread, for systems where delivery of SIGABRT will
+   --  not interrupt SIGWAIT.  This seems to include both Provenzano
+   --  and Leroy threads under Linux.
 
    function Await_Signal_Or_Timeout
      (Set     : Signal_Set;
       Timeout : POSIX.Timespec) return Signal is
-      Tmp1, Tmp2, Result : aliased int;
+      Tmp, Result : aliased int;
       Tmp_Set : Signal_Set := Set;
-      oact : aliased struct_sigaction;
+      old_mask : aliased sigset_t;
    begin
       Check_Awaitable (Set);
       select
          delay To_Duration (Timeout);
          Raise_POSIX_Error (Resource_Temporarily_Unavailable);
       then abort
-         Void (sigaddset (Tmp_Set.C'Unchecked_Access, int (SIGABRT)));
          Defer_Abortion;
-         Tmp1 := sigaction (int (SIGABRT),
-           null, oact'Unchecked_Access);
-         Tmp2 := sigwait
+
+         --  Add SIGABRT to set of awaited signals.
+         Void (sigaddset (Tmp_Set.C'Unchecked_Access, int (SIGABRT)));
+         --  Make sure all these signals are masked in at least this thread.
+         Void (pthread_sigmask
+           (SIG_BLOCK,
+            Tmp_Set.C'Unchecked_Access, old_mask'Unchecked_Access));
+
+         --  For safety, we should probably
+         --  save the old signal action for SIGABRT,
+         --  in case sigwait clobbers it.
+         --  This is unsafe if the signal action state is per-process,
+         --  as POSIX.1c requires.
+
+         Tmp := sigwait
            (Tmp_Set.C'Unchecked_Access, Result'Unchecked_Access);
-         Tmp1 := sigaction (int (SIGABRT),
-           oact'Unchecked_Access, null);
+
+         --  Remove SIGABRT from this thread's signal mask.
+         Void (pthread_sigmask
+           (SIG_SETMASK, old_mask'Unchecked_Access, null));
+
          Undefer_Abortion;
-         if Tmp2 = -1 then
+
+         if Tmp = -1 then
             Raise_POSIX_Error (Fetch_Errno);
          end if;
          if Result = int (SIGABRT) then
-            raise Program_Error;
+            Raise_POSIX_Error (Resource_Temporarily_Unavailable);
          end if;
       end select;
       return Signal (Result);
@@ -1196,7 +1180,7 @@ package body POSIX.Signals is
    begin
       --  Signal_Reference reports Invalid_Argument if signal entries
       --  are not supported for the specified signal.
-      if SI_Reserved_Signal (Sig) then
+      if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
       return To_Address (Integer_Address (Sig));
@@ -1265,10 +1249,13 @@ package body POSIX.Signals is
 
 begin
 
+   Reserved_Signal := (others => False);
+
    for Sig in Signal loop
       case Sig is
-      when SIGALRM | SIGBUS | SIGILL | SIGSEGV | SIGFPE | SIGABRT |
-           SIGKILL | SIGSTOP =>
+      when SIGALRM | SIGBUS | SIGILL | SIGSEGV | SIGFPE | SIGABRT =>
+         Reserved_Signal (Sig) := True;
+      when SIGKILL | SIGSTOP =>
          Reserved_Signal (Sig) := True;
       when others =>
          Reserved_Signal (Sig) :=
@@ -1277,37 +1264,18 @@ begin
    end loop;
 
 #  if HAVE_INTERRUPT_MANAGEMENT
-   SI_Reserved_Signal := Reserved_Signal;
    --  Merge in signals that are reserved by the Ada runtime system.
    for Sig in Signal loop
       if SIID'Base (Sig) in SIID'Range then
-         if SI.Is_Reserved (SIID (Sig)) then
-            SI_Reserved_Signal (Sig) := True;
+         if SI.Is_Reserved (SIID (Sig)) and then (Sig /= SIGKILL
+           and Sig /= SIGSTOP) then
+            Reserved_Signal (Sig) := True;
          end if;
-      else SI_Reserved_Signal (Sig) := True;
+      else Reserved_Signal (Sig) := True;
       end if;
    end loop;
-   --  Temporary hack....trust the runtime system.
-   Reserved_Signal := SI_Reserved_Signal;
 #  else
-   SI_Reserved_Signal := (others => True);
+   Reserved_Signal := (others => True);
 #  end if;
-
-   --  .....Fix POSIX.5?????
-   --  There is presently no portable way to catch SIGCHLD, since
-   --  the default action is to ignore it, and the OS is allowed to
-   --  throw away ignored signals even when the signal is masked.
-   --  This is also true of other signals for which the default action
-   --  is to ignore the signal. The following is a temporary hack.
-   --  It would be better to fix this in GNARL.
-   --  See also the comments on Install_Empty_Handler.
-
-   for Sig in Signal loop
-      if not Reserved_Signal (Sig)
-        and then POSIX.Implementation.OK_Signals.No_Default (Integer (Sig))
-      then
-         Install_Empty_Handler (Sig);
-      end if;
-   end loop;
 
 end POSIX.Signals;
