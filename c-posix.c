@@ -61,6 +61,14 @@
 #include "config.h"
 #include <stdarg.h>
 
+#ifdef hpux
+/* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
+  _XOPEN_SOURCE_EXTENDED is defined. Since we need this macro (_XOPEN.*)
+  to get other POSIX definitions, we kludge here by undefining this unwanted
+  symbol. */
+#undef OPEN_MAX
+#endif
+
 int indent = 0;
 
 int ifprintf (FILE *stream, const char * format, ...) {
