@@ -1,4 +1,3 @@
---  $Revision$
 ------------------------------------------------------------------------------
 --                                                                          --
 --            FLORIST (FSU Implementation of POSIX.5) COMPONENTS            --
@@ -8,7 +7,8 @@
 --                                  S p e c                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996 Florida State University (FSU), All Rights Reserved. --
+--             Copyright (C) 1991-1994 Florida State University             --
+--                     Copyright (C) 1995-2005 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
-
 
 with POSIX.Asynchronous_IO;
 pragma Elaborate_All (POSIX.Asynchronous_IO);

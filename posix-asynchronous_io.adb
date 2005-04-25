@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c)  1996-1998            Florida  State  University  (FSU),  --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1991-1994 Florida State University             --
+--                     Copyright (C) 1995-2005 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,8 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
-
 
 with Ada.Streams,
      System,
@@ -188,7 +186,6 @@ package body POSIX.Asynchronous_IO is
       Check (AD /= null, Invalid_Argument);
       return Natural (AD.C.aio_reqprio);
    end Get_Priority_Reduction;
-
 
    ------------------------------
    --  Set_Priority_Reduction  --

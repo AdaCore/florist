@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998 Florida State University (FSU),                 --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1991-1994 Florida State University             --
+--                     Copyright (C) 1995-2005 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision: 1.1]
 
 --  See the warnings in the package spec.
 
@@ -81,7 +80,6 @@ package body POSIX.Generic_Shared_Memory is
    type Private_Ptr is access all Object_Type;
    function To_Shared_Access is
      new Unchecked_Conversion (Private_Ptr, Shared_Access);
-
 
    --  One instantiation of this package can be used to open
    --  several shared memory objects, with different file descriptors.
