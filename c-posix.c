@@ -6,8 +6,8 @@
 --                             C - P O S I X . C                            --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1999 Florida State University (FSU),                 --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1991-1994 Florida State University             --
+--                     Copyright (C) 1995-2005 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -37,7 +37,6 @@
 
 /* file: c-posix.c
    ===============
-   [$Revision$]
 
    This program generates the files:
 
@@ -1508,7 +1507,7 @@ void print_type_declaration(char const name[], FILE *fp) {
 
   if (type->is_printed) ("TYPE ALREADY DECLARED",name);
 
-  if (type->typekind == STRUCT_TYPE || 
+  if (type->typekind == STRUCT_TYPE ||
       type->typekind == RECURSIVE_STRUCT_TYPE) {
     if (strlen(type->typename)>=sizeof(extended_name)) {
        quit("type name too long",type->typename);
@@ -1872,7 +1871,7 @@ void ghdrcmnt(char name[]) {
   ifprintf(fp,"   --  %s  --\n", name);
   ifprintf(fp,"   ");
   for (i=0; i<len+8; i++) fprintf(fp,"%s","-");
-  fprintf(fp,"\n\n");
+  fprintf(fp,"\n");
 }
 
 /* gcmnt
@@ -1953,7 +1952,7 @@ void gdfluitp(char name[]) {
    for C type with specified name and size (in bytes)
  */
 void gptp(char name[], int size) {
-  if (size >= sizeof (int)) 
+  if (size >= sizeof (int))
   {
     save_type(name, size, OPAQUE_TYPE, NULL);
   }
@@ -4995,7 +4994,7 @@ void create_c() {
     printf("c-posix: WARNING: signal range estimate may be invalid\n");
     last_good = first_bad - 1;
   }
-  
+
 #ifdef SIGRTMAX
 #ifdef SIGRTMIN
   if ((SIGRTMAX >= 0) && (SIGRTMIN >= 0)) {
