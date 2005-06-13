@@ -26,12 +26,12 @@
 --  file  COPYING.  If not,  write to  the  Free  Software  Foundation, 59  --
 --  Temple Place - Suite 330, Boston, MA 02111-1307, USA                   --
 --                                                                          --
---  As a special exception, if other files instantiate generics from  this  --
---  unit, or you link this unit with other files to produce an  executable, --
---  this  unit does not by itself cause the  resulting  executable  to  be  --
---  covered  by the  GNU  General  Public License. This exception does not  --
---  however invalidate any other  reasons why the executable file might be  --
---  covered by the GNU Public License.                                      --
+--
+--
+--
+--
+--
+--
 --                                                                          --
 ----------------------------------------------------------------------------*/
 
@@ -1782,17 +1782,17 @@ void gheader(const char pkgname[], int header_kind) {
     fprintf(fp," 02111-1307, USA.                   --\n");
     fprintf(fp,"--                                      ");
     fprintf(fp,"                                    --\n");
-    fprintf(fp,"--  As a special exception, if other fil");
-    fprintf(fp,"es instantiate generics from  this  --\n");
-    fprintf(fp,"--  unit, or you link this unit with oth");
-    fprintf(fp,"er files to produce an  executable, --\n");
-    fprintf(fp,"--  this  unit does not by itself cause ");
-    fprintf(fp,"the  resulting  executable  to  be  --\n");
-    fprintf(fp,"--  covered  by the  GNU  General  Publi");
-    fprintf(fp,"c License. This exception does not  --\n");
-    fprintf(fp,"--  however invalidate any other  reason");
-    fprintf(fp,"s why the executable file might be  --\n");
-    fprintf(fp,"--  covered by the GNU Public License.  ");
+    fprintf(fp,"--                                      ");
+    fprintf(fp,"                                    --\n");
+    fprintf(fp,"--                                      ");
+    fprintf(fp,"                                    --\n");
+    fprintf(fp,"--                                      ");
+    fprintf(fp,"                                    --\n");
+    fprintf(fp,"--                                      ");
+    fprintf(fp,"                                    --\n");
+    fprintf(fp,"--                                      ");
+    fprintf(fp,"                                    --\n");
+    fprintf(fp,"--                                      ");
     fprintf(fp,"                                    --\n");
   }
   fprintf(fp,"--                                      ");
