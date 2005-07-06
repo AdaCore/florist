@@ -725,7 +725,7 @@ package body POSIX is
 
    function "<=" (Left, Right : Timespec) return Boolean is
    begin
-      return Left.Val < Right.Val or else Right.Val = Left.Val;
+      return Left.Val <= Right.Val;
    end "<=";
 
    -----------
