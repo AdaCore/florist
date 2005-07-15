@@ -85,20 +85,21 @@ package POSIX.Condition_Variables is
       Timeout : POSIX.Timespec);
 
 private
-   type Dummy is tagged null record;
-   type Attributes is record
+   type Attributes is tagged record
       Attr : aliased POSIX.C.pthread_condattr_t;
-      --  to force by-reference parameter mode:
-      D : Dummy;
    end record;
-   type Condition is record
+   --  Attributes is tagged, to force by-reference parameter mode, so that
+   --  it is reasonable to use 'Unchecked_Access on Attributes.Attr
+
+   type Condition is tagged record
       Cond : aliased POSIX.C.pthread_cond_t;
-      --  to force by-reference parameter mode:
-      D : Dummy;
    end record;
+   --  Condition is tagged, to force by-reference parameter mode, so that
+   --  it is reasonable to use 'Unchecked_Access on Condition.Cond
+
+   type Condition_Descriptor is access constant POSIX.C.pthread_cond_t;
    --  The "access constant" is sometimes a lie, but it allows
    --  us to emulate the POSIX C-language interface without violating
    --  Ada rules about pointers to variables vs. pointers to constants.
-   type Condition_Descriptor is access constant POSIX.C.pthread_cond_t;
    pragma Convention (C, Condition_Descriptor);
 end POSIX.Condition_Variables;
