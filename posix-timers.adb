@@ -175,7 +175,7 @@ package body POSIX.Timers is
       if E.sigev_notify = POSIX.C.SIGEV_NONE then
          --  make sure the other fields are valid
          E.sigev_signo := SIGUSR1;
-         E.sigev_value.sival_int := 0;
+         E.sigev_value := null_sigval;
       end if;
       Check (timer_create (clockid_t (Clock),
          E'Unchecked_Access, TID'Unchecked_Access));
