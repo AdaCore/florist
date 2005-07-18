@@ -309,6 +309,10 @@ private
 
    type Signal_Info is new POSIX.C.siginfo_t;
    type Signal_Event is new POSIX.C.struct_sigevent;
-   type Signal_Data is new System.Address;
+   type Signal_Data is record
+      Data : System.Storage_Elements.Storage_Array
+        (1 .. POSIX.C.sigval_byte_size);
+   end record;
+   for Signal_Data'Alignment use POSIX.C.sigval_alignment;
 
 end POSIX.Signals;
