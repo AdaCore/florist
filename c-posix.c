@@ -200,9 +200,18 @@ void g_struct_##TYPENAME(){\
    component C type is CMPTYP
    function ada_type_name maps C type name to Ada
  */
+
 #define GT2(COMPNAME,CMPTYP)\
  #COMPNAME, #CMPTYP, sizeof(CMPTYP),\
  ((char *)&DUMMY.COMPNAME - (char *)&DUMMY), 0,
+
+/* GT2_XPND_ARGS
+   --------
+   As GT2, but expands any macros passed as arguments.
+*/
+
+#define GT2_XPND_ARGS(COMPNAME,CMPTYP)\
+ GT2(COMPNAME,CMPTYP)
 
 /* GT2A
    ----
@@ -562,13 +571,59 @@ union sigval {
   };
 #endif
 void g_sigval(){
+#if defined(__hpux__) && defined(__ia64__)
+
+  /* The definition of sigval on HP-UX for IA64 requires special
+     treatment because the layout of the C type is unusual. */
+
+  ifprintf(fp,"   type Sigval_Int_Part is record\n");
+  ifprintf(fp,"      sival_int : int;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   for Sigval_Int_Part use record\n");
+  ifprintf(fp,"      sival_int at 12 range 0 .. 31;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   type Sigval_Ptr_Part is record\n");
+  ifprintf(fp,"      sival_ptr : System.Address;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   for Sigval_Ptr_Part use record\n");
+  ifprintf(fp,"      sival_ptr at 8 range 0 .. 63;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   type sigval (Dummy : Boolean := True) is record\n");
+  ifprintf(fp,"      case Dummy is\n");
+  ifprintf(fp,"         when True => Int_Part : Sigval_Int_Part;\n");
+  ifprintf(fp,"         when False => Ptr_Part : Sigval_Ptr_Part;\n");
+  ifprintf(fp,"      end case;\n");
+  ifprintf(fp,"   end record;\n");
+
+  ifprintf(fp,"   pragma Unchecked_Union (sigval);\n");
+
+  ifprintf(fp,"   null_sigval : constant sigval :=\n");
+  ifprintf(fp,"      (Dummy => False, Ptr_Part => (sival_ptr ");
+  ifprintf(fp,"=> System.Null_Address));\n");
+
+#else
+
   ifprintf(fp,"   type sigval (Dummy : Boolean := True) is record\n");
   ifprintf(fp,"      case Dummy is\n");
   ifprintf(fp,"         when True  => sival_int : int;\n");
   ifprintf(fp,"         when False => sival_ptr : System.Address;\n");
   ifprintf(fp,"      end case;\n");
   ifprintf(fp,"   end record;\n");
+
   ifprintf(fp,"   pragma Unchecked_Union (sigval);\n");
+
+  ifprintf(fp,"   null_sigval : constant sigval :=\n");
+  ifprintf(fp,"      (Dummy => False, sival_ptr ");
+  ifprintf(fp,"=> System.Null_Address);\n");
+#endif
+
+  ifprintf(fp,"   sigval_byte_size : constant := %d;\n", 
+	   sizeof (union sigval));
+  ifprintf(fp,"   sigval_alignment : constant := ALIGNMENT;");
 }
 
 /* siginfo_t must precede sigaction
@@ -806,7 +861,12 @@ struct termios {
 
 #ifdef HAVE_suseconds_t
 #else
-  typedef int suseconds_t;
+#ifdef HAVE_struct_timeval
+struct timeval struct_timeval_temp;
+typedef __typeof__ (struct_timeval_temp.tv_usec) suseconds_t;
+#else
+typedef int suseconds_t;
+#endif
 #endif
 
 #ifdef HAVE_struct_timeval
@@ -1219,49 +1279,58 @@ struct netbuf {
 
 /* t_info structure */
 
+#ifndef XTI_TINFO_FTYPE
+#define XTI_TINFO_FTYPE long
+#endif
+
 #ifdef HAVE_struct_t_info
   GT1(t_info,1)
 #else
 struct t_info {
-     long   addr;
-     long   options;
-     long   tsdu;
-     long   etsdu;
-     long   connect;
-     long   discon;
-     long   servtype;
-     long   flags;
+     XTI_TINFO_FTYPE   addr;
+     XTI_TINFO_FTYPE   options;
+     XTI_TINFO_FTYPE   tsdu;
+     XTI_TINFO_FTYPE   etsdu;
+     XTI_TINFO_FTYPE   connect;
+     XTI_TINFO_FTYPE   discon;
+     XTI_TINFO_FTYPE   servtype;
+     XTI_TINFO_FTYPE   flags;
   };
   GT1(t_info,0)
 #endif
-  GT2(addr, long)
-  GT2(options, long)
-  GT2(tsdu, long)
-  GT2(etsdu, long)
-  GT2(connect, long)
-  GT2(discon, long)
-  GT2(servtype, long)
+  GT2_XPND_ARGS(addr, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(options, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(tsdu, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(etsdu, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(connect, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(discon, XTI_TINFO_FTYPE)
+  GT2_XPND_ARGS(servtype, XTI_TINFO_FTYPE)
 #ifndef _TLI_ /* not xti compliant but usable */
-  GT2(flags, long)
+  GT2_XPND_ARGS(flags, XTI_TINFO_FTYPE)
 #endif
   GT3
 
 /* t_opthdr structure */
+
+#ifndef XTI_OPTHDR_FTYPE
+#define XTI_OPTHDR_FTYPE unsigned long
+#endif
+
 #ifdef HAVE_struct_t_opthdr
   GT1(t_opthdr,1)
 #else
 struct t_opthdr {
-     unsigned long   len;
-     unsigned long   level;
-     unsigned long   name;
-     unsigned long   status;
+     XTI_OPTHDR_FTYPE   len;
+     XTI_OPTHDR_FTYPE   level;
+     XTI_OPTHDR_FTYPE   name;
+     XTI_OPTHDR_FTYPE   status;
   };
   GT1(t_opthdr,0)
 #endif
-  GT2(len, unsigned long)
-  GT2(level, unsigned long)
-  GT2(name, unsigned long)
-  GT2(status, unsigned long)
+  GT2_XPND_ARGS(len, XTI_OPTHDR_FTYPE)
+  GT2_XPND_ARGS(level, XTI_OPTHDR_FTYPE)
+  GT2_XPND_ARGS(name, XTI_OPTHDR_FTYPE)
+  GT2_XPND_ARGS(status, XTI_OPTHDR_FTYPE)
   GT3
 
 /* t_bind structure */
@@ -1359,17 +1428,21 @@ struct t_uderr {
   GT3
 
 /* Sturcture used with linger option */
+#ifndef XTI_LINGER_FTYPE
+#define XTI_LINGER_FTYPE long
+#endif
+
 #ifdef HAVE_struct_t_linger
   GT1(t_linger,1)
 #else
 struct t_linger {
-     long            l_onoff;
-     long            l_linger;
+     XTI_LINGER_FTYPE   l_onoff;
+     XTI_LINGER_FTYPE   l_linger;
   };
   GT1(t_linger,0)
 #endif
-  GT2(l_onoff, long)
-  GT2(l_linger, long)
+  GT2_XPND_ARGS(l_onoff, XTI_LINGER_FTYPE)
+  GT2_XPND_ARGS(l_linger, XTI_LINGER_FTYPE)
   GT3
 
 /* t_iovec structure */
@@ -1387,17 +1460,21 @@ struct t_iovec {
   GT3
 
 /* t_kpalive structure */
+#ifndef XTI_KPALIVE_FTYPE
+#define XTI_KPALIVE_FTYPE long
+#endif
+
 #ifdef HAVE_struct_t_kpalive
   GT1(t_kpalive,1)
 #else
 struct t_kpalive {
-     long  kp_onoff;
-     long  kp_timeout;
+     XTI_KPALIVE_FTYPE  kp_onoff;
+     XTI_KPALIVE_FTYPE  kp_timeout;
   };
   GT1(t_kpalive,0)
 #endif
-  GT2(kp_onoff, long)
-  GT2(kp_timeout, long)
+  GT2_XPND_ARGS(kp_onoff, XTI_KPALIVE_FTYPE)
+  GT2_XPND_ARGS(kp_timeout, XTI_KPALIVE_FTYPE)
   GT3
 
 /*
