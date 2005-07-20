@@ -623,7 +623,7 @@ void g_sigval(){
 
   ifprintf(fp,"   sigval_byte_size : constant := %d;\n", 
 	   sizeof (union sigval));
-  ifprintf(fp,"   sigval_alignment : constant := ALIGNMENT;");
+  ifprintf(fp,"   sigval_alignment : constant := ALIGNMENT;\n");
 }
 
 /* siginfo_t must precede sigaction
