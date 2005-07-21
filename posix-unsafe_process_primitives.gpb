@@ -117,11 +117,8 @@ package body POSIX.Unsafe_Process_Primitives is
          SSL.Set_Jmpbuf_Address := SSL.Set_Jmpbuf_Address_NT'Access;
          SSL.Get_Sec_Stack_Addr := SSL.Get_Sec_Stack_Addr_NT'Access;
          SSL.Set_Sec_Stack_Addr := SSL.Set_Sec_Stack_Addr_NT'Access;
-         SSL.Get_Exc_Stack_Addr := SSL.Get_Exc_Stack_Addr_NT'Access;
-         SSL.Set_Exc_Stack_Addr := SSL.Set_Exc_Stack_Addr_NT'Access;
          --  reset global data to saved local values for this thread
          SSL.Set_Sec_Stack_Addr (NT_Sec_Stack_Addr);
-         SSL.Set_Exc_Stack_Addr (System.Null_Address, NT_Exc_Stack_Addr);
          SSL.Set_Jmpbuf_Address (NT_Jmpbuf_Address);
       end if;
       return To_Process_ID (Result);
