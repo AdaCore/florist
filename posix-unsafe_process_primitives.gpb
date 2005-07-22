@@ -97,8 +97,6 @@ package body POSIX.Unsafe_Process_Primitives is
       --  save local values of soft-link data
       NT_Sec_Stack_Addr : constant System.Address :=
                             SSL.Get_Sec_Stack_Addr.all;
-      NT_Exc_Stack_Addr : constant System.Address :=
-                            SSL.Get_Exc_Stack_Addr.all;
       NT_Jmpbuf_Address : constant System.Address :=
                             SSL.Get_Jmpbuf_Address.all;
    begin
