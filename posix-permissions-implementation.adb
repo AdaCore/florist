@@ -36,10 +36,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C;
 package body POSIX.Permissions.Implementation is
-
-   use POSIX.C;
 
    -------------------
    --  Permissions  --

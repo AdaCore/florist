@@ -36,15 +36,13 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
-     POSIX.Implementation,
+with POSIX.Implementation,
      POSIX.IO,
      System,
      System.Storage_Elements,
      Unchecked_Conversion;
 package body POSIX.Memory_Mapping is
 
-   use POSIX.C;
    use POSIX.Implementation;
    use System;
 
