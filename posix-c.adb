@@ -41,7 +41,6 @@ with System;
 with System.Storage_Elements;
 package body POSIX.C is
 
-   use System;
    use System.Storage_Elements;
 
    ---------------
