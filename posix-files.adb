@@ -162,7 +162,7 @@ package body POSIX.Files is
    function Is_Symbolic_Link (Pathname : POSIX.Pathname) return Boolean is
       stat : POSIX.File_Status.Status;
    begin
-      stat := POSIX.File_Status.Get_File_Status (Pathname);
+      stat := POSIX.File_Status.Get_Link_Status (Pathname);
       return (POSIX.File_Status.Is_Symbolic_Link (stat));
    exception
       when POSIX_Error => return False;
