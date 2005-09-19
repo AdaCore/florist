@@ -34,8 +34,6 @@
 --                                                                          --
 ----------------------------------------------------------------------------*/
 
-/* --  $Revision$ */
-
 /* file: posix-macros.c
    --------------------
    These subprograms provide access to POSIX functionality that is
@@ -218,6 +216,10 @@ void store_errno(int value) {
 
 int stat_func(const char *path, struct stat *buf) {
   return stat(path, buf);
+}
+
+int lstat_func(const char *path, struct stat *buf) {
+  return lstat(path, buf);
 }
 
 int fstat_func(int fd, struct stat *buf) {
