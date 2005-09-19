@@ -64,6 +64,9 @@ package body POSIX.File_Status is
    function stat (path : char_ptr; buf : stat_ptr) return int;
    pragma Import (C, stat, "stat_func");
 
+   function lstat (path : char_ptr; buf : stat_ptr) return int;
+   pragma Import (C, lstat, "lstat_func");
+
    function fstat (fildes : int; buf : stat_ptr) return int;
    pragma Import (C, fstat, "fstat_func");
 
@@ -96,6 +99,21 @@ package body POSIX.File_Status is
       Check (fstat (int (File), S'Unchecked_Access));
       return Status (S);
    end Get_File_Status;
+
+   -----------------------
+   --  Get_Link_Status  --
+   -----------------------
+
+   function Get_Link_Status (Pathname : POSIX.Pathname)
+      return Status is
+      S : aliased struct_stat;
+      Pathname_With_NUL : POSIX_String := Pathname & NUL;
+   begin
+      Check (lstat
+        (Pathname_With_NUL (Pathname_With_NUL'First)'Unchecked_Access,
+        S'Unchecked_Access));
+      return Status (S);
+   end Get_Link_Status;
 
    -------------------------
    --  Permission_Set_Of  --

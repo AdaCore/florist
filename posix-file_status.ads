@@ -33,7 +33,6 @@
 --  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 with POSIX.C,
      POSIX.Calendar,
@@ -47,6 +46,9 @@ package POSIX.File_Status is
    function Get_File_Status (Pathname : POSIX.Pathname)
       return Status;
    function Get_File_Status (File : POSIX.IO.File_Descriptor)
+      return Status;
+   --  Get_Link_Status is not in the IEEE standard
+   function Get_Link_Status (Pathname : POSIX.Pathname)
       return Status;
 
    type File_ID is private;
