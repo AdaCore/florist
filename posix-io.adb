@@ -462,7 +462,7 @@ package body POSIX.IO is
       Item           : in T;
       Masked_Signals : in Signal_Masking := RTS_Signals) is
       Result : ssize_t;
-      Written : constant System.Storage_Elements.Storage_Offset := 0;
+      Written : System.Storage_Elements.Storage_Offset := 0;
       To_Write : System.Storage_Elements.Storage_Offset :=
         System.Storage_Elements.Storage_Offset (Item'Size / char'Size);
       Old_Mask : aliased Signal_Mask;
@@ -484,6 +484,7 @@ package body POSIX.IO is
            (int (File), Item'Address + Written, size_t (To_Write - Written));
          --  Exit if write fails or zero-length write succeeds.
          exit when Result <= 0;
+         Written := Written + Storage_Offset (Result);
          To_Write := To_Write - Storage_Offset (Result);
          --  Exit if done writing.
          exit when To_Write = 0;
