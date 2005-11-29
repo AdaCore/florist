@@ -203,7 +203,7 @@ package body POSIX.Generic_Shared_Memory is
       FD : POSIX.IO.File_Descriptor;
       Mode : POSIX.IO.File_Mode;
    begin
-      if Protection = POSIX.Memory_Mapping.Allow_Write then
+      if Protection >= POSIX.Memory_Mapping.Allow_Write then
          Mode := POSIX.IO.Read_Write;
       else Mode := POSIX.IO.Read_Only;
       end if;
@@ -211,7 +211,9 @@ package body POSIX.Generic_Shared_Memory is
       begin
          FD := POSIX.Shared_Memory_Objects.Open_Shared_Memory
            (Name, Mode, POSIX.IO.Empty_Set, Masked_Signals);
-         POSIX.IO.Truncate_File (FD, Length);
+         if Protection >= POSIX.Memory_Mapping.Allow_Write then
+            POSIX.IO.Truncate_File (FD, Length);
+         end if;
          Insert_Node (FD, POSIX.Memory_Mapping.Map_Memory
            (System.Storage_Elements.Storage_Offset (Length),
             Protection, POSIX.Memory_Mapping.Map_Shared, FD, 0));
@@ -238,7 +240,7 @@ package body POSIX.Generic_Shared_Memory is
       FD : POSIX.IO.File_Descriptor;
       Mode : POSIX.IO.File_Mode;
    begin
-      if Protection = POSIX.Memory_Mapping.Allow_Write then
+      if Protection >= POSIX.Memory_Mapping.Allow_Write then
          Mode := POSIX.IO.Read_Write;
       else Mode := POSIX.IO.Read_Only;
       end if;
@@ -246,7 +248,9 @@ package body POSIX.Generic_Shared_Memory is
       begin
          FD := POSIX.Shared_Memory_Objects.Open_Or_Create_Shared_Memory
            (Name, Mode, Permissions, Options, Masked_Signals);
-         POSIX.IO.Truncate_File (FD, Length);
+         if Protection >= POSIX.Memory_Mapping.Allow_Write then
+            POSIX.IO.Truncate_File (FD, Length);
+         end if;
          Insert_Node (FD, POSIX.Memory_Mapping.Map_Memory
            (System.Storage_Elements.Storage_Offset (Length),
             Protection, POSIX.Memory_Mapping.Map_Shared, FD, 0));
