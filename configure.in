@@ -117,6 +117,10 @@ case ${UNAME_SYSTEM} in
     echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
     cp ./configs/pconfig.FreeBSD ./pconfig.h.in;
     ;;
+ Darwin)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.Darwin ./pconfig.h.in;
+    ;;
  *)
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
