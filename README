@@ -28,42 +28,6 @@ executable to be covered by the GNU General Public License. This
 exception does not however invalidate any other reasons why the
 executable file might be covered by the GNU Public License.
 
-PREREQUISITES:
-
-You will need GNAT 3.17 or 5.03 to install and compile Florist.  
-
-----------------
---  WARNINGS  --
-----------------
-
-This Ada binding implementation depends on your underlying OS
-having C header-files and libraries that conform to the POSIX
-standards.  It will try to use constants, types, and functions
-defined in POSIX.1, POSIX.1b, POSIX.1c, and the proposed POSIX.1g
-standard.  The degree to which the Ada binding works and conforms
-to the POSIX.5 and POSIX.5b standards will be limited by how well
-your OS conforms to the corresponding C API's.
-
-So far, we have not found any operating system that fully supports
-POSIX.1c and POSIX.1g though they are getting better.  Generally,
-you will get better results with newer OS releases, since their C
-API's are closer to the POSIX standards.  It is also a good idea
-to make sure that your installation includes the header files and
-libraries needed for the real-time and threads extensions.  (The
-default "end user" OS installation may try to save you disk space
-by not installing them.)
-
-Florist is currently supported on the following configurations. It
-may or may not work on non supported configurations:
-
-Sparc/Solaris 2.5.1, 2.6, 7, 8, 9
-Linux Redhat 7.x, 8, 9
-DEC Unix 4.0x
-Tru64 5.1a
-HP/UX 11.00
-IRIX 6.5
-AiX 4.3
-
 NORMAL INSTALLATION:
 
 Follow the steps described in the INSTALL file.
