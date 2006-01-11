@@ -81,7 +81,7 @@ package POSIX.Supplement_to_Ada_IO is
       return Form_Values_for_Create;
 
    procedure Flush_All;
-   procedure Flush_Text_IO (File : in Ada.Text_IO.File_Type);
+   procedure Flush_Text_IO (File : Ada.Text_IO.File_Type);
 
    generic
       type File_Type is limited private;

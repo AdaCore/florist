@@ -77,13 +77,13 @@ package POSIX.Memory_Mapping is
       return System.Address;
 
    procedure Unmap_Memory
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset);
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset);
 
    procedure Change_Protection
-     (First      : in System.Address;
-      Length     : in System.Storage_Elements.Storage_Offset;
-      Protection : in Protection_Options);
+     (First      : System.Address;
+      Length     : System.Storage_Elements.Storage_Offset;
+      Protection : Protection_Options);
 
    type Synchronize_Memory_Options is new POSIX.Option_Set;
    Wait_For_Completion    : constant Synchronize_Memory_Options;
@@ -91,9 +91,9 @@ package POSIX.Memory_Mapping is
    Invalidate_Cached_Data : constant Synchronize_Memory_Options;
 
    procedure Synchronize_Memory
-     (First   : in System.Address;
-      Length  : in System.Storage_Elements.Storage_Offset;
-      Options : in Synchronize_Memory_Options := Wait_For_Completion);
+     (First   : System.Address;
+      Length  : System.Storage_Elements.Storage_Offset;
+      Options : Synchronize_Memory_Options := Wait_For_Completion);
 
 private
    Allow_Read             : constant Protection_Options :=

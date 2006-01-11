@@ -60,10 +60,10 @@ package body POSIX.C is
    --  Form_POSIX_String  --
    -------------------------
 
-   function strlen (str : in char_ptr) return size_t;
+   function strlen (str : char_ptr) return size_t;
    pragma Import (C, strlen, "strlen");
 
-   function Form_POSIX_String (Str : in char_ptr)
+   function Form_POSIX_String (Str : char_ptr)
       return POSIX.POSIX_String is
    begin
       if Str = null then return ""; end if;

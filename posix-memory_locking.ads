@@ -41,7 +41,7 @@ package POSIX.Memory_Locking is
    type Memory_Locking_Options is new POSIX.Option_Set;
    Current_Pages : constant Memory_Locking_Options;
    Future_Pages  : constant Memory_Locking_Options;
-   procedure Lock_All (Options : in Memory_Locking_Options);
+   procedure Lock_All (Options : Memory_Locking_Options);
    procedure Unlock_All;
 private
    Current_Pages : constant Memory_Locking_Options :=

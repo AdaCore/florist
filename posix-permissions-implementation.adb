@@ -42,7 +42,7 @@ package body POSIX.Permissions.Implementation is
    --  Permissions  --
    -------------------
 
-   function Form_C_Permission (perm : in Permission_Set) return mode_t is
+   function Form_C_Permission (perm : Permission_Set) return mode_t is
       c_perm : mode_t;
    begin
       c_perm := 0;
@@ -86,7 +86,7 @@ package body POSIX.Permissions.Implementation is
    --  form_posix_permission  --
    -----------------------------
 
-   function Form_Ada_Permission (perm : in mode_t) return Permission_Set is
+   function Form_Ada_Permission (perm : mode_t) return Permission_Set is
       a_perm : Permission_Set := (others => False);
       c_perm : mode_t;
    begin

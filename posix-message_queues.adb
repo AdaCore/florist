@@ -253,7 +253,7 @@ package body POSIX.Message_Queues is
    --  Unlink_Message_Queue  --
    ----------------------------
 
-   procedure Unlink_Message_Queue (Name : in POSIX_String) is
+   procedure Unlink_Message_Queue (Name : POSIX_String) is
       function mq_unlink (name : char_ptr) return int;
       pragma Import (C, mq_unlink, mq_unlink_LINKNAME);
       Name_With_NUL : POSIX_String := Name & NUL;
@@ -273,10 +273,10 @@ package body POSIX.Message_Queues is
    pragma Import (C, mq_send, mq_send_LINKNAME);
 
    procedure Send
-     (MQ             : in Message_Queue_Descriptor;
-      Message        : in Ada_Streams.Stream_Element_Array;
-      Priority       : in Message_Priority;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+     (MQ             : Message_Queue_Descriptor;
+      Message        : Ada_Streams.Stream_Element_Array;
+      Priority       : Message_Priority;
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
@@ -301,11 +301,11 @@ package body POSIX.Message_Queues is
    pragma Import (C, mq_receive, mq_receive_LINKNAME);
 
    procedure Receive
-     (MQ             : in Message_Queue_Descriptor;
+     (MQ             : Message_Queue_Descriptor;
       Message        : out Ada_Streams.Stream_Element_Array;
       Last           : out Ada_Streams.Stream_Element_Offset;
       Priority       : out Message_Priority;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Prio : aliased unsigned;
       Result : ssize_t;
@@ -334,10 +334,10 @@ package body POSIX.Message_Queues is
       ------------
 
       procedure Send
-        (MQ             : in Message_Queue_Descriptor;
-         Message        : in Message_Type;
-         Priority       : in Message_Priority;
-         Masked_Signals : in Signal_Masking := RTS_Signals) is
+        (MQ             : Message_Queue_Descriptor;
+         Message        : Message_Type;
+         Priority       : Message_Priority;
+         Masked_Signals : Signal_Masking := RTS_Signals) is
          Old_Mask : aliased Signal_Mask;
          Result : int;
       begin
@@ -359,10 +359,10 @@ package body POSIX.Message_Queues is
         new Unchecked_Conversion (System.Address, Message_Ptr);
 
       procedure Receive
-        (MQ             : in Message_Queue_Descriptor;
+        (MQ             : Message_Queue_Descriptor;
          Message        : out Message_Type;
          Priority       : out Message_Priority;
-         Masked_Signals : in Signal_Masking := RTS_Signals) is
+         Masked_Signals : Signal_Masking := RTS_Signals) is
          Old_Mask : aliased Signal_Mask;
          Prio : aliased unsigned;
          Result : ssize_t;
@@ -404,8 +404,8 @@ package body POSIX.Message_Queues is
    pragma Import (C, mq_notify, mq_notify_LINKNAME);
 
    procedure Request_Notify
-     (MQ    : in Message_Queue_Descriptor;
-      Event : in POSIX.Signals.Signal_Event) is
+     (MQ    : Message_Queue_Descriptor;
+      Event : POSIX.Signals.Signal_Event) is
       E : aliased POSIX.Signals.Signal_Event := Event;
    begin
       Check (mq_notify (MQ, E'Unchecked_Access));
@@ -415,7 +415,7 @@ package body POSIX.Message_Queues is
    --  Remove_Notify  --
    ---------------------
 
-   procedure Remove_Notify (MQ : in Message_Queue_Descriptor) is
+   procedure Remove_Notify (MQ : Message_Queue_Descriptor) is
    begin
       Check (mq_notify (MQ, null));
    end Remove_Notify;
@@ -431,8 +431,8 @@ package body POSIX.Message_Queues is
    pragma Import (C, mq_setattr, mq_setattr_LINKNAME);
 
    procedure Set_Attributes
-     (MQ        : in Message_Queue_Descriptor;
-      New_Attrs : in Attributes;
+     (MQ        : Message_Queue_Descriptor;
+      New_Attrs : Attributes;
       Old_Attrs : out Attributes) is
    begin
       Check (mq_setattr
@@ -446,8 +446,8 @@ package body POSIX.Message_Queues is
    ----------------------
 
    procedure Set_Attributes
-     (MQ        : in Message_Queue_Descriptor;
-      New_Attrs : in Attributes) is
+     (MQ        : Message_Queue_Descriptor;
+      New_Attrs : Attributes) is
    begin
       Check (mq_setattr (MQ, New_Attrs.Attrs'Unchecked_Access, null));
    end Set_Attributes;

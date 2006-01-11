@@ -45,7 +45,7 @@ package POSIX.Process_Scheduling is
      return Scheduling_Priority;
    procedure Set_Priority
      (Parameters : in out Scheduling_Parameters;
-      Priority   : in Scheduling_Priority);
+      Priority   : Scheduling_Priority);
 
    type Scheduling_Policy is new Integer;
 
@@ -66,15 +66,15 @@ package POSIX.Process_Scheduling is
    Sched_Other : constant Scheduling_Policy := POSIX.C.SCHED_OTHER;
 
    procedure Set_Scheduling_Parameters
-     (Process    : in POSIX_Process_Identification.Process_ID;
-      Parameters : in Scheduling_Parameters);
+     (Process    : POSIX_Process_Identification.Process_ID;
+      Parameters : Scheduling_Parameters);
    function Get_Scheduling_Parameters
      (Process : POSIX_Process_Identification.Process_ID)
      return Scheduling_Parameters;
    procedure Set_Scheduling_Policy
-     (Process    : in POSIX_Process_Identification.Process_ID;
-      New_Policy : in Scheduling_Policy;
-      Parameters : in Scheduling_Parameters);
+     (Process    : POSIX_Process_Identification.Process_ID;
+      New_Policy : Scheduling_Policy;
+      Parameters : Scheduling_Parameters);
    function Get_Scheduling_Policy
      (Process : POSIX_Process_Identification.Process_ID)
      return Scheduling_Policy;

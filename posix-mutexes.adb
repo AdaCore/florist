@@ -109,7 +109,7 @@ package body POSIX.Mutexes is
 
    procedure Set_Process_Shared
      (Attr : in out Attributes;
-      Is_Shared : in Boolean := False) is
+      Is_Shared : Boolean := False) is
    begin
       Check_NZ (pthread_mutexattr_setpshared
         (Attr.Attr'Unchecked_Access, To_pshared (Is_Shared)));
@@ -132,7 +132,7 @@ package body POSIX.Mutexes is
 
    procedure Set_Locking_Policy
       (Attr : in out Attributes;
-       Locking : in Locking_Policy) is
+       Locking : Locking_Policy) is
    begin
       Check_NZ (pthread_mutexattr_setprotocol
         (Attr.Attr'Unchecked_Access, To_C_Policy (Locking)));
@@ -174,7 +174,7 @@ package body POSIX.Mutexes is
 
    procedure Set_Ceiling_Priority
       (Attr : in out Attributes;
-       New_Ceiling : in Ceiling_Priority) is
+       New_Ceiling : Ceiling_Priority) is
    begin
       Check_NZ (pthread_mutexattr_setprioceiling
         (Attr.Attr'Unchecked_Access, int (New_Ceiling)));
@@ -209,7 +209,7 @@ package body POSIX.Mutexes is
 
    procedure Initialize
      (M : in out Mutex;
-      Attr : in Attributes) is
+      Attr : Attributes) is
    begin
       Check_NZ (pthread_mutex_init
         (M.Mutex'Unchecked_Access, Attr.Attr'Unchecked_Access));
@@ -256,8 +256,8 @@ package body POSIX.Mutexes is
      pthread_mutex_setprioceiling_LINKNAME);
 
    procedure Set_Ceiling_Priority
-     (M           : in Mutex_Descriptor;
-      New_Ceiling : in Ceiling_Priority;
+     (M           : Mutex_Descriptor;
+      New_Ceiling : Ceiling_Priority;
       Old_Ceiling : out Ceiling_Priority) is
       Result : aliased int;
    begin
@@ -292,7 +292,7 @@ package body POSIX.Mutexes is
      (mutex : Mutex_Descriptor) return int;
    pragma Import (C, pthread_mutex_lock, pthread_mutex_lock_LINKNAME);
 
-   procedure Lock (M : in Mutex_Descriptor) is
+   procedure Lock (M : Mutex_Descriptor) is
    begin
       Check_NZ (pthread_mutex_lock (M));
    end Lock;
@@ -326,7 +326,7 @@ package body POSIX.Mutexes is
    pragma Import (C, pthread_mutex_unlock,
      pthread_mutex_unlock_LINKNAME);
 
-   procedure Unlock (M : in Mutex_Descriptor) is
+   procedure Unlock (M : Mutex_Descriptor) is
    begin
       Check_NZ (pthread_mutex_unlock (M));
    end Unlock;

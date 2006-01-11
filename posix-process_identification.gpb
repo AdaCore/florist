@@ -118,8 +118,8 @@ package body POSIX.Process_Identification is
    pragma Import (C, setpgid, setpgid_LINKNAME);
 
    procedure Set_Process_Group_ID
-     (Process : in Process_ID := Get_Process_ID;
-      Process_Group : in Process_Group_ID := Get_Process_Group_ID) is
+     (Process : Process_ID := Get_Process_ID;
+      Process_Group : Process_Group_ID := Get_Process_Group_ID) is
    begin
       Check (Process /= Null_Process_ID, Invalid_Argument);
       Check (setpgid (pid_t (Process), pid_t (Process_Group)));
@@ -130,7 +130,7 @@ package body POSIX.Process_Identification is
    --------------------------
 
    procedure Create_Process_Group
-     (Process : in Process_ID; Process_Group : out Process_Group_ID) is
+     (Process : Process_ID; Process_Group : out Process_Group_ID) is
       function setpgid (pid : pid_t; pgrp : pid_t) return int;
       pragma Import (C, setpgid, setpgid_LINKNAME);
    begin
@@ -195,7 +195,7 @@ package body POSIX.Process_Identification is
    -- Set_User_ID --
    -----------------
 
-   procedure Set_User_ID (ID : in User_ID) is
+   procedure Set_User_ID (ID : User_ID) is
       function setuid (uid : uid_t) return int;
       pragma Import (C, setuid, setuid_LINKNAME);
    begin
@@ -268,7 +268,7 @@ package body POSIX.Process_Identification is
    -- Set_Group_ID --
    ------------------
 
-   procedure Set_Group_ID (ID : in Group_ID) is
+   procedure Set_Group_ID (ID : Group_ID) is
       function setgid (gid : gid_t) return int;
       pragma Import (C, setgid, setgid_LINKNAME);
    begin

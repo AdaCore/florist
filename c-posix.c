@@ -3407,13 +3407,13 @@ void create_posix() {
   ifprintf(fp,"   procedure Make_Empty (List : in out POSIX_String_List);\n");
 
   ifprintf(fp,"   procedure Append (List : in out POSIX_String_List;\n");
-  ifprintf(fp,"                     Str  : in POSIX_String);\n");
+  ifprintf(fp,"                     Str  : POSIX_String);\n");
 
   ifprintf(fp,"   generic\n");
   ifprintf(fp,"      with procedure Action\n");
-  ifprintf(fp,"        (Item : in POSIX_String;\n");
+  ifprintf(fp,"        (Item : POSIX_String;\n");
   ifprintf(fp,"        Quit : in out Boolean);\n");
-  ifprintf(fp,"   procedure For_Every_Item (List : in POSIX_String_List);\n");
+  ifprintf(fp,"   procedure For_Every_Item (List : POSIX_String_List);\n");
 
   ifprintf(fp,"   function Length (List : POSIX_String_List) ");
   ifprintf(fp,"return Natural;\n");
@@ -3449,7 +3449,7 @@ void create_posix() {
 
   gsitp("Error_Code", sizeof(int));
   ifprintf(fp,"   function Get_Error_Code return Error_Code;\n");
-  ifprintf(fp,"   procedure Set_Error_Code (Error : in Error_Code);\n");
+  ifprintf(fp,"   procedure Set_Error_Code (Error : Error_Code);\n");
   ifprintf(fp,"   function Is_POSIX_Error (Error : Error_Code) ");
   ifprintf(fp,"return Boolean;\n");
   ifprintf(fp,"   function Image (Error : Error_Code) return String;\n");
@@ -4070,14 +4070,14 @@ void create_posix() {
   ifprintf(fp,"   function Get_Seconds (Time : Timespec) return Seconds;\n");
   ifprintf(fp,"   procedure Set_Seconds\n");
   ifprintf(fp,"      (Time : in out Timespec;\n");
-  ifprintf(fp,"       S    : in Seconds);\n");
+  ifprintf(fp,"       S    : Seconds);\n");
   ifprintf(fp,"   function Get_Nanoseconds (Time : Timespec) ");
   ifprintf(fp,"return Nanoseconds;\n");
   ifprintf(fp,"   procedure Set_Nanoseconds\n");
   ifprintf(fp,"      (Time : in out Timespec;\n");
-  ifprintf(fp,"       NS   : in Nanoseconds);\n");
+  ifprintf(fp,"       NS   : Nanoseconds);\n");
   ifprintf(fp,"   procedure Split\n");
-  ifprintf(fp,"      (Time : in  Timespec;\n");
+  ifprintf(fp,"      (Time : Timespec;\n");
   ifprintf(fp,"       S    : out Seconds;\n");
   ifprintf(fp,"       NS   : out Nanoseconds);\n");
   ifprintf(fp,"   function To_Timespec\n");
@@ -4280,17 +4280,17 @@ void create_c() {
   ifprintf(fp,"   type char_ptr_array is\n");
   ifprintf(fp,"     array (Positive range <>) of aliased char_ptr;\n");
 
-  ifprintf(fp,"   function malloc (size : in size_t) return char_ptr;\n");
-  ifprintf(fp,"   function malloc (size : in size_t) return char_ptr_ptr;\n");
+  ifprintf(fp,"   function malloc (size : size_t) return char_ptr;\n");
+  ifprintf(fp,"   function malloc (size : size_t) return char_ptr_ptr;\n");
   ifprintf(fp,"      pragma Import (C, malloc, \"malloc\");\n");
-  ifprintf(fp,"   procedure free (object : in char_ptr);\n");
-  ifprintf(fp,"   procedure free (object : in char_ptr_ptr);\n");
+  ifprintf(fp,"   procedure free (object : char_ptr);\n");
+  ifprintf(fp,"   procedure free (object : char_ptr_ptr);\n");
   ifprintf(fp,"      pragma Import (C, free, \"free\");\n");
   ifprintf(fp,"   procedure Advance (Ptr : in out char_ptr);\n");
   ifprintf(fp,"   procedure Advance (Ptr : in out char_ptr_ptr);\n");
   ifprintf(fp,"   --  advance Ptr to next location\n");
   ifprintf(fp,"   --  pragma Inline (Advance);\n");
-  ifprintf(fp,"   function Form_POSIX_String (Str : in char_ptr)\n");
+  ifprintf(fp,"   function Form_POSIX_String (Str : char_ptr)\n");
   ifprintf(fp,"      return POSIX_String;\n");
   ifprintf(fp,"   --  makes new copy of string, without null terminator\n");
 

@@ -54,16 +54,16 @@ package POSIX.File_Locking is
       end record;
 
    procedure Get_Lock
-         (File    : in POSIX.IO.File_Descriptor;
-          Lock    : in File_Lock;
+         (File    : POSIX.IO.File_Descriptor;
+          Lock    : File_Lock;
           Result  : out File_Lock;
           Process : out POSIX.Process_Identification.Process_ID);
    procedure Set_Lock
-         (File    : in POSIX.IO.File_Descriptor;
-          Lock    : in File_Lock);
+         (File    : POSIX.IO.File_Descriptor;
+          Lock    : File_Lock);
    procedure Wait_To_Set_Lock
-         (File    : in POSIX.IO.File_Descriptor;
-          Lock    : in File_Lock;
-          Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+         (File    : POSIX.IO.File_Descriptor;
+          Lock    : File_Lock;
+          Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
 
 end POSIX.File_Locking;

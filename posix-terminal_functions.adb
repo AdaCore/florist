@@ -50,10 +50,10 @@ package body POSIX.Terminal_Functions is
    --  Local Subprograms  --
    -------------------------
 
-   procedure Validate (Characteristics : in Terminal_Characteristics);
+   procedure Validate (Characteristics : Terminal_Characteristics);
    function To_Ada_Baud (Val : speed_t) return Baud_Rate;
 
-   procedure Validate (Characteristics : in Terminal_Characteristics) is
+   procedure Validate (Characteristics : Terminal_Characteristics) is
    begin
       Check (Characteristics.Valid, Invalid_Argument);
    end Validate;
@@ -115,10 +115,10 @@ package body POSIX.Terminal_Functions is
    pragma Import (C, tcsetattr, tcsetattr_LINKNAME);
 
    procedure Set_Terminal_Characteristics
-      (File            : in POSIX.IO.File_Descriptor;
-       Characteristics : in Terminal_Characteristics;
-       Apply           : in Terminal_Action_Times := Immediately;
-       Masked_Signals  : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+      (File            : POSIX.IO.File_Descriptor;
+       Characteristics : Terminal_Characteristics;
+       Apply           : Terminal_Action_Times := Immediately;
+       Masked_Signals  : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
@@ -216,7 +216,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Terminal_Modes
      (Characteristics : in out Terminal_Characteristics;
-      Modes           : in Terminal_Modes_Set) is
+      Modes           : Terminal_Modes_Set) is
       Tmp : tcflag_t;
    begin
       Validate (Characteristics);
@@ -282,7 +282,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Bits_Per_Character
      (Characteristics : in out Terminal_Characteristics;
-      Bits            : in Bits_Per_Character) is
+      Bits            : Bits_Per_Character) is
    begin
       Validate (Characteristics);
       Characteristics.termios.c_cflag :=
@@ -338,7 +338,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Input_Baud_Rate
      (Characteristics : in out Terminal_Characteristics;
-      Input_Baud_Rate : in Baud_Rate) is
+      Input_Baud_Rate : Baud_Rate) is
    begin
       Validate (Characteristics);
       Check (cfsetispeed (Characteristics.termios'Unchecked_Access,
@@ -372,7 +372,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Output_Baud_Rate
      (Characteristics  : in out Terminal_Characteristics;
-      Output_Baud_Rate : in Baud_Rate) is
+      Output_Baud_Rate : Baud_Rate) is
    begin
       Validate (Characteristics);
       Check (cfsetospeed (Characteristics.termios'Unchecked_Access,
@@ -410,8 +410,8 @@ package body POSIX.Terminal_Functions is
    --------------------------------------
    procedure Define_Special_Control_Character
       (Characteristics : in out Terminal_Characteristics;
-       Selector        : in Control_Character_Selector;
-       Char            : in POSIX.POSIX_Character) is
+       Selector        : Control_Character_Selector;
+       Char            : POSIX.POSIX_Character) is
    begin
       Validate (Characteristics);
       Characteristics.termios.c_cc (To_Integer (Selector)) :=
@@ -424,7 +424,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Disable_Control_Character
       (Characteristics : in out Terminal_Characteristics;
-       Selector        : in Control_Character_Selector) is
+       Selector        : Control_Character_Selector) is
    begin
       Characteristics.termios.c_cc (To_Integer (Selector)) := 0;
    end Disable_Control_Character;
@@ -446,7 +446,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Input_Time
       (Characteristics : in out Terminal_Characteristics;
-       Input_Time      : in Duration) is
+       Input_Time      : Duration) is
    begin
       Validate (Characteristics);
       if Input_Time < 0.0
@@ -475,7 +475,7 @@ package body POSIX.Terminal_Functions is
 
    procedure Define_Minimum_Input_Count
       (Characteristics     : in out Terminal_Characteristics;
-       Minimum_Input_Count : in Natural) is
+       Minimum_Input_Count : Natural) is
    begin
       Validate (Characteristics);
       Check
@@ -492,8 +492,8 @@ package body POSIX.Terminal_Functions is
    pragma Import (C, tcsendbreak, tcsendbreak_LINKNAME);
 
    procedure Send_Break
-      (File         : in POSIX.IO.File_Descriptor;
-       The_Duration : in Duration  := 0.0) is
+      (File         : POSIX.IO.File_Descriptor;
+       The_Duration : Duration  := 0.0) is
       Num : Float;
    begin
       Num := Float (The_Duration);
@@ -508,8 +508,8 @@ package body POSIX.Terminal_Functions is
    pragma Import (C, tcdrain, tcdrain_LINKNAME);
 
    procedure Drain
-      (File           : in POSIX.IO.File_Descriptor;
-       Masked_Signals : in POSIX.Signal_Masking
+      (File           : POSIX.IO.File_Descriptor;
+       Masked_Signals : POSIX.Signal_Masking
            := POSIX.RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
@@ -533,8 +533,8 @@ package body POSIX.Terminal_Functions is
    pragma Import (C, tcflush, tcflush_LINKNAME);
 
    procedure Discard_Data
-      (File     : in POSIX.IO.File_Descriptor;
-       Selector : in Queue_Selector) is
+      (File     : POSIX.IO.File_Descriptor;
+       Selector : Queue_Selector) is
    begin
       Check (tcflush (int (File), To_C_Queue (Selector)));
    end Discard_Data;
@@ -553,8 +553,8 @@ package body POSIX.Terminal_Functions is
    pragma Import (C, tcflow, tcflow_LINKNAME);
 
    procedure Flow
-     (File   : in POSIX.IO.File_Descriptor;
-      Action : in Flow_Action) is
+     (File   : POSIX.IO.File_Descriptor;
+      Action : Flow_Action) is
    begin
       Check (tcflow (int (File), To_C_Flow_Action (Action)));
    end Flow;
@@ -590,8 +590,8 @@ package body POSIX.Terminal_Functions is
      (POSIX.Process_Identification.Process_Group_ID, pid_t);
 
    procedure Set_Process_Group_ID
-      (File : in POSIX.IO.File_Descriptor;
-       Group_ID : in POSIX.Process_Identification.Process_Group_ID) is
+      (File : POSIX.IO.File_Descriptor;
+       Group_ID : POSIX.Process_Identification.Process_Group_ID) is
    begin
       Check (tcsetpgrp (int (File), To_pid_t (Group_ID)));
    end Set_Process_Group_ID;

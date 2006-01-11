@@ -90,11 +90,11 @@ package POSIX.File_Status is
    --  Is_Socket is part of the POSIX.5c [D2]
    function Is_Socket (File_Status : Status)
       return Boolean;
-   function Is_Shared_Memory (File_Status : in Status)
+   function Is_Shared_Memory (File_Status : Status)
      return Boolean;
-   function Is_Message_Queue (File_Status : in Status)
+   function Is_Message_Queue (File_Status : Status)
       return Boolean;
-   function Is_Semaphore (File_Status : in Status)
+   function Is_Semaphore (File_Status : Status)
       return Boolean;
 
 private

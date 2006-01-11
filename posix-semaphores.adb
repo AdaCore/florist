@@ -91,8 +91,8 @@ package body POSIX.Semaphores is
 
    procedure Initialize
      (Sem       : in out Semaphore;
-      Value     : in Natural;
-      Is_Shared : in Boolean := False) is
+      Value     : Natural;
+      Is_Shared : Boolean := False) is
    begin
       Check (sem_init (Sem.Sem'Unchecked_Access,
         Boolean'Pos (Is_Shared), unsigned (Value)));
@@ -196,7 +196,7 @@ package body POSIX.Semaphores is
    function sem_unlink (name : char_ptr) return int;
    pragma Import (C, sem_unlink, sem_unlink_LINKNAME);
 
-   procedure Unlink_Semaphore (Name : in POSIX.POSIX_String) is
+   procedure Unlink_Semaphore (Name : POSIX.POSIX_String) is
       Name_With_NUL : POSIX_String := Name & NUL;
    begin
       Check (sem_unlink
@@ -211,8 +211,8 @@ package body POSIX.Semaphores is
    pragma Import (C, sem_wait, sem_wait_LINKNAME);
 
    procedure Wait
-     (Sem : in Semaphore_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (Sem : Semaphore_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       Result : int;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -250,7 +250,7 @@ package body POSIX.Semaphores is
    function sem_post (sem : Semaphore_Descriptor) return int;
    pragma Import (C, sem_post, sem_post_LINKNAME);
 
-   procedure Post (Sem : in Semaphore_Descriptor) is
+   procedure Post (Sem : Semaphore_Descriptor) is
    begin
       Validate (Sem);
       Check (sem_post (Sem));

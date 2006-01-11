@@ -65,21 +65,21 @@ package POSIX.Condition_Variables is
    function Get_Process_Shared (Attr : Attributes) return Boolean;
    procedure Set_Process_Shared
      (Attr      : in out Attributes;
-      Is_Shared : in Boolean := False);
+      Is_Shared : Boolean := False);
 
    procedure Initialize
      (Cond : in out Condition;
-      Attr : in Attributes);
+      Attr : Attributes);
    procedure Initialize (Cond : in out Condition);
    function Descriptor_Of (Cond : Condition) return Condition_Descriptor;
    procedure Finalize (Cond : in out Condition);
 
-   procedure Signal (Cond : in Condition_Descriptor);
-   procedure Broadcast (Cond : in Condition_Descriptor);
+   procedure Signal (Cond : Condition_Descriptor);
+   procedure Broadcast (Cond : Condition_Descriptor);
 
    procedure Wait
-     (Cond : in Condition_Descriptor;
-      M    : in POSIX.Mutexes.Mutex_Descriptor);
+     (Cond : Condition_Descriptor;
+      M    : POSIX.Mutexes.Mutex_Descriptor);
    procedure Timed_Wait
      (Cond    : Condition_Descriptor;
       M       : POSIX.Mutexes.Mutex_Descriptor;

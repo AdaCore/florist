@@ -60,7 +60,7 @@ package body POSIX.Process_Environment is
    --  Interfaced C String Subprograms  --
    ---------------------------------------
 
-   function strlen (str : in char_ptr) return size_t;
+   function strlen (str : char_ptr) return size_t;
    pragma Import (C, strlen, "strlen");
 
    function strcpy (dest : char_ptr; src : char_ptr) return char_ptr;
@@ -113,8 +113,8 @@ package body POSIX.Process_Environment is
    --  Assume the string is NUL terminated.
 
    function Match
-     (Pair : in POSIX_String_Ptr;
-      Name : in POSIX_String) return Natural;
+     (Pair : POSIX_String_Ptr;
+      Name : POSIX_String) return Natural;
    --  Match returns zero unless Pair has the form
    --  Name & '=' & ..., in which case it returns the index
    --  immediately following the '=' in Pair.
@@ -124,8 +124,8 @@ package body POSIX.Process_Environment is
    --  of the standard functions putenv, setenv, getenv, unsetenv.
 
    function C_Match
-     (Pair : in char_ptr;
-      Name : in char_ptr) return char_ptr;
+     (Pair : char_ptr;
+      Name : char_ptr) return char_ptr;
 
    --  If the C environment has the standard functions to modify
    --  the environment, we use those.  Otherwise, we hack our own.
@@ -289,8 +289,8 @@ package body POSIX.Process_Environment is
    -------------
 
    function Match
-     (Pair : in POSIX_String_Ptr;
-      Name : in POSIX_String) return Natural is
+     (Pair : POSIX_String_Ptr;
+      Name : POSIX_String) return Natural is
       J, JL, K, KL : Integer;
    begin
       J := Pair'First; K := Name'First;
@@ -306,8 +306,8 @@ package body POSIX.Process_Environment is
    end Match;
 
    function C_Match
-     (Pair : in char_ptr;
-      Name : in char_ptr) return char_ptr is
+     (Pair : char_ptr;
+      Name : char_ptr) return char_ptr is
       J, K : char_ptr;
    begin
       J := Pair; K := Name;
@@ -406,7 +406,7 @@ package body POSIX.Process_Environment is
    --  Copy_To_Current_Environment  --
    -----------------------------------
 
-   procedure Copy_To_Current_Environment (Env : in Environment) is
+   procedure Copy_To_Current_Environment (Env : Environment) is
       procedure Copy_One
         (Name : POSIX_String;
          Value : POSIX_String;
@@ -435,7 +435,7 @@ package body POSIX.Process_Environment is
    ------------------------
 
    procedure Copy_Environment
-     (Source : in Environment;
+     (Source : Environment;
       Target : in out Environment) is
       T_Source : constant POSIX_String_List := To_POSIX_String_List (Source);
       T_Target : POSIX_String_List;
@@ -584,8 +584,8 @@ package body POSIX.Process_Environment is
    --------------------------------
 
    procedure Set_Environment_Variable
-     (Name  : in     POSIX.POSIX_String;
-      Value : in     POSIX.POSIX_String;
+     (Name  :        POSIX.POSIX_String;
+      Value :        POSIX.POSIX_String;
       Env   : in out Environment) is
       J, L : Natural;
       Tmp : POSIX_String_List;
@@ -624,8 +624,8 @@ package body POSIX.Process_Environment is
    --------------------------------
 
    procedure Set_Environment_Variable
-      (Name  : in     POSIX.POSIX_String;
-       Value : in     POSIX.POSIX_String) is
+      (Name  :     POSIX.POSIX_String;
+       Value :     POSIX.POSIX_String) is
       c_name : POSIX_String := Name & NUL;
       c_value : POSIX_String := Value & NUL;
    begin
@@ -639,7 +639,7 @@ package body POSIX.Process_Environment is
    -----------------------------------
 
    procedure Delete_Environment_Variable
-     (Name  : in     POSIX.POSIX_String;
+     (Name  :        POSIX.POSIX_String;
       Env   : in out Environment) is
       K : Natural;
       --  the location where Env.List (I) should be;
@@ -672,7 +672,7 @@ package body POSIX.Process_Environment is
    -----------------------------------
 
    procedure Delete_Environment_Variable
-      (Name  : in     POSIX.POSIX_String) is
+      (Name  :     POSIX.POSIX_String) is
       c_name : POSIX_String := Name & NUL;
    begin
       Validate (Name);
@@ -715,7 +715,7 @@ package body POSIX.Process_Environment is
    --  though it means cannot use For_Every_Environment_Variable to implement
    --  Clear_Environment.
 
-   procedure For_Every_Environment_Variable (Env : in Environment) is
+   procedure For_Every_Environment_Variable (Env : Environment) is
       Quit : Boolean := False;
    begin
       if Env = null then return; end if;
@@ -772,7 +772,7 @@ package body POSIX.Process_Environment is
    --------------------------------
 
    procedure Change_Working_Directory
-     (Directory_Name : in POSIX.Pathname) is
+     (Directory_Name : POSIX.Pathname) is
       function chdir (path : char_ptr) return int;
       pragma Import (C, chdir, chdir_LINKNAME);
       c_name : POSIX_String := Directory_Name & NUL;

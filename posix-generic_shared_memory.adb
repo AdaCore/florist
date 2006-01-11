@@ -293,7 +293,7 @@ package body POSIX.Generic_Shared_Memory is
    -------------------------------------
 
    procedure Unmap_And_Close_Shared_Memory
-     (File : in POSIX.IO.File_Descriptor) is
+     (File : POSIX.IO.File_Descriptor) is
    begin
       Begin_Critical_Section;
       begin
@@ -316,7 +316,7 @@ package body POSIX.Generic_Shared_Memory is
    --------------------------
 
    procedure Lock_Shared_Memory
-     (File : in POSIX.IO.File_Descriptor) is
+     (File : POSIX.IO.File_Descriptor) is
    begin
       POSIX.Memory_Range_Locking.Lock_Range
         (Start_Of_Shared_Memory (File),
@@ -329,7 +329,7 @@ package body POSIX.Generic_Shared_Memory is
    ----------------------------
 
    procedure Unlock_Shared_Memory
-     (File : in POSIX.IO.File_Descriptor) is
+     (File : POSIX.IO.File_Descriptor) is
    begin
       POSIX.Memory_Range_Locking.Unlock_Range
         (Start_Of_Shared_Memory (File),

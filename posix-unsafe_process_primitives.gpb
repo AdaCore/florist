@@ -133,10 +133,10 @@ package body POSIX.Unsafe_Process_Primitives is
    pragma Import (C, execve, execve_LINKNAME);
 
    procedure Exec
-     (Pathname : in POSIX.Pathname;
-      Arg_List : in POSIX.POSIX_String_List
+     (Pathname : POSIX.Pathname;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List;
-      Env_List : in POSIX.Process_Environment.Environment) is
+      Env_List : POSIX.Process_Environment.Environment) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
@@ -161,8 +161,8 @@ package body POSIX.Unsafe_Process_Primitives is
    pragma Import (C, execv, execv_LINKNAME);
 
    procedure Exec
-     (Pathname : in POSIX.Pathname;
-      Arg_List : in POSIX.POSIX_String_List
+     (Pathname : POSIX.Pathname;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
@@ -179,9 +179,9 @@ package body POSIX.Unsafe_Process_Primitives is
    -------------------
 
    procedure Exec_Search
-     (Filename : in POSIX.Filename;
-      Arg_List : in POSIX.POSIX_String_List := POSIX.Empty_String_List;
-      Env_List : in POSIX.Process_Environment.Environment) is
+     (Filename : POSIX.Filename;
+      Arg_List : POSIX.POSIX_String_List := POSIX.Empty_String_List;
+      Env_List : POSIX.Process_Environment.Environment) is
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
@@ -246,8 +246,8 @@ package body POSIX.Unsafe_Process_Primitives is
    pragma Import (C, execvp, execvp_LINKNAME);
 
    procedure Exec_Search
-     (Filename : in POSIX.Filename;
-      Arg_List : in POSIX.POSIX_String_List
+     (Filename : POSIX.Filename;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List) is
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);

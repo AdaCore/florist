@@ -59,7 +59,7 @@ package body POSIX.Timers is
 
    procedure Set_Initial
      (State   : in out Timer_State;
-      Initial : in POSIX.Timespec) is
+      Initial : POSIX.Timespec) is
    begin
       State.State.it_value := To_Struct_Timespec (Initial);
    end Set_Initial;
@@ -79,7 +79,7 @@ package body POSIX.Timers is
 
    procedure Set_Interval
      (State    : in out Timer_State;
-      Interval : in POSIX.Timespec) is
+      Interval : POSIX.Timespec) is
    begin
       State.State.it_interval := To_Struct_Timespec (Interval);
    end Set_Interval;
@@ -102,8 +102,8 @@ package body POSIX.Timers is
    pragma Import (C, clock_settime, clock_settime_LINKNAME);
 
    procedure Set_Time
-     (Clock : in Clock_ID;
-      Value : in POSIX.Timespec) is
+     (Clock : Clock_ID;
+      Value : POSIX.Timespec) is
       TS : aliased struct_timespec;
    begin
       TS := To_Struct_Timespec (Value);
@@ -115,7 +115,7 @@ package body POSIX.Timers is
    ----------------
 
    procedure Set_Time
-     (Value : in POSIX.Timespec) is
+     (Value : POSIX.Timespec) is
       TS : aliased struct_timespec;
    begin
       TS := To_Struct_Timespec (Value);
@@ -205,9 +205,9 @@ package body POSIX.Timers is
    pragma Import (C, timer_settime, timer_settime_LINKNAME);
 
    procedure Arm_Timer
-     (Timer     : in Timer_ID;
-      Options   : in Timer_Options;
-      New_State : in Timer_State;
+     (Timer     : Timer_ID;
+      Options   : Timer_Options;
+      New_State : Timer_State;
       Old_State : out Timer_State) is
    begin
       --  ????? Change POSIX.5b?
@@ -230,9 +230,9 @@ package body POSIX.Timers is
    -----------------
 
    procedure Arm_Timer
-     (Timer     : in Timer_ID;
-      Options   : in Timer_Options;
-      New_State : in Timer_State) is
+     (Timer     : Timer_ID;
+      Options   : Timer_Options;
+      New_State : Timer_State) is
    begin
       Check (New_State.State.it_value /= Zero_Timespec, Invalid_Argument);
       Check (timer_settime (timer_t (Timer),
@@ -259,7 +259,7 @@ package body POSIX.Timers is
    --  Disarm_Timer  --
    --------------------
 
-   procedure Disarm_Timer (Timer : in Timer_ID) is
+   procedure Disarm_Timer (Timer : Timer_ID) is
    begin
       Check (timer_settime
         (timer_t (Timer), 0, Zero_State'Unchecked_Access, null));

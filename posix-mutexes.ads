@@ -68,7 +68,7 @@ package POSIX.Mutexes is
      return Boolean;
    procedure Set_Process_Shared
      (Attr      : in out Attributes;
-      Is_Shared : in Boolean := False);
+      Is_Shared : Boolean := False);
 
    subtype Ceiling_Priority is Integer;
    type Locking_Policy is range 0 .. 2;
@@ -78,33 +78,33 @@ package POSIX.Mutexes is
 
    procedure Set_Locking_Policy
      (Attr    : in out Attributes;
-      Locking : in Locking_Policy);
+      Locking : Locking_Policy);
    function Get_Locking_Policy
      (Attr : Attributes)
      return Locking_Policy;
    procedure Set_Ceiling_Priority
      (Attr        : in out Attributes;
-      New_Ceiling : in Ceiling_Priority);
+      New_Ceiling : Ceiling_Priority);
    function Get_Ceiling_Priority (Attr : Attributes)
      return Ceiling_Priority;
 
    procedure Initialize
      (M    : in out Mutex;
-      Attr : in Attributes);
+      Attr : Attributes);
    procedure Initialize (M : in out Mutex);
    function Descriptor_Of (M : Mutex) return Mutex_Descriptor;
    procedure Finalize (M : in out Mutex);
 
    procedure Set_Ceiling_Priority
-     (M           : in Mutex_Descriptor;
-      New_Ceiling : in Ceiling_Priority;
+     (M           : Mutex_Descriptor;
+      New_Ceiling : Ceiling_Priority;
       Old_Ceiling : out Ceiling_Priority);
    function Get_Ceiling_Priority (M : Mutex_Descriptor)
      return Ceiling_Priority;
 
-   procedure Lock (M : in Mutex_Descriptor);
+   procedure Lock (M : Mutex_Descriptor);
    function  Try_Lock (M : Mutex_Descriptor) return Boolean;
-   procedure Unlock (M : in Mutex_Descriptor);
+   procedure Unlock (M : Mutex_Descriptor);
 
 private
    type Dummy is tagged null record;

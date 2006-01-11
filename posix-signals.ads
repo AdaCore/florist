@@ -126,11 +126,11 @@ package POSIX.Signals is
 
    procedure Add_Signal
      (Set : in out Signal_Set;
-      Sig : in Signal);
+      Sig : Signal);
    procedure Add_All_Signals (Set : in out Signal_Set);
    procedure Delete_Signal
      (Set : in out Signal_Set;
-      Sig : in Signal);
+      Sig : Signal);
    procedure Delete_All_Signals (Set : in out Signal_Set);
    function Is_Member
      (Set : Signal_Set;
@@ -140,26 +140,26 @@ package POSIX.Signals is
    --  Blocking and Unblocking Signals
 
    procedure Set_Blocked_Signals
-     (New_Mask : in Signal_Set;
+     (New_Mask : Signal_Set;
       Old_Mask : out Signal_Set);
    procedure Block_Signals
-     (Mask_to_Add : in Signal_Set;
+     (Mask_to_Add : Signal_Set;
       Old_Mask    : out Signal_Set);
    procedure Unblock_Signals
-     (Mask_to_Subtract : in Signal_Set;
+     (Mask_to_Subtract : Signal_Set;
       Old_Mask         : out Signal_Set);
    function Blocked_Signals return Signal_Set;
 
    --  Ignoring Signals
 
-   procedure Ignore_Signal (Sig : in Signal);
-   procedure Unignore_Signal (Sig : in Signal);
+   procedure Ignore_Signal (Sig : Signal);
+   procedure Unignore_Signal (Sig : Signal);
    function Is_Ignored (Sig : Signal) return Boolean;
    procedure Install_Empty_Handler (Sig : Signal);
 
    --  Controlling Delivery of Signal_Child Signal
 
-   procedure Set_Stopped_Child_Signal (Enable : in Boolean := True);
+   procedure Set_Stopped_Child_Signal (Enable : Boolean := True);
    function Stopped_Child_Signal_Enabled return Boolean;
 
    --  Examining Pending Signals
@@ -175,15 +175,15 @@ package POSIX.Signals is
    function Get_Signal (Event : Signal_Event) return Signal;
    procedure Set_Signal
      (Event : in out Signal_Event;
-      Sig   : in Signal);
+      Sig   : Signal);
    function Get_Notification (Event : Signal_Event) return Notification;
    procedure Set_Notification
      (Event  : in out Signal_Event;
-      Notify : in Notification);
+      Notify : Notification);
    function Get_Data (Event : Signal_Event) return Signal_Data;
    procedure Set_Data
      (Event : in out Signal_Event;
-      Data  : in Signal_Data);
+      Data  : Signal_Data);
 
    type Signal_Source is range Integer'First .. Integer'Last;
    From_Send_Signal   : constant Signal_Source := POSIX.C.SI_USER;
@@ -196,19 +196,19 @@ package POSIX.Signals is
    function Get_Signal (Info : Signal_Info) return Signal;
    procedure Set_Signal
      (Info : in out Signal_Info;
-      Sig  : in Signal);
+      Sig  : Signal);
    function Get_Source (Info : Signal_Info) return Signal_Source;
    procedure Set_Source
      (Info   : in out Signal_Info;
-      Source : in Signal_Source);
+      Source : Signal_Source);
    function Has_Data (Source : Signal_Source) return Boolean;
    function Get_Data (Info : Signal_Info) return Signal_Data;
    procedure Set_Data
      (Info : in out Signal_Info;
-      Data : in Signal_Data);
+      Data : Signal_Data);
 
-   procedure Enable_Queueing (Sig : in Signal);
-   procedure Disable_Queueing (Sig : in Signal);
+   procedure Enable_Queueing (Sig : Signal);
+   procedure Disable_Queueing (Sig : Signal);
 
    function Await_Signal (Set : Signal_Set) return Signal;
    function Await_Signal_Or_Timeout
@@ -264,20 +264,20 @@ package POSIX.Signals is
    function Signal_Reference (Sig : Signal) return System.Address;
 
    procedure Send_Signal
-     (Process : in POSIX.Process_Identification.Process_ID;
-      Sig     : in Signal);
+     (Process : POSIX.Process_Identification.Process_ID;
+      Sig     : Signal);
    procedure Send_Signal
-     (Group : in POSIX.Process_Identification.Process_Group_ID;
-      Sig   : in Signal);
-   procedure Send_Signal (Sig : in Signal);
+     (Group : POSIX.Process_Identification.Process_Group_ID;
+      Sig   : Signal);
+   procedure Send_Signal (Sig : Signal);
 
    procedure Queue_Signal
-     (Process : in POSIX.Process_Identification.Process_ID;
-      Sig     : in Signal;
-      Data    : in Signal_Data);
+     (Process : POSIX.Process_Identification.Process_ID;
+      Sig     : Signal;
+      Data    : Signal_Data);
 
    procedure Interrupt_Task
-     (T : in Ada_Task_Identification.Task_Id);
+     (T : Ada_Task_Identification.Task_Id);
 
 private
 

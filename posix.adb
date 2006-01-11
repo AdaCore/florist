@@ -262,7 +262,7 @@ package body POSIX is
 
    procedure Append
      (List : in out POSIX_String_List;
-      Str  : in POSIX_String) is
+      Str  : POSIX_String) is
       Tmp  : POSIX_String_List;
       Len  : constant Integer := Str'Length;
    begin
@@ -294,7 +294,7 @@ package body POSIX is
    --  generic
    --   with procedure Action
    --     (Item: POSIX_String; Quit: in out Boolean);
-   procedure For_Every_Item (List : in POSIX_String_List) is
+   procedure For_Every_Item (List : POSIX_String_List) is
       Quit : Boolean := False;
    begin
       if List = null then return; end if;
@@ -424,7 +424,7 @@ package body POSIX is
    --  Set_Error_Code  --
    ----------------------
 
-   procedure Set_Error_Code (Error : in Error_Code) is
+   procedure Set_Error_Code (Error : Error_Code) is
    begin
       POSIX.Implementation.Set_Ada_Error_Code (Error);
    end Set_Error_Code;
@@ -528,7 +528,7 @@ package body POSIX is
    -----------------------------------------
 
    procedure Split
-     (D  : in Duration;
+     (D  : Duration;
       S  : out Duration;
       NS : out Duration);
    pragma Inline (Split);
@@ -536,7 +536,7 @@ package body POSIX is
    --  with the nanosecond part in the range 0.0 .. 0.999999999.
 
    procedure Split
-     (D  : in Duration;
+     (D  : Duration;
       S  : out Duration;
       NS : out Duration) is
    begin
@@ -554,7 +554,7 @@ package body POSIX is
    -------------
 
    procedure Split
-      (Time : in Timespec;
+      (Time : Timespec;
        S    : out Seconds;
        NS   : out Nanoseconds) is
       SD, NSD : Duration;
@@ -603,7 +603,7 @@ package body POSIX is
 
    procedure Set_Nanoseconds
      (Time : in out Timespec;
-      NS   : in Nanoseconds) is
+      NS   : Nanoseconds) is
       SD, NSD : Duration;
    begin
       Split (Time.Val, S => SD, NS => NSD);
@@ -616,7 +616,7 @@ package body POSIX is
 
    procedure Set_Seconds
      (Time : in out Timespec;
-      S    : in Seconds) is
+      S    : Seconds) is
       SD, NSD : Duration;
    begin
       Split (Time.Val, S => SD, NS => NSD);

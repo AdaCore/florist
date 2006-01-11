@@ -45,16 +45,16 @@ package POSIX.Files is
    --  Operations to Create Files in the File System
 
    procedure Create_Directory
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set);
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set);
    procedure Create_FIFO
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set);
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set);
 
    --  Operations to remove files from the File System
 
-   procedure Unlink (Pathname : in POSIX.Pathname);
-   procedure Remove_Directory (Pathname : in POSIX.Pathname);
+   procedure Unlink (Pathname : POSIX.Pathname);
+   procedure Remove_Directory (Pathname : POSIX.Pathname);
 
    --  Predicates on files in the File System
 
@@ -75,11 +75,11 @@ package POSIX.Files is
    --  Operations to modify File Pathnames
 
    procedure Link
-     (Old_Pathname : in POSIX.Pathname;
-      New_Pathname : in POSIX.Pathname);
+     (Old_Pathname : POSIX.Pathname;
+      New_Pathname : POSIX.Pathname);
    procedure Rename
-     (Old_Pathname : in POSIX.Pathname;
-      New_Pathname : in POSIX.Pathname);
+     (Old_Pathname : POSIX.Pathname;
+      New_Pathname : POSIX.Pathname);
 
    --  Iterating over files within a directory
 
@@ -88,25 +88,25 @@ package POSIX.Files is
    pragma Inline (Filename_Of);
    generic
    with procedure Action
-     (D_Entry : in Directory_Entry;
+     (D_Entry : Directory_Entry;
       Quit    : in out Boolean);
    procedure For_Every_Directory_Entry
-      (Pathname : in POSIX.Pathname);
+      (Pathname : POSIX.Pathname);
 
    --  Operations to Update File Status Information
 
    procedure Change_Owner_And_Group
-     (Pathname : in POSIX.Pathname;
-      Owner    : in POSIX.Process_Identification.User_ID;
-      Group    : in POSIX.Process_Identification.Group_ID);
+     (Pathname : POSIX.Pathname;
+      Owner    : POSIX.Process_Identification.User_ID;
+      Group    : POSIX.Process_Identification.Group_ID);
    procedure Change_Permissions
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set);
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set);
    procedure Set_File_Times
-     (Pathname          : in POSIX.Pathname;
-      Access_Time       : in POSIX.Calendar.POSIX_Time;
-      Modification_Time : in POSIX.Calendar.POSIX_Time);
-   procedure Set_File_Times (Pathname : in POSIX.Pathname);
+     (Pathname          : POSIX.Pathname;
+      Access_Time       : POSIX.Calendar.POSIX_Time;
+      Modification_Time : POSIX.Calendar.POSIX_Time);
+   procedure Set_File_Times (Pathname : POSIX.Pathname);
 
    --  Operations to Determine File Accessibility
 

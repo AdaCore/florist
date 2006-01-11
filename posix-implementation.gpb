@@ -198,10 +198,10 @@ package body POSIX.Implementation is
    --  Form_String  --
    -------------------
 
-   function strlen (str : in char_ptr) return size_t;
+   function strlen (str : char_ptr) return size_t;
    pragma Import (C, strlen, "strlen");
 
-   function Form_String (Str : in char_ptr) return String is
+   function Form_String (Str : char_ptr) return String is
    begin
       if Str = null then return ""; end if;
       declare
@@ -285,7 +285,7 @@ package body POSIX.Implementation is
    --  very good reasons.
 
    procedure Mask_Signals
-     (Masking  : in Signal_Masking;
+     (Masking  : Signal_Masking;
       Old_Mask : access Signal_Mask)
    is
       use type SIM.Interrupt_ID;
@@ -314,7 +314,7 @@ package body POSIX.Implementation is
    end Mask_Signals;
 
    procedure Restore_Signals
-      (Masking : in Signal_Masking;
+      (Masking : Signal_Masking;
        Old_Mask : access Signal_Mask) is
    begin
       if Masking /= No_Signals then

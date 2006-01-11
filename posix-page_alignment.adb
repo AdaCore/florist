@@ -106,7 +106,7 @@ package body POSIX.Page_Alignment is
    --------------
 
    function Length
-      (Size : in Natural) return Storage_Offset is
+      (Size : Natural) return Storage_Offset is
    begin
       if Size mod System.Storage_Unit = 0 then
          return Storage_Offset (Size);

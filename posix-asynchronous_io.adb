@@ -98,8 +98,8 @@ package body POSIX.Asynchronous_IO is
    ----------------
 
    procedure Set_File
-     (AD   : in AIO_Descriptor;
-      File : in POSIX.IO.File_Descriptor) is
+     (AD   : AIO_Descriptor;
+      File : POSIX.IO.File_Descriptor) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_fildes := int (File);
@@ -120,8 +120,8 @@ package body POSIX.Asynchronous_IO is
    ------------------
 
    procedure Set_Offset
-     (AD     : in AIO_Descriptor;
-      Offset : in POSIX.IO.IO_Offset) is
+     (AD     : AIO_Descriptor;
+      Offset : POSIX.IO.IO_Offset) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_offset := off_t (Offset);
@@ -146,8 +146,8 @@ package body POSIX.Asynchronous_IO is
    ------------------
 
    procedure Set_Buffer
-     (AD     : in AIO_Descriptor;
-      Buffer : in IO_Array_Pointer) is
+     (AD     : AIO_Descriptor;
+      Buffer : IO_Array_Pointer) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_nbytes := Buffer'Length;
@@ -170,8 +170,8 @@ package body POSIX.Asynchronous_IO is
    ------------------
 
    procedure Set_Length
-     (AD     : in AIO_Descriptor;
-      Length : in IO_Count) is
+     (AD     : AIO_Descriptor;
+      Length : IO_Count) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_nbytes := size_t (Length);
@@ -192,8 +192,8 @@ package body POSIX.Asynchronous_IO is
    ------------------------------
 
    procedure Set_Priority_Reduction
-     (AD                 : in AIO_Descriptor;
-      Priority_Reduction : in Natural) is
+     (AD                 : AIO_Descriptor;
+      Priority_Reduction : Natural) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_reqprio := int (Priority_Reduction);
@@ -221,8 +221,8 @@ package body POSIX.Asynchronous_IO is
      new Unchecked_Conversion (POSIX.Signals.Signal_Event, struct_sigevent);
 
    procedure Set_Event
-     (AD    : in AIO_Descriptor;
-      Event : in POSIX.Signals.Signal_Event) is
+     (AD    : AIO_Descriptor;
+      Event : POSIX.Signals.Signal_Event) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_sigevent := To_struct_sigevent (Event);
@@ -256,8 +256,8 @@ package body POSIX.Asynchronous_IO is
       Write => LIO_WRITE);
 
    procedure Set_Operation
-     (AD        : in AIO_Descriptor;
-      Operation : in List_IO_Operations) is
+     (AD        : AIO_Descriptor;
+      Operation : List_IO_Operations) is
    begin
       Check (AD /= null, Invalid_Argument);
       AD.C.aio_lio_opcode := C_lio_op (Operation);
@@ -267,7 +267,7 @@ package body POSIX.Asynchronous_IO is
    --  Read  --
    ------------
 
-   procedure Read (AD : in AIO_Descriptor) is
+   procedure Read (AD : AIO_Descriptor) is
       function aio_read (AD : AIO_Descriptor) return int;
       pragma Import (C, aio_read, aio_read_LINKNAME);
    begin
@@ -279,7 +279,7 @@ package body POSIX.Asynchronous_IO is
    --  Write  --
    -------------
 
-   procedure Write (AD : in AIO_Descriptor) is
+   procedure Write (AD : AIO_Descriptor) is
       function aio_write (AD : AIO_Descriptor) return int;
       pragma Import (C, aio_write, aio_write_LINKNAME);
    begin
@@ -300,7 +300,7 @@ package body POSIX.Asynchronous_IO is
 
    procedure List_IO_No_Wait
      (List  : in out AIO_Descriptor_List;
-      Event : in POSIX.Signals.Signal_Event) is
+      Event : POSIX.Signals.Signal_Event) is
       sigevent : aliased struct_sigevent := To_struct_sigevent (Event);
    begin
       for i in List'Range loop
@@ -317,7 +317,7 @@ package body POSIX.Asynchronous_IO is
 
    procedure List_IO_Wait
      (List           : in out AIO_Descriptor_List;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
@@ -429,9 +429,9 @@ package body POSIX.Asynchronous_IO is
    pragma Import (C, aio_suspend, aio_suspend_LINKNAME);
 
    procedure Await_IO_Or_Timeout
-     (AD             : in AIO_Descriptor;
-      Timeout        : in POSIX.Timespec;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (AD             : AIO_Descriptor;
+      Timeout        : POSIX.Timespec;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       TS : aliased struct_timespec;
       Old_Mask : aliased Signal_Mask;
       List : AIO_Descriptor_List (1 .. 1) := (others => AD);
@@ -447,9 +447,9 @@ package body POSIX.Asynchronous_IO is
    end Await_IO_Or_Timeout;
 
    procedure Await_IO_Or_Timeout
-     (List           : in AIO_Descriptor_List;
-      Timeout        : in POSIX.Timespec;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (List           : AIO_Descriptor_List;
+      Timeout        : POSIX.Timespec;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       TS : aliased struct_timespec;
       Old_Mask : aliased Signal_Mask;
       Result : int;
@@ -470,8 +470,8 @@ package body POSIX.Asynchronous_IO is
    ----------------
 
    procedure Await_IO
-     (AD             : in AIO_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (AD             : AIO_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       List : AIO_Descriptor_List (1 .. 1) := (others => AD);
       Result : int;
@@ -485,8 +485,8 @@ package body POSIX.Asynchronous_IO is
    end Await_IO;
 
    procedure Await_IO
-     (List           : in AIO_Descriptor_List;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (List           : AIO_Descriptor_List;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
@@ -509,7 +509,7 @@ package body POSIX.Asynchronous_IO is
       AD : AIO_Descriptor) return int;
    pragma Import (C, aio_fsync, aio_fsync_LINKNAME);
 
-   procedure Synchronize_File (AD : in AIO_Descriptor) is
+   procedure Synchronize_File (AD : AIO_Descriptor) is
    begin
       Check (AD /= null, Invalid_Argument);
       Check (aio_fsync (O_SYNC, AD));
@@ -519,7 +519,7 @@ package body POSIX.Asynchronous_IO is
    --  Synchronize_Data  --
    ------------------------
 
-   procedure Synchronize_Data (AD : in AIO_Descriptor) is
+   procedure Synchronize_Data (AD : AIO_Descriptor) is
    begin
       Check (AD /= null, Invalid_Argument);
       Check (aio_fsync (O_DSYNC, AD));

@@ -62,7 +62,7 @@ package body POSIX.Process_Scheduling is
 
    procedure Set_Priority
      (Parameters : in out Scheduling_Parameters;
-      Priority   : in Scheduling_Priority) is
+      Priority   : Scheduling_Priority) is
    begin
       Parameters.Param.sched_priority := int (Priority);
    end Set_Priority;
@@ -80,8 +80,8 @@ package body POSIX.Process_Scheduling is
      new Unchecked_Conversion (POSIX.Process_Identification.Process_ID, pid_t);
 
    procedure Set_Scheduling_Parameters
-     (Process    : in POSIX_Process_Identification.Process_ID;
-      Parameters : in Scheduling_Parameters) is
+     (Process    : POSIX_Process_Identification.Process_ID;
+      Parameters : Scheduling_Parameters) is
    begin
       Check (sched_setparam (To_pid_t (Process),
         Parameters.Param'Unchecked_Access));
@@ -117,9 +117,9 @@ package body POSIX.Process_Scheduling is
    pragma Import (C, sched_setscheduler, sched_setscheduler_LINKNAME);
 
    procedure Set_Scheduling_Policy
-     (Process    : in POSIX_Process_Identification.Process_ID;
-      New_Policy : in Scheduling_Policy;
-      Parameters : in Scheduling_Parameters) is
+     (Process    : POSIX_Process_Identification.Process_ID;
+      New_Policy : Scheduling_Policy;
+      Parameters : Scheduling_Parameters) is
    begin
       Check (sched_setscheduler
         (To_pid_t (Process),

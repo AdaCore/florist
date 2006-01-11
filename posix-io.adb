@@ -181,8 +181,8 @@ package body POSIX.IO is
    pragma Import (C, close, close_LINKNAME);
 
    procedure Close
-     (File          : in File_Descriptor;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+     (File          : File_Descriptor;
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
@@ -277,10 +277,10 @@ package body POSIX.IO is
    pragma Import (C, read, read_LINKNAME);
 
    procedure Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Buffer         : out IO_Buffer;
       Last           : out IO_Count;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -300,10 +300,10 @@ package body POSIX.IO is
    end Read;
 
    procedure NONSTANDARD_Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Buffer         : out IO_Buffer;
       Last           : out Natural;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -323,10 +323,10 @@ package body POSIX.IO is
    end NONSTANDARD_Read;
 
    procedure Read
-     (File           : in  File_Descriptor;
+     (File           :  File_Descriptor;
       Buffer         : out Ada_Streams.Stream_Element_Array;
       Last           : out Ada_Streams.Stream_Element_Offset;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
       use Ada_Streams;
@@ -364,10 +364,10 @@ package body POSIX.IO is
    --  we don't want to set it to zero!
 
    procedure Write
-     (File           : in File_Descriptor;
-      Buffer         : in IO_Buffer;
+     (File           : File_Descriptor;
+      Buffer         : IO_Buffer;
       Last           : out IO_Count;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -388,10 +388,10 @@ package body POSIX.IO is
    --  an index in a POSIX_String array.
 
    procedure NONSTANDARD_Write
-     (File           : in File_Descriptor;
-      Buffer         : in IO_Buffer;
+     (File           : File_Descriptor;
+      Buffer         : IO_Buffer;
       Last           : out Natural;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -408,10 +408,10 @@ package body POSIX.IO is
    end NONSTANDARD_Write;
 
    procedure Write
-     (File           : in File_Descriptor;
-      Buffer         : in Ada_Streams.Stream_Element_Array;
+     (File           : File_Descriptor;
+      Buffer         : Ada_Streams.Stream_Element_Array;
       Last           : out Ada_Streams.Stream_Element_Offset;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
       use Ada_Streams;
@@ -434,9 +434,9 @@ package body POSIX.IO is
    --------------------
 
    procedure Generic_Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Item           : out T;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
@@ -458,9 +458,9 @@ package body POSIX.IO is
    ---------------------
 
    procedure Generic_Write
-     (File           : in File_Descriptor;
-      Item           : in T;
-      Masked_Signals : in Signal_Masking := RTS_Signals) is
+     (File           : File_Descriptor;
+      Item           : T;
+      Masked_Signals : Signal_Masking := RTS_Signals) is
       Result : ssize_t;
       Written : System.Storage_Elements.Storage_Offset := 0;
       To_Write : System.Storage_Elements.Storage_Offset :=
@@ -502,10 +502,10 @@ package body POSIX.IO is
    pragma Import (C, lseek, lseek_LINKNAME);
 
    procedure Seek
-     (File           : in File_Descriptor;
-      Offset         : in IO_Offset;
+     (File           : File_Descriptor;
+      Offset         : IO_Offset;
       Result         : out IO_Offset;
-      Starting_Point : in Position  := From_Beginning) is
+      Starting_Point : Position  := From_Beginning) is
    begin
       Result := IO_Offset
         (lseek (int (File), off_t (Offset), C_Whence (Starting_Point)));
@@ -579,7 +579,7 @@ package body POSIX.IO is
    ------------------------
 
    procedure Get_File_Control
-     (File    : in File_Descriptor;
+     (File    : File_Descriptor;
       Mode    : out File_Mode;
       Options : out Open_Option_Set) is
       Result : Bits;
@@ -607,8 +607,8 @@ package body POSIX.IO is
      O_SYNC or O_DSYNC or O_RSYNC or O_RDONLY or O_RDWR or O_WRONLY;
 
    procedure Set_File_Control
-     (File    : in File_Descriptor;
-      Options : in Open_Option_Set) is
+     (File    : File_Descriptor;
+      Options : Open_Option_Set) is
       Old_Values : int;
       New_Values : Bits;
    begin
@@ -644,8 +644,8 @@ package body POSIX.IO is
    -------------------------
 
    procedure Set_Close_On_Exec
-     (File : in File_Descriptor;
-      To   : in Boolean := True) is
+     (File : File_Descriptor;
+      To   : Boolean := True) is
       Flags : Bits;
       pragma Warnings (Off);
       Result : int;
@@ -678,8 +678,8 @@ package body POSIX.IO is
    pragma Import (C, fchmod, fchmod_LINKNAME);
 
    procedure Change_Permissions
-     (File :       in  File_Descriptor;
-      Permission : in  POSIX.Permissions.Permission_Set) is
+     (File :        File_Descriptor;
+      Permission :  POSIX.Permissions.Permission_Set) is
    begin
       Check (fchmod (int (File), Form_C_Permission (Permission)));
    end Change_Permissions;
@@ -692,8 +692,8 @@ package body POSIX.IO is
    pragma Import (C, ftruncate, ftruncate_LINKNAME);
 
    procedure Truncate_File
-     (File   : in File_Descriptor;
-      Length : in IO_Count) is
+     (File   : File_Descriptor;
+      Length : IO_Count) is
    begin
       Check (ftruncate (int (File), off_t (Length)));
    end Truncate_File;
@@ -705,7 +705,7 @@ package body POSIX.IO is
    function fsync (fildes : int) return int;
    pragma Import (C, fsync, fsync_LINKNAME);
 
-   procedure Synchronize_File (File : in File_Descriptor) is
+   procedure Synchronize_File (File : File_Descriptor) is
    begin
       Check (fsync (int (File)));
    end Synchronize_File;
@@ -717,7 +717,7 @@ package body POSIX.IO is
    function fdatasync (fildes : int) return int;
    pragma Import (C, fdatasync, fdatasync_LINKNAME);
 
-   procedure Synchronize_Data (File : in File_Descriptor) is
+   procedure Synchronize_Data (File : File_Descriptor) is
    begin
       Check (fdatasync (int (File)));
    end Synchronize_Data;
@@ -726,7 +726,7 @@ package body POSIX.IO is
 
    pragma Warnings (Off);
    procedure Get_Owner
-      (File    : in  File_Descriptor;
+      (File    :  File_Descriptor;
        Process : out POSIX.Process_Identification.Process_ID;
        Group   : out POSIX.Process_Identification.Process_Group_ID) is
    begin
@@ -735,30 +735,30 @@ package body POSIX.IO is
    pragma Warnings (On);
 
    procedure Set_Socket_Process_Owner
-      (File    : in File_Descriptor;
-       Process : in POSIX.Process_Identification.Process_ID) is
+      (File    : File_Descriptor;
+       Process : POSIX.Process_Identification.Process_ID) is
    begin
       Raise_POSIX_Error (Operation_Not_Implemented);
    end Set_Socket_Process_Owner;
 
    procedure Set_Socket_Group_Owner
-      (File    : in File_Descriptor;
-       Group   : in POSIX.Process_Identification.Process_Group_ID) is
+      (File    : File_Descriptor;
+       Group   : POSIX.Process_Identification.Process_Group_ID) is
    begin
       Raise_POSIX_Error (Operation_Not_Implemented);
    end Set_Socket_Group_Owner;
 
    procedure Set_Buffer
       (Vector : in out IO_Vector;
-       Buffer : in     System.Address;
-       Length : in     Positive) is
+       Buffer : System.Address;
+       Length : Positive) is
    begin
       Vector.C.iov_base := To_char_ptr (Buffer);
       Vector.C.iov_len  := size_t (Length);
    end Set_Buffer;
 
    procedure Get_Buffer
-      (Vector : in  IO_Vector;
+      (Vector : IO_Vector;
        Buffer : out System.Address;
        Length : out POSIX.IO_Count) is
    begin

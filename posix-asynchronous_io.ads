@@ -55,35 +55,35 @@ package POSIX.Asynchronous_IO is
    function Get_File (AD : AIO_Descriptor)
      return POSIX.IO.File_Descriptor;
    procedure Set_File
-     (AD  : in AIO_Descriptor;
-      File : in POSIX.IO.File_Descriptor);
+     (AD  : AIO_Descriptor;
+      File : POSIX.IO.File_Descriptor);
    function Get_Offset (AD : AIO_Descriptor) return POSIX.IO.IO_Offset;
    procedure Set_Offset
-     (AD     : in AIO_Descriptor;
-      Offset : in POSIX.IO.IO_Offset);
+     (AD     : AIO_Descriptor;
+      Offset : POSIX.IO.IO_Offset);
    function Get_Buffer (AD : AIO_Descriptor) return IO_Array_Pointer;
    procedure Set_Buffer
-     (AD     : in AIO_Descriptor;
-      Buffer : in IO_Array_Pointer);
+     (AD     : AIO_Descriptor;
+      Buffer : IO_Array_Pointer);
    function Get_Length (AD : AIO_Descriptor) return POSIX.IO_Count;
    procedure Set_Length
-     (AD     : in AIO_Descriptor;
-      Length : in POSIX.IO_Count);
+     (AD     : AIO_Descriptor;
+      Length : POSIX.IO_Count);
    function Get_Priority_Reduction (AD : AIO_Descriptor) return Natural;
    procedure Set_Priority_Reduction
-     (AD                 : in AIO_Descriptor;
-      Priority_Reduction : in Natural);
+     (AD                 : AIO_Descriptor;
+      Priority_Reduction : Natural);
    function Get_Event (AD : AIO_Descriptor) return POSIX.Signals.Signal_Event;
    procedure Set_Event
-     (AD    : in AIO_Descriptor;
-      Event : in POSIX.Signals.Signal_Event);
+     (AD    : AIO_Descriptor;
+      Event : POSIX.Signals.Signal_Event);
    function Get_Operation (AD : AIO_Descriptor) return List_IO_Operations;
    procedure Set_Operation
-     (AD        : in AIO_Descriptor;
-      Operation : in List_IO_Operations);
+     (AD        : AIO_Descriptor;
+      Operation : List_IO_Operations);
 
-   procedure Read (AD : in AIO_Descriptor);
-   procedure Write (AD : in AIO_Descriptor);
+   procedure Read (AD : AIO_Descriptor);
+   procedure Write (AD : AIO_Descriptor);
 
    type AIO_Descriptor_List is
       array (Positive range <>) of aliased AIO_Descriptor;
@@ -101,10 +101,10 @@ package POSIX.Asynchronous_IO is
 
    procedure List_IO_No_Wait
      (List  : in out AIO_Descriptor_List;
-      Event : in POSIX.Signals.Signal_Event);
+      Event : POSIX.Signals.Signal_Event);
    procedure List_IO_Wait
      (List           : in out AIO_Descriptor_List;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
 
    type AIO_Status is
      (In_Progress,
@@ -122,21 +122,21 @@ package POSIX.Asynchronous_IO is
    function Cancel (File : POSIX.IO.File_Descriptor) return Cancelation_Status;
 
    procedure Await_IO_Or_Timeout
-     (AD             : in AIO_Descriptor;
-      Timeout        : in POSIX.Timespec;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (AD             : AIO_Descriptor;
+      Timeout        : POSIX.Timespec;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    procedure Await_IO
-     (AD             : in AIO_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (AD             : AIO_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    procedure Await_IO_Or_Timeout
-     (List           : in AIO_Descriptor_List;
-      Timeout        : in POSIX.Timespec;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (List           : AIO_Descriptor_List;
+      Timeout        : POSIX.Timespec;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    procedure Await_IO
-     (List           : in AIO_Descriptor_List;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
-   procedure Synchronize_File (AD : in AIO_Descriptor);
-   procedure Synchronize_Data (AD : in AIO_Descriptor);
+     (List           : AIO_Descriptor_List;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
+   procedure Synchronize_File (AD : AIO_Descriptor);
+   procedure Synchronize_Data (AD : AIO_Descriptor);
 
 private
 

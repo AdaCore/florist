@@ -59,6 +59,6 @@ package POSIX.Shared_Memory_Objects is
      return POSIX.IO.File_Descriptor;
 
    procedure Unlink_Shared_Memory
-     (Name : in POSIX.POSIX_String);
+     (Name : POSIX.POSIX_String);
 
 end POSIX.Shared_Memory_Objects;

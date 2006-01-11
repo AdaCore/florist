@@ -54,9 +54,9 @@ package POSIX.Group_Database is
    --  iterator over the Group_ID_List
    generic
    with procedure Action
-     (ID   : in POSIX.POSIX_String;
+     (ID   : POSIX.POSIX_String;
       Quit : in out Boolean);
-   procedure For_Every_Member (List : in Group_ID_List);
+   procedure For_Every_Member (List : Group_ID_List);
    function Length (Member_List : Group_ID_List) return Natural;
 
    --  operations to get a Group_Database_Item

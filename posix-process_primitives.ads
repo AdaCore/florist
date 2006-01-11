@@ -56,59 +56,59 @@ package POSIX.Process_Primitives is
 
    procedure Set_Signal_Mask
      (Template : in out Process_Template;
-      Mask : in POSIX.Signals.Signal_Set);
+      Mask : POSIX.Signals.Signal_Set);
 
    procedure Set_Creation_Signal_Masking
      (Template : in out Process_Template;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
 
    procedure Set_File_Action_To_Close
      (Template : in out Process_Template;
-      File : in POSIX.IO.File_Descriptor);
+      File : POSIX.IO.File_Descriptor);
 
    procedure Set_File_Action_To_Open
      (Template : in out Process_Template;
-      File : in POSIX.IO.File_Descriptor;
-      Name : in POSIX.Pathname;
-      Mode : in POSIX.IO.File_Mode := POSIX.IO.Read_Only;
-      Options : in POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set);
+      File : POSIX.IO.File_Descriptor;
+      Name : POSIX.Pathname;
+      Mode : POSIX.IO.File_Mode := POSIX.IO.Read_Only;
+      Options : POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set);
 
    procedure Set_File_Action_To_Duplicate
      (Template : in out Process_Template;
-      File : in POSIX.IO.File_Descriptor;
-      From_File : in POSIX.IO.File_Descriptor);
+      File : POSIX.IO.File_Descriptor;
+      From_File : POSIX.IO.File_Descriptor);
 
    --  Process Creation
 
    procedure Start_Process
      (Child : out POSIX.Process_Identification.Process_ID;
-      Pathname : in POSIX.Pathname;
-      Template : in Process_Template;
-      Arg_List : in POSIX.POSIX_String_List
+      Pathname : POSIX.Pathname;
+      Template : Process_Template;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List);
 
    procedure Start_Process
      (Child : out POSIX.Process_Identification.Process_ID;
-      Pathname : in POSIX.Pathname;
-      Template : in Process_Template;
-      Env_List : in POSIX.Process_Environment.Environment;
-      Arg_List : in POSIX.POSIX_String_List
+      Pathname : POSIX.Pathname;
+      Template : Process_Template;
+      Env_List : POSIX.Process_Environment.Environment;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List);
 
    procedure Start_Process_Search
      (Child : out POSIX.Process_Identification.Process_ID;
-      Filename : in POSIX.Filename;
-      Template : in Process_Template;
-      Arg_List : in POSIX.POSIX_String_List
+      Filename : POSIX.Filename;
+      Template : Process_Template;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List);
 
    procedure Start_Process_Search
      (Child : out POSIX.Process_Identification.Process_ID;
-      Filename : in POSIX.Filename;
-      Template : in Process_Template;
-      Env_List : in POSIX.Process_Environment.Environment;
-      Arg_List : in POSIX.POSIX_String_List
+      Filename : POSIX.Filename;
+      Template : Process_Template;
+      Env_List : POSIX.Process_Environment.Environment;
+      Arg_List : POSIX.POSIX_String_List
                := POSIX.Empty_String_List);
 
    --  Process Exit
@@ -118,7 +118,7 @@ package POSIX.Process_Primitives is
    Failed_Creation_Exit     : constant Exit_Status := 41;
    Unhandled_Exception_Exit : constant Exit_Status := 42;
 
-   procedure Exit_Process (Status : in Exit_Status := Normal_Exit);
+   procedure Exit_Process (Status : Exit_Status := Normal_Exit);
 
    --  Termination Status
 
@@ -148,25 +148,25 @@ package POSIX.Process_Primitives is
 
    procedure Wait_For_Child_Process
      (Status : out Termination_Status;
-      Child : in POSIX.Process_Identification.Process_ID;
-      Block : in Boolean := True;
-      Trace_Stopped : in Boolean := True;
-      Masked_Signals : in POSIX.Signal_Masking
+      Child : POSIX.Process_Identification.Process_ID;
+      Block : Boolean := True;
+      Trace_Stopped : Boolean := True;
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
 
    procedure Wait_For_Child_Process
      (Status : out Termination_Status;
-      Group : in POSIX.Process_Identification.Process_Group_ID;
-      Block : in Boolean := True;
-      Trace_Stopped : in Boolean := True;
-      Masked_Signals : in POSIX.Signal_Masking
+      Group : POSIX.Process_Identification.Process_Group_ID;
+      Block : Boolean := True;
+      Trace_Stopped : Boolean := True;
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
 
    procedure Wait_For_Child_Process
      (Status : out Termination_Status;
-      Block : in Boolean := True;
-      Trace_Stopped : in Boolean := True;
-      Masked_Signals : in POSIX.Signal_Masking
+      Block : Boolean := True;
+      Trace_Stopped : Boolean := True;
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
 
 private

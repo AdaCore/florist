@@ -59,9 +59,9 @@ package POSIX.Process_Environment is
    procedure Copy_From_Current_Environment
      (Env : in out Environment);
    procedure Copy_To_Current_Environment
-     (Env : in Environment);
+     (Env : Environment);
    procedure Copy_Environment
-     (Source : in Environment;
+     (Source : Environment;
       Target : in out Environment);
    function Environment_Value_Of
      (Name      : POSIX.POSIX_String;
@@ -83,37 +83,37 @@ package POSIX.Process_Environment is
      (Env : in out Environment);
    procedure Clear_Environment;
    procedure Set_Environment_Variable
-     (Name  : in POSIX.POSIX_String;
-      Value : in POSIX.POSIX_String;
+     (Name  : POSIX.POSIX_String;
+      Value : POSIX.POSIX_String;
       Env   : in out Environment);
    procedure Set_Environment_Variable
-     (Name  : in POSIX.POSIX_String;
-      Value : in POSIX.POSIX_String);
+     (Name  : POSIX.POSIX_String;
+      Value : POSIX.POSIX_String);
    procedure Delete_Environment_Variable
-     (Name  : in POSIX.POSIX_String;
+     (Name  : POSIX.POSIX_String;
       Env   : in out Environment);
    procedure Delete_Environment_Variable
-     (Name  : in POSIX.POSIX_String);
+     (Name  : POSIX.POSIX_String);
    function Length (Env : Environment) return Natural;
    function Length return Natural;
    generic
       with procedure Action
-        (Name  : in POSIX.POSIX_String;
-         Value : in POSIX.POSIX_String;
+        (Name  : POSIX.POSIX_String;
+         Value : POSIX.POSIX_String;
          Quit  : in out Boolean);
    procedure For_Every_Environment_Variable
-     (Env : in     Environment);
+     (Env :     Environment);
    generic
       with procedure Action
-        (Name  : in POSIX.POSIX_String;
-         Value : in POSIX.POSIX_String;
+        (Name  : POSIX.POSIX_String;
+         Value : POSIX.POSIX_String;
          Quit  : in out Boolean);
    procedure For_Every_Current_Environment_Variable;
 
    --  Process Working Directory
 
    procedure Change_Working_Directory
-     (Directory_Name : in POSIX.Pathname);
+     (Directory_Name : POSIX.Pathname);
    function Get_Working_Directory return POSIX.Pathname;
 
 private

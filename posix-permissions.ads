@@ -74,9 +74,9 @@ package POSIX.Permissions is
    function Get_Allowed_Process_Permissions
        return Permission_Set;
    procedure Set_Allowed_Process_Permissions
-            (Permissions : in     Permission_Set);
+            (Permissions : Permission_Set);
    procedure Set_Allowed_Process_Permissions
-            (Permissions : in     Permission_Set;
-             Old_Perms   :    out Permission_Set);
+            (Permissions :     Permission_Set;
+             Old_Perms   : out Permission_Set);
 
 end POSIX.Permissions;

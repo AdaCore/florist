@@ -78,8 +78,8 @@ package POSIX.Generic_Shared_Memory is
    function Access_Shared_Memory
      (File : POSIX.IO.File_Descriptor) return Shared_Access;
    procedure Unmap_And_Close_Shared_Memory
-     (File : in POSIX.IO.File_Descriptor);
-   procedure Lock_Shared_Memory (File : in POSIX.IO.File_Descriptor);
-   procedure Unlock_Shared_Memory (File : in POSIX.IO.File_Descriptor);
+     (File : POSIX.IO.File_Descriptor);
+   procedure Lock_Shared_Memory (File : POSIX.IO.File_Descriptor);
+   procedure Unlock_Shared_Memory (File : POSIX.IO.File_Descriptor);
 
 end POSIX.Generic_Shared_Memory;

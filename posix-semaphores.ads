@@ -44,8 +44,8 @@ package POSIX.Semaphores is
    type Semaphore_Descriptor is private;
    procedure Initialize
      (Sem       : in out Semaphore;
-      Value     : in Natural;
-      Is_Shared : in Boolean := False);
+      Value     : Natural;
+      Is_Shared : Boolean := False);
    function Descriptor_Of (Sem : Semaphore) return Semaphore_Descriptor;
    procedure Finalize (Sem : in out Semaphore);
    function Open
@@ -62,12 +62,12 @@ package POSIX.Semaphores is
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
      return Semaphore_Descriptor;
    procedure Close (Sem : in out Semaphore_Descriptor);
-   procedure Unlink_Semaphore (Name : in POSIX.POSIX_String);
+   procedure Unlink_Semaphore (Name : POSIX.POSIX_String);
    procedure Wait
-     (Sem            : in Semaphore_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (Sem            : Semaphore_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    function Try_Wait (Sem : Semaphore_Descriptor) return Boolean;
-   procedure Post (Sem : in Semaphore_Descriptor);
+   procedure Post (Sem : Semaphore_Descriptor);
    function Get_Value (Sem : Semaphore_Descriptor) return Integer;
 
    --  .... Change POSIX.5b?

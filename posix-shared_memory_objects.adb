@@ -118,7 +118,7 @@ package body POSIX.Shared_Memory_Objects is
    ----------------------------
 
    procedure Unlink_Shared_Memory
-     (Name : in POSIX.POSIX_String) is
+     (Name : POSIX.POSIX_String) is
       Name_With_NUL : POSIX_String := Name & NUL;
       function shm_unlink (name : char_ptr) return int;
       pragma Import (C, shm_unlink, shm_unlink_LINKNAME);

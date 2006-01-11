@@ -117,8 +117,8 @@ package body POSIX.Memory_Mapping is
    --------------------
 
    procedure Unmap_Memory
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset) is
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset) is
       function munmap
         (addr : System.Address;
          len : size_t) return int;
@@ -132,9 +132,9 @@ package body POSIX.Memory_Mapping is
    -------------------------
 
    procedure Change_Protection
-     (First      : in System.Address;
-      Length     : in System.Storage_Elements.Storage_Offset;
-      Protection : in Protection_Options) is
+     (First      : System.Address;
+      Length     : System.Storage_Elements.Storage_Offset;
+      Protection : Protection_Options) is
       function mprotect
         (addr : System.Address;
          len : size_t;
@@ -150,9 +150,9 @@ package body POSIX.Memory_Mapping is
    --------------------------
 
    procedure Synchronize_Memory
-     (First   : in System.Address;
-      Length  : in System.Storage_Elements.Storage_Offset;
-      Options : in Synchronize_Memory_Options := Wait_For_Completion) is
+     (First   : System.Address;
+      Length  : System.Storage_Elements.Storage_Offset;
+      Options : Synchronize_Memory_Options := Wait_For_Completion) is
       function msync
         (address : System.Address;
          len : size_t;

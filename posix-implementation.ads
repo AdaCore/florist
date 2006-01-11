@@ -143,7 +143,7 @@ package POSIX.Implementation is
    ---------------
 
    NUL_String : POSIX_String := (1 => NUL);
-   function Form_String (Str : in POSIX.C.char_ptr) return String;
+   function Form_String (Str : POSIX.C.char_ptr) return String;
    function Trim_Leading_Blank (S : String) return String;
    --  pragma Inline (Trim_Leading_Blank);
    procedure Nulterminate
@@ -213,11 +213,11 @@ package POSIX.Implementation is
    subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
 
    procedure Mask_Signals
-     (Masking  : in Signal_Masking;
+     (Masking  : Signal_Masking;
       Old_Mask : access Signal_Mask);
 
    procedure Restore_Signals
-     (Masking  : in Signal_Masking;
+     (Masking  : Signal_Masking;
       Old_Mask : access Signal_Mask);
 
    procedure Restore_Signals
@@ -259,7 +259,7 @@ package POSIX.Implementation is
 
    function Get_Ada_Error_Code return Error_Code;
 
-   procedure Set_Ada_Error_Code (Error : in Error_Code);
+   procedure Set_Ada_Error_Code (Error : Error_Code);
 
    package Bogus_Error_Codes is
 

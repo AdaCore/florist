@@ -109,7 +109,7 @@ package body POSIX.Condition_Variables is
 
    procedure Set_Process_Shared
      (Attr : in out Attributes;
-      Is_Shared : in Boolean := False)
+      Is_Shared : Boolean := False)
    is
       function pthread_condattr_setpshared
         (attr : access pthread_condattr_t;
@@ -133,7 +133,7 @@ package body POSIX.Condition_Variables is
 
    procedure Initialize
       (Cond : in out Condition;
-       Attr : in Attributes) is
+       Attr : Attributes) is
    begin
       Cond.Cond := new pthread_cond_t;
       Check_NZ (pthread_cond_init (Cond.Cond, Attr.Attr));
@@ -171,7 +171,7 @@ package body POSIX.Condition_Variables is
    -- Signal --
    ------------
 
-   procedure Signal (Cond : in Condition_Descriptor) is
+   procedure Signal (Cond : Condition_Descriptor) is
       function pthread_cond_signal (cond : Condition_Descriptor) return int;
       pragma Import (C, pthread_cond_signal, pthread_cond_signal_LINKNAME);
    begin
@@ -182,7 +182,7 @@ package body POSIX.Condition_Variables is
    -- Broadcast --
    ---------------
 
-   procedure Broadcast (Cond : in Condition_Descriptor) is
+   procedure Broadcast (Cond : Condition_Descriptor) is
       function pthread_cond_broadcast (cond : Condition_Descriptor) return int;
       pragma Import (C, pthread_cond_broadcast,
         pthread_cond_broadcast_LINKNAME);
@@ -195,8 +195,8 @@ package body POSIX.Condition_Variables is
    ----------
 
    procedure Wait
-      (Cond : in Condition_Descriptor;
-       M :    in POSIX.Mutexes.Mutex_Descriptor)
+      (Cond : Condition_Descriptor;
+       M :    POSIX.Mutexes.Mutex_Descriptor)
    is
       function pthread_cond_wait
         (cond : Condition_Descriptor;

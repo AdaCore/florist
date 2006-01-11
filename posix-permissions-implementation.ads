@@ -54,8 +54,8 @@ package POSIX.Permissions.Implementation is
    File_Access_Permission_Bits : constant POSIX.C.mode_t :=
      POSIX.C.S_IRWXU or POSIX.C.S_IRWXG or POSIX.C.S_IRWXO;
    function Form_Ada_Permission
-     (perm : in POSIX.C.mode_t) return Permission_Set;
+     (perm : POSIX.C.mode_t) return Permission_Set;
    function Form_C_Permission
-     (perm : in Permission_Set) return POSIX.C.mode_t;
+     (perm : Permission_Set) return POSIX.C.mode_t;
 
 end POSIX.Permissions.Implementation;

@@ -93,8 +93,8 @@ package POSIX.IO is
    function Is_Open (File : File_Descriptor) return Boolean;
 
    procedure Close
-     (File           : in File_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking
+     (File           : File_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    function Duplicate
      (File   : File_Descriptor;
@@ -114,54 +114,54 @@ package POSIX.IO is
    subtype IO_Buffer is POSIX.POSIX_String;
 
    procedure Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Buffer         : out IO_Buffer;
       Last           : out POSIX.IO_Count;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    procedure NONSTANDARD_Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Buffer         : out IO_Buffer;
       Last           : out Natural;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    procedure Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Buffer         : out Ada.Streams.Stream_Element_Array;
       Last           : out Ada.Streams.Stream_Element_Offset;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    procedure Write
-     (File           : in File_Descriptor;
-      Buffer         : in IO_Buffer;
+     (File           : File_Descriptor;
+      Buffer         : IO_Buffer;
       Last           : out POSIX.IO_Count;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    procedure NONSTANDARD_Write
-     (File           : in File_Descriptor;
-      Buffer         : in IO_Buffer;
+     (File           : File_Descriptor;
+      Buffer         : IO_Buffer;
       Last           : out Natural;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    procedure Write
-     (File           : in File_Descriptor;
-      Buffer         : in Ada.Streams.Stream_Element_Array;
+     (File           : File_Descriptor;
+      Buffer         : Ada.Streams.Stream_Element_Array;
       Last           : out Ada.Streams.Stream_Element_Offset;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    generic
       type T is private;
    procedure Generic_Read
-     (File           : in File_Descriptor;
+     (File           : File_Descriptor;
       Item           : out T;
-      Masked_Signals : in POSIX.Signal_Masking
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
    generic
       type T is private;
    procedure Generic_Write
-     (File           : in File_Descriptor;
-      Item           : in T;
-      Masked_Signals : in POSIX.Signal_Masking
+     (File           : File_Descriptor;
+      Item           : T;
+      Masked_Signals : POSIX.Signal_Masking
                      := POSIX.RTS_Signals);
 
    --  File position operations
@@ -169,10 +169,10 @@ package POSIX.IO is
    type Position is
      (From_Beginning, From_Current_Position, From_End_Of_File);
    procedure Seek
-     (File           : in File_Descriptor;
-      Offset         : in IO_Offset;
+     (File           : File_Descriptor;
+      Offset         : IO_Offset;
       Result         : out IO_Offset;
-      Starting_Point : in Position := From_Beginning);
+      Starting_Point : Position := From_Beginning);
    function File_Size (File : File_Descriptor)
       return POSIX.IO_Count;
    function File_Position (File : File_Descriptor)
@@ -188,25 +188,25 @@ package POSIX.IO is
    --  File Control operations
 
    procedure Get_File_Control
-     (File    : in File_Descriptor;
+     (File    : File_Descriptor;
       Mode    : out File_Mode;
       Options : out Open_Option_Set);
    procedure Set_File_Control
-     (File    : in File_Descriptor;
-      Options : in Open_Option_Set);
+     (File    : File_Descriptor;
+      Options : Open_Option_Set);
    function Get_Close_On_Exec (File : File_Descriptor)
       return Boolean;
    procedure Set_Close_On_Exec
-     (File : in File_Descriptor;
-      To   : in Boolean := True);
+     (File : File_Descriptor;
+      To   : Boolean := True);
    procedure Change_Permissions
-      (File :       in  POSIX.IO.File_Descriptor;
-       Permission : in  POSIX.Permissions.Permission_Set);
+      (File :        POSIX.IO.File_Descriptor;
+       Permission :  POSIX.Permissions.Permission_Set);
    procedure Truncate_File
-      (File :       in  POSIX.IO.File_Descriptor;
-       Length :     in  POSIX.IO_Count);
-   procedure Synchronize_File (File : in POSIX.IO.File_Descriptor);
-   procedure Synchronize_Data (File : in POSIX.IO.File_Descriptor);
+      (File :        POSIX.IO.File_Descriptor;
+       Length :      POSIX.IO_Count);
+   procedure Synchronize_File (File : POSIX.IO.File_Descriptor);
+   procedure Synchronize_Data (File : POSIX.IO.File_Descriptor);
 
    --  POSIX.5c/D4 additions
 
@@ -217,23 +217,23 @@ package POSIX.IO is
    --  6.1.12 Sockets File Ownership procedures from P1003.5c
 
    procedure Get_Owner
-      (File    : in  File_Descriptor;
+      (File    :  File_Descriptor;
        Process : out POSIX.Process_Identification.Process_ID;
        Group   : out POSIX.Process_Identification.Process_Group_ID);
    procedure Set_Socket_Process_Owner
-      (File    : in File_Descriptor;
-       Process : in POSIX.Process_Identification.Process_ID);
+      (File    : File_Descriptor;
+       Process : POSIX.Process_Identification.Process_ID);
    procedure Set_Socket_Group_Owner
-      (File    : in File_Descriptor;
-       Group   : in POSIX.Process_Identification.Process_Group_ID);
+      (File    : File_Descriptor;
+       Group   : POSIX.Process_Identification.Process_Group_ID);
 
    type IO_Vector is limited private;
    procedure Set_Buffer
       (Vector : in out IO_Vector;
-       Buffer : in System.Address;
-       Length : in Positive);
+       Buffer : System.Address;
+       Length : Positive);
    procedure Get_Buffer
-      (Vector : in  IO_Vector;
+      (Vector : IO_Vector;
        Buffer : out System.Address;
        Length : out POSIX.IO_Count);
 

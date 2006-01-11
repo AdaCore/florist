@@ -53,7 +53,7 @@ package POSIX.Page_Alignment is
       Length : System.Storage_Elements.Storage_Offset)
      return System.Storage_Elements.Storage_Offset;
    function Length
-     (Size : in Natural)
+     (Size : Natural)
      return System.Storage_Elements.Storage_Offset;
 
 end POSIX.Page_Alignment;

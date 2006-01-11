@@ -106,44 +106,44 @@ package POSIX.Message_Queues is
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
      return Message_Queue_Descriptor;
    procedure Close (MQ : in out Message_Queue_Descriptor);
-   procedure Unlink_Message_Queue (Name :  in POSIX.POSIX_String);
+   procedure Unlink_Message_Queue (Name :  POSIX.POSIX_String);
    procedure Send
-     (MQ             : in Message_Queue_Descriptor;
-      Message        : in Ada_Streams.Stream_Element_Array;
-      Priority       : in Message_Priority;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (MQ             : Message_Queue_Descriptor;
+      Message        : Ada_Streams.Stream_Element_Array;
+      Priority       : Message_Priority;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    procedure Receive
-     (MQ             : in Message_Queue_Descriptor;
+     (MQ             : Message_Queue_Descriptor;
       Message        : out Ada_Streams.Stream_Element_Array;
       Last           : out Ada_Streams.Stream_Element_Offset;
       Priority       : out Message_Priority;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    generic
      type Message_Type is private;
    package Generic_Message_Queues is
       procedure Send
-        (MQ             : in Message_Queue_Descriptor;
-         Message        : in Message_Type;
-         Priority       : in Message_Priority;
-         Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+        (MQ             : Message_Queue_Descriptor;
+         Message        : Message_Type;
+         Priority       : Message_Priority;
+         Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
       procedure Receive
-        (MQ             : in Message_Queue_Descriptor;
+        (MQ             : Message_Queue_Descriptor;
          Message        : out Message_Type;
          Priority       : out Message_Priority;
-         Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+         Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
       function Get_Error_Buffer return Ada_Streams.Stream_Element_Array;
    end Generic_Message_Queues;
    procedure Request_Notify
-     (MQ    : in Message_Queue_Descriptor;
-      Event : in POSIX.Signals.Signal_Event);
-   procedure Remove_Notify (MQ : in Message_Queue_Descriptor);
+     (MQ    : Message_Queue_Descriptor;
+      Event : POSIX.Signals.Signal_Event);
+   procedure Remove_Notify (MQ : Message_Queue_Descriptor);
    procedure Set_Attributes
-     (MQ        : in Message_Queue_Descriptor;
-      New_Attrs : in Attributes;
+     (MQ        : Message_Queue_Descriptor;
+      New_Attrs : Attributes;
       Old_Attrs : out Attributes);
    procedure Set_Attributes
-     (MQ        : in Message_Queue_Descriptor;
-      New_Attrs : in Attributes);
+     (MQ        : Message_Queue_Descriptor;
+      New_Attrs : Attributes);
    function Get_Attributes (MQ : Message_Queue_Descriptor) return Attributes;
 
 private

@@ -102,7 +102,7 @@ package body POSIX.Supplement_to_Ada_IO is
       Raise_POSIX_Error (Operation_Not_Supported);
    end Flush_All;
 
-   procedure Flush_Text_IO (File : in  Ada.Text_IO.File_Type) is
+   procedure Flush_Text_IO (File : Ada.Text_IO.File_Type) is
    begin
       Ada.Text_IO.Flush (File);
    end Flush_Text_IO;

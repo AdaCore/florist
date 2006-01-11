@@ -99,8 +99,8 @@ package body POSIX.Files is
    pragma Import (C, mkdir, mkdir_LINKNAME);
 
    procedure Create_Directory
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set) is
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (mkdir (Pathname_With_NUL
@@ -118,8 +118,8 @@ package body POSIX.Files is
    pragma Import (C, mkfifo, mkfifo_LINKNAME);
 
    procedure Create_FIFO
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set) is
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (mkfifo (Pathname_With_NUL
@@ -134,7 +134,7 @@ package body POSIX.Files is
    function unlink (path : char_ptr) return int;
    pragma Import (C, unlink, unlink_LINKNAME);
 
-   procedure Unlink (Pathname : in POSIX.Pathname) is
+   procedure Unlink (Pathname : POSIX.Pathname) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (unlink (Pathname_With_NUL
@@ -148,7 +148,7 @@ package body POSIX.Files is
    function rmdir (path : char_ptr) return int;
    pragma Import (C, rmdir, rmdir_LINKNAME);
 
-   procedure Remove_Directory (Pathname : in POSIX.Pathname) is
+   procedure Remove_Directory (Pathname : POSIX.Pathname) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (rmdir (Pathname_With_NUL
@@ -258,8 +258,8 @@ package body POSIX.Files is
    pragma Import (C, link, link_LINKNAME);
 
    procedure Link
-     (Old_Pathname : in Pathname;
-      New_Pathname : in Pathname) is
+     (Old_Pathname : Pathname;
+      New_Pathname : Pathname) is
       Old_Pathname_With_NUL : POSIX_String := Old_Pathname & NUL;
       New_Pathname_With_NUL : POSIX_String := New_Pathname & NUL;
    begin
@@ -278,8 +278,8 @@ package body POSIX.Files is
    pragma Import (C, rename, rename_LINKNAME);
 
    procedure Rename
-     (Old_Pathname : in Pathname;
-      New_Pathname : in Pathname) is
+     (Old_Pathname : Pathname;
+      New_Pathname : Pathname) is
       Old_Pathname_With_NUL : POSIX_String := Old_Pathname & NUL;
       New_Pathname_With_NUL : POSIX_String := New_Pathname & NUL;
    begin
@@ -338,7 +338,7 @@ package body POSIX.Files is
    --  thing available, and it is not safe for concurrent use (even on
    --  different directories).
 
-   procedure For_Every_Directory_Entry (Pathname : in POSIX.Pathname) is
+   procedure For_Every_Directory_Entry (Pathname : POSIX.Pathname) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       dirp : DIR_ptr;
       dirent : dirent_ptr;
@@ -373,9 +373,9 @@ package body POSIX.Files is
      (POSIX.Process_Identification.Group_ID, gid_t);
 
    procedure Change_Owner_And_Group
-     (Pathname : in POSIX.Pathname;
-      Owner    : in POSIX.Process_Identification.User_ID;
-      Group    : in POSIX.Process_Identification.Group_ID) is
+     (Pathname : POSIX.Pathname;
+      Owner    : POSIX.Process_Identification.User_ID;
+      Group    : POSIX.Process_Identification.Group_ID) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (chown (Pathname_With_NUL
@@ -393,8 +393,8 @@ package body POSIX.Files is
    pragma Import (C, chmod, chmod_LINKNAME);
 
    procedure Change_Permissions
-     (Pathname   : in POSIX.Pathname;
-      Permission : in POSIX.Permissions.Permission_Set) is
+     (Pathname   : POSIX.Pathname;
+      Permission : POSIX.Permissions.Permission_Set) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (chmod (Pathname_With_NUL
@@ -418,9 +418,9 @@ package body POSIX.Files is
    pragma Import (C, utime, utime_LINKNAME);
 
    procedure Set_File_Times
-     (Pathname          : in POSIX.Pathname;
-      Access_Time       : in POSIX.Calendar.POSIX_Time;
-      Modification_Time : in POSIX.Calendar.POSIX_Time) is
+     (Pathname          : POSIX.Pathname;
+      Access_Time       : POSIX.Calendar.POSIX_Time;
+      Modification_Time : POSIX.Calendar.POSIX_Time) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Times : aliased struct_utimbuf;
    begin
@@ -435,7 +435,7 @@ package body POSIX.Files is
    --  Set_File_Times  --
    ----------------------
 
-   procedure Set_File_Times (Pathname : in POSIX.Pathname) is
+   procedure Set_File_Times (Pathname : POSIX.Pathname) is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
    begin
       Check (utime (Pathname_With_NUL

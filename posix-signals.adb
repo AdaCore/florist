@@ -490,7 +490,7 @@ package body POSIX.Signals is
    --  and the reserved signals.
 
    procedure Set_Blocked_Signals
-     (New_Mask : in Signal_Set;
+     (New_Mask : Signal_Set;
       Old_Mask : out Signal_Set) is
       os_new_mask : aliased sigset_t;
       Prev_Mask : Signal_Set;
@@ -545,7 +545,7 @@ package body POSIX.Signals is
    ---------------------
 
    procedure Block_Signals
-     (Mask_to_Add : in Signal_Set;
+     (Mask_to_Add : Signal_Set;
       Old_Mask    : out Signal_Set) is
       os_new_mask : aliased sigset_t;
       Prev_Mask : Signal_Set;
@@ -592,7 +592,7 @@ package body POSIX.Signals is
    -----------------------
 
    procedure Unblock_Signals
-     (Mask_to_Subtract : in Signal_Set;
+     (Mask_to_Subtract : Signal_Set;
       Old_Mask         : out Signal_Set) is
       os_new_mask : aliased sigset_t;
       Prev_Mask : Signal_Set;
@@ -677,7 +677,7 @@ package body POSIX.Signals is
    --  Signal_Null, or any other signals for which the signal action
    --  is not permitted to be set by an application.
 
-   procedure Ignore_Signal (Sig : in Signal) is
+   procedure Ignore_Signal (Sig : Signal) is
    begin
       if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
@@ -690,7 +690,7 @@ package body POSIX.Signals is
    -- Unignore_Signal --
    ---------------------
 
-   procedure Unignore_Signal (Sig : in Signal) is
+   procedure Unignore_Signal (Sig : Signal) is
    begin
       if Reserved_Signal (Sig) then
          Raise_POSIX_Error (Invalid_Argument);
@@ -758,7 +758,7 @@ package body POSIX.Signals is
    --  locking/unlocking, rather than to add new entries to the
    --  signal manager task.
 
-   procedure Set_Stopped_Child_Signal (Enable : in Boolean := True) is
+   procedure Set_Stopped_Child_Signal (Enable : Boolean := True) is
       Action, Oact : aliased struct_sigaction;
       Result : int;
    begin
@@ -833,7 +833,7 @@ package body POSIX.Signals is
 
    procedure Set_Signal
      (Event : in out Signal_Event;
-      Sig   : in Signal) is
+      Sig   : Signal) is
    begin
       Event.sigev_signo := int (Sig);
    end Set_Signal;
@@ -853,7 +853,7 @@ package body POSIX.Signals is
 
    procedure Set_Notification
      (Event  : in out Signal_Event;
-      Notify : in Notification) is
+      Notify : Notification) is
    begin
       Event.sigev_notify := int (Notify);
    end Set_Notification;
@@ -873,7 +873,7 @@ package body POSIX.Signals is
 
    procedure Set_Data
      (Event : in out Signal_Event;
-      Data  : in Signal_Data) is
+      Data  : Signal_Data) is
    begin
       Event.sigev_value := To_sigval (Data);
    end Set_Data;
@@ -893,7 +893,7 @@ package body POSIX.Signals is
 
    procedure Set_Signal
      (Info : in out Signal_Info;
-      Sig  : in Signal) is
+      Sig  : Signal) is
    begin
       Info.si_signo := int (Sig);
    end Set_Signal;
@@ -913,7 +913,7 @@ package body POSIX.Signals is
 
    procedure Set_Source
      (Info   : in out Signal_Info;
-      Source : in Signal_Source) is
+      Source : Signal_Source) is
    begin
       Info.si_code := int (Source);
    end Set_Source;
@@ -943,7 +943,7 @@ package body POSIX.Signals is
 
    procedure Set_Data
      (Info : in out Signal_Info;
-      Data : in Signal_Data) is
+      Data : Signal_Data) is
    begin
       Info.si_value := To_sigval (Data);
    end Set_Data;
@@ -967,7 +967,7 @@ package body POSIX.Signals is
    --  signal manager task.
 
    procedure Enable_Queueing
-     (Sig : in Signal) is
+     (Sig : Signal) is
       Action : aliased struct_sigaction;
       Result : int;
    begin
@@ -988,7 +988,7 @@ package body POSIX.Signals is
    --  Disable_Queueing  --
    ------------------------
 
-   procedure Disable_Queueing (Sig : in Signal) is
+   procedure Disable_Queueing (Sig : Signal) is
       Action : aliased struct_sigaction;
       Result : int;
    begin
@@ -1087,8 +1087,8 @@ package body POSIX.Signals is
    pragma Import (C, kill, kill_LINKNAME);
 
    procedure Send_Signal
-     (Process : in POSIX.Process_Identification.Process_ID;
-      Sig     : in Signal) is
+     (Process : POSIX.Process_Identification.Process_ID;
+      Sig     : Signal) is
    begin
       Check (kill (To_pid_t (Process), int (Sig)));
    end Send_Signal;
@@ -1098,8 +1098,8 @@ package body POSIX.Signals is
    -----------------
 
    procedure Send_Signal
-     (Group : in POSIX.Process_Identification.Process_Group_ID;
-      Sig   : in Signal) is
+     (Group : POSIX.Process_Identification.Process_Group_ID;
+      Sig   : Signal) is
    begin
       Check (kill (-To_pid_t (Group), int (Sig)));
    end Send_Signal;
@@ -1108,7 +1108,7 @@ package body POSIX.Signals is
    -- Send_Signal --
    -----------------
 
-   procedure Send_Signal (Sig : in Signal) is
+   procedure Send_Signal (Sig : Signal) is
    begin
       Check (kill (0, int (Sig)));
    end Send_Signal;
@@ -1124,9 +1124,9 @@ package body POSIX.Signals is
    pragma Import (C, sigqueue, sigqueue_LINKNAME);
 
    procedure Queue_Signal
-     (Process : in POSIX.Process_Identification.Process_ID;
-      Sig     : in Signal;
-      Data    : in Signal_Data) is
+     (Process : POSIX.Process_Identification.Process_ID;
+      Sig     : Signal;
+      Data    : Signal_Data) is
    begin
       Check (sigqueue (To_pid_t (Process), int (Sig), To_sigval (Data)));
    end Queue_Signal;
@@ -1135,7 +1135,7 @@ package body POSIX.Signals is
    --  Interrupt_Task  --
    ----------------------
 
-   procedure Interrupt_Task (T : in Ada_Task_Identification.Task_Id) is
+   procedure Interrupt_Task (T : Ada_Task_Identification.Task_Id) is
    begin
       System.Task_Primitives.Operations.Abort_Task (Convert_Ids (T));
    end Interrupt_Task;

@@ -56,10 +56,10 @@ package POSIX.Terminal_Functions is
    type Terminal_Action_Times is
          (Immediately, After_Output, After_Output_And_Input);
    procedure Set_Terminal_Characteristics
-     (File            : in POSIX.IO.File_Descriptor;
-      Characteristics : in Terminal_Characteristics;
-      Apply           : in Terminal_Action_Times := Immediately;
-      Masked_Signals  : in POSIX.Signal_Masking
+     (File            : POSIX.IO.File_Descriptor;
+      Characteristics : Terminal_Characteristics;
+      Apply           : Terminal_Action_Times := Immediately;
+      Masked_Signals  : POSIX.Signal_Masking
                       := POSIX.RTS_Signals);
    type Terminal_Modes is
       --  Subtype Input_Modes:
@@ -94,25 +94,25 @@ package POSIX.Terminal_Functions is
       return Terminal_Modes_Set;
    procedure Define_Terminal_Modes
      (Characteristics : in out Terminal_Characteristics;
-      Modes           : in Terminal_Modes_Set);
+      Modes           : Terminal_Modes_Set);
    function Bits_Per_Character_Of
      (Characteristics : Terminal_Characteristics)
      return Bits_Per_Character;
    procedure Define_Bits_Per_Character
      (Characteristics : in out Terminal_Characteristics;
-      Bits            : in Bits_Per_Character);
+      Bits            : Bits_Per_Character);
    function Input_Baud_Rate_Of
      (Characteristics : Terminal_Characteristics)
      return Baud_Rate;
    procedure Define_Input_Baud_Rate
      (Characteristics : in out Terminal_Characteristics;
-      Input_Baud_Rate : in Baud_Rate);
+      Input_Baud_Rate : Baud_Rate);
    function Output_Baud_Rate_Of
      (Characteristics : Terminal_Characteristics)
      return Baud_Rate;
    procedure Define_Output_Baud_Rate
      (Characteristics  : in out Terminal_Characteristics;
-      Output_Baud_Rate : in Baud_Rate);
+      Output_Baud_Rate : Baud_Rate);
    type Control_Character_Selector is
       (EOF_Char, EOL_Char, Erase_Char, Interrupt_Char,
        Kill_Char, Quit_Char, Suspend_Char, Start_Char, Stop_Char);
@@ -122,41 +122,41 @@ package POSIX.Terminal_Functions is
      return POSIX.POSIX_Character;
    procedure Define_Special_Control_Character
      (Characteristics : in out Terminal_Characteristics;
-      Selector        : in Control_Character_Selector;
-      Char            : in POSIX.POSIX_Character);
+      Selector        : Control_Character_Selector;
+      Char            : POSIX.POSIX_Character);
    procedure Disable_Control_Character
      (Characteristics : in out Terminal_Characteristics;
-      Selector        : in Control_Character_Selector);
+      Selector        : Control_Character_Selector);
    function Input_Time_Of (Characteristics : Terminal_Characteristics)
       return Duration;
    procedure Define_Input_Time
      (Characteristics : in out Terminal_Characteristics;
-      Input_Time      : in Duration);
+      Input_Time      : Duration);
    function Minimum_Input_Count_Of
      (Characteristics : Terminal_Characteristics)
      return Natural;
    procedure Define_Minimum_Input_Count
      (Characteristics     : in out Terminal_Characteristics;
-      Minimum_Input_Count : in Natural);
+      Minimum_Input_Count : Natural);
 
    --  Line Control Operations
 
    procedure Send_Break
-     (File         : in POSIX.IO.File_Descriptor;
-      The_Duration : in Duration := 0.0);
+     (File         : POSIX.IO.File_Descriptor;
+      The_Duration : Duration := 0.0);
    procedure Drain
-     (File           : in POSIX.IO.File_Descriptor;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals);
+     (File           : POSIX.IO.File_Descriptor;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals);
    type Queue_Selector is
       (Received_But_Not_Read, Written_But_Not_Transmitted, Both);
    procedure Discard_Data
-     (File     : in POSIX.IO.File_Descriptor;
-      Selector : in Queue_Selector);
+     (File     : POSIX.IO.File_Descriptor;
+      Selector : Queue_Selector);
    type Flow_Action is
       (Suspend_Output, Restart_Output, Transmit_Stop, Transmit_Start);
    procedure Flow
-     (File   : in POSIX.IO.File_Descriptor;
-      Action : in Flow_Action);
+     (File   : POSIX.IO.File_Descriptor;
+      Action : Flow_Action);
 
    --  Foreground Process Group ID
 
@@ -164,8 +164,8 @@ package POSIX.Terminal_Functions is
      (File : POSIX.IO.File_Descriptor)
      return POSIX.Process_Identification.Process_Group_ID;
    procedure Set_Process_Group_ID
-     (File     : in POSIX.IO.File_Descriptor;
-      Group_ID : in POSIX.Process_Identification.Process_Group_ID);
+     (File     : POSIX.IO.File_Descriptor;
+      Group_ID : POSIX.Process_Identification.Process_Group_ID);
 
    --  Get pathname of current controlling terminal for the current process
 

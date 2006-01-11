@@ -90,7 +90,7 @@ package body POSIX.Group_Database is
    --  For_Every_Member  --
    ------------------------
 
-   procedure For_Every_Member (List : in Group_ID_List) is
+   procedure For_Every_Member (List : Group_ID_List) is
       Quit : Boolean := False;
       P : char_ptr_ptr;
    begin

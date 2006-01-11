@@ -71,8 +71,8 @@ package body POSIX.File_Locking is
    pragma Import (C, fcntl, fcntl_LINKNAME);
 
    procedure Get_Lock
-     (File    : in POSIX.IO.File_Descriptor;
-      Lock    : in File_Lock;
+     (File    : POSIX.IO.File_Descriptor;
+      Lock    : File_Lock;
       Result  : out File_Lock;
       Process : out POSIX.Process_Identification.Process_ID) is
       T : aliased struct_flock;
@@ -116,8 +116,8 @@ package body POSIX.File_Locking is
    ----------------
 
    procedure Set_Lock
-     (File : in POSIX.IO.File_Descriptor;
-      Lock : in File_Lock) is
+     (File : POSIX.IO.File_Descriptor;
+      Lock : File_Lock) is
       T : aliased struct_flock;
    begin
       T.l_type := C_Lock_Type (Lock.Lock);
@@ -138,9 +138,9 @@ package body POSIX.File_Locking is
    ------------------------
 
    procedure Wait_To_Set_Lock
-     (File           : in POSIX.IO.File_Descriptor;
-      Lock           : in File_Lock;
-      Masked_Signals : in POSIX.Signal_Masking := POSIX.RTS_Signals) is
+     (File           : POSIX.IO.File_Descriptor;
+      Lock           : File_Lock;
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals) is
       T : aliased struct_flock;
       Result : int;
       Old_Mask : aliased Signal_Mask;

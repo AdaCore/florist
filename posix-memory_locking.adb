@@ -48,7 +48,7 @@ package body POSIX.Memory_Locking is
    --  Lock_All  --
    ----------------
 
-   procedure Lock_All (Options : in Memory_Locking_Options) is
+   procedure Lock_All (Options : Memory_Locking_Options) is
       function mlockall (flag : int) return int;
       pragma Import (C, mlockall, mlockall_LINKNAME);
    begin

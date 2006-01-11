@@ -57,7 +57,7 @@ package POSIX.Calendar is
    function Day (Date : POSIX_Time) return Day_Number;
    function Seconds (Date : POSIX_Time) return Day_Duration;
    procedure Split
-     (Date    : in POSIX_Time;
+     (Date    : POSIX_Time;
       Year    : out Year_Number;
       Month   : out Month_Number;
       Day     : out Day_Number;

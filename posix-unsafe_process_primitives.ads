@@ -42,18 +42,18 @@ package POSIX.Unsafe_Process_Primitives is
 
    function Fork return POSIX.Process_Identification.Process_ID;
    procedure Exec
-     (Pathname : in POSIX.Pathname;
-      Arg_List : in POSIX.POSIX_String_List := POSIX.Empty_String_List;
-      Env_List : in POSIX.Process_Environment.Environment);
+     (Pathname : POSIX.Pathname;
+      Arg_List : POSIX.POSIX_String_List := POSIX.Empty_String_List;
+      Env_List : POSIX.Process_Environment.Environment);
    procedure Exec
-     (Pathname : in POSIX.Pathname;
-      Arg_List : in POSIX.POSIX_String_List := POSIX.Empty_String_List);
+     (Pathname : POSIX.Pathname;
+      Arg_List : POSIX.POSIX_String_List := POSIX.Empty_String_List);
    procedure Exec_Search
-     (Filename : in POSIX.Filename;
-      Arg_List : in POSIX.POSIX_String_List := POSIX.Empty_String_List;
-      Env_List : in POSIX.Process_Environment.Environment);
+     (Filename : POSIX.Filename;
+      Arg_List : POSIX.POSIX_String_List := POSIX.Empty_String_List;
+      Env_List : POSIX.Process_Environment.Environment);
    procedure Exec_Search
-     (Filename : in POSIX.Filename;
-      Arg_List : in POSIX.POSIX_String_List := POSIX.Empty_String_List);
+     (Filename : POSIX.Filename;
+      Arg_List : POSIX.POSIX_String_List := POSIX.Empty_String_List);
 
 end POSIX.Unsafe_Process_Primitives;

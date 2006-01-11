@@ -89,7 +89,7 @@ package body POSIX.Permissions is
    ---------------------------------------
 
    procedure Set_Allowed_Process_Permissions
-     (Permissions : in Permission_Set) is
+     (Permissions : Permission_Set) is
       Mask : mode_t :=
         not (Form_C_Permission (Permissions) and File_Access_Permission_Bits);
    begin
@@ -102,7 +102,7 @@ package body POSIX.Permissions is
    ---------------------------------------
 
    procedure Set_Allowed_Process_Permissions
-     (Permissions : in Permission_Set;
+     (Permissions : Permission_Set;
       Old_Perms   : out Permission_Set) is
       Mask : constant mode_t :=
         not (Form_C_Permission (Permissions) and File_Access_Permission_Bits);

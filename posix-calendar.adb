@@ -146,7 +146,7 @@ package body POSIX.Calendar is
    -------------
 
    procedure Split
-     (Date    : in POSIX_Time;
+     (Date    : POSIX_Time;
       Year    : out Year_Number;
       Month   : out Month_Number;
       Day     : out Day_Number;

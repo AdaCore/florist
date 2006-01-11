@@ -323,7 +323,7 @@ package body POSIX.File_Status is
    function s_typeisshm (buf : stat_ptr) return int;
    pragma Import (C, s_typeisshm, "s_typeisshm");
 
-   function Is_Shared_Memory (File_Status : in Status)
+   function Is_Shared_Memory (File_Status : Status)
      return Boolean is
    begin
       return s_typeisshm
@@ -337,7 +337,7 @@ package body POSIX.File_Status is
    function s_typeismq (buf : stat_ptr) return int;
    pragma Import (C, s_typeismq, "s_typeismq");
 
-   function Is_Message_Queue (File_Status : in Status)
+   function Is_Message_Queue (File_Status : Status)
       return Boolean is
    begin
       return s_typeismq
@@ -351,7 +351,7 @@ package body POSIX.File_Status is
    function s_typeissem (buf : stat_ptr) return int;
    pragma Import (C, s_typeissem, "s_typeissem");
 
-   function Is_Semaphore (File_Status : in Status)
+   function Is_Semaphore (File_Status : Status)
       return Boolean is
    begin
       return s_typeissem

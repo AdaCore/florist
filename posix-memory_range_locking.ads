@@ -39,9 +39,9 @@ with System,
      System.Storage_Elements;
 package POSIX.Memory_Range_Locking is
    procedure Lock_Range
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset);
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset);
    procedure Unlock_Range
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset);
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset);
 end POSIX.Memory_Range_Locking;

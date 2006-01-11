@@ -56,10 +56,10 @@ package POSIX.Process_Identification is
    function Get_Process_Group_ID
       return Process_Group_ID;
    procedure Set_Process_Group_ID
-     (Process       : in Process_ID := Get_Process_ID;
-      Process_Group : in Process_Group_ID := Get_Process_Group_ID);
+     (Process       : Process_ID := Get_Process_ID;
+      Process_Group : Process_Group_ID := Get_Process_Group_ID);
    procedure Create_Process_Group
-     (Process       : in  Process_ID;
+     (Process       :  Process_ID;
       Process_Group : out Process_Group_ID);
    procedure Create_Session (Session_Leader : out Process_Group_ID);
    function Image (ID : Process_Group_ID)
@@ -72,7 +72,7 @@ package POSIX.Process_Identification is
    type User_ID is private;
    function Get_Real_User_ID return User_ID;
    function Get_Effective_User_ID return User_ID;
-   procedure Set_User_ID (ID : in User_ID);
+   procedure Set_User_ID (ID : User_ID);
    function Get_Login_Name return POSIX.POSIX_String;
    function Image (ID : User_ID) return Standard.String;
    function Value (Str : Standard.String) return User_ID;
@@ -82,7 +82,7 @@ package POSIX.Process_Identification is
    type Group_ID is private;
    function Get_Real_Group_ID return Group_ID;
    function Get_Effective_Group_ID return Group_ID;
-   procedure Set_Group_ID (ID : in Group_ID);
+   procedure Set_Group_ID (ID : Group_ID);
    subtype Group_List_Index is Positive range 1 .. POSIX.Groups_Maxima'Last;
    type Group_List is array (Group_List_Index range <>) of aliased Group_ID;
    --  ... Applications may not rely on "aliased" here being portable.

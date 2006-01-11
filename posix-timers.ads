@@ -50,17 +50,17 @@ package POSIX.Timers is
 
    procedure Set_Initial
      (State   : in out Timer_State;
-      Initial : in POSIX.Timespec);
+      Initial : POSIX.Timespec);
    function Get_Initial (State : Timer_State) return POSIX.Timespec;
    procedure Set_Interval
      (State    : in out Timer_State;
-      Interval : in POSIX.Timespec);
+      Interval : POSIX.Timespec);
    function Get_Interval (State : Timer_State) return POSIX.Timespec;
 
    procedure Set_Time
-     (Clock : in Clock_ID;
-      Value : in POSIX.Timespec);
-   procedure Set_Time (Value : in POSIX.Timespec);
+     (Clock : Clock_ID;
+      Value : POSIX.Timespec);
+   procedure Set_Time (Value : POSIX.Timespec);
    function Get_Time
      (Clock : Clock_ID := Clock_Realtime)
      return POSIX.Timespec;
@@ -73,16 +73,16 @@ package POSIX.Timers is
       Event : POSIX.Signals.Signal_Event) return Timer_ID;
    procedure Delete_Timer (Timer : in out Timer_ID);
    procedure Arm_Timer
-     (Timer     : in Timer_ID;
-      Options   : in Timer_Options;
-      New_State : in Timer_State;
+     (Timer     : Timer_ID;
+      Options   : Timer_Options;
+      New_State : Timer_State;
       Old_State : out Timer_State);
    procedure Arm_Timer
-     (Timer     : in Timer_ID;
-      Options   : in Timer_Options;
-      New_State : in Timer_State);
+     (Timer     : Timer_ID;
+      Options   : Timer_Options;
+      New_State : Timer_State);
    function Get_Timer_State (Timer : Timer_ID) return Timer_State;
-   procedure Disarm_Timer (Timer : in  Timer_ID);
+   procedure Disarm_Timer (Timer : Timer_ID);
    function Get_Timer_Overruns (Timer : Timer_ID) return Natural;
 
 private

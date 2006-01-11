@@ -49,8 +49,8 @@ package body POSIX.Memory_Range_Locking is
    ------------------
 
    procedure Lock_Range
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset) is
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset) is
       function mlock (addr : access System.Address; len : size_t) return int;
       pragma Import (C, mlock, mlock_LINKNAME);
       Addr : aliased System.Address := First;
@@ -82,8 +82,8 @@ package body POSIX.Memory_Range_Locking is
    --------------------
 
    procedure Unlock_Range
-     (First  : in System.Address;
-      Length : in System.Storage_Elements.Storage_Offset) is
+     (First  : System.Address;
+      Length : System.Storage_Elements.Storage_Offset) is
       function munlock (addr : access System.Address; len : size_t) return int;
       pragma Import (C, munlock, munlock_LINKNAME);
       Addr : aliased System.Address := First;
