@@ -92,6 +92,7 @@ package body POSIX.File_Locking is
       Check (fcntl (int (File), F_GETLK, T'Unchecked_Access));
       if T.l_type = F_UNLCK then
          Process := POSIX.Process_Identification.Null_Process_ID;
+         Res.Lock := Unlock;
       else
          Process := To_Process_ID (T.l_pid);
          if T.l_type = F_RDLCK then Res.Lock := Read_Lock;
@@ -107,8 +108,8 @@ package body POSIX.File_Locking is
          end if;
          Res.Start := POSIX.IO.IO_Offset (T.l_start);
          Res.Length := IO_Count (T.l_len);
-         Result := Res;
       end if;
+      Result := Res;
    end Get_Lock;
 
    ----------------
