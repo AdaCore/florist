@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---             Copyright (C) 1991-1994 Florida State University             --
---                     Copyright (C) 1995-2005 AdaCore                      --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -37,10 +37,8 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     POSIX.IO,
-     System,
-     System.Storage_Elements,
      Unchecked_Conversion;
+
 package body POSIX.Memory_Mapping is
 
    use POSIX.Implementation;

@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---             Copyright (C) 1991-1994 Florida State University             --
---                     Copyright (C) 1995-2005 AdaCore                      --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -59,11 +59,8 @@
 --  In some cases we may be able to convince ourselves that no exception
 --  is possible, but there is still the possibility of Storage_Error.
 
-with POSIX.IO,
-     POSIX.Implementation,
-     POSIX.Memory_Mapping,
+with POSIX.Implementation,
      POSIX.Memory_Range_Locking,
-     POSIX.Permissions,
      POSIX.Shared_Memory_Objects,
      System,
      System.Storage_Elements,

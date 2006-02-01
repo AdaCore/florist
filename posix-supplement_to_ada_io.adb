@@ -7,7 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996 Florida State University (FSU), All Rights Reserved. --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -34,7 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [Revision: 1.1]
 
 --  .... This cannot be fully implemented without special support
 --  from the implementation of the package Ada.Text_IO.
@@ -51,12 +51,8 @@
 --  The modifications we need to make to those packages will
 --  need coordination with ACT.
 
-with Ada.IO_Exceptions,
-     Ada.Text_IO,
+with POSIX.Implementation,
      Interfaces.C_Streams,
-     POSIX.IO,
-     POSIX.Implementation,
-     POSIX.Permissions,
      System.File_Control_Block,
      System.File_IO,
      Unchecked_Conversion;

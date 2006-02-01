@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1999 Florida State University (FSU).    All Rights   --
---  Reserved.                                                               --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 --  Please take care in future maintenance updates to avoid adding
 --  direct system calls that modify the signal action or signal
@@ -81,16 +80,9 @@
 --  of adding other direct calls without careful analysis of how they
 --  might interact with what the GNAT runtime system is doing.
 
-with Ada_Task_Identification,
-     POSIX,
-     POSIX.C,
-     POSIX.Implementation,
-     POSIX.Implementation.OK_Signals,
-     System,
-     System.Storage_Elements,
+with POSIX.Implementation,
      System.Tasking,
      System.Interrupts,
-     System.Interrupt_Management,
      System.Task_Primitives.Operations,
      Unchecked_Conversion;
 

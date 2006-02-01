@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998             Florida  State  University  (FSU),  --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +35,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 --  ?????
 --  Perhaps we should put exception handlers around the critical
@@ -43,11 +42,8 @@
 --  of the system calls within them?  This would be a lot more overhead.
 
 with Ada.IO_Exceptions,
-     System,
      System.Storage_Elements,
-     POSIX.C,
      POSIX.Implementation,
-     POSIX.Permissions,
      POSIX.Permissions.Implementation,
      Unchecked_Conversion;
 package body POSIX.IO is

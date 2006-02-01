@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---             Copyright (C) 1991-1994 Florida State University             --
---                     Copyright (C) 1995-2005 AdaCore                      --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -37,9 +37,8 @@
 ------------------------------------------------------------------------------
 
 with POSIX.C,
-     POSIX.IO,
-     POSIX.Implementation,
-     POSIX.Limits;
+     POSIX.Implementation;
+
 package body POSIX.Configurable_File_Limits is
 
    use POSIX.C;

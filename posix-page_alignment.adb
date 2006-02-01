@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996-1998             Florida  State  University  (FSU),  --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,12 +35,10 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
-with POSIX.Configurable_System_Limits,
-     System,
-     System.Storage_Elements;
-   pragma Elaborate_All (POSIX.Configurable_System_Limits);
+with POSIX.Configurable_System_Limits;
+pragma Elaborate_All (POSIX.Configurable_System_Limits);
+
 package body POSIX.Page_Alignment is
 
    use System.Storage_Elements,
