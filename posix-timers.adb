@@ -35,11 +35,8 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
-with POSIX.C,
-     POSIX.Implementation,
-     POSIX.Signals,
+with POSIX.Implementation,
      Unchecked_Conversion;
 package body POSIX.Timers is
 
