@@ -36,7 +36,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Unchecked_Conversion;
 with System.Storage_Elements;
 package body POSIX.C is
 
