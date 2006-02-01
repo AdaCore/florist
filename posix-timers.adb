@@ -7,8 +7,8 @@
 --                                  B o d y                                 --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1996, 1997            Florida  State  University  (FSU),  --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -38,6 +38,7 @@
 
 with POSIX.Implementation,
      Unchecked_Conversion;
+
 package body POSIX.Timers is
 
    use POSIX.C;
