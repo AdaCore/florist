@@ -1123,7 +1123,11 @@ struct msghdr {
   GT2(msg_control, char *)
 #endif
 #ifdef HAVE_component_msg_controllen
+#if defined (__sparc__) && defined (__arch64__)
+  GT2(msg_controllen, int)
+#else
   GT2(msg_controllen, size_t)
+#endif
 #endif
 #ifdef HAVE_component_msg_flags
   GT2(msg_flags, int)
@@ -1143,7 +1147,11 @@ struct cmsghdr {
 #endif
   GT2(cmsg_level, int)
   GT2(cmsg_type, int)
+#if defined (__sparc__) && defined (__arch64__)
+  GT2(cmsg_len, int)
+#else
   GT2(cmsg_len, size_t)
+#endif
   GT3
 
 #ifdef HAVE_struct_ip_opts

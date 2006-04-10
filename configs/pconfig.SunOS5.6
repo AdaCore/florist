@@ -19,3 +19,10 @@
    be attempted. */
 #include <stdarg.h>
 #define _VA_LIST
+
+#ifdef __arch64__
+#define XTI_TINFO_FTYPE int
+#define XTI_OPTHDR_FTYPE int
+#define XTI_LINGER_FTYPE int
+#define XTI_KPALIVE_FTYPE int
+#endif /* __arch64__ */
