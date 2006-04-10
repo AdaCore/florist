@@ -9,7 +9,6 @@
 #ifdef __ia64__
 #define XTI_TINFO_FTYPE int
 #define XTI_OPTHDR_FTYPE int
-#define XTI_OPTHDR_FTYPE int
 #define XTI_LINGER_FTYPE int
 #define XTI_KPALIVE_FTYPE int
 #endif /* __ia64__ */
