@@ -235,10 +235,20 @@ package body POSIX.Asynchronous_IO is
    begin
       Check (AD /= null, Invalid_Argument);
       opcode := AD.C.aio_lio_opcode;
-      if opcode = LIO_NOP then return No_Op;
-      elsif opcode = LIO_READ then return Read;
-      elsif opcode = LIO_WRITE then return Write;
+
+      pragma Warning (Off);
+      --  Disable warning on some platforms where LIO_NOP=LIO_READ=LIO_WRITE=0
+
+      if opcode = LIO_NOP then
+         return No_Op;
+      elsif opcode = LIO_READ then
+         return Read;
+      elsif opcode = LIO_WRITE then
+         return Write;
       end if;
+
+      pragma Warning (On);
+
       Raise_POSIX_Error (Invalid_Argument);
       --  to suppress compiler warning message:
       return No_Op;
