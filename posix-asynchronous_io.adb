@@ -236,7 +236,7 @@ package body POSIX.Asynchronous_IO is
       Check (AD /= null, Invalid_Argument);
       opcode := AD.C.aio_lio_opcode;
 
-      pragma Warning (Off);
+      pragma Warnings (Off);
       --  Disable warning on some platforms where LIO_NOP=LIO_READ=LIO_WRITE=0
 
       if opcode = LIO_NOP then
@@ -247,7 +247,7 @@ package body POSIX.Asynchronous_IO is
          return Write;
       end if;
 
-      pragma Warning (On);
+      pragma Warnings (On);
 
       Raise_POSIX_Error (Invalid_Argument);
       --  to suppress compiler warning message:
