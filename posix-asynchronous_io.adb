@@ -401,12 +401,20 @@ package body POSIX.Asynchronous_IO is
       Result :  int;
    begin
       Result := aio_cancel (AD.C.aio_fildes, AD);
+
+      pragma Warnings (Off);
+      --  Disable warning on some platforms where AIO_*=0
+
       if Result = AIO_CANCELED then return Canceled;
       elsif Result = AIO_NOTCANCELED then return Not_Canceled;
       elsif Result = AIO_ALLDONE then return All_Done;
       end if;
+
+      pragma Warnings (On);
+
       Raise_POSIX_Error;
       --  to suppress compiler warning message
+
       return All_Done;
    end Cancel;
 
@@ -415,12 +423,20 @@ package body POSIX.Asynchronous_IO is
       Result : int;
    begin
       Result := aio_cancel (int (File), null);
+
+      pragma Warnings (Off);
+      --  Disable warning on some platforms where AIO_*=0
+
       if Result = AIO_CANCELED then return Canceled;
       elsif Result = AIO_NOTCANCELED then return Not_Canceled;
       elsif Result = AIO_ALLDONE then return All_Done;
       end if;
+
+      pragma Warnings (On);
+
       Raise_POSIX_Error;
       --  to suppress compiler warning message
+
       return All_Done;
    end Cancel;
 
