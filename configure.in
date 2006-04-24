@@ -406,6 +406,7 @@ AC_POSIX_FUNCS(\
  lio_listio\
  listen\
  lseek\
+ lstat\
  mkdir\
  mkfifo\
  mlock\

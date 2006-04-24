@@ -4364,6 +4364,7 @@ for ac_func in \
  lio_listio\
  listen\
  lseek\
+ lstat\
  mkdir\
  mkfifo\
  mlock\

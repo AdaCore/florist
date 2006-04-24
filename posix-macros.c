@@ -210,18 +210,32 @@ void store_errno(int value) {
   errno = value;
 }
 
-/* The following redefinitions work around problems on systems where
-   the stat family of functions are implemented using macros. (eg.
-   Tru64 5.1A and Linux.) */
+/* The following are variadic functions and on some platforms, for
+   instance x86-64, calling a variadic function directly from Ada can
+   cause problems. Here we provide wrapper wrappers that we import
+   instead. */
 
-int stat_func(const char *path, struct stat *buf) {
+int __gnat_florist_open(const char *path, int oflag) {
+  return open (path, oflag);
+}
+
+int __gnat_florist_sem_open 
+(char *name, int oflag, mode_t mode, unsigned value) {
+  return sem_open (name, oflag, mode, value);
+}
+
+/* The following wrappers work around problems on systems where the
+   stat family of functions are implemented using macros. (eg. Tru64
+   5.1A and Linux.) */
+
+int __gnat_florist_stat(const char *path, struct stat *buf) {
   return stat(path, buf);
 }
 
-int lstat_func(const char *path, struct stat *buf) {
+int __gnat_florist_lstat(const char *path, struct stat *buf) {
   return lstat(path, buf);
 }
 
-int fstat_func(int fd, struct stat *buf) {
+int __gnat_florist_fstat(int fd, struct stat *buf) {
   return fstat(fd, buf);
 }

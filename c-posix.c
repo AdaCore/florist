@@ -400,6 +400,41 @@ int network_byte_order;
    need reordering
  */
 
+/* Table of name to link name mappings
+   -----------------------------------
+   
+   The following table enumerates mappings to make from name to
+   link name. */
+
+char *name_to_linkname_table[] = {
+
+  /* The following are variadic functions, so we call them via a
+     wrapper in posix-macros.c. */
+
+  "open", "__gnat_florist_open",
+  "sem_open", "__gnat_florist_sem_open",
+
+  /* The following are implemented as macros on some platforms, so we
+     call them via a wrapper in posix-macros.c. */
+
+  "stat", "__gnat_florist_stat",
+  "fstat", "__gnat_florist_fstat",
+  "lstat", "__gnat_florist_lstat",
+
+   NULL
+};
+
+/* Map a name to a linkname. */
+const char *n2ln (const char *name) {
+  char **i = name_to_linkname_table;
+  while (*i) {
+    if (strcmp (name, *i) == 0) 
+      return *(i + 1);
+    i += 2;
+  }
+  return name;
+}
+
 /* declarations for C types
    ------------------------
    If you make any changes here, also make changes
@@ -2085,9 +2120,9 @@ void gfunc(char const name[], char const xname[], int have_it) {
       (fp,"   HAVE_%s : constant Boolean := True;\n", name);
     if (strlen(name) > 20) {
       ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-      ifprintf(fp,"       \"%s\";\n", name);
+      ifprintf(fp,"       \"%s\";\n", n2ln(name));
     } else ifprintf
-      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
+      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(name));
    } else {
 #ifdef TRY_MACRO_LINKNAMES
      if (strcmp(name, xname)) {
@@ -2102,9 +2137,9 @@ void gfunc(char const name[], char const xname[], int have_it) {
        "  This is risky...\n");
       if (strlen(name) > 20) {
         ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-        ifprintf(fp,"      \"%s\";\n", xname);
+        ifprintf(fp,"      \"%s\";\n", n2ln(xname));
       } else ifprintf
-        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
+        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(xname));
     } else
 #endif
     {
@@ -2132,9 +2167,9 @@ void gfuncsol(char const name[], char const xname[]) {
     (fp,"   HAVE_%s : constant Boolean := True;\n", name);
   if (strlen(name) > 20) {
     ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-    ifprintf(fp,"       \"%s\";\n", xname);
+    ifprintf(fp,"       \"%s\";\n", n2ln(xname));
   } else ifprintf
-    (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
+    (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(xname));
 }
 
 /* GFUNCNS
@@ -2156,9 +2191,9 @@ void gfuncns(char const name[], char const xname[], int have_it) {
       (fp,"   HAVE_%s : constant Boolean := True;\n", name);
     if (strlen(name) > 20) {
       ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-      ifprintf(fp,"       \"%s\";\n", name);
+      ifprintf(fp,"       \"%s\";\n", n2ln(name));
     } else ifprintf
-      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
+      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(name));
    } else {
 #ifdef TRY_MACRO_LINKNAMES
      if (strcmp(name, xname)) {
@@ -2173,9 +2208,9 @@ void gfuncns(char const name[], char const xname[], int have_it) {
        "  This is risky...\n");
       if (strlen(name) > 20) {
         ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-        ifprintf(fp,"      \"%s\";\n", xname);
+        ifprintf(fp,"      \"%s\";\n", n2ln(xname));
       } else ifprintf
-        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
+        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(xname));
     } else
 #endif
     {
@@ -2211,9 +2246,9 @@ void gfuncd(char const name[], char const xname[], int have_it) {
   if (have_it) {
     if (strlen(name) > 20) {
       ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-      ifprintf(fp,"      \"%s\";\n", name);
+      ifprintf(fp,"      \"%s\";\n", n2ln(name));
     } else ifprintf
-      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
+      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(name));
   } else {
 #ifdef TRY_MACRO_LINKNAMES
     if (strcmp(name, xname)) {
@@ -2228,9 +2263,9 @@ void gfuncd(char const name[], char const xname[], int have_it) {
       ifprintf(fp,"   --  This is risky...\n");
       if (strlen(name) > 20) {
         ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-        ifprintf(fp,"      \"%s\";\n", xname);
+        ifprintf(fp,"      \"%s\";\n", n2ln(xname));
       } else ifprintf
-        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
+        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(xname));
     } else
 #endif
    {
@@ -2260,9 +2295,9 @@ void gfuncdns(char const name[], char const xname[], int have_it) {
   if (have_it) {
     if (strlen(name) > 20) {
       ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-      ifprintf(fp,"      \"%s\";\n", name);
+      ifprintf(fp,"      \"%s\";\n", n2ln(name));
     } else ifprintf
-      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, name);
+      (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(name));
   } else {
 #ifdef TRY_MACRO_LINKNAMES
     if (strcmp(name, xname)) {
@@ -2277,9 +2312,9 @@ void gfuncdns(char const name[], char const xname[], int have_it) {
       ifprintf(fp,"   --  This is risky...\n");
       if (strlen(name) > 20) {
         ifprintf(fp,"   %s_LINKNAME : constant String :=\n", name);
-        ifprintf(fp,"      \"%s\";\n", xname);
+        ifprintf(fp,"      \"%s\";\n", n2ln(xname));
       } else ifprintf
-        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, xname);
+        (fp,"   %s_LINKNAME : constant String := \"%s\";\n", name, n2ln(xname));
     } else
 #endif
    {
@@ -5897,9 +5932,15 @@ void create_c() {
      stub link-name to be generated if the function is not supported
    */
 
-  GFUNC(execl,HAVE_execl);
-  GFUNC(execle,HAVE_execle);
-  GFUNC(execlp,HAVE_execlp);
+  /*
+    The execl* version of execl should not be used directly, since
+    wrappers must be provided for all variadic functions.
+
+    GFUNC(execl,HAVE_execl);
+    GFUNC(execle,HAVE_execle);
+    GFUNC(execlp,HAVE_execlp);
+  */
+
   GFUNC(execv,HAVE_execv);
   GFUNC(execve,HAVE_execve);
   GFUNC(execvp,HAVE_execvp);
@@ -5938,6 +5979,7 @@ void create_c() {
   GFUNC(kill,HAVE_kill);
   GFUNC(link,HAVE_link);
   GFUNC(lio_listio,HAVE_lio_listio);
+  GFUNC(lstat, HAVE_lstat);
   /*  GFUNC(localtime_r,HAVE_localtime_r); */
   GFUNC(lseek,HAVE_lseek);
   GFUNC(mkdir,HAVE_mkdir);

@@ -142,6 +142,7 @@
 #undef HAVE_lio_listio
 #undef HAVE_listen
 #undef HAVE_lseek
+#undef HAVE_lstat
 
 #undef HAVE_mkdir
 #undef HAVE_mkfifo
