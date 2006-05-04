@@ -2,13 +2,15 @@ In order to install FLORIST, you should go through the following
 steps.
 
 0. Make sure you have GNAT installed.
-   Note that to use Florist, you need to either use a GNAT run time based on
+   Note that to use FLORIST, you need to either use a GNAT run time based on
    native threads (see GNAT user's guide for more details)
    or use the --disable-threads option at configure time below:
 
 1. Configure FLORIST by typing "./configure".
-   You may want to use the --prefix=/florist/install option to specify where
-   to install Florist. By default, Florist will be installed under ./floristlib
+
+   You may want to use the --prefix=/florist/install option to specify
+   where to install FLORIST. By default, Florist will be installed
+   under /usr/local.
 
    If you are using a GNAT run time that is not using native OS threads,
    you need to specify the --disable-threads option:
