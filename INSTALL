@@ -3,20 +3,17 @@ steps.
 
 0. Make sure you have GNAT installed.
    Note that to use Florist, you need to either use a GNAT run time based on
-   native threads (see README.TASKING in the GNAT distribution for more details)
+   native threads (see GNAT user's guide for more details)
    or use the --disable-threads option at configure time below:
 
 1. Configure FLORIST by typing "./configure".
-   You probably should capture the output, in case something goes
-   wrong and the relevant error message scrolls off your screen,
-   e.g. with a csh-like syntax:
-        ./configure >& configure.log
+   You may want to use the --prefix=/florist/install option to specify where
+   to install Florist. By default, Florist will be installed under ./floristlib
 
-   If you are using a GNAT run time that is not using native OS threads
-   (e.g athread under IRIX o32 or DCE threads under HPUX 11.0), you need
-   to specify the --disable-threads option:
+   If you are using a GNAT run time that is not using native OS threads,
+   you need to specify the --disable-threads option:
 
-        ./configure --disable-threads >& configure.log
+        ./configure --disable-threads
 
    Note that disabling thread support will remove support for the following
    packages that depend on threads:
@@ -29,40 +26,6 @@ steps.
      - POSIX.Process_Signals
      - POSIX.Timers
 
-   The configure script will try to find out information about the system
-   you are using.  This includes information about the GNAT version,
-   and whether each of the features of the POSIX C-language interfaces
-   is supported.  This step generates the files:
+2. Build and compile FLORIST by typing "make"
 
-   Makefile              Florist make file
-   gnatprep.config       directives for gnatprep
-   pconfig.h             #includes and #defines needed to use POSIX
-   config.h              configuration for c-posix.c
-
-   Note that if "configure" does not work for your system as-is,
-   you can tailor it by editing the file "pconfig.h.in".
-   Some examples of these can be found in the "configs" subdirectory.
-
-   Along the way, configure will tell you about the various
-   features it is checking, and whether it finds
-   them.  Don't worry if it fails to find some features.
-   That is normal, since no operating system we know has yet
-   fully caught up to the POSIX standards.  Assuming the configuration
-   process works correctly, the unsupported features will just
-   raise POSIX_Error if you try to use them.
-
-2. Build and compile FLORIST by typing "make".  This will
-   *automatically* perform many operations, including the following:
-
-  a. Compile and execute the program "c-posix.c", which
-     generates the source code for the Ada package specifications
-     Posix, Posix.C, Posix.Limits, and Posix.Options.
-
-  b. Compile several C-language programs "posix-macros*.c".
-
-  c. Use gnatprep to tailor some Ada source files to your system.
-
-  d. Compile the various POSIX Ada package specifications and
-     bodies.
-
-3. If this all succeeds, you can now use Florist.
+3. Install FLORIST by typing "make install"
