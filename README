@@ -5,44 +5,18 @@ implementation of the IEEE Standards 1003.5: 1992, IEEE STD
 1003.5b: 1996, and parts of IEEE STD 1003.5c: 1998, also known as
 the POSIX Ada Bindings.
 
-All the code in this directory is copyrighted by the Florida
-State University (FSU), except for any files that contain
-statements indicating the copyright belongs to someone else.
-
-The FSU-copyrighted code is free software; you can redistribute it
-and/or modify it under terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2, or
-(at your option) any later version.  FLORIST is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without
-even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more
-details.  You should have received a copy of the GNU General
-Public License distributed with GNARL (see file COPYING).  If not,
-write to the Free Software Foundation, 59 Temple Place - Suite
-330, Boston, MA 02111-1307, USA.
-                                                                          
-As a special exception, if other files instantiate generics from
-this unit, or you link this unit with other files to produce an
-executable, this unit does not by itself cause the resulting
-executable to be covered by the GNU General Public License. This
-exception does not however invalidate any other reasons why the
-executable file might be covered by the GNU Public License.
-
 NORMAL INSTALLATION:
 
 Follow the steps described in the INSTALL file.
 
 COMPILING YOUR PROGRAMS WITH FLORIST:
 
-To compile your own programs with Florist, you will need to include
-the gnatmake parameters that specify where to find the
-Florist sources and object library file. Usually the following command
-will be enough:
+To compile your own programs with Florist, you will need to
+add a "with florist" in your project file. florist.gpr can be found
+under prefix/lib/gnat is also sufficient.
 
-$ gnatmake -Ifloristlib main -largs -lflorist
+Alternatively, to use Florist without project files, you can also
+do something like:
 
-If you don't want to keep around the whole Florist installation
-directory, you should be able to copy or move the subdirectory
-"floristlib" to some other location, and then include it in
-your GNAT source and object library search paths (see the GNAT documentation
-for more details).
+$ gnatmake -I/prefix/floristlib main -largs -lflorist
+

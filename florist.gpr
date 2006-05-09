@@ -1,0 +1,12 @@
+project Florist is
+
+   for Source_Dirs use ("../../floristlib");
+   for Object_Dir use "../../floristlib";
+
+   for Externally_Built use "True";
+
+   package Linker is
+     for Linker_Options use ("-lflorist");
+   end Linker;
+
+end Florist;

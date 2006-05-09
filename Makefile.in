@@ -203,5 +203,6 @@ distclean:
 
 # install floristlib
 install: floristlib
-	mkdir -p $(PREFIX)
-	cp -rp floristlib $(PREFIX)/floristlib
+	mkdir -p $(PREFIX)/lib/gnat
+	cp -pr floristlib $(PREFIX)/floristlib
+	cp -p florist.gpr $(PREFIX)/lib/gnat
