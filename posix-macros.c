@@ -215,8 +215,8 @@ void store_errno(int value) {
    cause problems. Here we provide wrapper wrappers that we import
    instead. */
 
-int __gnat_florist_open(const char *path, int oflag) {
-  return open (path, oflag);
+int __gnat_florist_open(const char *path, int oflag, mode_t mode) {
+  return open (path, oflag, mode);
 }
 
 int __gnat_florist_sem_open 
