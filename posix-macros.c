@@ -212,8 +212,7 @@ void store_errno(int value) {
 
 /* The following are variadic functions and on some platforms, for
    instance x86-64, calling a variadic function directly from Ada can
-   cause problems. Here we provide wrapper wrappers that we import
-   instead. */
+   cause problems. Here we provide wrappers that we import instead. */
 
 int __gnat_florist_open(const char *path, int oflag, mode_t mode) {
   return open (path, oflag, mode);
