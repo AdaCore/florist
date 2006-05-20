@@ -92,6 +92,11 @@ package body POSIX.Permissions is
      (Permissions : Permission_Set) is
       Mask : mode_t :=
         not (Form_C_Permission (Permissions) and File_Access_Permission_Bits);
+
+      --  Mask is assigned to but never referenced when umask is
+      --  evaluated for its side effect.
+      pragma Warnings (Off, Mask);
+
    begin
       Cached_Umask := Mask;
       Mask := umask (Mask);
