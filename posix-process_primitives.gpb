@@ -463,10 +463,17 @@ package body POSIX.Process_Primitives is
       Result : int;
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
+      Default_Arg : POSIX_String_List;
       Old_Mask : aliased Signal_Mask;
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
+
+      --  Construct a default argument list with the executable name (argv[0])
+
+      if Arg_List = null or else Length (Arg_List) = 0 then
+         Append (Default_Arg, Pathname_With_NUL);
+         Arg := To_String_List_Ptr (Default_Arg);
       end if;
+
       Validate (Template);
       --  .... Consider trying to "quiesce" the tasking system
       --  before doing the fork.  It is probably not feasible.
@@ -480,6 +487,7 @@ package body POSIX.Process_Primitives is
             Arg.Char (1)'Unchecked_Access);
          Exit_Process (Failed_Creation_Exit);
       else Child := To_Process_ID (pid);
+         Make_Empty (Default_Arg);
          Restore_Signals
            (Template.Masked_Sig, Old_Mask'Unchecked_Access);
       end if;
