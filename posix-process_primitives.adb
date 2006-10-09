@@ -89,13 +89,11 @@ package body POSIX.Process_Primitives is
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
    begin
-      pragma Warnings (Off);
       if Directory = "" then return File & NUL; end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File & NUL;
       end if;
       return Directory & '/' & File & NUL;
-      pragma Warnings (On);
    end Make_Path_Name;
 
    procedure Delete_Head (Pointer : in out FD_Set_Ptr);
