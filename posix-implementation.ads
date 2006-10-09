@@ -376,13 +376,4 @@ package POSIX.Implementation is
    function To_Struct_Timeval (D : Duration) return POSIX.C.struct_timeval;
    function To_Duration (TV : POSIX.C.struct_timeval) return Duration;
 
-   --  The following is used in POSIX.Unsafe_Process_Primitives.Fork and
-   --  POSIX.Process_Identification.Get_Process_ID to cache the ID of the
-   --  current process.  It is present only because  Xavier Leroy's
-   --  Linux threads do not conform to the POSIX C interface standard.
-   --  In particular, they return different values from getpid()
-   --  for each thread.
-
-   This_Process : POSIX.C.pid_t;
-
 end POSIX.Implementation;

@@ -634,17 +634,9 @@ package body POSIX.Process_Primitives is
    procedure sys_exit (status : int);
    pragma Import (C, sys_exit, "_exit");
 
-#  if HAVE_Leroy_Threads then
-   procedure c_exit (status : int);
-   pragma Import (C, c_exit, "exit");
-#  end if;
-
    procedure Exit_Process
      (Status : Exit_Status := Normal_Exit) is
    begin
-#     if HAVE_Leroy_Threads then
-      c_exit (int (Status));
-#     end if;
       sys_exit (int (Status));
    end Exit_Process;
 

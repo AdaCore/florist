@@ -54,7 +54,6 @@ build directory is mounted by both the host and the target.
  checking whether the C compiler (gcc -mthreads  ) is a cross-compiler... no
  checking whether we are using GNU C... yes
  checking whether gcc -mthreads accepts -g... yes
- checking for Xavier Leroy Linux threads... no
  We will assume errno is safe for exception propagation.
  -- to override, hand-edit gnatprep.config
  LynxOS PowerPC 3.1.0 071000-F

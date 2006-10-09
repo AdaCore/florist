@@ -31,15 +31,6 @@ AC_SUBST(DEPS)
 
 [
 
-echo $ac_n "checking for Xavier Leroy Linux threads... " $ac_c;
-if (grep "Leroy" /usr/include/pthread.h >/dev/null 2>&1); then
- echo "yes"
- echo "HAVE_Leroy_Threads := True" > gnatprep.config;
-else
- echo "no"
- echo "HAVE_Leroy_Threads := False" > gnatprep.config;
-fi;
-
 echo "We will assume errno is safe for exception propagation."
 echo "to override, hand-edit gnatprep.config"
 echo "HAVE_Safe_Errno := True" >> gnatprep.config;
