@@ -59,6 +59,11 @@ package body POSIX.Calendar is
    use Standard.Calendar,
        POSIX.C;
 
+   POSIX_Epoch : constant Duration :=
+     AC.Time_Of (Year => 1970, Month => 1, Day => 1) -
+     AC.Time_Of (Year => 1901, Month => 1, Day => 1);
+   --  The POSIX epoch, measured as a duration since the Ada epoch.
+
    function Duration_To_POSIX_Time is new Unchecked_Conversion
       (Duration, POSIX_Time);
    function POSIX_Time_To_Duration is new Unchecked_Conversion
@@ -92,7 +97,7 @@ package body POSIX.Calendar is
 
    function To_Time (Date : POSIX_Time) return AC.Time is
    begin
-      return AC.Time (Date);
+      return AC.Time (Date) + POSIX_Epoch;
    end To_Time;
 
    ---------------------
@@ -102,7 +107,7 @@ package body POSIX.Calendar is
    function To_POSIX_Time (Date : AC.Time) return POSIX_Time is
    begin
       return Duration_To_POSIX_Time (Duration (time_t
-        (POSIX_Time_To_Duration (POSIX_Time (Date)))));
+        (POSIX_Time_To_Duration (POSIX_Time (Date - POSIX_Epoch)))));
    end To_POSIX_Time;
 
    ------------
@@ -111,7 +116,7 @@ package body POSIX.Calendar is
 
    function Year (Date : POSIX_Time) return Year_Number is
    begin
-      return Year_Number (AC.Year (AC.Time (Date)));
+      return Year_Number (AC.Year (To_Time (Date)));
    end Year;
 
    -------------
@@ -120,7 +125,7 @@ package body POSIX.Calendar is
 
    function Month (Date : POSIX_Time) return Month_Number is
    begin
-      return AC.Month (AC.Time (Date));
+      return AC.Month (To_Time (Date));
    end Month;
 
    -----------
@@ -129,7 +134,7 @@ package body POSIX.Calendar is
 
    function Day (Date : POSIX_Time) return Day_Number is
    begin
-      return AC.Day (AC.Time (Date));
+      return AC.Day (To_Time (Date));
    end Day;
 
    ---------------
@@ -138,7 +143,7 @@ package body POSIX.Calendar is
 
    function Seconds (Date : POSIX_Time) return Day_Duration is
    begin
-      return AC.Seconds (AC.Time (Date));
+      return AC.Seconds (To_Time (Date));
    end Seconds;
 
    -------------
@@ -152,7 +157,7 @@ package body POSIX.Calendar is
       Day     : out Day_Number;
       Seconds : out Day_Duration) is
    begin
-      AC.Split (AC.Time (Date), Year, Month, Day, Seconds);
+      AC.Split (To_Time (Date), Year, Month, Day, Seconds);
    end Split;
 
    ---------------
@@ -165,7 +170,7 @@ package body POSIX.Calendar is
       Day     : Day_Number;
       Seconds : Day_Duration := 0.0) return POSIX_Time is
    begin
-      return POSIX_Time (AC.Time_Of (Year, Month, Day,
+      return To_POSIX_Time (AC.Time_Of (Year, Month, Day,
         Truncate (Seconds)));
    end Time_Of;
 
@@ -175,7 +180,7 @@ package body POSIX.Calendar is
 
    function "+" (L : POSIX_Time; R : Duration) return POSIX_Time is
    begin
-      return POSIX_Time (AC.Time (L) + Truncate (R));
+      return POSIX_Time (To_Time (L) + Truncate (R));
    end "+";
 
    -----------
@@ -184,7 +189,7 @@ package body POSIX.Calendar is
 
    function "+" (L : Duration; R : POSIX_Time) return POSIX_Time is
    begin
-      return POSIX_Time (Truncate (L) + AC.Time (R));
+      return POSIX_Time (Truncate (L) + To_Time (R));
    end "+";
 
    -----------
@@ -193,7 +198,7 @@ package body POSIX.Calendar is
 
    function "-" (L : POSIX_Time; R : Duration) return POSIX_Time is
    begin
-      return POSIX_Time (AC.Time (L) - R);
+      return POSIX_Time (To_Time (L) - R);
    end "-";
 
    -----------
@@ -202,7 +207,7 @@ package body POSIX.Calendar is
 
    function "-" (L : POSIX_Time; R : POSIX_Time) return Duration is
    begin
-      return AC.Time (L) - AC.Time (R);
+      return To_Time (L) - To_Time (R);
    end "-";
 
    -----------
@@ -211,7 +216,7 @@ package body POSIX.Calendar is
 
    function "<" (L, R : POSIX_Time) return Boolean is
    begin
-      return AC.Time (L) < AC.Time (R);
+      return To_Time (L) < To_Time (R);
    end "<";
 
    ------------
@@ -220,7 +225,7 @@ package body POSIX.Calendar is
 
    function "<=" (L, R : POSIX_Time) return Boolean is
    begin
-      return AC.Time (L) <= AC.Time (R);
+      return To_Time (L) <= To_Time (R);
    end "<=";
 
    -----------
@@ -229,7 +234,7 @@ package body POSIX.Calendar is
 
    function ">" (L, R : POSIX_Time) return Boolean is
    begin
-      return AC.Time (L) > AC.Time (R);
+      return To_Time (L) > To_Time (R);
    end ">";
 
    ------------
@@ -238,7 +243,7 @@ package body POSIX.Calendar is
 
    function ">=" (L, R : POSIX_Time) return Boolean is
    begin
-      return AC.Time (L) >= AC.Time (R);
+      return To_Time (L) >= To_Time (R);
    end ">=";
 
    ---------------------
