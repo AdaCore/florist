@@ -68,14 +68,12 @@ package body POSIX.Unsafe_Process_Primitives is
    function Make_Path_Name
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
-      pragma Warnings (Off);
    begin
       if Directory = "" then return File; end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File;
       end if;
       return Directory & '/' & File;
-      pragma Warnings (On);
    end Make_Path_Name;
 
    ------------
