@@ -109,7 +109,7 @@ package body POSIX.Process_Primitives is
    procedure Void (Ignore : int);
    pragma Inline (Void);
    procedure Void (Ignore : int) is
-      pragma Warnings (Off, Ignore);
+      pragma Unreferenced (Ignore);
    begin
       null;
    end Void;
@@ -454,17 +454,18 @@ package body POSIX.Process_Primitives is
      (Child : out POSIX.Process_Identification.Process_ID;
       Pathname : POSIX.Pathname;
       Template : Process_Template;
-      Arg_List : POSIX_String_List
-               := Empty_String_List) is
+      Arg_List : POSIX_String_List := Empty_String_List)
+   is
       pid : pid_t;
-      pragma Warnings (Off);
       Result : int;
+      pragma Unreferenced (Result);
+
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Default_Arg : POSIX_String_List;
       Old_Mask : aliased Signal_Mask;
-   begin
 
+   begin
       --  Construct a default argument list with the executable name (argv[0])
 
       if Arg_List = null or else Length (Arg_List) = 0 then
@@ -489,7 +490,6 @@ package body POSIX.Process_Primitives is
          Restore_Signals
            (Template.Masked_Sig, Old_Mask'Unchecked_Access);
       end if;
-      pragma Warnings (On);
    end Start_Process;
 
    procedure Start_Process
@@ -497,30 +497,31 @@ package body POSIX.Process_Primitives is
       Pathname : POSIX.Pathname;
       Template : Process_Template;
       Env_List : POSIX.Process_Environment.Environment;
-      Arg_List : POSIX_String_List
-               := Empty_String_List) is
+      Arg_List : POSIX_String_List := Empty_String_List)
+   is
       pid : pid_t;
-      pragma Warnings (Off);
       Result : int;
+      pragma Unreferenced (Result);
+
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
+
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
-      end if;
-      if Env = null then Env := Null_String_List_Ptr;
-      end if;
+      if Arg = null then Arg := Null_String_List_Ptr; end if;
+      if Env = null then Env := Null_String_List_Ptr; end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
+
       if pid = 0 then    --  child process
          Execute_Template (Template);
          Result := execve (Pathname_With_NUL
            (Pathname_With_NUL'First)'Unchecked_Access,
             Arg.Char (1)'Access, Env.Char (1)'Access);
          Exit_Process (Failed_Creation_Exit);
-      else Child := To_Process_ID (pid);
+      else
+         Child := To_Process_ID (pid);
       end if;
-      pragma Warnings (On);
    end Start_Process;
 
    ----------------------------
@@ -531,16 +532,17 @@ package body POSIX.Process_Primitives is
      (Child : out POSIX.Process_Identification.Process_ID;
       Filename : POSIX.Filename;
       Template : Process_Template;
-      Arg_List : POSIX_String_List
-               := Empty_String_List) is
+      Arg_List : POSIX_String_List := Empty_String_List)
+   is
       pid : pid_t;
-      pragma Warnings (Off);
       Result : int;
+      pragma Unreferenced (Result);
+
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
+
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
-      end if;
+      if Arg = null then Arg := Null_String_List_Ptr; end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
       if pid = 0 then    --  child process
@@ -550,7 +552,6 @@ package body POSIX.Process_Primitives is
          Exit_Process (Failed_Creation_Exit);
       else Child := To_Process_ID (pid);
       end if;
-      pragma Warnings (On);
    end Start_Process_Search;
 
    ----------------------------
@@ -562,19 +563,19 @@ package body POSIX.Process_Primitives is
       Filename : POSIX.Filename;
       Template : Process_Template;
       Env_List : POSIX.Process_Environment.Environment;
-      Arg_List : POSIX_String_List
-               := Empty_String_List) is
+      Arg_List : POSIX_String_List := Empty_String_List)
+   is
       pid : pid_t;
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
+
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
-      end if;
-      if Env = null then Env := Null_String_List_Ptr;
-      end if;
+      if Arg = null then Arg := Null_String_List_Ptr; end if;
+      if Env = null then Env := Null_String_List_Ptr; end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
+
       if pid = 0 then    --  child process
          Execute_Template (Template);
          --  See comments in POSIX.Unsafe_Process_Primitives.Exec_Search.
@@ -595,8 +596,9 @@ package body POSIX.Process_Primitives is
                     ("PATH", "/bin:/usr/bin");
             Start : Positive;
             P : Positive;
-            pragma Warnings (Off);
             Result : int;
+            pragma Unreferenced (Result);
+
          begin
             P := Path'First;
             loop
@@ -619,7 +621,6 @@ package body POSIX.Process_Primitives is
                P := P + 1; -- skip colon
             end loop;
          end;
-         pragma Warnings (Off);
          Exit_Process (Failed_Creation_Exit);
       else Child := To_Process_ID (pid);
       end if;
@@ -761,9 +762,9 @@ package body POSIX.Process_Primitives is
       Child : POSIX.Process_Identification.Process_ID;
       Block : Boolean := True;
       Trace_Stopped  : Boolean := True;
-      Masked_Signals : POSIX.Signal_Masking
-                     := POSIX.RTS_Signals) is
-      pragma Warnings (Off, Masked_Signals);
+      Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
+   is
+      pragma Unreferenced (Masked_Signals);
       Options : Bits := 0;
    begin
       if Trace_Stopped then
