@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994 Florida State University             --
---                     Copyright (C) 1995-2005 AdaCore                      --
+--                     Copyright (C) 1995-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -420,6 +420,9 @@ char *name_to_linkname_table[] = {
   "stat", "__gnat_florist_stat",
   "fstat", "__gnat_florist_fstat",
   "lstat", "__gnat_florist_lstat",
+
+  /* The following is implemented as an inline function on some platforms */
+  "uname", "__gnat_florist_uname",
 
    NULL
 };
