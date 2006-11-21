@@ -60,9 +60,9 @@ package body POSIX.Calendar is
        POSIX.C;
 
    POSIX_Epoch : constant Duration :=
-     AC.Time_Of (Year => 1970, Month => 1, Day => 1) -
-     AC.Time_Of (Year => 1901, Month => 1, Day => 1);
-   --  The POSIX epoch, measured as a duration since the Ada epoch.
+     AC.Time_Of (Year => 2150, Month => 1, Day => 1) -
+     AC.Time_Of (Year => 1970, Month => 1, Day => 1);
+   --  The POSIX Epoch, measured as a duration since the Ada mid point
 
    function Duration_To_POSIX_Time is new Unchecked_Conversion
       (Duration, POSIX_Time);
@@ -97,7 +97,7 @@ package body POSIX.Calendar is
 
    function To_Time (Date : POSIX_Time) return AC.Time is
    begin
-      return AC.Time (Date) + POSIX_Epoch;
+      return AC.Time (Date) - POSIX_Epoch;
    end To_Time;
 
    ---------------------
@@ -107,7 +107,7 @@ package body POSIX.Calendar is
    function To_POSIX_Time (Date : AC.Time) return POSIX_Time is
    begin
       return Duration_To_POSIX_Time (Duration (time_t
-        (POSIX_Time_To_Duration (POSIX_Time (Date - POSIX_Epoch)))));
+        (POSIX_Time_To_Duration (POSIX_Time (Date + POSIX_Epoch)))));
    end To_POSIX_Time;
 
    ------------
