@@ -59,7 +59,12 @@ inet_ntop(af, src, dst, size)
 	int af;
 	const void *src;
 	char *dst;
+/* Workaround issue on Sparc64 */
+#if defined (__sun__) && defined( __sparcv9) && defined(__arch64__)
+        socklen_t size;
+#else
 	size_t size;
+#endif
 {
 	switch (af) {
 	case AF_INET:
