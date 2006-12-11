@@ -349,7 +349,7 @@ void save_type
   (char const name[],
    int typesize,
    int typekind,
-   component_t const *comps);
+   component_t *comps);
 void print_type_declaration(char const name[], FILE *fp);
 void gieeeheader(const char pkgname[]);
 void gspecheader(const char pkgname[]);
@@ -1298,7 +1298,14 @@ struct addrinfo {
   GT2(ai_family, int)
   GT2(ai_socktype, int)
   GT2(ai_protocol, int)
+
+/* Workaround layout issue on Sparc64 */
+#if defined (__sun__) && defined( __sparcv9) && defined(__arch64__)
+  GT2(_ai_pad, int)
+  GT2(ai_addrlen, int)
+#else
   GT2(ai_addrlen, size_t)
+#endif
   GT2(ai_addr, struct sockaddr *)
   GT2(ai_canonname, char *)
   GT2(ai_next, struct addrinfo *)
@@ -1578,11 +1585,11 @@ void save_type
   (char const name[],
    int typesize,
    int typekind,
-   component_t const *comps) {
+   component_t *comps) {
 
   type_t *tmp;
   int count;
-  component_t const *p;
+  component_t *p;
 
   tmp = all_type_list;
   for (tmp=all_type_list;
@@ -1599,7 +1606,11 @@ void save_type
   tmp->typesize = typesize;
   count = 0;
   if (comps) {
-    for (p=comps;p->compname;p++) count++;
+    for (p=comps;p->compname;p++) { 
+      /* Normalize component names by stripping out leading underscores. */
+      while (p -> compname [0] == '_') p -> compname++;
+      count++;
+    }
     tmp->comps = malloc((count+1)*sizeof(component_t));
     memcpy(tmp->comps,comps,(count+1)*sizeof(component_t));
   }
