@@ -59,8 +59,8 @@ inet_ntop(af, src, dst, size)
 	int af;
 	const void *src;
 	char *dst;
-/* Workaround issue on Sparc64 */
-#if defined (__sun__) && defined( __sparcv9) && defined(__arch64__)
+/* Workaround layout issue on Sparc64 version 10. */
+#if defined (__sun__) && defined(__arch64__) && !defined(_GCC_SIZE_T)
         socklen_t size;
 #else
 	size_t size;

@@ -1299,8 +1299,8 @@ struct addrinfo {
   GT2(ai_socktype, int)
   GT2(ai_protocol, int)
 
-/* Workaround layout issue on Sparc64 */
-#if defined (__sun__) && defined( __sparcv9) && defined(__arch64__)
+/* Workaround layout issue on Sparc64 version 10. */
+#if defined (__sun__) && defined(__arch64__) && !defined(_GCC_SIZE_T)
   GT2(_ai_pad, int)
   GT2(ai_addrlen, int)
 #else
