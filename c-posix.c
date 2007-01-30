@@ -1298,7 +1298,7 @@ struct addrinfo {
   GT2(ai_family, int)
   GT2(ai_socktype, int)
   GT2(ai_protocol, int)
-  GT2(ai_addrlen, int)
+  GT2(ai_addrlen, size_t)
   GT2(ai_addr, struct sockaddr *)
   GT2(ai_canonname, char *)
   GT2(ai_next, struct addrinfo *)
