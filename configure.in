@@ -68,9 +68,11 @@ case ${UNAME_SYSTEM} in
    esac;
    ;;
  SunOS)
-# .... need to add cases here for versions 2.5.1 and 2.6, at least
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
-   cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in;
+   case ${UNAME_RELEASE} in
+     5.1[0-9]) cp ./configs/pconfig.SunOS5.10 ./pconfig.h.in ;;
+     *) cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in ;;
+   esac
    ;;
  Linux)
 # .... need to add cases here for different thread and C libraries
