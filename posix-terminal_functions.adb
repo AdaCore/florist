@@ -59,26 +59,66 @@ package body POSIX.Terminal_Functions is
 
    function To_Ada_Baud (Val : speed_t) return Baud_Rate is
    begin
-      if Val = POSIX.C.B0 then return B0; end if;
-      if Val = POSIX.C.B50 then return B50; end if;
-      if Val = POSIX.C.B75 then return B75; end if;
-      if Val = POSIX.C.B110 then return B110; end if;
-      if Val = POSIX.C.B134 then return B134; end if;
-      if Val = POSIX.C.B150 then return B150; end if;
-      if Val = POSIX.C.B200 then return B200; end if;
-      if Val = POSIX.C.B300 then return B300; end if;
-      if Val = POSIX.C.B600 then return B600; end if;
-      if Val = POSIX.C.B1200 then return B1200; end if;
-      if Val = POSIX.C.B1800 then return B1800; end if;
-      if Val = POSIX.C.B2400 then return B2400; end if;
-      if Val = POSIX.C.B4800 then return B4800; end if;
-      if Val = POSIX.C.B9600 then return B9600; end if;
-      if Val = POSIX.C.B19200 then return B19200; end if;
-      if Val = POSIX.C.B38400 then return B38400; end if;
-      if Val = POSIX.C.B57600 then return B57600; end if;
-      if Val = POSIX.C.B115200 then return B115200; end if;
-      if Val = POSIX.C.B230400 then return B230400; end if;
-      if Val = POSIX.C.B460800 then return B460800; end if;
+      if Val = POSIX.C.B0 then
+         return B0;
+      end if;
+      if Val = POSIX.C.B50 then
+         return B50;
+      end if;
+      if Val = POSIX.C.B75 then
+         return B75;
+      end if;
+      if Val = POSIX.C.B110 then
+         return B110;
+      end if;
+      if Val = POSIX.C.B134 then
+         return B134;
+      end if;
+      if Val = POSIX.C.B150 then
+         return B150;
+      end if;
+      if Val = POSIX.C.B200 then
+         return B200;
+      end if;
+      if Val = POSIX.C.B300 then
+         return B300;
+      end if;
+      if Val = POSIX.C.B600 then
+         return B600;
+      end if;
+      if Val = POSIX.C.B1200 then
+         return B1200;
+      end if;
+      if Val = POSIX.C.B1800 then
+         return B1800;
+      end if;
+      if Val = POSIX.C.B2400 then
+         return B2400;
+      end if;
+      if Val = POSIX.C.B4800 then
+         return B4800;
+      end if;
+      if Val = POSIX.C.B9600 then
+         return B9600;
+      end if;
+      if Val = POSIX.C.B19200 then
+         return B19200;
+      end if;
+      if Val = POSIX.C.B38400 then
+         return B38400;
+      end if;
+      if Val = POSIX.C.B57600 then
+         return B57600;
+      end if;
+      if Val = POSIX.C.B115200 then
+         return B115200;
+      end if;
+      if Val = POSIX.C.B230400 then
+         return B230400;
+      end if;
+      if Val = POSIX.C.B460800 then
+         return B460800;
+      end if;
       Raise_POSIX_Error (Invalid_Argument);
       --  fake return to avoid compiler warning message
       return B38400;
@@ -262,10 +302,18 @@ package body POSIX.Terminal_Functions is
         Characteristics.termios.c_cflag and CSIZE;
    begin
       Validate (Characteristics);
-      if csize_bits = CS5 then return 5; end if;
-      if csize_bits = CS6 then return 6; end if;
-      if csize_bits = CS7 then return 7; end if;
-      if csize_bits = CS8 then return 8; end if;
+      if csize_bits = CS5 then
+         return 5;
+      end if;
+      if csize_bits = CS6 then
+         return 6;
+      end if;
+      if csize_bits = CS7 then
+         return 7;
+      end if;
+      if csize_bits = CS8 then
+         return 8;
+      end if;
       Raise_POSIX_Error (Invalid_Argument);
       --  fake return to avoid compiler warning message
       return 8;
@@ -573,7 +621,9 @@ package body POSIX.Terminal_Functions is
       Result : pid_t;
    begin
       Result := tcgetpgrp (int (File));
-      if Result = -1 then Raise_POSIX_Error; end if;
+      if Result = -1 then
+         Raise_POSIX_Error;
+      end if;
       return To_Process_Group_ID (Result);
    end Get_Process_Group_ID;
 

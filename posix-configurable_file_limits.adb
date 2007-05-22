@@ -86,9 +86,12 @@ package body POSIX.Configurable_File_Limits is
       --  other values               -> there exists a limit
       if pathconf (Pathname_With_NUL
         (Pathname_With_NUL'First)'Unchecked_Access, PC_Code) = -1 then
-         if Fetch_Errno /= 0 then Raise_POSIX_Error; end if;
+         if Fetch_Errno /= 0 then
+            Raise_POSIX_Error;
+         end if;
          return False;
-      else return True;
+      else
+         return True;
       end if;
    end Is_Limited;
 
@@ -98,9 +101,12 @@ package body POSIX.Configurable_File_Limits is
    begin
       Store_Errno (0);
       if fpathconf (int (File), PC_Code) = -1 then
-         if Fetch_Errno /= 0 then Raise_POSIX_Error; end if;
+         if Fetch_Errno /= 0 then
+            Raise_POSIX_Error;
+         end if;
          return False;
-      else return True;
+      else
+         return True;
       end if;
    end Is_Limited;
 
@@ -114,9 +120,12 @@ package body POSIX.Configurable_File_Limits is
       Result := pathconf
        (Pathname_With_NUL (Pathname_With_NUL'First)'Unchecked_Access, PC_Code);
       if Result = -1 then
-         if Fetch_Errno /= 0 then Raise_POSIX_Error; end if;
+         if Fetch_Errno /= 0 then
+            Raise_POSIX_Error;
+         end if;
          return Default_Maximum;
-      else return Result;
+      else
+         return Result;
       end if;
    end Limit;
 
@@ -128,9 +137,12 @@ package body POSIX.Configurable_File_Limits is
    begin
       Result := fpathconf (int (File), PC_Code);
       if Result = -1 then
-         if Fetch_Errno /= 0 then Raise_POSIX_Error; end if;
+         if Fetch_Errno /= 0 then
+            Raise_POSIX_Error;
+         end if;
          return Default_Maximum;
-      else return Result;
+      else
+         return Result;
       end if;
    end Limit;
 

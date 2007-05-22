@@ -128,7 +128,9 @@ package body POSIX.Implementation is
       Tmp : Error_Code := Error;
    begin
       --  .... see note on critical sections above
-      if Error = No_Error then Tmp := Fetch_Errno; end if;
+      if Error = No_Error then
+         Tmp := Fetch_Errno;
+      end if;
       Set_Ada_Error_Code (Tmp);
       Ada.Exceptions.Raise_Exception
            (POSIX_Error'Identity, Image (Tmp));
@@ -141,21 +143,24 @@ package body POSIX.Implementation is
    procedure Check (Condition : Boolean; Error : Error_Code) is
    begin
       --  .... see note on critical sections above
-      if not Condition then Raise_POSIX_Error (Error);
+      if not Condition then
+         Raise_POSIX_Error (Error);
       end if;
    end Check;
 
    procedure Check (Result : int) is
    begin
       --  .... see note on critical sections above
-      if Result = -1 then Raise_POSIX_Error (Fetch_Errno);
+      if Result = -1 then
+         Raise_POSIX_Error (Fetch_Errno);
       end if;
    end Check;
 
    function Check (Result : int) return int is
    begin
       --  .... see note on critical sections above
-      if Result = -1 then Raise_POSIX_Error (Fetch_Errno);
+      if Result = -1 then
+         Raise_POSIX_Error (Fetch_Errno);
       end if;
       return Result;
    end Check;
@@ -168,7 +173,8 @@ package body POSIX.Implementation is
    procedure Check_NNeg (Result : int) is
    begin
       --  .... see note on critical sections above
-      if Result < 0 then Raise_POSIX_Error (Fetch_Errno);
+      if Result < 0 then
+         Raise_POSIX_Error (Fetch_Errno);
       end if;
    end Check_NNeg;
 
@@ -180,7 +186,8 @@ package body POSIX.Implementation is
    function Check_NNeg (Result : int) return int is
    begin
       --  .... see note on critical sections above.
-      if Result < 0 then Raise_POSIX_Error (Fetch_Errno);
+      if Result < 0 then
+         Raise_POSIX_Error (Fetch_Errno);
       end if;
       return Result;
    end Check_NNeg;
@@ -188,7 +195,8 @@ package body POSIX.Implementation is
    procedure Check_NZ (Result : int) is
    begin
       --  .... see note on critical sections above.
-      if Result /= 0 then Raise_POSIX_Error (Error_Code (Result));
+      if Result /= 0 then
+         Raise_POSIX_Error (Error_Code (Result));
       end if;
    end Check_NZ;
 
@@ -201,7 +209,9 @@ package body POSIX.Implementation is
 
    function Form_String (Str : char_ptr) return String is
    begin
-      if Str = null then return ""; end if;
+      if Str = null then
+         return "";
+      end if;
       declare
          subtype Substring is String (1 .. Integer (strlen (Str)));
          type Substring_Ptr is access Substring;
@@ -218,7 +228,9 @@ package body POSIX.Implementation is
 
    function Trim_Leading_Blank (S : String) return String is
    begin
-      if S (S'First) /= ' ' then return S; end if;
+      if S (S'First) /= ' ' then
+         return S;
+      end if;
       return S (S'First + 1 .. S'Last);
    end Trim_Leading_Blank;
 
@@ -368,7 +380,10 @@ package body POSIX.Implementation is
       F := D - Duration (S);
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
-      if F < 0.0 then S := S - 1; F := F + 1.0; end if;
+      if F < 0.0 then
+         S := S - 1;
+         F := F + 1.0;
+      end if;
       return struct_timespec'(tv_sec => S,
         tv_nsec => long (Long_Long_Integer (F * NS_per_S)));
    end To_Struct_Timespec;
@@ -418,7 +433,10 @@ package body POSIX.Implementation is
       F := D - Duration (S);
       --  If F has negative value due to a round-up, adjust for positive F
       --  value.
-      if F < 0.0 then S := S - 1; F := F + 1.0; end if;
+      if F < 0.0 then
+         S := S - 1;
+         F := F + 1.0;
+      end if;
       return struct_timeval'(tv_sec => S,
         tv_usec => suseconds_t (Long_Long_Integer (F * MS_per_S)));
    end To_Struct_Timeval;

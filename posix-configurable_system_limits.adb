@@ -56,7 +56,9 @@ package body POSIX.Configurable_System_Limits is
       Result : long;
    begin
       Result := sysconf (Name);
-      if Result = -1 then return Support_Subtype'Last; end if;
+      if Result = -1 then
+         return Support_Subtype'Last;
+      end if;
       return Support_Subtype (Result);
    end Limit;
 

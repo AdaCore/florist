@@ -81,8 +81,12 @@ package body POSIX.Page_Alignment is
       L : Storage_Offset;
    begin
       L := Length + Addr - Truncate_To_Page (Addr);
-      if Page_Size = 0 then return L; end if;
-      if L mod Page_Size = 0 then return L; end if;
+      if Page_Size = 0 then
+         return L;
+      end if;
+      if L mod Page_Size = 0 then
+         return L;
+      end if;
       return Page_Size * (L / Page_Size + 1);
    end Adjust_Length;
 
@@ -94,8 +98,12 @@ package body POSIX.Page_Alignment is
    begin
       O := Offset - Truncate_To_Page (Offset);
       L := Length + Storage_Offset (O);
-      if Page_Size = 0 then return L; end if;
-      if L mod Page_Size = 0 then return L; end if;
+      if Page_Size = 0 then
+         return L;
+      end if;
+      if L mod Page_Size = 0 then
+         return L;
+      end if;
       return Page_Size * (L / Page_Size + 1);
    end Adjust_Length;
 

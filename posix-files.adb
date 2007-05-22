@@ -342,7 +342,8 @@ package body POSIX.Files is
    begin
       dirp := opendir (Pathname_With_NUL
         (Pathname_With_NUL'First)'Unchecked_Access);
-      if dirp = null then Raise_POSIX_Error;
+      if dirp = null then
+         Raise_POSIX_Error;
       end if;
       loop
          dirent := readdir (dirp);
@@ -461,8 +462,10 @@ package body POSIX.Files is
       if c_access
         (Pathname_With_NUL (Pathname_With_NUL'First)'Unchecked_Access,
          Form_C_access (Access_Modes)) = 0
-      then return No_Error;
-      else return Fetch_Errno;
+      then
+         return No_Error;
+      else
+         return Fetch_Errno;
       end if;
    end Accessibility;
 
@@ -485,8 +488,10 @@ package body POSIX.Files is
    function Existence
      (Pathname : POSIX.Pathname) return Error_Code is
    begin
-      if Is_File_Present (Pathname) then return No_Error;
-      else return Fetch_Errno;
+      if Is_File_Present (Pathname) then
+         return No_Error;
+      else
+         return Fetch_Errno;
       end if;
    end Existence;
 

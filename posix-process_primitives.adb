@@ -89,7 +89,9 @@ package body POSIX.Process_Primitives is
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
    begin
-      if Directory = "" then return File & NUL; end if;
+      if Directory = "" then
+         return File & NUL;
+      end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File & NUL;
       end if;
@@ -267,7 +269,8 @@ package body POSIX.Process_Primitives is
 
    procedure Validate (Template : Process_Template) is
    begin
-      if Template.Is_Closed then Raise_POSIX_Error (Invalid_Argument);
+      if Template.Is_Closed then
+         Raise_POSIX_Error (Invalid_Argument);
       end if;
    end Validate;
 
@@ -485,7 +488,8 @@ package body POSIX.Process_Primitives is
            (Pathname_With_NUL'First)'Unchecked_Access,
             Arg.Char (1)'Unchecked_Access);
          Exit_Process (Failed_Creation_Exit);
-      else Child := To_Process_ID (pid);
+      else
+         Child := To_Process_ID (pid);
          Make_Empty (Default_Arg);
          Restore_Signals
            (Template.Masked_Sig, Old_Mask'Unchecked_Access);
@@ -508,8 +512,12 @@ package body POSIX.Process_Primitives is
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
 
    begin
-      if Arg = null then Arg := Null_String_List_Ptr; end if;
-      if Env = null then Env := Null_String_List_Ptr; end if;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
+      end if;
+      if Env = null then
+         Env := Null_String_List_Ptr;
+      end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
 
@@ -542,7 +550,9 @@ package body POSIX.Process_Primitives is
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
 
    begin
-      if Arg = null then Arg := Null_String_List_Ptr; end if;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
+      end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
       if pid = 0 then    --  child process
@@ -550,7 +560,8 @@ package body POSIX.Process_Primitives is
          Result := execvp (Filename_With_NUL
            (Filename_With_NUL'First)'Unchecked_Access, Arg.Char (1)'Access);
          Exit_Process (Failed_Creation_Exit);
-      else Child := To_Process_ID (pid);
+      else
+         Child := To_Process_ID (pid);
       end if;
    end Start_Process_Search;
 
@@ -571,8 +582,12 @@ package body POSIX.Process_Primitives is
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
 
    begin
-      if Arg = null then Arg := Null_String_List_Ptr; end if;
-      if Env = null then Env := Null_String_List_Ptr; end if;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
+      end if;
+      if Env = null then
+         Env := Null_String_List_Ptr;
+      end if;
       Validate (Template);
       pid := To_pid_t (UFork); Check (int (pid));
 
@@ -622,7 +637,8 @@ package body POSIX.Process_Primitives is
             end loop;
          end;
          Exit_Process (Failed_Creation_Exit);
-      else Child := To_Process_ID (pid);
+      else
+         Child := To_Process_ID (pid);
       end if;
    end Start_Process_Search;
 

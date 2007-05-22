@@ -160,7 +160,9 @@ package body POSIX is
 
    function Is_Filename (Str : POSIX_String) return Boolean is
    begin
-      if To_String (Str)'Length = 0 then return False; end if;
+      if To_String (Str)'Length = 0 then
+         return False;
+      end if;
       for I in Str'Range loop
          if Str (I) = '/' or Str (I) = NUL or Str (I) = ' ' then
             return False;
@@ -181,7 +183,9 @@ package body POSIX is
 
    function Is_Pathname (Str : POSIX_String) return Boolean is
    begin
-      if To_String (Str)'Length = 0 then return False; end if;
+      if To_String (Str)'Length = 0 then
+         return False;
+      end if;
       for I in Str'Range loop
          if Str (I) = NUL or Str (I) = ' ' then
             return False;
@@ -197,13 +201,17 @@ package body POSIX is
    function Is_Portable_Filename (Str : POSIX_String)
       return Boolean is
    begin
-      if To_String (Str)'Length = 0 then return False; end if;
+      if To_String (Str)'Length = 0 then
+         return False;
+      end if;
       for I in Str'Range loop
          case Str (I) is
             when 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '.' | '_' =>
                null;
             when '-' =>
-               if I = Str'First then return False; end if;
+               if I = Str'First then
+                  return False;
+               end if;
             when others =>
                return False;
          end case;
@@ -220,7 +228,9 @@ package body POSIX is
       Start : Positive;
       P : Positive;
    begin
-      if To_String (Str)'Length = 0 then return False; end if;
+      if To_String (Str)'Length = 0 then
+         return False;
+      end if;
       Start := Str'First;
       P := Str'First;
       loop
@@ -229,7 +239,9 @@ package body POSIX is
                Is_Portable_Filename (Str (Start .. P - 1)) then
                return False;
             end if;
-            if P > Str'Last then return True; end if;
+            if P > Str'Last then
+               return True;
+            end if;
             Start := P + 1;
          end if;
          P := P + 1;
@@ -248,9 +260,13 @@ package body POSIX is
 
    procedure Make_Empty (List : in out POSIX_String_List) is
    begin
-      if List = null then return; end if;
+      if List = null then
+         return;
+      end if;
       for I in 1 .. List.Length loop
-         if List.List (I) = null then exit; end if;
+         if List.List (I) = null then
+            exit;
+         end if;
          Free (List.List (I));
       end loop;
       Free (List);
@@ -297,7 +313,9 @@ package body POSIX is
    procedure For_Every_Item (List : POSIX_String_List) is
       Quit : Boolean := False;
    begin
-      if List = null then return; end if;
+      if List = null then
+         return;
+      end if;
       for I in 1 .. List.Length loop
          exit when List.List (I) = null;
          declare
@@ -316,9 +334,12 @@ package body POSIX is
    function Length (List : POSIX_String_List)
       return Natural is
    begin
-      if List = null then return 0; end if;
+      if List = null then
+         return 0;
+      end if;
       for I in 1 .. List.Length loop
-         if List.List (I) = null then return Natural (I - 1);
+         if List.List (I) = null then
+            return Natural (I - 1);
          end if;
       end loop;
       raise Program_Error;
@@ -336,8 +357,9 @@ package body POSIX is
       I : constant Positive := Index;
    begin
       if List = null or else
-         not (I in 1 .. List.Length) or else
-         List.List (I) = null then raise Constraint_Error;
+        not (I in 1 .. List.Length) or else
+        List.List (I) = null then
+         raise Constraint_Error;
       end if;
       declare
          L : constant Integer := List.List (I).all'Length;
@@ -459,7 +481,9 @@ package body POSIX is
       declare
          Tmp : constant String := Error_Code'Image (Error);
       begin
-         if Tmp (Tmp'First) /= ' ' then return Tmp; end if;
+         if Tmp (Tmp'First) /= ' ' then
+            return Tmp;
+         end if;
          return Tmp (Tmp'First + 1 .. Tmp'Last);
       end;
    end Image;

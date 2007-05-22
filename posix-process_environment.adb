@@ -163,7 +163,8 @@ package body POSIX.Process_Environment is
    begin
       if HAVE_putenv then
          if Overwrite = 0 and then
-            c_getenv (Name) /= null then return 0;
+           c_getenv (Name) /= null then
+            return 0;
          end if;
          return c_putenv (Create_Pair (Name, Value));
       elsif HAVE_setenv then
@@ -177,7 +178,8 @@ package body POSIX.Process_Environment is
          begin
             while P.all /= null loop
                if C_Match (P.all, Name) /= null then
-                  if Overwrite = 0 then return 0;
+                  if Overwrite = 0 then
+                     return 0;
                   end if;
                   --  don't risk freeing P.all!
                   To_Variable (P).all := Create_Pair (Name, Value);
@@ -220,7 +222,8 @@ package body POSIX.Process_Environment is
                      PP := P;
                      Advance (P);
                      To_Variable (PP).all := P.all;
-                     if P.all = null then return 0;
+                     if P.all = null then
+                        return 0;
                      end if;
                   end loop;
                end if;
@@ -262,7 +265,9 @@ package body POSIX.Process_Environment is
 
    procedure Validate (Name : POSIX_String) is
    begin
-      if Name = "" then Raise_POSIX_Error (Invalid_Argument); end if;
+      if Name = "" then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       for P in Name'Range loop
          if Name (P) = '=' or Name (P) = NUL then
             Raise_POSIX_Error (Invalid_Argument);
@@ -277,8 +282,12 @@ package body POSIX.Process_Environment is
    function Split_Point (Str : POSIX_String) return Natural is
    begin
       for I in Str'Range loop
-         if Str (I) = '=' then return I; end if;
-         if Str (I) = NUL then return 0; end if;
+         if Str (I) = '=' then
+            return I;
+         end if;
+         if Str (I) = NUL then
+            return 0;
+         end if;
       end loop;
       return 0;
    end Split_Point;
@@ -294,7 +303,8 @@ package body POSIX.Process_Environment is
    begin
       J := Pair'First; K := Name'First;
       JL := Pair'Last; KL := Name'Last;
-      while (J <= JL and K <= KL) and then Pair (J) = Name (K) loop
+      while (J <= JL and K <= KL) and then
+        Pair (J) = Name (K) loop
          J := J + 1; K := K + 1;
       end loop;
       --  J > JL or K > KL or Pair (J) /= Name (K)
@@ -487,7 +497,9 @@ package body POSIX.Process_Environment is
                  Getenv (c_name (c_name'First)'Unchecked_Access);
    begin
       Validate (Name);
-      if Result = null then return Undefined; end if;
+      if Result = null then
+         return Undefined;
+      end if;
       return Form_POSIX_String (Result);
    end Environment_Value_Of;
 
@@ -594,7 +606,9 @@ package body POSIX.Process_Environment is
          L := 0;  -- last empty location
          for I in 1 .. Env.Length loop
             if Env.List (I) = null then
-               if L = 0 then L := I; end if;
+               if L = 0 then
+                  L := I;
+               end if;
                exit;
             end if;
             J := Match (Env.List (I), Name);
@@ -660,7 +674,8 @@ package body POSIX.Process_Environment is
             if Match (Env.List (K), Name) /= 0 then
                Free (Env.List (K));
                Env.Char (K) := null;
-            else K := K + 1;
+            else
+               K := K + 1;
             end if;
          end loop;
       end if;
@@ -717,7 +732,9 @@ package body POSIX.Process_Environment is
    procedure For_Every_Environment_Variable (Env : Environment) is
       Quit : Boolean := False;
    begin
-      if Env = null then return; end if;
+      if Env = null then
+         return;
+      end if;
       for I in 1 .. Env.Length loop
          exit when Env.List (I) = null;
          declare
@@ -750,7 +767,9 @@ package body POSIX.Process_Environment is
       Quit : Boolean := False;
       P : char_ptr_ptr := environ;
    begin
-      if P = null then return; end if;
+      if P = null then
+         return;
+      end if;
       while P.all /= null loop
          declare
             Str : POSIX_String := Form_POSIX_String (P.all);

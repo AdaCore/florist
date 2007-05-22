@@ -82,7 +82,9 @@ package body POSIX.Memory_Mapping is
            or MAP_FILE),
         int (File),
         off_t (Offset));
-      if Result = Failure then Raise_POSIX_Error; end if;
+      if Result = Failure then
+         Raise_POSIX_Error;
+      end if;
       return Result;
    end Map_Memory;
 
@@ -106,7 +108,9 @@ package body POSIX.Memory_Mapping is
          int (Option_Set (Mapping).Option or MAP_FILE),
          int (File),
          off_t (Offset));
-      if Result = Failure then Raise_POSIX_Error; end if;
+      if Result = Failure then
+         Raise_POSIX_Error;
+      end if;
       return Result;
    end Map_Memory;
 

@@ -348,9 +348,12 @@ package body POSIX.Asynchronous_IO is
    begin
       Check (AD /= null, Invalid_Argument);
       Result := aio_error (AD);
-      if Result = 0 then return Completed_Successfully;
-      elsif Result = EINPROGRESS then return In_Progress;
-      elsif Result = ECANCELED then return Canceled;
+      if Result = 0 then
+         return Completed_Successfully;
+      elsif Result = EINPROGRESS then
+         return In_Progress;
+      elsif Result = ECANCELED then
+         return Canceled;
       end if;
       Raise_POSIX_Error;
       --  to supress compiler warning message
@@ -405,9 +408,12 @@ package body POSIX.Asynchronous_IO is
       pragma Warnings (Off);
       --  Disable warning on some platforms where AIO_*=0
 
-      if Result = AIO_CANCELED then return Canceled;
-      elsif Result = AIO_NOTCANCELED then return Not_Canceled;
-      elsif Result = AIO_ALLDONE then return All_Done;
+      if Result = AIO_CANCELED then
+         return Canceled;
+      elsif Result = AIO_NOTCANCELED then
+         return Not_Canceled;
+      elsif Result = AIO_ALLDONE then
+         return All_Done;
       end if;
 
       pragma Warnings (On);
@@ -427,9 +433,12 @@ package body POSIX.Asynchronous_IO is
       pragma Warnings (Off);
       --  Disable warning on some platforms where AIO_*=0
 
-      if Result = AIO_CANCELED then return Canceled;
-      elsif Result = AIO_NOTCANCELED then return Not_Canceled;
-      elsif Result = AIO_ALLDONE then return All_Done;
+      if Result = AIO_CANCELED then
+         return Canceled;
+      elsif Result = AIO_NOTCANCELED then
+         return Not_Canceled;
+      elsif Result = AIO_ALLDONE then
+         return All_Done;
       end if;
 
       pragma Warnings (On);
@@ -515,7 +524,9 @@ package body POSIX.Asynchronous_IO is
       Result : int;
    begin
       for i in List'Range loop
-         if List (i) = null then Raise_POSIX_Error (Invalid_Argument); end if;
+         if List (i) = null then
+            Raise_POSIX_Error (Invalid_Argument);
+         end if;
       end loop;
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := aio_suspend (List (List'First)'Unchecked_Access,

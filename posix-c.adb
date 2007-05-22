@@ -65,7 +65,9 @@ package body POSIX.C is
    function Form_POSIX_String (Str : char_ptr)
       return POSIX.POSIX_String is
    begin
-      if Str = null then return ""; end if;
+      if Str = null then
+         return "";
+      end if;
       declare
          subtype POSIX_Substring is POSIX.POSIX_String
            (1 .. Integer (strlen (Str)));

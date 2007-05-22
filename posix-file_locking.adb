@@ -93,9 +93,12 @@ package body POSIX.File_Locking is
          Res.Lock := Unlock;
       else
          Process := To_Process_ID (T.l_pid);
-         if T.l_type = F_RDLCK then Res.Lock := Read_Lock;
-         elsif T.l_type = F_WRLCK then Res.Lock := Write_Lock;
-         else Res.Lock := Unlock;
+         if T.l_type = F_RDLCK then
+            Res.Lock := Read_Lock;
+         elsif T.l_type = F_WRLCK then
+            Res.Lock := Write_Lock;
+         else
+            Res.Lock := Unlock;
          end if;
          if T.l_whence = SEEK_SET then
             Res.Starting_Point := POSIX.IO.From_Beginning;

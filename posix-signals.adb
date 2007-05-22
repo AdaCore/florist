@@ -1154,7 +1154,8 @@ begin
            and Sig /= SIGSTOP) then
             Reserved_Signal (Sig) := True;
          end if;
-      else Reserved_Signal (Sig) := True;
+      else
+         Reserved_Signal (Sig) := True;
       end if;
    end loop;
 end POSIX.Signals;

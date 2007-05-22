@@ -69,7 +69,9 @@ package body POSIX.Unsafe_Process_Primitives is
      (Directory : POSIX_String;
       File : POSIX_String) return POSIX_String is
    begin
-      if Directory = "" then return File; end if;
+      if Directory = "" then
+         return File;
+      end if;
       if Directory (Directory'Last) = '/' then
          return Directory & File;
       end if;
@@ -93,7 +95,9 @@ package body POSIX.Unsafe_Process_Primitives is
                             SSL.Get_Jmpbuf_Address.all;
    begin
       Result := fork;
-      if Result = -1 then Raise_POSIX_Error; end if;
+      if Result = -1 then
+         Raise_POSIX_Error;
+      end if;
       if Result = 0 then
          --  reset soft links to non-tasking versions of operations
          SSL.Abort_Defer        := SSL.Abort_Defer_NT'Access;
@@ -130,9 +134,11 @@ package body POSIX.Unsafe_Process_Primitives is
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
       end if;
-      if Env = null then Env := Null_String_List_Ptr;
+      if Env = null then
+         Env := Null_String_List_Ptr;
       end if;
       Check (execve
         (Pathname_With_NUL (Pathname_With_NUL'First)'Unchecked_Access,
@@ -156,7 +162,8 @@ package body POSIX.Unsafe_Process_Primitives is
       Pathname_With_NUL : POSIX_String := Pathname & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
       end if;
       Check (execv
         (Pathname_With_NUL (Pathname_With_NUL'First)'Unchecked_Access,
@@ -179,9 +186,11 @@ package body POSIX.Unsafe_Process_Primitives is
       --  There is no POSIX.1 function that takes an environment list
       --  and searches for a filename, apparently, so we have to simulate
       --  the effect here.
-      if Arg = null then Arg := Null_String_List_Ptr;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
       end if;
-      if Env = null then Env := Null_String_List_Ptr;
+      if Env = null then
+         Env := Null_String_List_Ptr;
       end if;
       for I in Filename'Range loop
          if Filename (I) = '/' then
@@ -241,7 +250,8 @@ package body POSIX.Unsafe_Process_Primitives is
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
    begin
-      if Arg = null then Arg := Null_String_List_Ptr;
+      if Arg = null then
+         Arg := Null_String_List_Ptr;
       end if;
       Check (execvp
         (Filename_With_NUL (Filename_With_NUL'First)'Unchecked_Access,

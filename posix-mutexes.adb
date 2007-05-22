@@ -152,10 +152,14 @@ package body POSIX.Mutexes is
    begin
       Check_NZ (pthread_mutexattr_getprotocol
        (Attr.Attr'Unchecked_Access, Result'Unchecked_Access));
-      if Result = PTHREAD_PRIO_NONE then return No_Priority_Inheritance;
-      elsif Result = PTHREAD_PRIO_INHERIT then return Highest_Blocked_Task;
-      elsif Result = PTHREAD_PRIO_PROTECT then return Highest_Ceiling_Priority;
-      else Raise_POSIX_Error (Operation_Not_Supported);
+      if Result = PTHREAD_PRIO_NONE then
+         return No_Priority_Inheritance;
+      elsif Result = PTHREAD_PRIO_INHERIT then
+         return Highest_Blocked_Task;
+      elsif Result = PTHREAD_PRIO_PROTECT then
+         return Highest_Ceiling_Priority;
+      else
+         Raise_POSIX_Error (Operation_Not_Supported);
          --  to suppress compiler warning
          return No_Priority_Inheritance;
       end if;
@@ -308,9 +312,12 @@ package body POSIX.Mutexes is
       Result : int;
    begin
       Result := pthread_mutex_trylock (M);
-      if Result = 0 then return True;
-      elsif Fetch_Errno = EBUSY then return False;
-      else Raise_POSIX_Error;
+      if Result = 0 then
+         return True;
+      elsif Fetch_Errno = EBUSY then
+         return False;
+      else
+         Raise_POSIX_Error;
          --  return statement to suppress compiler warning message
          return False;
       end if;

@@ -110,7 +110,9 @@ package body POSIX.User_Database is
       Result : passwd_ptr;
    begin
       Result := getpwuid (To_uid_t (UID));
-      if Result = null then Raise_POSIX_Error; end if;
+      if Result = null then
+         Raise_POSIX_Error;
+      end if;
       return User_Database_Item (Result);
    end Get_User_Database_Item;
 
@@ -128,7 +130,9 @@ package body POSIX.User_Database is
    begin
       Result := getpwnam
         (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access);
-      if Result = null then Raise_POSIX_Error; end if;
+      if Result = null then
+         Raise_POSIX_Error;
+      end if;
       return User_Database_Item (Result);
    end Get_User_Database_Item;
 

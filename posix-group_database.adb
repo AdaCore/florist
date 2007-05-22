@@ -58,7 +58,9 @@ package body POSIX.Group_Database is
    function Group_Name_Of (DB_Item : Group_Database_Item)
       return POSIX.POSIX_String is
    begin
-      if DB_Item = null then Raise_POSIX_Error (Invalid_Argument); end if;
+      if DB_Item = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       return Form_POSIX_String (group_ptr (DB_Item).gr_name);
    end Group_Name_Of;
 
@@ -69,7 +71,9 @@ package body POSIX.Group_Database is
    function Group_ID_Of (DB_Item : Group_Database_Item)
       return POSIX.Process_Identification.Group_ID is
    begin
-      if DB_Item = null then Raise_POSIX_Error (Invalid_Argument); end if;
+      if DB_Item = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       return To_Group_ID (group_ptr (DB_Item).gr_gid);
    end Group_ID_Of;
 
@@ -80,7 +84,9 @@ package body POSIX.Group_Database is
    function Group_ID_List_Of (DB_Item : Group_Database_Item)
       return Group_ID_List is
    begin
-      if DB_Item = null then Raise_POSIX_Error (Invalid_Argument); end if;
+      if DB_Item = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       return Group_ID_List (group_ptr (DB_Item).gr_mem);
    end Group_ID_List_Of;
 
@@ -93,7 +99,9 @@ package body POSIX.Group_Database is
       P : char_ptr_ptr;
    begin
       P := char_ptr_ptr (List);
-      if P = null then return; end if;
+      if P = null then
+         return;
+      end if;
       while P.all /= null loop
          declare
             S : constant POSIX_String := Form_POSIX_String (P.all);
@@ -113,7 +121,9 @@ package body POSIX.Group_Database is
       P : char_ptr_ptr := char_ptr_ptr (Member_List);
       Length : Natural := 0;
    begin
-      if P = null then return 0; end if;
+      if P = null then
+         return 0;
+      end if;
       while P.all /= null loop
          Length := Length + 1; Advance (P);
       end loop;
@@ -135,7 +145,9 @@ package body POSIX.Group_Database is
       G : group_ptr;
    begin
       G := getgrgid (To_gid (GID));
-      if G = null then Raise_POSIX_Error (Invalid_Argument); end if;
+      if G = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       return Group_Database_Item (G);
    end Get_Group_Database_Item;
 
@@ -150,7 +162,9 @@ package body POSIX.Group_Database is
       G : group_ptr;
    begin
       G := getgrnam (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access);
-      if G = null then Raise_POSIX_Error (Invalid_Argument); end if;
+      if G = null then
+         Raise_POSIX_Error (Invalid_Argument);
+      end if;
       return Group_Database_Item (G);
    end Get_Group_Database_Item;
 

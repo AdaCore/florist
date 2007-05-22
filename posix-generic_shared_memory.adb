@@ -146,13 +146,16 @@ package body POSIX.Generic_Shared_Memory is
       Prev := Head;
       while T /= null loop
          if T.FD = FD then
-            if Prev = T then Head := T.Next;
-            else Prev.Next := T.Next;
+            if Prev = T then
+               Head := T.Next;
+            else
+               Prev.Next := T.Next;
             end if;
             T.Next := Avail;
             Avail := T;
             return;
-         else Prev := T; T := T.Next;
+         else
+            Prev := T; T := T.Next;
          end if;
       end loop;
       Raise_POSIX_Error (POSIX.Bad_File_Descriptor);
@@ -202,7 +205,8 @@ package body POSIX.Generic_Shared_Memory is
    begin
       if Protection >= POSIX.Memory_Mapping.Allow_Write then
          Mode := POSIX.IO.Read_Write;
-      else Mode := POSIX.IO.Read_Only;
+      else
+         Mode := POSIX.IO.Read_Only;
       end if;
       Begin_Critical_Section;
       begin
@@ -239,7 +243,8 @@ package body POSIX.Generic_Shared_Memory is
    begin
       if Protection >= POSIX.Memory_Mapping.Allow_Write then
          Mode := POSIX.IO.Read_Write;
-      else Mode := POSIX.IO.Read_Only;
+      else
+         Mode := POSIX.IO.Read_Only;
       end if;
       Begin_Critical_Section;
       begin

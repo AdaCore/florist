@@ -140,7 +140,8 @@ package body POSIX.Process_Identification is
       pragma Import (C, setsid, setsid_LINKNAME);
    begin
       Session_Leader := Process_Group_ID (setsid);
-      if Session_Leader = -1 then Raise_POSIX_Error;
+      if Session_Leader = -1 then
+         Raise_POSIX_Error;
       end if;
    end Create_Session;
 
@@ -208,7 +209,9 @@ package body POSIX.Process_Identification is
       Name_Ptr : char_ptr;
    begin
       Name_Ptr := getlogin;
-      if Name_Ptr = null then Raise_POSIX_Error; end if;
+      if Name_Ptr = null then
+         Raise_POSIX_Error;
+      end if;
       return Form_POSIX_String (Name_Ptr);
    end Get_Login_Name;
 
@@ -287,7 +290,9 @@ package body POSIX.Process_Identification is
             NGroups_2 :=
               getgroups (Groups'Length, Groups (1)'Unchecked_Access);
             Check (NGroups_2);
-            if NGroups_1 = NGroups_2 then return Groups; end if;
+            if NGroups_1 = NGroups_2 then
+               return Groups;
+            end if;
          end;
       end loop;
       --  the loop is in case some other process changes the number of

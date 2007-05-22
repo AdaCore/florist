@@ -220,7 +220,9 @@ package body POSIX.IO is
       Old_Mask : aliased Signal_Mask;
       Result : int;
    begin
-      if File = Target then return Target; end if;
+      if File = Target then
+         return Target;
+      end if;
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := dup2 (int (File), int (Target));
       Check_NNeg_And_Restore_Signals
@@ -566,7 +568,9 @@ package body POSIX.IO is
       Result : char_ptr;
    begin
       Result := ttyname (int (File));
-      if Result = null then Raise_POSIX_Error; end if;
+      if Result = null then
+         Raise_POSIX_Error;
+      end if;
       return Form_POSIX_String (Result);
    end Get_Terminal_Name;
 
@@ -585,10 +589,14 @@ package body POSIX.IO is
       Result := To_Bits (Check (fcntl (int (File), F_GETFL)));
       Undefer_Abortion;
       Access_Mode := Result and O_ACCMODE;
-      if Access_Mode = O_RDONLY then Mode := Read_Only;
-      elsif Access_Mode = O_WRONLY then Mode := Write_Only;
-      elsif Access_Mode = O_RDWR then Mode := Read_Write;
-      else Raise_POSIX_Error (ENOSYS);  --  should never be reached
+      if Access_Mode = O_RDONLY then
+         Mode := Read_Only;
+      elsif Access_Mode = O_WRONLY then
+         Mode := Write_Only;
+      elsif Access_Mode = O_RDWR then
+         Mode := Read_Write;
+      else
+         Raise_POSIX_Error (ENOSYS);  --  should never be reached
       end if;
       Options := Open_Option_Set (Option_Set'
         (Option => Result and not O_ACCMODE));
@@ -631,7 +639,9 @@ package body POSIX.IO is
       Result : int;
    begin
       Result := fcntl (int (File), F_GETFD);
-      if Result = -1 then Raise_POSIX_Error; end if;
+      if Result = -1 then
+         Raise_POSIX_Error;
+      end if;
       return (To_Bits (Result) and FD_CLOEXEC) /= 0;
    end Get_Close_On_Exec;
 
@@ -652,8 +662,10 @@ package body POSIX.IO is
          End_Critical_Section;
          Raise_POSIX_Error;
       end if;
-      if To then Flags := Flags or FD_CLOEXEC;
-      else Flags := Flags and not FD_CLOEXEC;
+      if To then
+         Flags := Flags or FD_CLOEXEC;
+      else
+         Flags := Flags and not FD_CLOEXEC;
       end if;
       if fcntl (int (File), F_SETFD, To_int (Flags)) = -1 then
          End_Critical_Section;

@@ -234,9 +234,12 @@ package body POSIX.Semaphores is
    begin
       Validate (Sem);
       Result := sem_trywait (Sem);
-      if Result = 0 then return True;
-      elsif Fetch_Errno = EAGAIN then return False;
-      else Raise_POSIX_Error;
+      if Result = 0 then
+         return True;
+      elsif Fetch_Errno = EAGAIN then
+         return False;
+      else
+         Raise_POSIX_Error;
          --  return statement to suppress compiler warning message
          return False;
       end if;
