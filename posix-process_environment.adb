@@ -162,11 +162,12 @@ package body POSIX.Process_Environment is
       Overwrite : int) return int is
    begin
       if HAVE_putenv then
-         if Overwrite = 0 and then
-           c_getenv (Name) /= null then
+         if Overwrite = 0 and then c_getenv (Name) /= null then
             return 0;
          end if;
+
          return c_putenv (Create_Pair (Name, Value));
+
       elsif HAVE_setenv then
          return c_setenv (Name, Value, Overwrite);
       else
@@ -268,6 +269,7 @@ package body POSIX.Process_Environment is
       if Name = "" then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
+
       for P in Name'Range loop
          if Name (P) = '=' or Name (P) = NUL then
             Raise_POSIX_Error (Invalid_Argument);
@@ -281,14 +283,16 @@ package body POSIX.Process_Environment is
 
    function Split_Point (Str : POSIX_String) return Natural is
    begin
-      for I in Str'Range loop
-         if Str (I) = '=' then
-            return I;
+      for J in Str'Range loop
+         if Str (J) = '=' then
+            return J;
          end if;
-         if Str (I) = NUL then
+
+         if Str (J) = NUL then
             return 0;
          end if;
       end loop;
+
       return 0;
    end Split_Point;
 
@@ -298,36 +302,45 @@ package body POSIX.Process_Environment is
 
    function Match
      (Pair : POSIX_String_Ptr;
-      Name : POSIX_String) return Natural is
+      Name : POSIX_String) return Natural
+   is
       J, JL, K, KL : Integer;
    begin
       J := Pair'First; K := Name'First;
       JL := Pair'Last; KL := Name'Last;
-      while (J <= JL and K <= KL) and then
-        Pair (J) = Name (K) loop
+
+      while (J <= JL and K <= KL) and then Pair (J) = Name (K) loop
          J := J + 1; K := K + 1;
       end loop;
+
       --  J > JL or K > KL or Pair (J) /= Name (K)
+
       if (K > KL and J <= JL) and then Pair (J) = '=' then
          return J + 1;
       end if;
+
       return 0;
    end Match;
 
    function C_Match
      (Pair : char_ptr;
-      Name : char_ptr) return char_ptr is
+      Name : char_ptr) return char_ptr
+   is
       J, K : char_ptr;
    begin
       J := Pair; K := Name;
+
       while (J.all /= NUL and K.all /= NUL) and then J.all = K.all loop
          Advance (J); Advance (K);
       end loop;
+
       --  J.all = NUL or K.all = NUL or J.all /= K.all
+
       if K.all = NUL and J.all = '=' then
          Advance (J);
          return J;
       end if;
+
       return null;
    end C_Match;
 
