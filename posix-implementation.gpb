@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2006 AdaCore                      --
+--                     Copyright (C) 1998-2007 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -215,8 +215,10 @@ package body POSIX.Implementation is
       declare
          subtype Substring is String (1 .. Integer (strlen (Str)));
          type Substring_Ptr is access Substring;
+         pragma Warnings (Off);
          function char_ptr_to_pssptr is new Unchecked_Conversion
            (char_ptr, Substring_Ptr);
+         pragma Warnings (On);
       begin
          return char_ptr_to_pssptr (Str).all;
       end;
