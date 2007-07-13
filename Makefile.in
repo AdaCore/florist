@@ -1,5 +1,4 @@
-# This builds the "Florist" implementation of POSIX.5b,
-# and some test programs for it.
+# This builds the "Florist" implementation of POSIX.5b
 #
 # If you need to modify the "configure" file, you will need
 # autoconf version 2.12, or maybe a later version will also work.
@@ -166,15 +165,6 @@ floristlib: $(MACRO_OBJECTS) $(DEPS) $(ADDRINFO_OBJECTS)
 	chmod 444 floristlib/*.ali
 	rm -f floristlib/*.o
 #
-# ---------
-# Testing
-# ---------
-#
-compile_tests:
-	cd tests; make tests
-run_tests:
-	cd tests; make run_tests
-#
 # -----------------------------------
 # Maintenance targets
 # -----------------------------------
@@ -187,7 +177,6 @@ clean:
 	rm -rf floristlib
 	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
 	rm -f $(C-POSIX_GENERATED) $(GNATPREP_SOURCES)
-	-make -C tests clean
 
 # remove all generated files, including configuration history
 distclean:
@@ -195,7 +184,6 @@ distclean:
 	rm -rf floristlib
 	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
 	rm -f $(GENERATED) $(GNATPREP_SOURCES)
-	-make -C tests clean
 
 # install floristlib
 install: floristlib
