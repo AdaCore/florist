@@ -357,7 +357,7 @@ package body POSIX is
       I : constant Positive := Index;
    begin
       if List = null or else
-        not (I in 1 .. List.Length) or else
+        not (I <= List.Length) or else
         List.List (I) = null then
          raise Constraint_Error;
       end if;
