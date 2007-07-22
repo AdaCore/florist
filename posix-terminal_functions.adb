@@ -525,8 +525,7 @@ package body POSIX.Terminal_Functions is
    begin
       Validate (Characteristics);
       Check
-        (Minimum_Input_Count in Natural (cc_t'First) .. Natural (cc_t'Last),
-         Invalid_Argument);
+        (Minimum_Input_Count <= Natural (cc_t'Last), Invalid_Argument);
       Characteristics.termios.c_cc (VMIN) := cc_t (Minimum_Input_Count);
    end Define_Minimum_Input_Count;
 
