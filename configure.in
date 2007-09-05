@@ -201,8 +201,7 @@ AC_POSIX_LIB(nsl, gethostbyname)
 AC_POSIX_LIB(nsl, t_bind,,
 AC_POSIX_LIB(nsl_s, t_bind))
 
-AC_POSIX_LIB(socket, accept,,
-AC_POSIX_LIB(bsd, accept))
+AC_POSIX_LIB(socket, accept)
 
 AC_POSIX_LIB(resolv, h_errno)
 
