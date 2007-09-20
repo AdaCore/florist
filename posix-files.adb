@@ -339,6 +339,8 @@ package body POSIX.Files is
       dirp : DIR_ptr;
       dirent : dirent_ptr;
       Quit : Boolean := False;
+      rc : int;
+      pragma Unreferenced (rc);
    begin
       dirp := opendir (Pathname_With_NUL
         (Pathname_With_NUL'First)'Unchecked_Access);
@@ -352,6 +354,13 @@ package body POSIX.Files is
          exit when Quit;
       end loop;
       Check (closedir (dirp));
+   exception
+      when others =>
+         --  Ensure dirp is closed if an exception is raised.
+         if dirp /= null then
+            rc := closedir (dirp);
+         end if;
+         raise;
    end For_Every_Directory_Entry;
 
    ------------------------------
