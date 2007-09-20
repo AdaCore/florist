@@ -358,6 +358,9 @@ package body POSIX.Files is
       when others =>
          --  Ensure dirp is closed if an exception is raised.
          if dirp /= null then
+            --  Do not call Check here, as that function may raise
+            --  POSIX_Error and obscure an underlying problem raised
+            --  in the procedure Action.
             rc := closedir (dirp);
          end if;
          raise;
