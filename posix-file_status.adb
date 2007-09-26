@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2006 AdaCore                      --
+--                     Copyright (C) 1998-2007 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -174,17 +174,14 @@ package body POSIX.File_Status is
    --  Size_Of  --
    ---------------
 
-   function Size_Of (File_Status : Status)
-      return POSIX.IO_Count is
+   function Size_Of (File_Status : Status) return POSIX.IO_Count is
    begin
-      --  If the file is not a regular file Get_Error_Code shall be
-      --  set to "Invalid_Argument" and a "POSIX_Error" should be
-      --  raised. (POSIX.5 5.3.2.3 (875)).
-      if not Is_Regular_File (File_Status) then
-         Set_Error_Code (Invalid_Argument);
-         raise POSIX_Error;
-      end if;
-      return  IO_Count (struct_stat (File_Status).st_size);
+      --  We depart from POSIX.5 5.3.2.3 (875) here, since the current
+      --  POSIX C standard allows more cases of valid file descriptors
+      --  for the st_size field, in particular symbolic links (the pathname
+      --  length), shared memory objects, and typed memory objects.
+
+      return IO_Count (struct_stat (File_Status).st_size);
    end Size_Of;
 
    ---------------------------
