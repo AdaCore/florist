@@ -85,20 +85,32 @@ package POSIX.Implementation is
    --  Don't ever call any of these within a critical section,
    --  or within an abort-deferred section!
 
+   subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
+
    procedure Raise_POSIX_Error (Error : Error_Code := No_Error);
    pragma No_Return (Raise_POSIX_Error);
 
-   procedure Check (Condition : Boolean; Error : Error_Code);
+   procedure Check (Condition : Boolean;
+                    Error : Error_Code;
+                    Old_Mask : access Signal_Mask := null);
+
    --  if Condition is false, raise POSIX_Error with
    --  specified error code, else just return
+   --
+   --  If Old_Mask /= null, then on failure call Restore_Signals with
+   --  that mask before raising POSIX_Error.
 
-   procedure Check (Result : POSIX.C.int);
-   function Check (Result : POSIX.C.int) return POSIX.C.int;
+   procedure Check
+     (Result : POSIX.C.int; Old_Mask : access Signal_Mask := null);
+   function Check
+     (Result : POSIX.C.int; Old_Mask : access Signal_Mask := null)
+     return POSIX.C.int;
 
-   --  if Result is -1
-   --  raise POSIX_Error with current error code
-   --  else just return
-   --  function returns Result if it does not raise POSIX_Error
+   --  if Result is -1 raise POSIX_Error with current error code
+   --  otherwise just return Result.
+   --
+   --  If Old_Mask /= null, then call Restore_Signals with that mask
+   --  before raising POSIX_Error.
 
    procedure Check_NNeg (Result : POSIX.C.int);
    function Check_NNeg (Result : POSIX.C.int) return POSIX.C.int;
@@ -209,8 +221,6 @@ package POSIX.Implementation is
    ----------------------
 
    --  The following two also defer/undefer abortion, as side-effects.
-
-   subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
 
    procedure Mask_Signals
      (Masking  : Signal_Masking;

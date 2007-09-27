@@ -140,26 +140,38 @@ package body POSIX.Implementation is
    --  Check  --
    -------------
 
-   procedure Check (Condition : Boolean; Error : Error_Code) is
+   procedure Check (Condition : Boolean;
+                    Error : Error_Code;
+                    Old_Mask : access Signal_Mask := null) is
    begin
       --  .... see note on critical sections above
       if not Condition then
+         if Old_Mask /= null then
+            Restore_Signals (Old_Mask);
+         end if;
          Raise_POSIX_Error (Error);
       end if;
    end Check;
 
-   procedure Check (Result : int) is
+   procedure Check (Result : int; Old_Mask : access Signal_Mask := null) is
    begin
       --  .... see note on critical sections above
       if Result = -1 then
+         if Old_Mask /= null then
+            Restore_Signals (Old_Mask);
+         end if;
          Raise_POSIX_Error (Fetch_Errno);
       end if;
    end Check;
 
-   function Check (Result : int) return int is
+   function Check (Result : int; Old_Mask : access Signal_Mask := null)
+                  return int is
    begin
       --  .... see note on critical sections above
       if Result = -1 then
+         if Old_Mask /= null then
+            Restore_Signals (Old_Mask);
+         end if;
          Raise_POSIX_Error (Fetch_Errno);
       end if;
       return Result;

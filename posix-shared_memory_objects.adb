@@ -80,7 +80,7 @@ package body POSIX.Shared_Memory_Objects is
       Result := POSIX.IO.File_Descriptor (Check (shm_open
         (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
          To_int (Option_Set (Options).Option or C_File_Mode (Mode)),
-         0)));
+         0), Old_Mask'Unchecked_Access));
       Check_NNeg_And_Restore_Signals
         (int (Result), Masked_Signals, Old_Mask'Unchecked_Access);
       return Result;
@@ -107,7 +107,7 @@ package body POSIX.Shared_Memory_Objects is
       Result := POSIX.IO.File_Descriptor (Check (shm_open
         (Name_With_NUL (Name_With_NUL'First)'Unchecked_Access,
          To_int (Option_Set (Options).Option or C_File_Mode (Mode) or O_CREAT),
-         Form_C_Permission (Permissions))));
+         Form_C_Permission (Permissions)), Old_Mask'Unchecked_Access));
       Check_NNeg_And_Restore_Signals
         (int (Result), Masked_Signals, Old_Mask'Unchecked_Access);
       return Result;

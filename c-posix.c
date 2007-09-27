@@ -4739,6 +4739,11 @@ void create_c() {
 #else
   GDFLT("MAP_FIXED", 0);
 #endif
+#ifdef MAP_VARIABLE
+  GCST("MAP_VARIABLE", MAP_VARIABLE);
+#else
+  GDFLT("MAP_VARIABLE", 0);
+#endif
 #ifdef MAP_PRIVATE
   GCST("MAP_PRIVATE", MAP_PRIVATE);
 #else
@@ -4784,6 +4789,11 @@ void create_c() {
   GCST("MS_SYNC", MS_SYNC);
 #else
   GDFLT("MS_SYNC", 0);
+#endif
+#ifdef MS_EINTR
+  GCST("MS_EINTR", MS_EINTR);
+#else
+  GDFLT("MS_EINTR", 0);
 #endif
 
 #ifdef NCCS
