@@ -68,17 +68,17 @@ package body POSIX.IO is
    procedure Check_NNeg_And_Restore_Signals
      (Result : int;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
    procedure Check_NNeg_And_Restore_Signals
      (Result : ssize_t;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
    pragma Inline (Check_NNeg_And_Restore_Signals);
 
    procedure Check_NNeg_And_Restore_Signals
      (Result : int;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : Signal_Mask_Access) is
    begin
       if Result < 0 then
          Restore_Signals_And_Raise_POSIX_Error
@@ -91,7 +91,7 @@ package body POSIX.IO is
    procedure Check_NNeg_And_Restore_Signals
      (Result : ssize_t;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : Signal_Mask_Access) is
    begin
       if Result < 0 then
          Restore_Signals_And_Raise_POSIX_Error
@@ -185,7 +185,7 @@ package body POSIX.IO is
       Mask_Signals (Masked_Signals, Old_Mask'Unchecked_Access);
       Result := close (int (File));
       Check_NNeg_And_Restore_Signals
-        (Result, Masked_Signals, Old_Mask'Access);
+        (Result, Masked_Signals, Old_Mask'Unchecked_Access);
    end Close;
 
    -----------------

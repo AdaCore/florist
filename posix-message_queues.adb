@@ -59,12 +59,12 @@ package body POSIX.Message_Queues is
    function Check_NNeg_And_Restore_Signals
      (Result : Message_Queue_Descriptor;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) return Message_Queue_Descriptor;
+      Old_Mask : Signal_Mask_Access) return Message_Queue_Descriptor;
 
    function Check_NNeg_And_Restore_Signals
      (Result : Message_Queue_Descriptor;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) return Message_Queue_Descriptor is
+      Old_Mask : Signal_Mask_Access) return Message_Queue_Descriptor is
    begin
       if Result < 0 then
          Restore_Signals_And_Raise_POSIX_Error

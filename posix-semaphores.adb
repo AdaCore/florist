@@ -53,13 +53,13 @@ package body POSIX.Semaphores is
    procedure Check_And_Restore_Signals
      (Result : Semaphore_Descriptor;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
    pragma Inline (Check_And_Restore_Signals);
 
    procedure Check_And_Restore_Signals
      (Result : Semaphore_Descriptor;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : Signal_Mask_Access) is
    begin
       if To_int (Result) = -1 then
          Restore_Signals_And_Raise_POSIX_Error

@@ -142,7 +142,7 @@ package body POSIX.Implementation is
 
    procedure Check (Condition : Boolean;
                     Error : Error_Code;
-                    Old_Mask : access Signal_Mask := null) is
+                    Old_Mask : Signal_Mask_Access := null) is
    begin
       --  .... see note on critical sections above
       if not Condition then
@@ -153,7 +153,7 @@ package body POSIX.Implementation is
       end if;
    end Check;
 
-   procedure Check (Result : int; Old_Mask : access Signal_Mask := null) is
+   procedure Check (Result : int; Old_Mask : Signal_Mask_Access := null) is
    begin
       --  .... see note on critical sections above
       if Result = -1 then
@@ -164,7 +164,7 @@ package body POSIX.Implementation is
       end if;
    end Check;
 
-   function Check (Result : int; Old_Mask : access Signal_Mask := null)
+   function Check (Result : int; Old_Mask : Signal_Mask_Access := null)
                   return int is
    begin
       --  .... see note on critical sections above
@@ -310,7 +310,7 @@ package body POSIX.Implementation is
 
    procedure Mask_Signals
      (Masking  : Signal_Masking;
-      Old_Mask : access Signal_Mask)
+      Old_Mask : Signal_Mask_Access)
    is
       use type SIM.Interrupt_ID;
    begin
@@ -339,7 +339,7 @@ package body POSIX.Implementation is
 
    procedure Restore_Signals
       (Masking : Signal_Masking;
-       Old_Mask : access Signal_Mask) is
+       Old_Mask : Signal_Mask_Access) is
    begin
       if Masking /= No_Signals then
          Begin_Critical_Section;
@@ -349,7 +349,7 @@ package body POSIX.Implementation is
    end Restore_Signals;
 
    procedure Restore_Signals
-       (Old_Mask : access Signal_Mask) is
+       (Old_Mask : Signal_Mask_Access) is
    begin
       Begin_Critical_Section;
       SIMO.Set_Interrupt_Mask (Old_Mask);
@@ -362,7 +362,7 @@ package body POSIX.Implementation is
 
    procedure Restore_Signals_And_Raise_POSIX_Error
      (Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : Signal_Mask_Access) is
       Error : constant Error_Code := Fetch_Errno;
    begin
       Restore_Signals (Masked_Signals, Old_Mask);
@@ -372,7 +372,7 @@ package body POSIX.Implementation is
    procedure Check_NNeg_And_Restore_Signals
      (Result : int;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask) is
+      Old_Mask : Signal_Mask_Access) is
    begin
       if Result < 0 then
          Restore_Signals_And_Raise_POSIX_Error

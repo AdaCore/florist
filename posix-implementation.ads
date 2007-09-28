@@ -86,13 +86,14 @@ package POSIX.Implementation is
    --  or within an abort-deferred section!
 
    subtype Signal_Mask is System.Interrupt_Management.Interrupt_Mask;
+   type Signal_Mask_Access is access all Signal_Mask;
 
    procedure Raise_POSIX_Error (Error : Error_Code := No_Error);
    pragma No_Return (Raise_POSIX_Error);
 
    procedure Check (Condition : Boolean;
                     Error : Error_Code;
-                    Old_Mask : access Signal_Mask := null);
+                    Old_Mask : Signal_Mask_Access := null);
 
    --  if Condition is false, raise POSIX_Error with
    --  specified error code, else just return
@@ -101,9 +102,9 @@ package POSIX.Implementation is
    --  that mask before raising POSIX_Error.
 
    procedure Check
-     (Result : POSIX.C.int; Old_Mask : access Signal_Mask := null);
+     (Result : POSIX.C.int; Old_Mask : Signal_Mask_Access := null);
    function Check
-     (Result : POSIX.C.int; Old_Mask : access Signal_Mask := null)
+     (Result : POSIX.C.int; Old_Mask : Signal_Mask_Access := null)
      return POSIX.C.int;
 
    --  if Result is -1 raise POSIX_Error with current error code
@@ -224,14 +225,14 @@ package POSIX.Implementation is
 
    procedure Mask_Signals
      (Masking  : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
 
    procedure Restore_Signals
      (Masking  : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
 
    procedure Restore_Signals
-     (Old_Mask : access Signal_Mask);
+     (Old_Mask : Signal_Mask_Access);
 
    --  The following are provided for exit from a critical
    --  section where error checking needs to be done.  The issue
@@ -241,12 +242,12 @@ package POSIX.Implementation is
 
    procedure Restore_Signals_And_Raise_POSIX_Error
      (Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
 
    procedure Check_NNeg_And_Restore_Signals
      (Result : POSIX.C.int;
       Masked_Signals : Signal_Masking;
-      Old_Mask : access Signal_Mask);
+      Old_Mask : Signal_Mask_Access);
 
    -------------------
    --  Error Codes  --
