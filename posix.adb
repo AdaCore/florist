@@ -6,9 +6,8 @@
 --                                                                          --
 --                                  B o d y                                 --
 --                                                                          --
---                                                                          --
---  Copyright (c) 1996-2002             Florida  State  University  (FSU),  --
---  All Rights Reserved.                                                    --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2006 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,7 +34,6 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 with Ada.Streams,
      POSIX.C,
@@ -605,6 +603,7 @@ package body POSIX is
 
    function Get_Seconds (Time : Timespec) return Seconds is
       SD, NSD : Duration;
+      pragma Warnings (Off, NSD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       return Seconds (SD);
@@ -616,6 +615,7 @@ package body POSIX is
 
    function Get_Nanoseconds (Time : Timespec) return Nanoseconds is
       SD, NSD : Duration;
+      pragma Warnings (Off, SD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       return Nanoseconds (NSD * NS_per_S);
@@ -627,8 +627,10 @@ package body POSIX is
 
    procedure Set_Nanoseconds
      (Time : in out Timespec;
-      NS   : Nanoseconds) is
+      NS   : Nanoseconds)
+   is
       SD, NSD : Duration;
+      pragma Warnings (Off, NSD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       Time.Val := SD + Duration (NS) / NS_per_S;
@@ -640,8 +642,10 @@ package body POSIX is
 
    procedure Set_Seconds
      (Time : in out Timespec;
-      S    : Seconds) is
+      S    : Seconds)
+   is
       SD, NSD : Duration;
+      pragma Warnings (Off, SD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       Time.Val :=  Duration (S) + NSD;
