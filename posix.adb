@@ -603,7 +603,7 @@ package body POSIX is
 
    function Get_Seconds (Time : Timespec) return Seconds is
       SD, NSD : Duration;
-      pragma Warnings (Off, NSD);
+      pragma Unreferenced (NSD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       return Seconds (SD);
@@ -615,7 +615,7 @@ package body POSIX is
 
    function Get_Nanoseconds (Time : Timespec) return Nanoseconds is
       SD, NSD : Duration;
-      pragma Warnings (Off, SD);
+      pragma Unreferenced (SD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       return Nanoseconds (NSD * NS_per_S);
@@ -630,7 +630,7 @@ package body POSIX is
       NS   : Nanoseconds)
    is
       SD, NSD : Duration;
-      pragma Warnings (Off, NSD);
+      pragma Unreferenced (NSD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       Time.Val := SD + Duration (NS) / NS_per_S;
@@ -645,7 +645,7 @@ package body POSIX is
       S    : Seconds)
    is
       SD, NSD : Duration;
-      pragma Warnings (Off, SD);
+      pragma Unreferenced (SD);
    begin
       Split (Time.Val, S => SD, NS => NSD);
       Time.Val :=  Duration (S) + NSD;
