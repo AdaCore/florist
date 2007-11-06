@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2006 AdaCore                      --
+--                    Copyright (C) 1998-2007, AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -309,18 +309,21 @@ package body POSIX.Mutexes is
    pragma Import (C, pthread_mutex_trylock, pthread_mutex_trylock_LINKNAME);
 
    function Try_Lock (M : Mutex_Descriptor) return Boolean is
-      Result : int;
+      Result : constant int := pthread_mutex_trylock (M);
+      --  Note: pthread_mutex_trylock returns an error code in Result, and
+      --  does not set errno.
+
    begin
-      Result := pthread_mutex_trylock (M);
-      if Result = 0 then
-         return True;
-      elsif Fetch_Errno = EBUSY then
-         return False;
-      else
-         Raise_POSIX_Error;
-         --  return statement to suppress compiler warning message
-         return False;
-      end if;
+      case Result is
+         when 0 =>
+            return True;
+
+         when EBUSY =>
+            return False;
+
+         when others =>
+            Raise_POSIX_Error (Error_Code (Result));
+      end case;
    end Try_Lock;
 
    --------------
