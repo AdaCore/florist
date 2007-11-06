@@ -64,10 +64,16 @@ package body POSIX.Calendar is
      AC.Time_Of (Year => 1970, Month => 1, Day => 1);
    --  The POSIX Epoch, measured as a duration since the Ada mid point
 
+   pragma Warnings (Off);
+   --  Disable warning that the representation of Time values may
+   --  change between GNAT versions.
+
    function Duration_To_POSIX_Time is new Unchecked_Conversion
-      (Duration, POSIX_Time);
+     (Duration, POSIX_Time);
    function POSIX_Time_To_Duration is new Unchecked_Conversion
-      (POSIX_Time, Duration);
+     (POSIX_Time, Duration);
+
+   pragma Warnings (On);
 
    function Truncate (D : Duration) return Duration;
 

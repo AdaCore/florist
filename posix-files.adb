@@ -50,6 +50,9 @@ package body POSIX.Files is
    -------------------------
    --  Local Subprograms  --
    -------------------------
+   pragma Warnings (Off);
+   --  Disable warning that the representation of Time values may
+   --  change between GNAT versions.
 
    function To_D_Int is
      new Unchecked_Conversion (POSIX.Calendar.POSIX_Time, D_Int);
@@ -60,6 +63,8 @@ package body POSIX.Files is
    begin
       return time_t (To_Duration (To_D_Int (Time) / NS_per_S) * NS_per_S);
    end To_time_t;
+
+   pragma Warnings (On);
 
    function c_access
      (path  : char_ptr;

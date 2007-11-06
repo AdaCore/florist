@@ -53,8 +53,14 @@ package body POSIX.File_Status is
    function To_Group_ID is
      new Unchecked_Conversion (gid_t, POSIX.Process_Identification.Group_ID);
 
+   pragma Warnings (Off);
+   --  Disable warning that the representation of Time values may
+   --  change between GNAT versions.
+
    function Duration_To_POSIX_Time is new Unchecked_Conversion
-      (Duration, POSIX_Time);
+     (Duration, POSIX_Time);
+
+   pragma Warnings (On);
 
    function stat (path : char_ptr; buf : stat_ptr) return int;
    pragma Import (C, stat, stat_LINKNAME);
