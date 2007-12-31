@@ -65,12 +65,14 @@ package body POSIX.Supplement_to_Ada_IO is
    subtype System_File_Type is System.File_Control_Block.AFCB_Ptr;
 
    function Form_String (Val : Form_Values_for_Open) return String is
+      pragma Unreferenced (Val);
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
       return "";
    end Form_String;
 
    function Form_Value (Str : String) return Form_Values_for_Open is
+      pragma Unreferenced (Str);
       A : Form_Values_for_Open;
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
@@ -78,12 +80,14 @@ package body POSIX.Supplement_to_Ada_IO is
    end Form_Value;
 
    function Form_String (Val : Form_Values_for_Create) return String is
+      pragma Unreferenced (Val);
    begin
       Raise_POSIX_Error (Operation_Not_Supported);
       return "";
    end Form_String;
 
    function Form_Value (Str : String) return Form_Values_for_Create is
+      pragma Unreferenced (Str);
       A : Form_Values_for_Create;
    begin
       Raise_POSIX_Error (Operation_Not_Supported);

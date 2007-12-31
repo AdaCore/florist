@@ -745,6 +745,8 @@ package body POSIX.IO is
    procedure Set_Socket_Process_Owner
       (File    : File_Descriptor;
        Process : POSIX.Process_Identification.Process_ID) is
+      pragma Unreferenced (File);
+      pragma Unreferenced (Process);
    begin
       Raise_POSIX_Error (Operation_Not_Implemented);
    end Set_Socket_Process_Owner;
@@ -752,6 +754,8 @@ package body POSIX.IO is
    procedure Set_Socket_Group_Owner
       (File    : File_Descriptor;
        Group   : POSIX.Process_Identification.Process_Group_ID) is
+      pragma Unreferenced (File);
+      pragma Unreferenced (Group);
    begin
       Raise_POSIX_Error (Operation_Not_Implemented);
    end Set_Socket_Group_Owner;
