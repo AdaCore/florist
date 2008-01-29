@@ -186,7 +186,7 @@ package body POSIX.Calendar is
 
    function "+" (L : POSIX_Time; R : Duration) return POSIX_Time is
    begin
-      return POSIX_Time (To_Time (L) + Truncate (R));
+      return To_POSIX_Time (To_Time (L) + Truncate (R));
    end "+";
 
    -----------
@@ -195,7 +195,7 @@ package body POSIX.Calendar is
 
    function "+" (L : Duration; R : POSIX_Time) return POSIX_Time is
    begin
-      return POSIX_Time (Truncate (L) + To_Time (R));
+      return To_POSIX_Time (Truncate (L) + To_Time (R));
    end "+";
 
    -----------
@@ -204,7 +204,7 @@ package body POSIX.Calendar is
 
    function "-" (L : POSIX_Time; R : Duration) return POSIX_Time is
    begin
-      return POSIX_Time (To_Time (L) - R);
+      return To_POSIX_Time (To_Time (L) - R);
    end "-";
 
    -----------
