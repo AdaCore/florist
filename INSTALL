@@ -1,5 +1,4 @@
-In order to install FLORIST, you should go through the following
-steps.
+In order to install FLORIST, you should go through the following steps:
 
 0. Make sure you have GNAT installed.
    Note that to use FLORIST, you need to either use a GNAT run time based on
