@@ -6,9 +6,9 @@
 .POSIX:
 VERSION=6.1.0
 FLORIST_VERSION=$(VERSION)
-GNATMAKEFLAGS1B = -O2 -gnatpg
 GNATPREPFLAGS = -c -r
 GCCFLAGS = -O2
+GNATMAKE=gnatmake
 
 # How to invoke ranlib.
 RANLIB = ranlib
@@ -146,7 +146,7 @@ $(ADDRINFO_OBJECTS): pconfig.h
 # "deps5c.adb" is the same, but with POSIX.5c packages added.
 #
 deps deps_no_thread: $(GENERATED)
-	gnatmake -c $(GNATMAKEFLAGS1B) $@
+	$(GNATMAKE) -c -Pflorist_build $@
 #
 # -----------------------------------
 # Create a florist library for objects
