@@ -467,7 +467,7 @@ int guess_nsigs () {
  */
 
 #if defined(__APPLE__)
-# define BADSIG 0
+# define BADSIG (0)
 #else
 # define BADSIG (-1)
 #endif
@@ -496,7 +496,19 @@ int guess_nsigs () {
       fprintf (stderr, "WARNING: signal range estimate may be invalid\n");
       last_good = first_bad - 1;
    }
+
+#if defined(__APPLE__)
+
+  /* On Darwin, the above mechanism fails to make a reasonable guess
+     as to the number of available signals. In the test loop
+     sigismember returns true for every value of sig, including zero,
+     and no first_bad is ever set. For now, hard code a reasonable
+     value. */
+
+   return 32;
+#else
    return last_good + 1;
+#endif
 }
 
 void parent_process(pid_t child, int *oksigs, int sig) {

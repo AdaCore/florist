@@ -5140,6 +5140,17 @@ void create_c() {
     last_good = first_bad - 1;
   }
 
+#if defined(__APPLE__)
+
+  /* On Darwin, the above mechanism fails to make a reasonable guess
+     as to the number of available signals. In the test loop
+     sigismember returns true for every value of sig, including zero,
+     and no first_bad is ever set. For now, hard code a reasonable
+     value. */
+
+   last_good = 31;
+#endif
+
 #ifdef SIGRTMAX
 #ifdef SIGRTMIN
   if ((SIGRTMAX >= 0) && (SIGRTMIN >= 0)) {
