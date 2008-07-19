@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2006 AdaCore                      --
+--                     Copyright (C) 1998-2008 AdaCore                      --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -1149,7 +1149,7 @@ begin
 
    --  Merge in signals that are reserved by the Ada runtime system.
    for Sig in Signal loop
-      if Integer (Sig) in Integer (SIID'First) .. Integer (SIID'Last) then
+      if Integer (Sig) <= Integer (SIID'Last) then
          if SI.Is_Reserved (SIID (Sig)) and then (Sig /= SIGKILL
            and Sig /= SIGSTOP) then
             Reserved_Signal (Sig) := True;
