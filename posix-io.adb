@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2006 AdaCore                      --
+--                     Copyright (C) 1998-2008, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -282,7 +282,7 @@ package body POSIX.IO is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := IO_Count (Buffer'First) - 1;
          return;
       end if;
@@ -305,7 +305,7 @@ package body POSIX.IO is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := Buffer'First - 1;
          return;
       end if;
@@ -329,7 +329,7 @@ package body POSIX.IO is
       Old_Mask : aliased Signal_Mask;
       use Ada_Streams;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := Buffer'First - 1;
          return;
       end if;
@@ -369,7 +369,7 @@ package body POSIX.IO is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := IO_Count (Buffer'First - 1);
          return;
       end if;
@@ -393,7 +393,7 @@ package body POSIX.IO is
       Result : ssize_t;
       Old_Mask : aliased Signal_Mask;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := Buffer'First - 1;
          return;
       end if;
@@ -414,7 +414,7 @@ package body POSIX.IO is
       Old_Mask : aliased Signal_Mask;
       use Ada_Streams;
    begin
-      if Buffer'Length <= 0 then
+      if Buffer'Length = 0 then
          Last := Buffer'First - 1;
          return;
       end if;
