@@ -1149,6 +1149,11 @@ begin
 
    --  Merge in signals that are reserved by the Ada runtime system.
    for Sig in Signal loop
+      pragma Warnings (Off);
+      --  Kill warning about condition being always true generated
+      --  on some platforms, since this code is meant to be compiled
+      --  on several platforms.
+
       if Integer (Sig) <= Integer (SIID'Last) then
          if SI.Is_Reserved (SIID (Sig)) and then (Sig /= SIGKILL
            and Sig /= SIGSTOP) then
@@ -1157,5 +1162,7 @@ begin
       else
          Reserved_Signal (Sig) := True;
       end if;
+
+      pragma Warnings (On);
    end loop;
 end POSIX.Signals;
