@@ -6,8 +6,8 @@
 --                             C - P O S I X . C                            --
 --                                                                          --
 --                                                                          --
---             Copyright (C) 1991-1994 Florida State University             --
---                     Copyright (C) 1995-2006 AdaCore                      --
+--             Copyright (C) 1991-1994, Florida State University            --
+--                     Copyright (C) 1995-2009, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -402,7 +402,7 @@ int network_byte_order;
 
 /* Table of name to link name mappings
    -----------------------------------
-   
+
    The following table enumerates mappings to make from name to
    link name. */
 
@@ -431,7 +431,7 @@ char *name_to_linkname_table[] = {
 const char *n2ln (const char *name) {
   char **i = name_to_linkname_table;
   while (*i) {
-    if (strcmp (name, *i) == 0) 
+    if (strcmp (name, *i) == 0)
       return *(i + 1);
     i += 2;
   }
@@ -665,7 +665,7 @@ void g_sigval(){
   ifprintf(fp,"=> System.Null_Address);\n");
 #endif
 
-  ifprintf(fp,"   sigval_byte_size : constant := %d;\n", 
+  ifprintf(fp,"   sigval_byte_size : constant := %d;\n",
 	   sizeof (union sigval));
   ifprintf(fp,"   sigval_alignment : constant := ALIGNMENT;\n");
 }
@@ -1197,7 +1197,7 @@ struct cmsghdr {
   GT2(cmsg_type, int)
 #if (defined (__sparc__) && defined (__arch64__))
   GT2(cmsg_len, int)
-#elif defined(__APPLE__)
+#elif HAVE_socklen_t
   GT2(cmsg_len, socklen_t)
 #else
   GT2(cmsg_len, size_t)
@@ -1619,7 +1619,7 @@ void save_type
   tmp->typesize = typesize;
   count = 0;
   if (comps) {
-    for (p=comps;p->compname;p++) { 
+    for (p=comps;p->compname;p++) {
       /* Normalize component names by stripping out leading underscores. */
       while (p -> compname [0] == '_') p -> compname++;
       count++;
