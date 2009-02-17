@@ -593,6 +593,12 @@ void g_speed_t(){guitp("speed_t", sizeof(speed_t));}
 void g_speed_t(){gdfluitp("speed_t");}
 #endif
 
+#ifdef HAVE_socklen_t
+void g_socklen_t(){guitp("socklen_t", sizeof(socklen_t));}
+#else
+void g_socklen_t(){gdfluitp("socklen_t");}
+#endif
+
 #ifdef HAVE_timer_t
 void g_timer_t(){guitp("timer_t", sizeof(timer_t));}
 #else
@@ -1164,7 +1170,11 @@ struct msghdr {
 #if defined (__sparc__) && defined (__arch64__)
   GT2(msg_controllen, int)
 #else
+#ifdef HAVE_socklen_t
+  GT2(msg_controllen, socklen_t)
+#else
   GT2(msg_controllen, size_t)
+#endif
 #endif
 #endif
 #ifdef HAVE_component_msg_flags
@@ -1185,8 +1195,10 @@ struct cmsghdr {
 #endif
   GT2(cmsg_level, int)
   GT2(cmsg_type, int)
-#if defined (__sparc__) && defined (__arch64__)
+#if (defined (__sparc__) && defined (__arch64__))
   GT2(cmsg_len, int)
+#elif defined(__APPLE__)
+  GT2(cmsg_len, socklen_t)
 #else
   GT2(cmsg_len, size_t)
 #endif
@@ -5883,6 +5895,7 @@ void create_c() {
   g_sem_t();
   g_sigset_t();
   g_speed_t();
+  g_socklen_t();
   g_timer_t();
   g_sigval(); /* must precede siginfo_t and struct_sigevent */
   g_siginfo_t(); /* is typedef of a struct type */

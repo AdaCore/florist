@@ -175,7 +175,7 @@ regen:
 # remove editor and compiler generated files
 clean:
 	rm -rf floristlib
-	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~*
+	rm -f *.o *.ali a.out *# *~ $(EXECUTABLES) b_*.c b~* *.dSYM
 	rm -f $(C-POSIX_GENERATED) $(GNATPREP_SOURCES)
 
 # remove all generated files, including configuration history

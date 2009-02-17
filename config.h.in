@@ -368,6 +368,7 @@
 #undef HAVE_siginfo_t
 #undef HAVE_sigset_t
 #undef HAVE_sigval
+#undef HAVE_socklen_t
 #undef HAVE_speed_t
 #undef HAVE_suseconds_t
 #undef HAVE_tcflag_t
