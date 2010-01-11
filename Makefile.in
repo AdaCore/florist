@@ -186,7 +186,7 @@ distclean:
 	rm -f $(GENERATED) $(GNATPREP_SOURCES)
 
 # install floristlib
-install: floristlib
+install:
 	mkdir -p $(PREFIX)/lib/gnat
 	cp -pr floristlib $(PREFIX)/floristlib
 	cp -p florist.gpr $(PREFIX)/lib/gnat
