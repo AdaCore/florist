@@ -6,7 +6,7 @@
 --                       P O S I X - M A C R O S . C                        --
 --                                                                          --
 --  Copyright (c) 1996 Florida State University (FSU), All Rights Reserved. --
---                     Copyright (C) 1997-2006 AdaCore                      --
+--                     Copyright (C) 1997-2010, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -220,7 +220,7 @@ int __gnat_florist_open(const char *path, int oflag, mode_t mode) {
   return open (path, oflag, mode);
 }
 
-int __gnat_florist_sem_open 
+sem_t *__gnat_florist_sem_open
 (char *name, int oflag, mode_t mode, unsigned value) {
   return sem_open (name, oflag, mode, value);
 }
