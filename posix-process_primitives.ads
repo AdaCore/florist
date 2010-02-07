@@ -33,7 +33,6 @@
 --  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision: 1.1]
 
 with POSIX,
      POSIX.C,
@@ -191,13 +190,13 @@ private
          Next : FD_Set_Ptr;
          Action : FD_Action_Type;
          case FD_Action is
-            when close =>
+            when Close =>
                null;
-            when open  =>
+            when Open  =>
                File_Name : POSIX.Pathname (1 .. File_Name_Size);
                File_Mode : POSIX.IO.File_Mode;
                File_Options : POSIX.IO.Open_Option_Set;
-            when duplicate =>
+            when Duplicate =>
                Dup_From : POSIX.IO.File_Descriptor;
          end case;
       end record;
