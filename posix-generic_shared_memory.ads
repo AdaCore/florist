@@ -6,6 +6,8 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2010, AdaCore                     --
 --                                                                          --
 --  This  file is a component  of FLORIST,  an implementation of the POSIX  --
 --  Ada  bindings  for  use with the GNAT Ada compiler and the FSU Gnu Ada  --
@@ -70,9 +72,7 @@ package POSIX.Generic_Shared_Memory is
      (Name           : POSIX.POSIX_String;
       Protection     : POSIX.Memory_Mapping.Protection_Options;
       Permissions    : POSIX.Permissions.Permission_Set;
-      Options        : POSIX.IO.Open_Option_Set :=
-         POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options        : POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set;
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
      return POSIX.IO.File_Descriptor;
    function Access_Shared_Memory
