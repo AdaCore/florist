@@ -6,6 +6,8 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2010, AdaCore                     --
 --                                                                          --
 --  This  file is a component  of FLORIST,  an implementation of the POSIX  --
 --  Ada  bindings  for  use with the GNAT Ada compiler and the FSU Gnu Ada  --
@@ -33,7 +35,6 @@
 --  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 with POSIX,
      POSIX.C,
@@ -108,9 +109,7 @@ private
      Mapping_Options (Option_Set'(Option => POSIX.C.MAP_PRIVATE));
    Exact_Address          : constant Location_Options :=
      Location_Options (Option_Set'(Option => POSIX.C.MAP_FIXED));
-   Nearby_Address         : constant Location_Options :=  --  Empty_Set;
-      Location_Options (POSIX.Empty_Set);
-      --  Conversion is only to work around a GNAT3.09 problem.
+   Nearby_Address         : constant Location_Options :=  Empty_Set;
    Wait_For_Completion    : constant Synchronize_Memory_Options :=
      Synchronize_Memory_Options (Option_Set'(Option => POSIX.C.MS_SYNC));
    No_Wait_For_Completion : constant Synchronize_Memory_Options :=

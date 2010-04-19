@@ -6,6 +6,8 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
+--             Copyright (C) 1996-1997 Florida State University             --
+--                     Copyright (C) 1998-2010, AdaCore                     --
 --                                                                          --
 --  This  file is a component  of FLORIST,  an implementation of the POSIX  --
 --  Ada  bindings  for  use with the GNAT Ada compiler and the FSU Gnu Ada  --
@@ -33,7 +35,6 @@
 --  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision: 1.1]
 
 with POSIX.C,
      POSIX.IO,
@@ -56,9 +57,7 @@ package POSIX.Semaphores is
      (Name           : POSIX.POSIX_String;
       Permissions    : POSIX.Permissions.Permission_Set;
       Value          : Natural;
-      Options        : POSIX.IO.Open_Option_Set := --  POSIX.IO.Empty_Set;
-         POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options        : POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set;
       Masked_Signals : POSIX.Signal_Masking := POSIX.RTS_Signals)
      return Semaphore_Descriptor;
    procedure Close (Sem : in out Semaphore_Descriptor);
