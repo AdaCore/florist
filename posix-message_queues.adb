@@ -191,9 +191,7 @@ package body POSIX.Message_Queues is
      (Name           : POSIX_String;
       Mode           : POSIX.IO.File_Mode;
       Permissions    : POSIX.Permissions.Permission_Set;
-      Options        : POSIX.IO.Open_Option_Set := --  POSIX.IO.Empty_Set;
-         POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options        : POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set;
       Masked_Signals : Signal_Masking := RTS_Signals)
      return Message_Queue_Descriptor is
       Name_With_NUL : POSIX_String := Name & NUL;
@@ -212,9 +210,7 @@ package body POSIX.Message_Queues is
      (Name           : POSIX_String;
       Mode           : POSIX.IO.File_Mode;
       Permissions    : POSIX.Permissions.Permission_Set;
-      Options        : POSIX.IO.Open_Option_Set := --  POSIX.IO.Empty_Set;
-         POSIX.IO.Open_Option_Set (POSIX.IO.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options        : POSIX.IO.Open_Option_Set := POSIX.IO.Empty_Set;
       Attrs          : Attributes;
       Masked_Signals : Signal_Masking := RTS_Signals)
      return Message_Queue_Descriptor is

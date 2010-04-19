@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2008, AdaCore                     --
+--                     Copyright (C) 1998-2010, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -136,9 +136,7 @@ package body POSIX.IO is
      (Name             : Pathname;
       Mode             : File_Mode;
       Permissions      : POSIX.Permissions.Permission_Set;
-      Options          : Open_Option_Set := --  Empty_Set;
-         Open_Option_Set (POSIX.Empty_Set);
-         --  Conversion is only to work around a GNAT3.09 problem.
+      Options          : Open_Option_Set := Empty_Set;
       Masked_Signals   : POSIX.Signal_Masking := RTS_Signals)
      return File_Descriptor is
       Result : int;
