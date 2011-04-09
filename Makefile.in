@@ -190,3 +190,5 @@ install:
 	mkdir -p $(PREFIX)/lib/gnat
 	cp -pr floristlib $(PREFIX)/floristlib
 	cp -p florist.gpr $(PREFIX)/lib/gnat
+
+.PHONY: install clean distclean regen
