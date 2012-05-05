@@ -33,7 +33,6 @@
 --  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
 with Calendar,
      POSIX;

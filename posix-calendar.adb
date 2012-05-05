@@ -8,6 +8,7 @@
 --                                                                          --
 --                                                                          --
 --  Copyright (c) 1996 Florida State University (FSU), All Rights Reserved. --
+--                     Copyright (C) 1998-2012, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -34,67 +35,44 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision: 1.1]
 
---  ....Change POSIX.5?????
---  This package is rather ugly, since it was modeled on early Ada 83
---  implementations where the Ada Calendar.Clock function was
---  implemented using the C time() function.  Thus, for correct
---  interaction with file times (see Set_File_Times), we have to
---  limit the precision of the time representation here to match
---  the precision of the C type time_t.  That is, all times must be
---  truncated to the nearest second.
+--  Note: we used to call c_time in order to keep some compatibility with
+--  POSIX.Files.Set_File_Times, but this seems obsolete now with modern
+--  file systems, and having a fine grain precision is more important anyway.
 
---  At one point we used gettimeofday, on systems where that
---  function is supported, to provide more accurate time.
---  As mentioned above, that created inconsistencies in file
---  access times versus clock values.
+with POSIX.C, Unchecked_Conversion;
 
-with POSIX.C,
-     Unchecked_Conversion;
 package body POSIX.Calendar is
 
    package AC renames Standard.Calendar;
 
-   use Standard.Calendar,
-       POSIX.C;
+   use Standard.Calendar, POSIX.C;
 
    POSIX_Epoch : constant Duration :=
      AC.Time_Of (Year => 2150, Month => 1, Day => 1) -
      AC.Time_Of (Year => 1970, Month => 1, Day => 1);
-   --  The POSIX Epoch, measured as a duration since the Ada mid point
+   --  Time difference between POSIX and GNAT notion of time, measured as a
+   --  duration since the Ada mid point
 
    pragma Warnings (Off);
    --  Disable warning that the representation of Time values may
    --  change between GNAT versions.
 
-   function Duration_To_POSIX_Time is new Unchecked_Conversion
-     (Duration, POSIX_Time);
-   function POSIX_Time_To_Duration is new Unchecked_Conversion
-     (POSIX_Time, Duration);
+   function Duration_To_POSIX_Time is new
+     Unchecked_Conversion (Duration, POSIX_Time);
+
+   function POSIX_Time_To_Duration is new
+     Unchecked_Conversion (POSIX_Time, Duration);
 
    pragma Warnings (On);
-
-   function Truncate (D : Duration) return Duration;
-
-   function Truncate (D : Duration) return Duration is
-   begin
-      return Duration (time_t (D));
-   end Truncate;
 
    -------------
    --  Clock  --
    -------------
 
-   function c_time (t : time_t_var_ptr) return time_t;
-   pragma Import (C, c_time, time_LINKNAME);
-
-   --  Warning, don't use Epoch and Time_Of here,
-   --  since Time_Of converts from GMT to local time!!!!
-
    function Clock return POSIX_Time is
    begin
-      return Duration_To_POSIX_Time (Duration (c_time (null)));
+      return To_POSIX_Time (AC.Clock);
    end Clock;
 
    ---------------
@@ -112,8 +90,7 @@ package body POSIX.Calendar is
 
    function To_POSIX_Time (Date : AC.Time) return POSIX_Time is
    begin
-      return Duration_To_POSIX_Time (Duration (time_t
-        (POSIX_Time_To_Duration (POSIX_Time (Date + POSIX_Epoch)))));
+      return POSIX_Time (Date + POSIX_Epoch);
    end To_POSIX_Time;
 
    ------------
@@ -176,8 +153,7 @@ package body POSIX.Calendar is
       Day     : Day_Number;
       Seconds : Day_Duration := 0.0) return POSIX_Time is
    begin
-      return To_POSIX_Time (AC.Time_Of (Year, Month, Day,
-        Truncate (Seconds)));
+      return To_POSIX_Time (AC.Time_Of (Year, Month, Day, Seconds));
    end Time_Of;
 
    -----------
@@ -186,7 +162,7 @@ package body POSIX.Calendar is
 
    function "+" (L : POSIX_Time; R : Duration) return POSIX_Time is
    begin
-      return To_POSIX_Time (To_Time (L) + Truncate (R));
+      return To_POSIX_Time (To_Time (L) + R);
    end "+";
 
    -----------
@@ -195,7 +171,7 @@ package body POSIX.Calendar is
 
    function "+" (L : Duration; R : POSIX_Time) return POSIX_Time is
    begin
-      return To_POSIX_Time (Truncate (L) + To_Time (R));
+      return To_POSIX_Time (L + To_Time (R));
    end "+";
 
    -----------
@@ -258,15 +234,14 @@ package body POSIX.Calendar is
 
    function To_POSIX_Time (Date : POSIX.Timespec) return POSIX_Time is
    begin
-      return Duration_To_POSIX_Time (Truncate (POSIX.To_Duration (Date)));
+      return Duration_To_POSIX_Time (POSIX.To_Duration (Date));
    end To_POSIX_Time;
 
    -------------------
    --  To_Timespec  --
    -------------------
 
-   function To_Timespec
-     (Date : POSIX_Time) return POSIX.Timespec is
+   function To_Timespec (Date : POSIX_Time) return POSIX.Timespec is
    begin
       return POSIX.To_Timespec (POSIX_Time_To_Duration (Date));
    end To_Timespec;
