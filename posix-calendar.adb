@@ -40,13 +40,13 @@
 --  POSIX.Files.Set_File_Times, but this seems obsolete now with modern
 --  file systems, and having a fine grain precision is more important anyway.
 
-with POSIX.C, Unchecked_Conversion;
+with Unchecked_Conversion;
 
 package body POSIX.Calendar is
 
    package AC renames Standard.Calendar;
 
-   use Standard.Calendar, POSIX.C;
+   use Standard.Calendar;
 
    POSIX_Epoch : constant Duration :=
      AC.Time_Of (Year => 2150, Month => 1, Day => 1) -
