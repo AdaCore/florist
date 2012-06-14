@@ -2196,9 +2196,8 @@ fi
 
 
 
-echo "We will assume errno is safe for exception propagation."
-echo "to override, hand-edit gnatprep.config"
-echo "HAVE_Safe_Errno := True" >> gnatprep.config;
+# By default errno is preserved accross exceptions
+safe_errno=True
 
 echo $ac_n "checking for SGI IRIX timers... " $ac_c;
 if (grep "CLOCK_SGI_FAST" /usr/include/sys/ptimers.h >/dev/null 2>&1); then
@@ -2225,6 +2224,8 @@ case ${UNAME_SYSTEM} in
            ;;
      B.11.*)
            echo "making Config"
+           # getenv might be called during propagation, and modifies errno.
+           safe_errno=False
            cp ./configs/pconfig.HP-UX11.00 ./pconfig.h.in;
            ;;
      *) echo "Unexpected HP-UX release; using default."
@@ -2291,6 +2292,15 @@ case ${UNAME_SYSTEM} in
    cp ./configs/pconfig.Default ./pconfig.h.in;
    ;;
 esac;
+
+if test "x$safe_errno" = "xTrue" ; then
+  safe_errno_msg="safe"
+else
+  safe_errno_msg="not safe"
+fi
+echo "We will assume errno is $safe_errno_msg for exception propagation."
+echo "to override, hand-edit gnatprep.config"
+echo "HAVE_Safe_Errno := $safe_errno" >> gnatprep.config;
 
 
 # defines HAVE_NAME_H for each header "name.h" found
