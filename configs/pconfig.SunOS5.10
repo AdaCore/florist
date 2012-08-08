@@ -3,6 +3,8 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #define __EXTENSIONS__
 #define _REENTRANT
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
 
 /* SOLARIS_HACK activates a workaround for a trick that appeared
    in the Solaris 2.6 header files, of defining local function bodies

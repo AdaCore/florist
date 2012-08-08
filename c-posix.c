@@ -424,8 +424,9 @@ char *name_to_linkname_table[] = {
   /* The following is implemented as an inline function on some platforms */
   "uname", "__gnat_florist_uname",
 
-  #if defined(__linux__) && (_FILE_OFFSET_BITS == 64)
-  /* For a 32-bit Linux system, force linking against 64-bit functions */
+  #if _FILE_OFFSET_BITS == 64
+  /* For a 32-bit system with large file support, force linking against
+     64-bit functions */
   "readdir", "readdir64",
   "readdir_r", "readdir64_r",
   #endif
@@ -6136,7 +6137,7 @@ void create_c() {
   /*  GFUNC(rand_r,HAVE_rand_r); */
   GFUNC(read,HAVE_read);
   GFUNC(readdir,HAVE_readdir);
-#if defined(SOLARIS_HACK)
+#if defined(SOLARIS_HACK) && (_FILE_OFFSET_BITS != 64)
   if (HAVE___posix_readdir_r == 1) {
     gfuncsol("readdir_r","__posix_readdir_r");
   } else {
