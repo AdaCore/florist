@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2009, AdaCore                     --
+--                     Copyright (C) 1995-2012, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -424,7 +424,13 @@ char *name_to_linkname_table[] = {
   /* The following is implemented as an inline function on some platforms */
   "uname", "__gnat_florist_uname",
 
-   NULL
+  #if defined(__linux__) && (_FILE_OFFSET_BITS == 64)
+  /* For a 32-bit Linux system, force linking against 64-bit functions */
+  "readdir", "readdir64",
+  "readdir_r", "readdir64_r",
+  #endif
+
+  NULL
 };
 
 /* Map a name to a linkname. */
