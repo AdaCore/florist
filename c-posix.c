@@ -429,6 +429,7 @@ char *name_to_linkname_table[] = {
      64-bit functions */
   "readdir", "readdir64",
   "readdir_r", "readdir64_r",
+  "lseek", "lseek64",
   #endif
 
   NULL
