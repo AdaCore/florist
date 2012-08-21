@@ -430,6 +430,7 @@ char *name_to_linkname_table[] = {
   "readdir", "readdir64",
   "readdir_r", "readdir64_r",
   "lseek", "lseek64",
+  "ftruncate", "ftruncate64",
   #endif
 
   NULL
