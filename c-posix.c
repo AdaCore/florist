@@ -431,6 +431,10 @@ char *name_to_linkname_table[] = {
   "readdir_r", "readdir64_r",
   "lseek", "lseek64",
   "ftruncate", "ftruncate64",
+
+  /* Note: we already have C wrappers for stat/fstat/lstat so they do not
+     need to be listed here. */
+
   #endif
 
   NULL
