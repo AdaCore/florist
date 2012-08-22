@@ -435,6 +435,13 @@ char *name_to_linkname_table[] = {
   /* Note: we already have C wrappers for stat/fstat/lstat so they do not
      need to be listed here. */
 
+  #elif __DARWIN_64_BIT_INO_T && !__DARWIN_ONLY_64_BIT_INO_T
+  /* On Darwin some symbols are versioned to account for optional 64-bit
+     inode numbers. */
+
+  "readdir",   "readdir"   __DARWIN_SUF_64_BIT_INO_T,
+  "readdir_r", "readdir_r" __DARWIN_SUF_64_BIT_INO_T,
+
   #endif
 
   NULL
