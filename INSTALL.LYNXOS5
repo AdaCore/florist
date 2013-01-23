@@ -1,0 +1,13 @@
+Warning: This procedure is experimental and only partially tested.
+
+In order to install FLORIST for PowerPC LynxOS 5, you should go through the
+following steps:
+
+cp -p lynxos5/* .
+make -f Makefile.in GNATMAKE="powerpc-elf-lynxos5-gnatmake -gnatyN" \
+  CC=powerpc-elf-lynxos5-gcc \
+  DEPS=deps ADDRINFO_OBJECTS= \
+  SIGNALS_GENERATED=posix-implementation-ok_signals.ads \
+  GENERATED="posix-implementation.adb posix-timers-extensions.adb"
+make -f Makefile.in PREFIX=<florist-root-install> install
+
