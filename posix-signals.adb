@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2008 AdaCore                      --
+--                     Copyright (C) 1998-2013, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -341,7 +341,8 @@ package body POSIX.Signals is
       for Sig in Signal loop
          if Reserved_Signal (Sig) then
             if Sig /= SIGKILL and then Sig /= SIGSTOP and then
-              sigismember (Set.C'Unchecked_Access, int (Sig)) = 1 then
+              sigismember (Set.C'Unchecked_Access, int (Sig)) = 1
+            then
                Raise_POSIX_Error (Invalid_Argument);
             end if;
          else
@@ -349,7 +350,8 @@ package body POSIX.Signals is
             --  task entry or protected procedure
             if sigismember (Set.C'Unchecked_Access, int (Sig)) = 1
               and then (SI.Is_Entry_Attached (SIID (Sig))
-                or else SI.Is_Handler_Attached (SIID (Sig))) then
+                or else SI.Is_Handler_Attached (SIID (Sig)))
+            then
                Raise_POSIX_Error (Invalid_Argument);
             end if;
          end if;
@@ -466,7 +468,8 @@ package body POSIX.Signals is
      (Set : Signal_Set; Sig : Signal) return Boolean is
    begin
       if Sig = Signal_Null
-        or else sigismember (Set.C'Unchecked_Access, int (Sig)) = 1 then
+        or else sigismember (Set.C'Unchecked_Access, int (Sig)) = 1
+      then
          return True;
       end if;
       return False;
@@ -501,7 +504,8 @@ package body POSIX.Signals is
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
-              (New_Mask.C'Unchecked_Access, int (Sig)) = 1 then
+              (New_Mask.C'Unchecked_Access, int (Sig)) = 1
+            then
                if not SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Mask;
                end if;
@@ -552,7 +556,8 @@ package body POSIX.Signals is
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
-              (Mask_to_Add.C'Unchecked_Access, int (Sig)) = 1 then
+              (Mask_to_Add.C'Unchecked_Access, int (Sig)) = 1
+            then
                if not SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Mask;
                end if;
@@ -602,7 +607,8 @@ package body POSIX.Signals is
             --  It is OK to modify this signal's masking, using the
             --  interfaces of System.Interrupts.
             if sigismember
-              (Mask_to_Subtract.C'Unchecked_Access, int (Sig)) = 1 then
+              (Mask_to_Subtract.C'Unchecked_Access, int (Sig)) = 1
+            then
                if SI.Is_Blocked (SIID (Sig)) then
                   Disposition (Sig) := SI_To_Unmask;
                end if;
@@ -639,7 +645,8 @@ package body POSIX.Signals is
       --  may be more values in POSIX.Signal
       --  than System.Interrupts.Interrupt_ID
       if pthread_sigmask
-        (SIG_BLOCK, null, Old_Mask.C'Unchecked_Access) = 0 then
+        (SIG_BLOCK, null, Old_Mask.C'Unchecked_Access) = 0
+      then
          null;
       end if;
       --  Delete any ublocked signals from System.Interrupts.
@@ -1005,7 +1012,8 @@ package body POSIX.Signals is
    begin
       Check_Awaitable (Set);
       if sigwait
-        (Set.C'Unchecked_Access, Result'Unchecked_Access) = -1 then
+        (Set.C'Unchecked_Access, Result'Unchecked_Access) = -1
+      then
          Raise_POSIX_Error (Fetch_Errno);
       end if;
       return Signal (Result);
@@ -1156,7 +1164,8 @@ begin
 
       if Integer (Sig) <= Integer (SIID'Last) then
          if SI.Is_Reserved (SIID (Sig)) and then (Sig /= SIGKILL
-           and Sig /= SIGSTOP) then
+           and Sig /= SIGSTOP)
+         then
             Reserved_Signal (Sig) := True;
          end if;
       else
