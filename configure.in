@@ -96,12 +96,12 @@ case ${UNAME_SYSTEM} in
    cp ./configs/pconfig.IRIX6.x ./pconfig.h.in;
    ;;
  AIX)
-   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_VERSION};
    case `gcc -dumpmachine` in 
       *-*-aix4*)
         cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
 	;;
-      *-*-aix5*)
+      *-*-aix[567]*)
 	cp ./configs/pconfig.AIX5.x ./pconfig.h.in;
 	;;
    esac
