@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2012, AdaCore                     --
+--                     Copyright (C) 1995-2014, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -1689,7 +1689,7 @@ void print_type_declaration(char const name[], FILE *fp) {
   }
   switch (type->typekind) {
   case SIGNED_INTEGER_TYPE:
-    ifprintf(fp,"   type %s is range -2**%d .. (2**%d)-1;\n",
+    ifprintf(fp,"   type %s is range -2**%d .. (2**%d) - 1;\n",
       type->typename,
       type->typesize*bits_per_byte-1,
       type->typesize*bits_per_byte-1);
