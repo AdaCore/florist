@@ -3162,7 +3162,7 @@ void create_posix() {
 
   ifprintf(fp,"   Byte_Size : constant :=  %d;\n\n",bits_per_byte);
 
-  ifprintf(fp,"   type IO_Count is range -2**%d .. (2**%d)-1;\n\n",
+  ifprintf(fp,"   type IO_Count is range -2**%d .. (2**%d) - 1;\n\n",
     sizeof(ssize_t)*bits_per_byte-1,
     sizeof(ssize_t)*bits_per_byte-1);
   ifprintf(fp,"   for IO_Count'Size use %d;\n", sizeof(ssize_t)*bits_per_byte);
