@@ -513,6 +513,18 @@ void g_nlink_t(){guitp("nlink_t", sizeof(nlink_t));}
 void g_nlink_t(){gdfluitp("nlink_t");}
 #endif
 
+#ifdef HAVE_blksize_t
+void g_blksize_t(){guitp("blksize_t", sizeof(blksize_t));}
+#else
+void g_blksize_t(){gdfluitp("blksize_t");}
+#endif
+
+#ifdef HAVE_blkcnt_t
+void g_blkcnt_t(){guitp("blkcnt_t", sizeof(blkcnt_t));}
+#else
+void g_blkcnt_t(){gdfluitp("blkcnt_t");}
+#endif
+
 #ifdef HAVE_cc_t
 void g_cc_t(){guitp("cc_t", sizeof(cc_t));}
 #else
@@ -886,6 +898,8 @@ struct stat {
     uid_t st_uid;
     gid_t st_gid;
     off_t st_size;
+    blksize_t st_blksize;
+    blkcnt_t st_blocks;
     time_t st_atime;
     time_t st_mtime;
     time_t st_ctime;
@@ -899,6 +913,8 @@ struct stat {
   GT2(st_uid, uid_t)
   GT2(st_gid, gid_t)
   GT2(st_size, off_t)
+  GT2(st_blksize, blksize_t)
+  GT2(st_blocks, blkcnt_t)
   GT2(st_atime, time_t)
   GT2(st_mtime, time_t)
   GT2(st_ctime, time_t)
@@ -5901,6 +5917,8 @@ void create_c() {
   g_dev_t();
   g_cc_t();
   g_nlink_t();
+  g_blksize_t();
+  g_blkcnt_t();
   g_tcflag_t();
   g_clockid_t();
   g_mqd_t();

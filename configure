@@ -4373,6 +4373,8 @@ $as_echo "no" >&6; }
 done
 
 for ac_typ in \
+ blkcnt_t\
+ blksize_t\
  cc_t\
  clockid_t\
  clock_t\

@@ -2,13 +2,11 @@
 --                                                                          --
 --            FLORIST (FSU Implementation of POSIX.5) COMPONENTS            --
 --                                                                          --
---                                  D E P S                                 --
+--         P O S I X . F I L E _ S T A T U S . E X T E N S I O N S          --
 --                                                                          --
 --                                  B o d y                                 --
 --                                                                          --
---         Copyright (C) 1996-1997, Florida State University (FSU)          --
---                     Copyright (C) 1998-2014, AdaCore                     --
---                            All Rights Reserved                           --
+--                       Copyright (C) 2014, AdaCore                        --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -35,53 +33,27 @@
 --  covered by the GNU Public License.                                      --
 --                                                                          --
 ------------------------------------------------------------------------------
---  [$Revision$]
 
---  This procedure is introduced to compile all the POSIX.5b implementation
---  packages, but not the POSIX.5c (draft) files.
+with POSIX.C; use POSIX.C;
 
-pragma Warnings (Off);
-with Ada_Streams;
-with Ada_Task_Identification;
-with POSIX;
-with POSIX_Asynchronous_IO;
-with POSIX_Calendar;
-with POSIX_Condition_Variables;
-with POSIX_Configurable_File_Limits;
-with POSIX_Configurable_System_Limits;
-with POSIX_File_Locking;
-with POSIX_File_Status;
-with POSIX_File_Status.Extensions;
-with POSIX_Files;
-with POSIX_Generic_Shared_Memory;
-with POSIX_Group_Database;
-with POSIX_IO;
-with POSIX_Limits;
-with POSIX_Memory_Locking;
-with POSIX_Memory_Mapping;
-with POSIX_Memory_Range_Locking;
-with POSIX_Message_Queues;
-with POSIX_Mutexes;
-with POSIX_Options;
-with POSIX_Page_Alignment;
-with POSIX_Permissions;
-with POSIX_Process_Environment;
-with POSIX_Process_Identification;
-with POSIX_Process_Primitives;
-with POSIX_Process_Scheduling;
-with POSIX_Process_Times;
-with POSIX_Semaphores;
-with POSIX_Shared_Memory_Objects;
-with POSIX_Signals;
-with POSIX_Supplement_to_Ada_IO;
-with POSIX_Terminal_Functions;
-with POSIX_Timers;
-with POSIX.Timers.Extensions;
-with POSIX_Unsafe_Process_Primitives;
-with POSIX_User_Database;
-pragma Warnings (On);
+package body POSIX.File_Status.Extensions is
 
-procedure deps is
-begin
-   null;
-end deps;
+   ------------------------
+   --  IO_Block_Size_Of  --
+   ------------------------
+
+   function IO_Block_Size_Of (File_Status : Status) return POSIX.IO_Count is
+   begin
+      return IO_Count (struct_stat (File_Status).st_blksize);
+   end IO_Block_Size_Of;
+
+   ---------------------------
+   --  Allocated_Blocks_Of  --
+   ---------------------------
+
+   function Allocated_Blocks_Of (File_Status : Status) return POSIX.IO_Count is
+   begin
+      return IO_Count (struct_stat (File_Status).st_blocks);
+   end Allocated_Blocks_Of;
+
+end POSIX.File_Status.Extensions;

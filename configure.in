@@ -281,6 +281,8 @@ AC_POSIX_STRUCTS(\
  utsname\
 )
 AC_POSIX_TYPES(\
+ blkcnt_t\
+ blksize_t\
  cc_t\
  clockid_t\
  clock_t\
