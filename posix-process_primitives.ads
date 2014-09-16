@@ -6,7 +6,6 @@
 --                                                                          --
 --                                  S p e c                                 --
 --                                                                          --
---                                                                          --
 --  This  file is a component  of FLORIST,  an implementation of the POSIX  --
 --  Ada  bindings  for  use with the GNAT Ada compiler and the FSU Gnu Ada  --
 --  Runtime Library (GNARL).                                                --
@@ -40,6 +39,7 @@ with POSIX,
      POSIX.Process_Environment,
      POSIX.Process_Identification,
      POSIX.Signals;
+
 package POSIX.Process_Primitives is
 
    --  Process Template
@@ -112,7 +112,8 @@ package POSIX.Process_Primitives is
 
    --  Process Exit
 
-   type Exit_Status is range 0 .. 2**8-1;
+   type Exit_Status is range 0 .. 2 ** 8 - 1;
+
    Normal_Exit              : constant Exit_Status := 0;
    Failed_Creation_Exit     : constant Exit_Status := 41;
    Unhandled_Exception_Exit : constant Exit_Status := 42;
