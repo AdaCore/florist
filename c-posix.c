@@ -53,12 +53,12 @@
 
  */
 
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
-#include "config.h"
+#include "confsrc/config.h"
 
 #ifdef __hpux__
 /* HP-UX headers define an obsolete (and wrong) OPEN_MAX when
@@ -2497,7 +2497,7 @@ void gmacrofunc
 void create_options() {
 
   fprintf(stderr,"creating package POSIX_Options\n");
-  if (! (fp = fopen ("posix-options.ads", "w"))) {
+  if (! (fp = fopen (GENDIR "/posix-options.ads", "w"))) {
     perror ("posix-options.ads");
     quit("can't open file to write","");
   }
@@ -2742,7 +2742,7 @@ void create_options() {
 void create_limits() {
 
   fprintf(stderr,"creating package POSIX_Limits\n");
-  if (! (fp = fopen ("posix-limits.ads", "w"))) {
+  if (! (fp = fopen (GENDIR "/posix-limits.ads", "w"))) {
     perror ("posix-limits.ads");
     quit("can't open file to write","");
   }
@@ -3104,13 +3104,13 @@ void create_posix() {
 #endif
 
   fprintf(stderr,"creating package POSIX\n");
-  if (! (fp = fopen ("posix.ads", "w"))) {
+  if (! (fp = fopen (GENDIR "/posix.ads", "w"))) {
     perror ("posix.ads");
     quit("can't open file to write","");
   }
 
   gheader("POSIX", IEEE_Header);
-  ifprintf(fp,"with Ada_Streams;\n");
+  ifprintf(fp,"with Ada.Streams;\n");
   ifprintf(fp,"with Interfaces;\n");
   ifprintf(fp,"package POSIX is\n\n");
 
@@ -3485,10 +3485,10 @@ void create_posix() {
   ifprintf(fp,"return Wide_String;\n");
 
   ifprintf(fp,"   function To_Stream_Element_Array (Buffer : POSIX_String)\n");
-  ifprintf(fp,"      return Ada_Streams.Stream_Element_Array;\n");
+  ifprintf(fp,"      return Ada.Streams.Stream_Element_Array;\n");
 
   ifprintf(fp,"   function To_POSIX_String (Buffer : ");
-  ifprintf(fp,"Ada_Streams.Stream_Element_Array)\n");
+  ifprintf(fp,"Ada.Streams.Stream_Element_Array)\n");
   ifprintf(fp,"      return POSIX_String;\n");
 
   ifprintf(fp,"   subtype Filename is POSIX_String;\n");
@@ -4323,7 +4323,7 @@ void create_posix() {
 void create_c() {
 
   fprintf(stderr,"creating package POSIX.C\n");
-  if (! (fp = fopen ("posix-c.ads", "w"))) {
+  if (! (fp = fopen (GENDIR "/posix-c.ads", "w"))) {
     perror ("posix-c.ads");
     quit("can't open file to write","");
   }

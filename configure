@@ -562,15 +562,15 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 PACKAGE_URL=
 
-ac_unique_file="posix.adb"
+ac_unique_file="libsrc/posix.adb"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 EGREP
 GREP
-ADDRINFO_OBJECTS
 CPP
 DEPS
 SIGNALS_GENERATED
+LIBRARY_TYPE_OPTIONS
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -620,6 +620,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_threads
+enable_shared
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1240,6 +1241,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-threads       Do not try to build pthread support
+  --enable-shared         Enable build of shared libraries
 
 Some influential environment variables:
   CC          C compiler command
@@ -1856,7 +1858,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 echo See file "configure.log" for results of this step.
 # specifies some well-known file in the configured directory
-ac_config_headers="$ac_config_headers config.h"
+ac_config_headers="$ac_config_headers confsrc/config.h"
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2659,6 +2661,17 @@ else
 fi
 
 
+# Check whether --enable-shared was given.
+if test "${enable_shared+set}" = set; then :
+  enableval=$enable_shared;
+if test "$enableval" = "yes"; then
+  LIBRARY_TYPE_OPTIONS="-XLIBRARY_TYPE=relocatable"
+fi
+
+fi
+
+
+
 if test "x$use_pthread" = "xyes" ; then
   DEPS=deps
   SIGNALS_GENERATED=posix-implementation-ok_signals.ads
@@ -2928,11 +2941,11 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-rm -f pconfig.h
-cp pconfig.h.in pconfig.h
-chmod 644 pconfig.h
-if ( test ! -f pconfig.h ) then
-   as_fn_error $? "missing pconfig.h" "$LINENO" 5;
+rm -f confsrc/pconfig.h
+cp pconfig.h.in confsrc/pconfig.h
+chmod 644 confsrc/pconfig.h
+if ( test ! -f confsrc/pconfig.h ) then
+   as_fn_error $? "missing confsrc/pconfig.h" "$LINENO" 5;
 fi
 for ac_hdr in \
  aio.h\
@@ -2979,7 +2992,7 @@ if ac_fn_c_try_cpp "$LINENO"; then :
 
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 #include <$ac_hdr>
 int
 main ()
@@ -3003,10 +3016,9 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-  echo "#include <$ac_hdr>" >> pconfig.h
-    ac_tr_hdr=HAVE_`echo $ac_hdr |
-   tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
-  cat >>confdefs.h <<_ACEOF
+  echo "#include <$ac_hdr>" >> confsrc/pconfig.h
+  ac_tr_hdr=HAVE_$(echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___')
+     cat >>confdefs.h <<_ACEOF
 #define $ac_tr_hdr 1
 _ACEOF
 
@@ -3054,7 +3066,7 @@ _ACEOF
 if ac_fn_c_try_cpp "$LINENO"; then :
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 #include <$ac_hdr>
 int
 main ()
@@ -3078,10 +3090,9 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-  echo "#include <$ac_hdr>" >> pconfig.h
-    ac_tr_hdr=HAVE_`echo $ac_hdr |
-    tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
-  cat >>confdefs.h <<_ACEOF
+  echo "#include <$ac_hdr>" >> confsrc/pconfig.h
+  ac_tr_hdr=HAVE_$(echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___')
+     cat >>confdefs.h <<_ACEOF
 #define $ac_tr_hdr 1
 _ACEOF
 
@@ -3106,7 +3117,7 @@ _ACEOF
 if ac_fn_c_try_cpp "$LINENO"; then :
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 #include <xti.h>
 int
 main ()
@@ -3130,7 +3141,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-  echo "#include <xti.h>" >> pconfig.h
+  echo "#include <xti.h>" >> confsrc/pconfig.h
   cat >>confdefs.h <<_ACEOF
 #define HAVE_XTI_H 1
 _ACEOF
@@ -3155,7 +3166,7 @@ _ACEOF
 if ac_fn_c_try_cpp "$LINENO"; then :
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 #include <tli.h>
 int
 main ()
@@ -3179,7 +3190,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-  echo "#include <tli.h>" >> pconfig.h
+  echo "#include <tli.h>" >> confsrc/pconfig.h
   cat >>confdefs.h <<_ACEOF
 #define HAVE_TLI_H 1
 _ACEOF
@@ -3197,9 +3208,10 @@ CFLAGS=$ac_old_cflags
 fi
 CFLAGS=$ac_old_cflags
 
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 int
 main ()
 {
@@ -3210,324 +3222,358 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  echo "Socket interface Looks like BSD 4.4";
+  echo "Socket interface looks like BSD 4.4";
 
  # Put BSD flag in gnatprep.config
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
  else
-    echo "--  set BSD4_3 to False if using 4.4 style socket msghdr" \
-        >> gnatprep.config
-    echo "BSD4_3 := False" >> gnatprep.config;
+    (echo "--  set BSD4_3 to False if using 4.4 style socket msghdr";
+     echo "BSD4_3 := False") >> gnatprep.config;
  fi;
- if (grep _BSD4_4_ pconfig.h >/dev/null 2>&1); then true;
+ if (grep _BSD4_4_ confsrc/pconfig.h >/dev/null 2>&1); then true;
  else
-   echo "#define _BSD4_4_" >> pconfig.h;
+   echo "#define _BSD4_4_" >> confsrc/pconfig.h;
  fi;
 else
   echo "Socket interface Looks like BSD 4.3";
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
  else
-    echo "--  set BSD4_3 to False if using 4.4 style socket msghdr
-    BSD4_3 := True" >> gnatprep.config;
+    (echo "--  set BSD4_3 to False if using 4.4 style socket msghdr";
+     echo "BSD4_3 := True") >> gnatprep.config;
  fi;
- if (grep _BSD4_3_ pconfig.h >/dev/null 2>&1); then true;
+ if (grep _BSD4_3_ confsrc/pconfig.h >/dev/null 2>&1); then true;
  else
-   echo "#define _BSD4_3_" >> pconfig.h;
+   echo "#define _BSD4_3_" >> confsrc/pconfig.h;
  fi;
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-if (grep xti.h pconfig.h >/dev/null 2>&1); then
- if (grep _XTI_ pconfig.h >/dev/null 2>&1); then true;
+
+if (grep xti.h confsrc/pconfig.h >/dev/null 2>&1); then
+ if (grep _XTI_ confsrc/pconfig.h >/dev/null 2>&1); then true;
  else
-   echo "#define _XTI_" >> pconfig.h;
+   echo "#define _XTI_" >> confsrc/pconfig.h;
  fi ;
 else
  if [ -f /usr/include/sys/tiuser.h ]; then
    echo "Have only TLI, will use that in place of XTI";
-   if (grep _TLI_ pconfig.h >/dev/null 2>&1); then true;
+   if (grep _TLI_ confsrc/pconfig.h >/dev/null 2>&1); then true;
    else
-     echo "#define _TLI_" >> pconfig.h;
-     echo "#include <sys/tiuser.h>" >> pconfig.h;
+     echo "#define _TLI_" >> confsrc/pconfig.h;
+     echo "#include <sys/tiuser.h>" >> confsrc/pconfig.h;
    fi;
  fi;
 fi
-ac_fn_c_check_func "$LINENO" "getaddrinfo" "ac_cv_func_getaddrinfo"
-if test "x$ac_cv_func_getaddrinfo" = xyes; then :
-  ADDRINFO_OBJECTS=""
 
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: No getaddrinfo provided by the OS. Will use our own version." >&5
-$as_echo "$as_me: WARNING: No getaddrinfo provided by the OS. Will use our own version." >&2;}
- ADDRINFO_OBJECTS="getaddrinfo.o inet_pton.o inet_ntop.o"
-
- echo '#include "addrinfo.h"' >> pconfig.h;
-
-fi
 
 
 
 if test "x$use_pthread" = "xyes" ; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for __pthread_self in -lpthread" >&5
+$as_echo_n "checking for __pthread_self in -lpthread... " >&6; }
+if ${ac_cv_lib_pthread___pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char __pthread_self ();
+int
+main ()
+{
+return __pthread_self ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pthread___pthread_self=yes
+else
+  ac_cv_lib_pthread___pthread_self=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread___pthread_self" >&5
+$as_echo "$ac_cv_lib_pthread___pthread_self" >&6; }
+if test "x$ac_cv_lib_pthread___pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPTHREAD 1
+_ACEOF
+
+  LIBS="-lpthread $LIBS"
+
+else
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lpthread" >&5
 $as_echo_n "checking for pthread_self in -lpthread... " >&6; }
-ac_lib_var=`echo pthread_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lpthread $LIBS"
+if ${ac_cv_lib_pthread_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_pthread_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_pthread_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep pthread; then true;
-else
-  LIBS="-lpthread ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for __pthread_self in -lpthread" >&5
-$as_echo_n "checking for __pthread_self in -lpthread... " >&6; }
-ac_lib_var=`echo pthread___pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lpthread $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
-
-char __pthread_self();
-
-int
-main ()
-{
-__pthread_self()
-  ;
-  return 0;
-}
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread_pthread_self" >&5
+$as_echo "$ac_cv_lib_pthread_pthread_self" >&6; }
+if test "x$ac_cv_lib_pthread_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPTHREAD 1
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+
+  LIBS="-lpthread $LIBS"
+
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep pthread; then true;
-else
-  LIBS="-lpthread ${LIBS}"
-fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lpthreads" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lpthreads" >&5
 $as_echo_n "checking for pthread_self in -lpthreads... " >&6; }
-ac_lib_var=`echo pthreads_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lpthreads $LIBS"
+if ${ac_cv_lib_pthreads_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthreads  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_pthreads_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_pthreads_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep pthreads; then true;
-else
-  LIBS="-lpthreads ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthreads_pthread_self" >&5
+$as_echo "$ac_cv_lib_pthreads_pthread_self" >&6; }
+if test "x$ac_cv_lib_pthreads_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPTHREADS 1
+_ACEOF
+
+  LIBS="-lpthreads $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lcma" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lcma" >&5
 $as_echo_n "checking for pthread_self in -lcma... " >&6; }
-ac_lib_var=`echo cma_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lcma $LIBS"
+if ${ac_cv_lib_cma_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lcma  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_cma_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_cma_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep cma; then true;
-else
-  LIBS="-lcma ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cma_pthread_self" >&5
+$as_echo "$ac_cv_lib_cma_pthread_self" >&6; }
+if test "x$ac_cv_lib_cma_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBCMA 1
+_ACEOF
+
+  LIBS="-lcma $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -l:libcma.a" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -l:libcma.a" >&5
 $as_echo_n "checking for pthread_self in -l:libcma.a... " >&6; }
-ac_lib_var=`echo :libcma.a_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-l:libcma.a $LIBS"
+if ${ac_cv_lib__libcma_a_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-l:libcma.a  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib__libcma_a_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib__libcma_a_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep :libcma.a; then true;
-else
-  LIBS="-l:libcma.a ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib__libcma_a_pthread_self" >&5
+$as_echo "$ac_cv_lib__libcma_a_pthread_self" >&6; }
+if test "x$ac_cv_lib__libcma_a_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIB_LIBCMA_A 1
+_ACEOF
+
+  LIBS="-l:libcma.a $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lthread" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lthread" >&5
 $as_echo_n "checking for pthread_self in -lthread... " >&6; }
-ac_lib_var=`echo thread_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lthread $LIBS"
+if ${ac_cv_lib_thread_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lthread  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_thread_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_thread_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep thread; then true;
-else
-  LIBS="-lthread ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_thread_pthread_self" >&5
+$as_echo "$ac_cv_lib_thread_pthread_self" >&6; }
+if test "x$ac_cv_lib_thread_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBTHREAD 1
+_ACEOF
+
+  LIBS="-lthread $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lc_r" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lc_r" >&5
 $as_echo_n "checking for pthread_self in -lc_r... " >&6; }
-ac_lib_var=`echo c_r_pthread_self | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lc_r $LIBS"
+if ${ac_cv_lib_c_r_pthread_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lc_r  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char pthread_self();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pthread_self ();
 int
 main ()
 {
-pthread_self()
+return pthread_self ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_c_r_pthread_self=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_c_r_pthread_self=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep c_r; then true;
-else
-  LIBS="-lc_r ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_r_pthread_self" >&5
+$as_echo "$ac_cv_lib_c_r_pthread_self" >&6; }
+if test "x$ac_cv_lib_c_r_pthread_self" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBC_R 1
+_ACEOF
+
+  LIBS="-lc_r $LIBS"
 
 fi
 
@@ -3542,121 +3588,143 @@ fi
 fi
 
 fi
+
+fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for aio_read in -laio" >&5
 $as_echo_n "checking for aio_read in -laio... " >&6; }
-ac_lib_var=`echo aio_aio_read | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-laio $LIBS"
+if ${ac_cv_lib_aio_aio_read+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-laio  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char aio_read();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char aio_read ();
 int
 main ()
 {
-aio_read()
+return aio_read ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_aio_aio_read=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_aio_aio_read=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep aio; then true;
-else
-  LIBS="-laio ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_aio_aio_read" >&5
+$as_echo "$ac_cv_lib_aio_aio_read" >&6; }
+if test "x$ac_cv_lib_aio_aio_read" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBAIO 1
+_ACEOF
+
+  LIBS="-laio $LIBS"
+
 fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lposix4" >&5
 $as_echo_n "checking for clock_gettime in -lposix4... " >&6; }
-ac_lib_var=`echo posix4_clock_gettime | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lposix4 $LIBS"
+if ${ac_cv_lib_posix4_clock_gettime+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lposix4  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char clock_gettime();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char clock_gettime ();
 int
 main ()
 {
-clock_gettime()
+return clock_gettime ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_posix4_clock_gettime=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_posix4_clock_gettime=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep posix4; then true;
-else
-  LIBS="-lposix4 ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_posix4_clock_gettime" >&5
+$as_echo "$ac_cv_lib_posix4_clock_gettime" >&6; }
+if test "x$ac_cv_lib_posix4_clock_gettime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPOSIX4 1
+_ACEOF
+
+  LIBS="-lposix4 $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
 $as_echo_n "checking for clock_gettime in -lrt... " >&6; }
-ac_lib_var=`echo rt_clock_gettime | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lrt $LIBS"
+if ${ac_cv_lib_rt_clock_gettime+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lrt  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char clock_gettime();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char clock_gettime ();
 int
 main ()
 {
-clock_gettime()
+return clock_gettime ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_rt_clock_gettime=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_rt_clock_gettime=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep rt; then true;
-else
-  LIBS="-lrt ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_clock_gettime" >&5
+$as_echo "$ac_cv_lib_rt_clock_gettime" >&6; }
+if test "x$ac_cv_lib_rt_clock_gettime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRT 1
+_ACEOF
+
+  LIBS="-lrt $LIBS"
+
 fi
 
 fi
@@ -3664,118 +3732,137 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gethostbyname in -lnsl" >&5
 $as_echo_n "checking for gethostbyname in -lnsl... " >&6; }
-ac_lib_var=`echo nsl_gethostbyname | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lnsl $LIBS"
+if ${ac_cv_lib_nsl_gethostbyname+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lnsl  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char gethostbyname();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gethostbyname ();
 int
 main ()
 {
-gethostbyname()
+return gethostbyname ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_nsl_gethostbyname=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_nsl_gethostbyname=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep nsl; then true;
-else
-  LIBS="-lnsl ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_gethostbyname" >&5
+$as_echo "$ac_cv_lib_nsl_gethostbyname" >&6; }
+if test "x$ac_cv_lib_nsl_gethostbyname" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBNSL 1
+_ACEOF
+
+  LIBS="-lnsl $LIBS"
+
 fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl" >&5
 $as_echo_n "checking for t_bind in -lnsl... " >&6; }
-ac_lib_var=`echo nsl_t_bind | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lnsl $LIBS"
+if ${ac_cv_lib_nsl_t_bind+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lnsl  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char t_bind();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char t_bind ();
 int
 main ()
 {
-t_bind()
+return t_bind ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_nsl_t_bind=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_nsl_t_bind=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep nsl; then true;
-else
-  LIBS="-lnsl ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_t_bind" >&5
+$as_echo "$ac_cv_lib_nsl_t_bind" >&6; }
+if test "x$ac_cv_lib_nsl_t_bind" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBNSL 1
+_ACEOF
+
+  LIBS="-lnsl $LIBS"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl_s" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl_s" >&5
 $as_echo_n "checking for t_bind in -lnsl_s... " >&6; }
-ac_lib_var=`echo nsl_s_t_bind | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lnsl_s $LIBS"
+if ${ac_cv_lib_nsl_s_t_bind+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lnsl_s  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char t_bind();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char t_bind ();
 int
 main ()
 {
-t_bind()
+return t_bind ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_nsl_s_t_bind=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_nsl_s_t_bind=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep nsl_s; then true;
-else
-  LIBS="-lnsl_s ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_s_t_bind" >&5
+$as_echo "$ac_cv_lib_nsl_s_t_bind" >&6; }
+if test "x$ac_cv_lib_nsl_s_t_bind" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBNSL_S 1
+_ACEOF
+
+  LIBS="-lnsl_s $LIBS"
+
 fi
 
 fi
@@ -3783,85 +3870,97 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for accept in -lsocket" >&5
 $as_echo_n "checking for accept in -lsocket... " >&6; }
-ac_lib_var=`echo socket_accept | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lsocket $LIBS"
+if ${ac_cv_lib_socket_accept+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsocket  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char accept();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char accept ();
 int
 main ()
 {
-accept()
+return accept ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_socket_accept=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_socket_accept=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep socket; then true;
-else
-  LIBS="-lsocket ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_socket_accept" >&5
+$as_echo "$ac_cv_lib_socket_accept" >&6; }
+if test "x$ac_cv_lib_socket_accept" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSOCKET 1
+_ACEOF
+
+  LIBS="-lsocket $LIBS"
+
 fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for h_errno in -lresolv" >&5
 $as_echo_n "checking for h_errno in -lresolv... " >&6; }
-ac_lib_var=`echo resolv_h_errno | tr ':.-/+' '____p'`
-ac_save_LIBS="$LIBS"
-LIBS="-lresolv $LIBS"
+if ${ac_cv_lib_resolv_h_errno+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lresolv  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-/* Override any gcc2 internal prototype to avoid an error.  */
 
-char h_errno();
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char h_errno ();
 int
 main ()
 {
-h_errno()
+return h_errno ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  eval "ac_cv_lib_$ac_lib_var=yes"
+  ac_cv_lib_resolv_h_errno=yes
 else
-  eval "ac_cv_lib_$ac_lib_var=no"
+  ac_cv_lib_resolv_h_errno=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS="$ac_save_LIBS"
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-if echo ${LIBS} | grep resolv; then true;
-else
-  LIBS="-lresolv ${LIBS}"
+LIBS=$ac_check_lib_save_LIBS
 fi
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_resolv_h_errno" >&5
+$as_echo "$ac_cv_lib_resolv_h_errno" >&6; }
+if test "x$ac_cv_lib_resolv_h_errno" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRESOLV 1
+_ACEOF
+
+  LIBS="-lresolv $LIBS"
+
 fi
 
 
-echo using "LIBS=${LIBS}"
+echo "Using LIBS=${LIBS}"
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
@@ -4001,7 +4100,7 @@ if ${ac_cv_comp_t_errno+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "t_errno" >/dev/null 2>&1; then :
@@ -4031,7 +4130,7 @@ if ${ac_cv_comp_t_nerr+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "t_nerr" >/dev/null 2>&1; then :
@@ -4061,7 +4160,7 @@ if ${ac_cv_comp_msg_control+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 struct msghdr x;
 int
 main ()
@@ -4097,7 +4196,7 @@ if ${ac_cv_comp_msg_controllen+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 struct msghdr x;
 int
 main ()
@@ -4133,7 +4232,7 @@ if ${ac_cv_comp_msg_flags+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 struct msghdr x;
 int
 main ()
@@ -4169,7 +4268,7 @@ if ${ac_cv_comp_sigev_notify_function+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 struct sigevent x;
 int
 main ()
@@ -4250,7 +4349,7 @@ fi
 } # ac_fn_c_try_run
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 main()
 {
   struct sigaction x;
@@ -4340,7 +4439,7 @@ if eval \${ac_cv_struct_$ac_struct+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 struct $ac_struct x;
 int
 main ()
@@ -4412,7 +4511,7 @@ if eval \${ac_cv_type_$ac_typ+:} false; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "$ac_typ[^0-9A-Za-z_]" >/dev/null 2>&1; then :
@@ -5367,7 +5466,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
+    "confsrc/config.h") CONFIG_HEADERS="$CONFIG_HEADERS confsrc/config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "default") CONFIG_COMMANDS="$CONFIG_COMMANDS default" ;;
 

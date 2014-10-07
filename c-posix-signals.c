@@ -3,11 +3,12 @@
 --            FLORIST (FSU Implementation of POSIX.5) COMPONENTS            --
 --                                                                          --
 --                                                                          --
---                   C - P O S I X - S I G N A L S . C                      --
+--                     C - P O S I X - S I G N A L S . C                    --
 --                                                                          --
 --                                                                          --
---  Copyright (c) 1998 Florida State University (FSU),           All Rights --
---  Reserved.                                                               --
+--                Copyright (C) 1998, Florida State University              --
+--                      Copyright (C) 1998-2014, AdaCore                    --
+--                                                                          --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -74,7 +75,7 @@
 
 #define _POSIX_C_SIGNALS_C
 
-#include "pconfig.h"
+#include "confsrc/pconfig.h"
 
 #define _POSIX_C_SOURCE 199506L
 #define _REENTRANT
@@ -396,7 +397,7 @@ void print_package
    FILE *fp;
 
    fprintf (stderr,"creating package POSIX.Implementation.OK_Signals\n");
-   if (! (fp = fopen ("posix-implementation-ok_signals.ads", "w"))) {
+   if (! (fp = fopen (GENDIR "/posix-implementation-ok_signals.ads", "w"))) {
       perror ("posix-implemenation-ok_signals.ads");
       exit (-1);
    }
@@ -590,8 +591,8 @@ void test_signal (int nodefaults, int signal) {
 
 #ifdef LYNX_SIGTHREADKILL_HACK
 
-   /* 
-      Attempting to test SIGTHREADKILL on LynxOS will kill both 
+   /*
+      Attempting to test SIGTHREADKILL on LynxOS will kill both
       the child and the parent process: The call to sigaction fails
       and falls through to kill (0, SIGKILL).
 
@@ -701,7 +702,7 @@ void test_signals (int nodefaults, int *oksigs) {
    int signal;
    pid_t child;
 
-   if (nodefaults) 
+   if (nodefaults)
      fprintf (stderr, "testing signals without default treatments\n");
    else
      fprintf (stderr, "testing signals with default treatments\n");
@@ -709,7 +710,7 @@ void test_signals (int nodefaults, int *oksigs) {
    for (signal = 1; signal < nsigs; signal++) {
       for (i = 0; i < namedsigs; i++)
         if (sigs[i] == signal) break;
-      if (i < namedsigs) 
+      if (i < namedsigs)
         fprintf (stderr, "testing signal: %2d %10s ...", signal, signames[i]);
       else
         fprintf (stderr, "testing signal: %2d            ...", signal);

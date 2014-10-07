@@ -1,12 +1,36 @@
-project Florist is
+library project Florist is
 
-   for Source_Dirs use ("../../floristlib");
-   for Object_Dir use "../../floristlib";
+   for Library_Name use "florist";
+   for Source_Dirs use ("libsrc", "gensrc", "confsrc");
+   for Languages use ("C", "Ada");
 
-   for Externally_Built use "True";
+   for Object_Dir   use "obj";
+   for Library_Dir  use "lib";
 
-   package Linker is
-     for Linker_Options use ("-lflorist");
-   end Linker;
+   Version := "1";
+   for Library_version use "libflorist.so." & Version;
+
+   type Library_Type_Type is ("relocatable", "static");
+   Library_Type : Library_Type_Type := external ("LIBRARY_TYPE", "static");
+   for Library_Kind use Library_Type;
+
+   type Build_Type is ("Debug", "Production");
+   Build : Build_Type := External ("Build", "Production");
+
+   package Compiler is
+      GNAT_Flags := ("-O2", "-gnatpg");
+
+      for Switches ("posix-signals.adb") use GNAT_Flags;
+      for Switches ("posix-implementation.adb") use GNAT_Flags;
+      for Switches ("posix-supplement_to_ada_io.adb") use GNAT_Flags;
+      for Switches ("posix-unsafe_process_primitives.adb") use GNAT_Flags;
+
+      case Build is
+         when "Debug" =>
+            for Default_Switches ("Ada") use ("-O2", "-gnatwae", "-gnatyg");
+         when "Production" =>
+            for Default_Switches ("Ada") use ("-O2", "-gnatp");
+      end case;
+   end Compiler;
 
 end Florist;
