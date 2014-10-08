@@ -35,8 +35,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Streams,
-     POSIX.C,
+with POSIX.C,
      POSIX.Implementation,
      System,
      Unchecked_Conversion,
@@ -234,7 +233,8 @@ package body POSIX is
       loop
          if P > Str'Last or else Str (P) = '/' then
             if Start < P and then not
-               Is_Portable_Filename (Str (Start .. P - 1)) then
+               Is_Portable_Filename (Str (Start .. P - 1))
+            then
                return False;
             end if;
             if P > Str'Last then
@@ -354,11 +354,13 @@ package body POSIX is
       return POSIX_String is
       I : constant Positive := Index;
    begin
-      if List = null or else
-        not (I <= List.Length) or else
-        List.List (I) = null then
+      if List = null
+        or else not (I <= List.Length)
+        or else List.List (I) = null
+      then
          raise Constraint_Error;
       end if;
+
       declare
          L : constant Integer := List.List (I).all'Length;
       begin
@@ -841,7 +843,8 @@ package body POSIX is
    end Network_To_Host_Byte_Order;
 
 begin
-   pragma Assert (Duration'Small = 1.0/NS_per_S);
-   --  We rely that Duration is an exact count of nanoseconds.
+   --  We rely on Duration being an exact count of nanoseconds
+
+   pragma Assert (Duration'Small = 1.0 / NS_per_S);
    null;
 end POSIX;

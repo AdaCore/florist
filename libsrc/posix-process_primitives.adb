@@ -691,8 +691,9 @@ package body POSIX.Process_Primitives is
    function Exit_Status_Of (Status : Termination_Status)
       return Exit_Status is
    begin
-      if not Status_Available (Status) or else
-         wifexited (Status.stat_val) = 0 then
+      if not Status_Available (Status)
+        or else wifexited (Status.stat_val) = 0
+      then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
       return Exit_Status (wexitstatus (Status.stat_val));
@@ -711,8 +712,9 @@ package body POSIX.Process_Primitives is
    function Termination_Signal_Of (Status : Termination_Status)
       return POSIX.Signals.Signal is
    begin
-      if not Status_Available (Status) or else
-         wifsignaled (Status.stat_val) = 0 then
+      if not Status_Available (Status)
+        or else wifsignaled (Status.stat_val) = 0
+      then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
       return POSIX.Signals.Signal (wtermsig (Status.stat_val));
@@ -731,8 +733,9 @@ package body POSIX.Process_Primitives is
    function Stopping_Signal_Of (Status : Termination_Status)
       return POSIX.Signals.Signal is
    begin
-      if not Status_Available (Status) or else
-         wifstopped (Status.stat_val) = 0 then
+      if not Status_Available (Status)
+        or else wifstopped (Status.stat_val) = 0
+      then
          Raise_POSIX_Error (Invalid_Argument);
       end if;
       return POSIX.Signals.Signal (wstopsig (Status.stat_val));

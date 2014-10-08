@@ -63,8 +63,9 @@ package body POSIX.Memory_Range_Locking is
       --  thing has to be resolved in the configuration management. It does its
       --  work for now....
 
-      if (mlock (Addr'Unchecked_Access, size_t (Length)) = -1) and then
-        (Fetch_Errno = Invalid_Argument) then
+      if mlock (Addr'Unchecked_Access, size_t (Length)) = -1
+        and then Fetch_Errno = Invalid_Argument
+      then
          declare
             function mlock (addr : System.Address; len : size_t) return int;
             pragma Import (C, mlock, mlock_LINKNAME);
@@ -87,8 +88,9 @@ package body POSIX.Memory_Range_Locking is
       pragma Import (C, munlock, munlock_LINKNAME);
       Addr : aliased System.Address := First;
    begin
-      if (munlock (Addr'Unchecked_Access, size_t (Length)) = -1) and then
-        (Fetch_Errno = Invalid_Argument) then
+      if munlock (Addr'Unchecked_Access, size_t (Length)) = -1
+        and then Fetch_Errno = Invalid_Argument
+      then
          declare
             function munlock (addr : System.Address; len : size_t) return int;
             pragma Import (C, munlock, munlock_LINKNAME);

@@ -223,25 +223,29 @@ package body POSIX.Terminal_Functions is
       Validate (Characteristics);
       for I in Input_Modes loop
          if (Characteristics.termios.c_iflag and To_C_Terminal_Mode (I))
-            /= 0 then
+            /= 0
+         then
             Modes (I) := True;
          end if;
       end loop;
       for I in Output_Modes loop
          if (Characteristics.termios.c_oflag and To_C_Terminal_Mode (I))
-            /= 0 then
+            /= 0
+         then
             Modes (I) := True;
          end if;
       end loop;
       for I in Control_Modes loop
          if (Characteristics.termios.c_cflag and To_C_Terminal_Mode (I))
-            /= 0 then
+            /= 0
+         then
             Modes (I) := True;
          end if;
       end loop;
       for I in Local_Modes loop
          if (Characteristics.termios.c_lflag and To_C_Terminal_Mode (I))
-            /= 0 then
+            /= 0
+         then
             Modes (I) := True;
          end if;
       end loop;

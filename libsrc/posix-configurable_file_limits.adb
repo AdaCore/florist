@@ -85,7 +85,8 @@ package body POSIX.Configurable_File_Limits is
       --  -1 with errno              -> bad name or other error
       --  other values               -> there exists a limit
       if pathconf (Pathname_With_NUL
-        (Pathname_With_NUL'First)'Unchecked_Access, PC_Code) = -1 then
+        (Pathname_With_NUL'First)'Unchecked_Access, PC_Code) = -1
+      then
          if Fetch_Errno /= 0 then
             Raise_POSIX_Error;
          end if;
