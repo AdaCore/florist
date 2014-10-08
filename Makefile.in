@@ -19,10 +19,10 @@ LIBS = @LIBS@
 DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
-LIBRARY_TYPE_OPTIONS = @LIBRARY_TYPE_OPTIONS@
+LIBRARY_TYPE_OPTION = @LIBRARY_TYPE_OPTION@
 
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTIONS)
+GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) @BUILD_TYPE_OPTION@
 
 GENDIR = gensrc
 
@@ -155,6 +155,6 @@ distclean: clean
 
 # install floristlib
 install:
-	gprinstall -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib -Pflorist
+	gprinstall -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib -Pflorist
 
 .PHONY: all install clean distclean regen floristlib force
