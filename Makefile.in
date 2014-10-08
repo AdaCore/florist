@@ -19,10 +19,13 @@ LIBS = @LIBS@
 DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
-LIBRARY_TYPE_OPTION = @LIBRARY_TYPE_OPTION@
+
+SCENARIO_VARS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@
+# Scenario variables must be passed consistently to
+# gprbuild, gprinstall, and gprclean
 
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) @BUILD_TYPE_OPTION@
+GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) $(SCENARIO_VARS)
 
 GENDIR = gensrc
 
@@ -145,7 +148,7 @@ regen:
 
 # remove editor and compiler generated files
 clean: regen
-	gprclean -Pflorist
+	gprclean -Pflorist $(SCENARIO_VARS)
 	rm -rf obj lib
 	rm -f *# *~ $(EXECUTABLES) b__* b~*
 
@@ -155,6 +158,6 @@ distclean: clean
 
 # install floristlib
 install:
-	gprinstall -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib -Pflorist
+	gprinstall -Pflorist $(SCENARIO_VARS) -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
 
 .PHONY: all install clean distclean regen floristlib force
