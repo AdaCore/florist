@@ -570,6 +570,7 @@ GREP
 CPP
 DEPS
 SIGNALS_GENERATED
+RTS_OPTION
 BUILD_TYPE_OPTION
 LIBRARY_TYPE_OPTION
 OBJEXT
@@ -623,6 +624,7 @@ enable_option_checking
 enable_threads
 enable_shared
 with_build_type
+with_rts
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1249,6 +1251,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-build-type=X     Set build type (Production/Debug)
+  --with-rts=X            Set RTS
 
 Some influential environment variables:
   CC          C compiler command
@@ -2686,6 +2689,19 @@ if test "${with_build_type+set}" = set; then :
  case "x$with_build_type" in
   xyes|xno) as_fn_error $? "invalid build type" "$LINENO" 5 ;;
   *) BUILD_TYPE_OPTION="-XBuild=$with_build_type" ;;
+ esac
+
+fi
+
+
+
+
+# Check whether --with-rts was given.
+if test "${with_rts+set}" = set; then :
+  withval=$with_rts;
+ case "x$with_rts" in
+  xyes|xno) as_fn_error $? "invalid RTS" "$LINENO" 5 ;;
+  *) RTS_OPTION="--RTS=$with_rts" ;;
  esac
 
 fi

@@ -20,12 +20,12 @@ DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
 
-SCENARIO_VARS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@
-# Scenario variables must be passed consistently to
-# gprbuild, gprinstall, and gprclean
+PROJECT_FLAGS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@ @RTS_OPTION@
+# Scenario variables and RTS selection must be passed consistently to
+# project-aware tools gprbuild, gprinstall, and gprclean.
 
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) $(SCENARIO_VARS)
+GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) $(PROJECT_FLAGS)
 
 GENDIR = gensrc
 
@@ -148,7 +148,7 @@ regen:
 
 # remove editor and compiler generated files
 clean: regen
-	gprclean -Pflorist $(SCENARIO_VARS)
+	gprclean -Pflorist $(PROJECT_FLAGS)
 	rm -rf obj lib
 	rm -f *# *~ $(EXECUTABLES) b__* b~*
 
@@ -159,7 +159,7 @@ distclean: clean
 # install floristlib
 # make all files read-only to prevent recompilation
 install:
-	gprinstall -Pflorist $(SCENARIO_VARS) -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
+	gprinstall -Pflorist $(PROJECT_FLAGS) -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
 	chmod a-w $(PREFIX)/floristlib/*
 
 .PHONY: all install clean distclean regen floristlib force

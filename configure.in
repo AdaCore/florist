@@ -38,6 +38,17 @@ AS_HELP_STRING([--with-build-type=X], [Set build type (Production/Debug)]),
 [])
 AC_SUBST(BUILD_TYPE_OPTION)
 
+AC_ARG_WITH(rts,
+AS_HELP_STRING([--with-rts=X], [Set RTS]),
+[
+ case "x$with_rts" in
+  xyes|xno) AC_ERROR([invalid RTS]) ;;
+  *) RTS_OPTION="--RTS=$with_rts" ;;
+ esac
+],
+[])
+AC_SUBST(RTS_OPTION)
+
 if test "x$use_pthread" = "xyes" ; then
   DEPS=deps
   SIGNALS_GENERATED=posix-implementation-ok_signals.ads
