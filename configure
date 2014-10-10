@@ -568,11 +568,11 @@ LIBOBJS
 EGREP
 GREP
 CPP
-DEPS
-SIGNALS_GENERATED
 RTS_OPTION
 BUILD_TYPE_OPTION
 LIBRARY_TYPE_OPTION
+DEPS
+SIGNALS_GENERATED
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -2670,44 +2670,6 @@ else
   use_pthread=yes
 fi
 
-
-# Check whether --enable-shared was given.
-if test "${enable_shared+set}" = set; then :
-  enableval=$enable_shared;
-if test "$enableval" = "yes"; then
-  LIBRARY_TYPE_OPTION="-XLIBRARY_TYPE=relocatable"
-fi
-
-fi
-
-
-
-
-# Check whether --with-build-type was given.
-if test "${with_build_type+set}" = set; then :
-  withval=$with_build_type;
- case "x$with_build_type" in
-  xyes|xno) as_fn_error $? "invalid build type" "$LINENO" 5 ;;
-  *) BUILD_TYPE_OPTION="-XBuild=$with_build_type" ;;
- esac
-
-fi
-
-
-
-
-# Check whether --with-rts was given.
-if test "${with_rts+set}" = set; then :
-  withval=$with_rts;
- case "x$with_rts" in
-  xyes|xno) as_fn_error $? "invalid RTS" "$LINENO" 5 ;;
-  *) RTS_OPTION="--RTS=$with_rts" ;;
- esac
-
-fi
-
-
-
 if test "x$use_pthread" = "xyes" ; then
   DEPS=deps
   SIGNALS_GENERATED=posix-implementation-ok_signals.ads
@@ -2718,6 +2680,65 @@ $as_echo "$as_me: WARNING: No pthread support." >&2;}
   SIGNALS_GENERATED=
 fi
 
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build a shared library" >&5
+$as_echo_n "checking whether to build a shared library... " >&6; }
+# Check whether --enable-shared was given.
+if test "${enable_shared+set}" = set; then :
+  enableval=$enable_shared;
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enableval" >&5
+$as_echo "$enableval" >&6; }
+if test "$enableval" = "yes"; then
+  LIBRARY_TYPE_OPTION="-XLIBRARY_TYPE=relocatable"
+fi
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking build type" >&5
+$as_echo_n "checking build type... " >&6; }
+
+# Check whether --with-build-type was given.
+if test "${with_build_type+set}" = set; then :
+  withval=$with_build_type;
+ case "x$with_build_type" in
+  xyes|xno)
+     as_fn_error $? "invalid build type" "$LINENO" 5 ;;
+  *) { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_build_type" >&5
+$as_echo "$with_build_type" >&6; }
+     BUILD_TYPE_OPTION="-XBuild=$with_build_type" ;;
+ esac
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: default" >&5
+$as_echo "default" >&6; }
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking RTS kind" >&5
+$as_echo_n "checking RTS kind... " >&6; }
+
+# Check whether --with-rts was given.
+if test "${with_rts+set}" = set; then :
+  withval=$with_rts;
+ case "x$with_rts" in
+  xyes|xno)
+     as_fn_error $? "invalid RTS" "$LINENO" 5 ;;
+  *) { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_rts" >&5
+$as_echo "$with_rts" >&6; }
+     RTS_OPTION="--RTS=$with_rts" ;;
+ esac
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: default" >&5
+$as_echo "default" >&6; }
+fi
 
 
 
