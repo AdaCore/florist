@@ -20,7 +20,7 @@ DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
 
-PROJECT_FLAGS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@ @RTS_OPTION@
+PROJECT_FLAGS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@
 # Scenario variables and RTS selection must be passed consistently to
 # project-aware tools gprbuild, gprinstall, and gprclean.
 
@@ -60,7 +60,7 @@ else
 C-POSIX-SIGNALS_GENERATED =
 endif
 
-GNATPREP_SOURCES = $(GENDIR)/posix-implementation.adb $(GENDIR)/posix-timers-extensions.adb
+GNATPREP_SOURCES = $(GENDIR)/posix-implementation.adb $(GENDIR)/threads/posix-timers-extensions.adb
 
 GENERATED = $(C-POSIX_GENERATED) $(C-POSIX-SIGNALS_GENERATED) $(GNATPREP_SOURCES)
 
@@ -122,9 +122,9 @@ $(C-POSIX-SIGNALS_GENERATED): c-posix-signals
 #
 .SUFFIXES: .gps .gpb .ads .adb .o .c
 $(GENDIR)/%.ads: libsrc/%.gps gnatprep.config
-	gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
+	mkdir -p `dirname $@` && gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 $(GENDIR)/%.adb: libsrc/%.gpb gnatprep.config
-	gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
+	mkdir -p `dirname $@` && gnatprep $< $@ gnatprep.config $(GNATPREPFLAGS)
 .c.o:
 	$(CC) -c $(GCCFLAGS) $<
 
