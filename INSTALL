@@ -11,8 +11,9 @@ In order to install FLORIST, you should go through the following steps:
    where to install FLORIST. By default, Florist will be installed
    under /usr/local.
 
-   If you are using a GNAT run time that is not using native OS threads,
-   you need to specify the --disable-threads option:
+   If you are using a special configuration with no support or non standard
+   support for tasking/threads, you may consider using the --disable-threads
+   option:
 
         ./configure --disable-threads
 
