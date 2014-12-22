@@ -1,8 +1,19 @@
 library project Florist is
 
    for Library_Name use "florist";
-   for Source_Dirs use ("libsrc", "gensrc", "confsrc");
    for Languages use ("C", "Ada");
+
+   type Boolean is ("False", "True");
+   Threads : Boolean := external ("THREADS", "True");
+
+   Common_Source_Dirs := ("libsrc", "gensrc", "confsrc");
+   Threads_Source_Dirs := ("libsrc/threads", "gensrc/threads");
+   case Threads is
+      when "False" =>
+          for Source_Dirs use Common_Source_Dirs;
+      when "True" =>
+          for Source_Dirs use Common_Source_Dirs & Threads_Source_Dirs;
+   end case;
 
    for Object_Dir   use "obj";
    for Library_Dir  use "lib";
