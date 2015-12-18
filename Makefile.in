@@ -171,7 +171,7 @@ distclean: clean
 # install floristlib
 # make all files read-only to prevent recompilation
 install:
-	gprinstall -Pflorist $(PROJECT_FLAGS) -a -p --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
+	gprinstall -Pflorist $(PROJECT_FLAGS) -a -p -f --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
 	chmod a-w $(PREFIX)/floristlib/*
 
 .PHONY: all install clean distclean regen floristlib force
