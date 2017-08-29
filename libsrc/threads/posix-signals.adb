@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2013, AdaCore                     --
+--                     Copyright (C) 1998-2017, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -91,8 +91,7 @@ package body POSIX.Signals is
    use POSIX.C,
        POSIX.Implementation,
        System,
-       System.Storage_Elements,
-       System.Tasking;
+       System.Storage_Elements;
 
    package SI renames System.Interrupts;
    subtype SIID is SI.Interrupt_ID;
