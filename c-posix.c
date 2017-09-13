@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2014, AdaCore                     --
+--                     Copyright (C) 1995-2017, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -4539,7 +4539,15 @@ void create_c() {
   GDFLT("CLOCAL", 0);
 #endif
 #ifdef CLOCK_REALTIME
-  GCST("CLOCK_REALTIME", CLOCK_REALTIME);
+  /* Generate the value of CLOCK_REALTIME with a cast to int,
+     as the GCST uses printf's %d to print it. Otherwise, if
+     the CLOCK_REALTIME macro corresponds to a value whose type
+     is larger than int (as is the case on ppc-aix, for instance),
+     the printf might print the macro's value incorrectly.
+
+     We allow ourselves to do that because it is unlikely that
+     this macro be assigned a value that would overflow.  */
+  GCST("CLOCK_REALTIME", (int) CLOCK_REALTIME);
 #else
   GDFLT("CLOCK_REALTIME", 1);
 #endif
