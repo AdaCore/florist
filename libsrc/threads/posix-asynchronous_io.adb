@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2014, AdaCore                     --
+--                     Copyright (C) 1998-2017, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -44,8 +44,7 @@ with Ada.Streams,
 
 package body POSIX.Asynchronous_IO is
 
-   use Ada.Streams,
-       POSIX.C,
+   use POSIX.C,
        POSIX.Implementation;
 
    ---------------------------------
