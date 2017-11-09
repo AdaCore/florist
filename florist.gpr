@@ -29,19 +29,24 @@ library project Florist is
    Build : Build_Type := External ("Build", "Production");
 
    package Compiler is
-      GNAT_Flags := ("-O2", "-gnatpg");
+
+      Ada_Flags  := ("-O2", "-gnatp");
+      GNAT_Flags := Ada_Flags & ("-gnatg");
+
+      case Build is
+         when "Production" =>
+            --  Use above defaults
+         when "Debug" =>
+            Ada_Flags  := ("-g", "-O2", "-gnatwae", "-gnatyg");
+            GNAT_Flags := ("-g", "-O2", "-gnatpg");
+      end case;
 
       for Switches ("posix-signals.adb") use GNAT_Flags;
       for Switches ("posix-implementation.adb") use GNAT_Flags;
       for Switches ("posix-supplement_to_ada_io.adb") use GNAT_Flags;
       for Switches ("posix-unsafe_process_primitives.adb") use GNAT_Flags;
+      for Default_Switches ("Ada") use Ada_Flags;
 
-      case Build is
-         when "Debug" =>
-            for Default_Switches ("Ada") use ("-O2", "-gnatwae", "-gnatyg");
-         when "Production" =>
-            for Default_Switches ("Ada") use ("-O2", "-gnatp");
-      end case;
    end Compiler;
 
 end Florist;
