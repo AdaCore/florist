@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2017, AdaCore                     --
+--                     Copyright (C) 1995-2018, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -3431,7 +3431,7 @@ void create_posix() {
 
   ifprintf(fp,"   --  Characters and Strings\n");
 
-  ifprintf(fp,"   type POSIX_Character is new Standard.Character;\n");
+  ifprintf(fp,"   subtype POSIX_Character is Standard.Character;\n");
 
   ifprintf(fp,"   --  We rely here on the fact that the GNAT"
     " type Character\n");

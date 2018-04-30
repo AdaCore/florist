@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2014, AdaCore                     --
+--                     Copyright (C) 1998-2018, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -56,13 +56,9 @@ package body POSIX is
    -----------------------------
 
    type Big_POSIX_String_Ptr is access all POSIX_String (Positive'Range);
-   type Big_String_Ptr is access all String (Positive'Range);
    type Big_Stream_Element_Array_Ptr is access all
-     Ada.Streams.Stream_Element_Array
-     (Ada.Streams.Stream_Element_Offset'Range);
+     Stream_Element_Array (Stream_Element_Offset);
 
-   function From_Address is new Unchecked_Conversion
-     (System.Address, Big_String_Ptr);
    function From_Address is new Unchecked_Conversion
      (System.Address, Big_POSIX_String_Ptr);
    function From_Address is new Unchecked_Conversion
@@ -72,10 +68,9 @@ package body POSIX is
    --  To_POSIX_String  --
    -----------------------
 
-   function To_POSIX_String (Str : String)
-      return POSIX_String is
+   function To_POSIX_String (Str : String) return POSIX_String is
    begin
-      return From_Address (Str'Address) (1 .. Str'Length);
+      return POSIX_String (Str);
    end To_POSIX_String;
 
    -----------------
@@ -84,7 +79,7 @@ package body POSIX is
 
    function To_String (Str : POSIX_String) return String is
    begin
-      return From_Address (Str'Address) (1 .. Str'Length);
+      return String (Str);
    end To_String;
 
    ----------------------
