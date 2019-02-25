@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2018, AdaCore                     --
+--                     Copyright (C) 1995-2019, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -5215,7 +5215,10 @@ void create_c() {
     } else {
       GCST("SIGRTMAX", SIGRTMAX);
     }
-    GCST("SIGRTMIN", SIGRTMIN);
+    ifprintf(fp,"   function SIGRTMIN\n");
+    ifprintf(fp,"      return int;\n");
+    ifprintf(fp,"      pragma Import (C, SIGRTMIN, \""
+                "__gnat_florist_sigrtmin\");\n");
   } else {
     GDFLT("SIGRTMAX", 0);
     GDFLT("SIGRTMIN", 1);

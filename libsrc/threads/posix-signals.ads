@@ -117,7 +117,7 @@ package POSIX.Signals is
    SIGURG                     : constant Signal := POSIX.C.SIGURG;
 
    subtype Realtime_Signal is Signal range
-     POSIX.C.SIGRTMIN .. POSIX.C.SIGRTMAX;
+     Signal (POSIX.C.SIGRTMIN) .. POSIX.C.SIGRTMAX;
 
    --  Signal sets
 
