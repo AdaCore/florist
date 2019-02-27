@@ -50,12 +50,11 @@
 #include <sys/utsname.h>
 #include <errno.h>
 
+#ifdef SIGRTMIN
 int __gnat_florist_sigrtmin(void) {
-  /* This can be called only with SIGRTMIN defined. So using the macro is
-   * okay.
-   */
   return SIGRTMIN;
 }
+#endif /* SIGRTMIN */
 
 /* This definition is need for multi-threaded error codes on Solaris */
 
