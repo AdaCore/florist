@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2018, AdaCore                     --
+--                     Copyright (C) 1998-2019, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -451,7 +451,6 @@ package body POSIX is
    ----------------------
 
    function Is_POSIX_Error (Error : Error_Code) return Boolean is
-      use Bogus_Error_Codes;
    begin
       for I in Error_Array'Range loop
          if Error = Error_Array (I) then
