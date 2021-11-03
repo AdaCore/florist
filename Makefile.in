@@ -40,7 +40,7 @@ PROJECT_FLAGS = $(LIBRARY_TYPE_OPTION) @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS
 
 GNATPREP = $(TARGET_PREFIX)gnatprep
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(PROJECT_FLAGS)
+GPRBUILD_FLAGS =
 
 GENDIR = gensrc
 GENDIR_ON_TARGET=$(GENDIR)
@@ -152,7 +152,7 @@ $(GENDIR)/%.adb: libsrc/%.gpb gnatprep.config
 force:
 
 floristlib: $(GENERATED) force
-	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -Pflorist \
+	$(GPRBUILD) -p $(GPRBUILD_FLAGS) $(PROJECT_FLAGS) -Pflorist \
 	  $(foreach v,ADAFLAGS CFLAGS CPPFLAGS LDFLAGS LIBS,'-X$(v)=$($(v))')
 #
 # -----------------------------------
