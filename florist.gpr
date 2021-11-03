@@ -15,15 +15,15 @@ library project Florist is
           for Source_Dirs use Common_Source_Dirs & Threads_Source_Dirs;
    end case;
 
-   for Object_Dir   use "obj";
-   for Library_Dir  use "lib";
-
    Version := "1";
    for Library_version use "libflorist.so." & Version;
 
    type Library_Type_Type is ("relocatable", "static");
    Library_Type : Library_Type_Type := external ("LIBRARY_TYPE", "static");
    for Library_Kind use Library_Type;
+
+   for Object_Dir  use "obj/" & Library_Type;
+   for Library_Dir use "lib/" & Library_Type;
 
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("Build", "Production");
