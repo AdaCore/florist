@@ -19,9 +19,6 @@ ifeq ($(TARGET),powerpc-elinos-linux)
 TARGET_RUNNER=run-cross --target=ppc-elinos,5.1,qemu
 endif
 
-# How to invoke ranlib.
-RANLIB = ranlib
-
 # configure substitutions
 CC = @CC@
 LIBS = @LIBS@
