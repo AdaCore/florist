@@ -24,13 +24,14 @@ endif
 RANLIB = ranlib
 
 # configure substitutions
+LIBRARY_TYPE_OPTION                     := @LIBRARY_TYPE_OPTION@
 CC = @CC@
 LIBS = @LIBS@
 DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
 
-PROJECT_FLAGS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@ $(TARGET_OPTION)
+PROJECT_FLAGS = $(LIBRARY_TYPE_OPTION) @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@ $(TARGET_OPTION)
 # Scenario variables and RTS selection must be passed consistently to
 # project-aware tools gprbuild, gprinstall, and gprclean.
 
