@@ -15,7 +15,7 @@ library project Florist is
           for Source_Dirs use Common_Source_Dirs & Threads_Source_Dirs;
    end case;
 
-   Version := "1";
+   Version := External ("florist_shared_object_version", "1");
    for Library_version use "libflorist.so." & Version;
 
    type Library_Type_Type is ("relocatable", "static");
