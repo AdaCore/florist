@@ -25,6 +25,14 @@ library project Florist is
    for Object_Dir  use "obj/" & Library_Type;
    for Library_Dir use "lib/" & Library_Type;
 
+   case Library_Type is
+      when "relocatable" =>
+         for Leading_Library_Options use External_As_List ("LDFLAGS", " ");
+         for Library_Options use External_As_List ("LIBS", " ");
+      when "static" =>
+         null;
+   end case;
+
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("Build", "Production");
 
@@ -41,12 +49,20 @@ library project Florist is
             GNAT_Flags := ("-g", "-O2", "-gnatpg");
       end case;
 
+      --  Always let ADAFLAGS take priority.
+      Adaflags := External_As_List ("ADAFLAGS", " ");
+      Ada_Flags  := Ada_Flags  & Adaflags;
+      GNAT_Flags := GNAT_Flags & Adaflags;
+
       for Switches ("posix-signals.adb") use GNAT_Flags;
       for Switches ("posix-implementation.adb") use GNAT_Flags;
       for Switches ("posix-supplement_to_ada_io.adb") use GNAT_Flags;
       for Switches ("posix-unsafe_process_primitives.adb") use GNAT_Flags;
       for Default_Switches ("Ada") use Ada_Flags;
 
+      for Default_Switches ("C") use ("-O2")
+        & External_As_List ("CFLAGS", " ")
+        & External_As_List ("CPPFLAGS", " ");
    end Compiler;
 
 end Florist;
