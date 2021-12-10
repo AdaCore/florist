@@ -36,7 +36,6 @@
 
 with Ada.Task_Identification,
      Ada.Finalization,
-     POSIX,
      POSIX.C,
      POSIX.Process_Identification,
      System,
