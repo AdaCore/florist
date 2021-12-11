@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.Process_Environment,
+with POSIX.Process_Environment,
      POSIX.Process_Identification;
 package POSIX.Unsafe_Process_Primitives is
 
