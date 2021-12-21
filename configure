@@ -590,7 +590,7 @@ GREP
 CPP
 RTS_OPTION
 BUILD_TYPE_OPTION
-LIBRARY_TYPE_OPTION
+ENABLE_SHARED
 DEPS
 THREADS_OPTION
 SIGNALS_GENERATED
@@ -2712,7 +2712,7 @@ if test "${enable_shared+set}" = set; then :
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enableval" >&5
 $as_echo "$enableval" >&6; }
 if test "$enableval" = "yes"; then
-  LIBRARY_TYPE_OPTION="-XLIBRARY_TYPE=relocatable"
+  ENABLE_SHARED="yes"
 fi
 
 else

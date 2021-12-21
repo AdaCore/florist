@@ -29,14 +29,16 @@ LIBS = @LIBS@
 DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
+ENABLE_SHARED = @ENABLE_SHARED@
 
-PROJECT_FLAGS = @LIBRARY_TYPE_OPTION@ @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@ $(TARGET_OPTION)
+PROJECT_FLAGS = @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@ \
+                $(TARGET_OPTION)
 # Scenario variables and RTS selection must be passed consistently to
 # project-aware tools gprbuild, gprinstall, and gprclean.
 
 GNATPREP = $(TARGET_PREFIX)gnatprep
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(GCCFLAGS) $(LIBRARY_TYPE_OPTION) $(PROJECT_FLAGS)
+GPRBUILD_FLAGS = $(GCCFLAGS) $(PROJECT_FLAGS)
 
 GENDIR = gensrc
 GENDIR_ON_TARGET=$(GENDIR)
@@ -147,9 +149,24 @@ $(GENDIR)/%.adb: libsrc/%.gpb gnatprep.config
 #
 force:
 
-floristlib: $(GENERATED) force
-	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -Pflorist
-#
+# build both static and shared library when shared is enabled
+ifeq ($(ENABLE_SHARED), yes)
+floristlib: floristlib-static floristlib-relocatable
+install: install-static install-relocatable
+# ensure that the relocatable version is build first so the static library
+# will use the objects that are already built.
+floristlib-static: floristlib-relocatable
+# ensure that we don't have two instances of gprinstall trying to install at
+# the same time.
+install-relocatable: install-static
+else
+floristlib: floristlib-static
+install: install-static
+endif
+
+floristlib-%: $(GENERATED) force
+	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -XLIBRARY_TYPE=$* -Pflorist
+
 # -----------------------------------
 # Maintenance targets
 # -----------------------------------
@@ -170,8 +187,11 @@ distclean: clean
 
 # install floristlib
 # make all files read-only to prevent recompilation
-install:
-	gprinstall -Pflorist $(PROJECT_FLAGS) -a -p -f --prefix=$(PREFIX) --sources-subdir=floristlib --lib-subdir=floristlib --link-lib-subdir=floristlib
+install-%:
+	gprinstall -Pflorist $(PROJECT_FLAGS) -XLIBRARY_TYPE=$* -a -p -f   \
+		--prefix=$(PREFIX) --sources-subdir=floristlib             \
+		--lib-subdir=floristlib --link-lib-subdir=floristlib       \
+		--build-name=$*
 	chmod a-w $(PREFIX)/floristlib/*
 
 .PHONY: all install clean distclean regen floristlib force

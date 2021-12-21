@@ -37,11 +37,11 @@ AS_HELP_STRING([--enable-shared], [Enable build of shared libraries]),
 [
 AC_MSG_RESULT($enableval)
 if test "$enableval" = "yes"; then
-  LIBRARY_TYPE_OPTION="-XLIBRARY_TYPE=relocatable"
+  ENABLE_SHARED="yes"
 fi
 ],
 [AC_MSG_RESULT(no)])
-AC_SUBST(LIBRARY_TYPE_OPTION)
+AC_SUBST(ENABLE_SHARED)
 
 AC_MSG_CHECKING([build type])
 AC_ARG_WITH(build-type,
