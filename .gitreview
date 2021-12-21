@@ -1,0 +1,5 @@
+[gerrit]
+host = git.adacore-it.com
+project = florist
+defaultbranch = master
+defaultremote = origin
