@@ -27,8 +27,8 @@ In order to install FLORIST, you should go through the following steps:
 
 2. Build and compile FLORIST by typing "make"
 
-   If you need to specify optional gnatmake flags, or use an alternate
-   gnatmake executable, you may specify GNATMAKE="gnatmake-cmd-line", e.g:
-      make GNATMAKE="gnatmake --RTS=zcx"
+   If you need to specify optional gprbuild flags, you may specify
+   GPRBUILD="gprbuild-cmd-line", e.g:
+      make GPRBUILD="gprbuild --RTS=sjlj"
 
 3. Install FLORIST by typing "make install"
