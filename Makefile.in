@@ -151,7 +151,7 @@ force:
 
 # build both static and shared library when shared is enabled
 ifeq ($(ENABLE_SHARED), yes)
-floristlib: floristlib-static floristlib-relocatable
+floristlib: $(GENERATED) floristlib-static floristlib-relocatable
 install: install-static install-relocatable
 # ensure that the relocatable version is build first so the static library
 # will use the objects that are already built.
@@ -160,11 +160,11 @@ floristlib-static: floristlib-relocatable
 # the same time.
 install-relocatable: install-static
 else
-floristlib: floristlib-static
+floristlib: $(GENERATED) floristlib-static
 install: install-static
 endif
 
-floristlib-%: $(GENERATED) force
+floristlib-%: force
 	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -XLIBRARY_TYPE=$* -Pflorist
 
 # -----------------------------------
