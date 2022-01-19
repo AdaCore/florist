@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C;
+with POSIX.C;
 package POSIX.Memory_Locking is
    type Memory_Locking_Options is new POSIX.Option_Set;
    Current_Pages : constant Memory_Locking_Options;

@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.IO,
+with POSIX.IO,
      POSIX.Limits,
      POSIX.Options;
 package POSIX.Configurable_File_Limits is

@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Calendar,
-     POSIX;
+with Calendar;
 package POSIX.Calendar is
 
    --  Time information

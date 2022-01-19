@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C,
+with POSIX.C,
      POSIX.Process_Identification;
 package POSIX.Group_Database is
 

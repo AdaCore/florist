@@ -36,8 +36,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX;
-
 package body POSIX.Configurable_System_Limits is
 
    package PO renames POSIX.Options;

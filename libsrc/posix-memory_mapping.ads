@@ -36,8 +36,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C,
+with POSIX.C,
      POSIX.IO,
      System,
      System.Storage_Elements;

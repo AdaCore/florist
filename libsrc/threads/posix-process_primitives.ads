@@ -33,8 +33,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C,
+with POSIX.C,
      POSIX.IO,
      POSIX.Process_Environment,
      POSIX.Process_Identification,

@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C,
+with POSIX.C,
      POSIX.Permissions,
      POSIX.Process_Identification,
      POSIX.Calendar;

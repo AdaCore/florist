@@ -34,9 +34,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     System,
-     System.Storage_Elements;
+with System.Storage_Elements;
+
 package POSIX.Page_Alignment is
 
    function Truncate_To_Page

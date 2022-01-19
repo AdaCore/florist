@@ -34,7 +34,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX;
 package POSIX.Permissions is
 
    type Permission is

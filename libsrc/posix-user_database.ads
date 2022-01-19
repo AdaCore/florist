@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.C,
+with POSIX.C,
      POSIX_Process_Identification;
 package POSIX.User_Database is
 

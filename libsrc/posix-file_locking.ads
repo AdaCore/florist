@@ -34,8 +34,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX,
-     POSIX.IO,
+with POSIX.IO,
      POSIX.Process_Identification;
 package POSIX.File_Locking is
 

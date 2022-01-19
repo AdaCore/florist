@@ -36,7 +36,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams,
-     POSIX,
      POSIX.C,
      POSIX.Permissions,
      POSIX.Process_Identification,
