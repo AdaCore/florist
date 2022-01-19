@@ -37,7 +37,7 @@ library project Florist is
          when "Production" =>
             --  Use above defaults
          when "Debug" =>
-            Ada_Flags  := ("-g", "-O2", "-gnatwae", "-gnatyg");
+            Ada_Flags  := ("-g", "-O2", "-gnatwae", "-gnatyg", "-gnatw.Z");
             GNAT_Flags := ("-g", "-O2", "-gnatpg");
       end case;
 
