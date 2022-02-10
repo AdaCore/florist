@@ -117,7 +117,7 @@ case ${UNAME_SYSTEM} in
      *) cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in ;;
    esac
    ;;
- Linux)
+ Linux|GNU/kFreeBSD|GNU)
 # .... need to add cases here for different thread and C libraries
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
    cp ./configs/pconfig.Linux ./pconfig.h.in;
