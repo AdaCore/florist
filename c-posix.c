@@ -4934,6 +4934,36 @@ void create_c() {
 #else
   GDFLT("O_WRONLY", 0);
 #endif
+#ifdef O_EXEC
+  GCST("O_EXEC", O_EXEC);
+#else
+  GDFLT("O_EXEC", 0);
+#endif
+#ifdef O_SEARCH
+  GCST("O_SEARCH", O_SEARCH);
+#else
+  GDFLT("O_SEARCH", 0);
+#endif
+#ifdef O_CLOEXEC
+  GCST("O_CLOEXEC", O_CLOEXEC);
+#else
+  GDFLT("O_CLOEXEC", 0);
+#endif
+#ifdef O_DIRECTORY
+  GCST("O_DIRECTORY", O_DIRECTORY);
+#else
+  GDFLT("O_DIRECTORY", 0);
+#endif
+#ifdef O_NOFOLLOW
+  GCST("O_NOFOLLOW", O_NOFOLLOW);
+#else
+  GDFLT("O_NOFOLLOW", 0);
+#endif
+#ifdef O_TTY_INIT
+  GCST("O_TTY_INIT", O_TTY_INIT);
+#else
+  GDFLT("O_TTY_INIT", 0);
+#endif
 
 #ifdef PAGESIZE
   GCST("PAGESIZE", PAGESIZE);
