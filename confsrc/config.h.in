@@ -304,6 +304,9 @@
 #undef HAVE_t_strerror
 #undef HAVE_t_sync
 #undef HAVE_t_unbind
+#undef HAVE_strerror
+#undef HAVE_strerror_r
+#undef HAVE_perror
 
 #undef HAVE_tcdrain
 #undef HAVE_tcflow

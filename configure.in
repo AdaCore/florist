@@ -139,7 +139,7 @@ case ${UNAME_SYSTEM} in
    ;;
  AIX)
    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_VERSION};
-   case `gcc -dumpmachine` in 
+   case `gcc -dumpmachine` in
       *-*-aix4*)
         cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
 	;;
@@ -168,7 +168,7 @@ case ${UNAME_SYSTEM} in
    echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
    cp ./configs/pconfig.Default ./pconfig.h.in;
    ;;
-esac; 
+esac;
 
 if test "x$safe_errno" = "xTrue" ; then
   safe_errno_msg="safe"
@@ -629,6 +629,9 @@ AC_POSIX_FUNCS(\
  t_sndrel\
  t_sndv\
  t_sndvudata\
+ strerror\
+ strerror_r\
+ perror\
  umask\
  uname\
  unlink\

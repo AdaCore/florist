@@ -7,7 +7,7 @@
 --                                  B o d y                                 --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2019, AdaCore                     --
+--                     Copyright (C) 1998-2022, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -43,6 +43,7 @@ with POSIX.C,
 
 pragma Elaborate (POSIX.C);
 pragma Elaborate (POSIX.Implementation);
+
 package body POSIX is
 
    use Ada.Streams;
@@ -481,6 +482,29 @@ package body POSIX is
          return Tmp (Tmp'First + 1 .. Tmp'Last);
       end;
    end Image;
+
+   -------------------------
+   -- Print_Error_Message --
+   -------------------------
+
+   procedure Print_Error_Message is
+      procedure perror (Ignore : System.Address := System.Null_Address)
+        with Import, Convention => C, External_Name => XTI.perror_LINKNAME;
+   begin
+      if C.XTI.HAVE_perror then
+         perror;
+      else
+         declare
+            Text : constant String := Image (Get_Error_Code) & ASCII.LF;
+            procedure write
+              (fildes : int; buf : System.Address; nbyte  : size_t)
+              with Import, Convention => C, External_Name => C.write_LINKNAME;
+            --  Unable to use POSIX.IO because of cyclic dependencies
+         begin
+            write (2, Text'Address, Text'Length);
+         end;
+      end if;
+   end Print_Error_Message;
 
    function uname (name : access struct_utsname)
      return int;

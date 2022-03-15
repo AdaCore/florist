@@ -8,7 +8,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2014, AdaCore                     --
+--                     Copyright (C) 1998-2022, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -454,10 +454,11 @@ package body POSIX.Process_Primitives is
      renames POSIX.Unsafe_Process_Primitives.Fork;
 
    procedure Start_Process
-     (Child : out POSIX.Process_Identification.Process_ID;
-      Pathname : POSIX.Pathname;
-      Template : Process_Template;
-      Arg_List : POSIX_String_List := Empty_String_List)
+     (Child            : out Process_Identification.Process_ID;
+      Pathname         : POSIX.Pathname;
+      Template         : Process_Template;
+      Arg_List         : POSIX_String_List := Empty_String_List;
+      On_Child_Failure : access procedure  := null)
    is
       pid : pid_t;
       Result : int;
@@ -487,6 +488,9 @@ package body POSIX.Process_Primitives is
          Result := execv (Pathname_With_NUL
            (Pathname_With_NUL'First)'Unchecked_Access,
             Arg.Char (1)'Unchecked_Access);
+         if On_Child_Failure /= null then
+            On_Child_Failure.all;
+         end if;
          Exit_Process (Failed_Creation_Exit);
       else
          Child := To_Process_ID (pid);
@@ -497,11 +501,12 @@ package body POSIX.Process_Primitives is
    end Start_Process;
 
    procedure Start_Process
-     (Child : out POSIX.Process_Identification.Process_ID;
-      Pathname : POSIX.Pathname;
-      Template : Process_Template;
-      Env_List : POSIX.Process_Environment.Environment;
-      Arg_List : POSIX_String_List := Empty_String_List)
+     (Child            : out Process_Identification.Process_ID;
+      Pathname         : POSIX.Pathname;
+      Template         : Process_Template;
+      Env_List         : Process_Environment.Environment;
+      Arg_List         : POSIX_String_List := Empty_String_List;
+      On_Child_Failure : access procedure  := null)
    is
       pid : pid_t;
       Result : int;
@@ -526,6 +531,9 @@ package body POSIX.Process_Primitives is
          Result := execve (Pathname_With_NUL
            (Pathname_With_NUL'First)'Unchecked_Access,
             Arg.Char (1)'Access, Env.Char (1)'Access);
+         if On_Child_Failure /= null then
+            On_Child_Failure.all;
+         end if;
          Exit_Process (Failed_Creation_Exit);
       else
          Child := To_Process_ID (pid);
@@ -537,10 +545,11 @@ package body POSIX.Process_Primitives is
    ----------------------------
 
    procedure Start_Process_Search
-     (Child : out POSIX.Process_Identification.Process_ID;
-      Filename : POSIX.Filename;
-      Template : Process_Template;
-      Arg_List : POSIX_String_List := Empty_String_List)
+     (Child            : out Process_Identification.Process_ID;
+      Filename         : POSIX.Filename;
+      Template         : Process_Template;
+      Arg_List         : POSIX_String_List := Empty_String_List;
+      On_Child_Failure : access procedure  := null)
    is
       pid : pid_t;
       Result : int;
@@ -559,6 +568,9 @@ package body POSIX.Process_Primitives is
          Execute_Template (Template);
          Result := execvp (Filename_With_NUL
            (Filename_With_NUL'First)'Unchecked_Access, Arg.Char (1)'Access);
+         if On_Child_Failure /= null then
+            On_Child_Failure.all;
+         end if;
          Exit_Process (Failed_Creation_Exit);
       else
          Child := To_Process_ID (pid);
@@ -570,17 +582,19 @@ package body POSIX.Process_Primitives is
    ----------------------------
 
    procedure Start_Process_Search
-     (Child : out POSIX.Process_Identification.Process_ID;
-      Filename : POSIX.Filename;
-      Template : Process_Template;
-      Env_List : POSIX.Process_Environment.Environment;
-      Arg_List : POSIX_String_List := Empty_String_List)
+     (Child            : out Process_Identification.Process_ID;
+      Filename         : POSIX.Filename;
+      Template         : Process_Template;
+      Env_List         : Process_Environment.Environment;
+      Arg_List         : POSIX_String_List := Empty_String_List;
+      On_Child_Failure : access procedure  := null)
    is
       pid : pid_t;
       Filename_With_NUL : POSIX_String := Filename & NUL;
       Arg : String_List_Ptr := To_String_List_Ptr (Arg_List);
       Env : String_List_Ptr := To_String_List_Ptr (Env_List);
-
+      Result : int;
+      pragma Unreferenced (Result);
    begin
       if Arg = null then
          Arg := Null_String_List_Ptr;
@@ -598,22 +612,24 @@ package body POSIX.Process_Primitives is
          --  any exceptions in the child process.
          for I in Filename'Range loop
             if Filename (I) = '/' then
-               Check_Fatal (execve
+               Result := execve
                  (Filename_With_NUL (Filename_With_NUL'First)'Unchecked_Access,
-                  Arg.Char (1)'Access, Env.Char (1)'Access));
-               return;
+                  Arg.Char (1)'Access, Env.Char (1)'Access);
+               if On_Child_Failure /= null then
+                  On_Child_Failure.all;
+               end if;
+               Exit_Process (Failed_Creation_Exit);
             end if;
          end loop;
+
          --  filename does not contain "/"
+
          declare
             Path : constant POSIX_String
                  := POSIX.Process_Environment.Environment_Value_Of
                     ("PATH", "/bin:/usr/bin");
             Start : Positive;
             P : Positive;
-            Result : int;
-            pragma Unreferenced (Result);
-
          begin
             P := Path'First;
             loop
@@ -629,6 +645,9 @@ package body POSIX.Process_Primitives is
                     (Pathname'First)'Unchecked_Access,
                      Arg.Char (1)'Access, Env.Char (1)'Access);
                   if Fetch_Errno /= ENOENT then
+                     if On_Child_Failure /= null then
+                        On_Child_Failure.all;
+                     end if;
                      Exit_Process (Failed_Creation_Exit);
                   end if;
                end;
@@ -636,6 +655,9 @@ package body POSIX.Process_Primitives is
                P := P + 1; -- skip colon
             end loop;
          end;
+         if On_Child_Failure /= null then
+            On_Child_Failure.all;
+         end if;
          Exit_Process (Failed_Creation_Exit);
       else
          Child := To_Process_ID (pid);

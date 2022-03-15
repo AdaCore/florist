@@ -7,7 +7,7 @@
 --                                                                          --
 --                                                                          --
 --             Copyright (C) 1991-1994, Florida State University            --
---                     Copyright (C) 1995-2019, AdaCore                     --
+--                     Copyright (C) 1995-2022, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -3559,6 +3559,7 @@ void create_posix() {
   ifprintf(fp,"   function Is_POSIX_Error (Error : Error_Code) ");
   ifprintf(fp,"return Boolean;\n");
   ifprintf(fp,"   function Image (Error : Error_Code) return String;\n");
+  ifprintf(fp,"   procedure Print_Error_Message;\n");
   ifprintf(fp,"   No_Error : constant Error_Code := 0;\n");
   ifprintf(fp,"   --  Error code constants with negative values ");
   ifprintf(fp,"correspond to\n");
@@ -7420,6 +7421,9 @@ void create_c() {
   GFUNC(t_strerror, HAVE_t_strerror);
   GFUNC(t_sync, HAVE_t_sync);
   GFUNC(t_unbind, HAVE_t_unbind);
+  GFUNC(strerror, HAVE_strerror);
+  GFUNC(strerror_r, HAVE_strerror_r);
+  GFUNC(perror, HAVE_perror);
 
   fprintf(fp,"\n");
   ifprintf(fp,"end XTI;\n");
