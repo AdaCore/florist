@@ -137,14 +137,14 @@ package body Test_Parameters is
          Get_Line (File, Buf, Last);
          if Last >= 4 and Buf (1 .. 4) = "/dev" then
             for I in 1 .. Last loop
-               if (Is_Alphanumeric (Buf (I)) = False and
-                   Is_Special (Buf (I)) = False) then
+               if not Is_Alphanumeric (Buf (I))
+                 and then not Is_Special (Buf (I))
+               then
                   return To_POSIX_String (Buf (1 .. I - 1));
                end if;
             end loop;
          end if;
       end loop;
-      return "could_not_find_block_device";
    end Valid_Block_Device_Name;
 
    function Valid_Character_Special_File_Name return POSIX_String is
@@ -382,8 +382,9 @@ package body Test_Parameters is
       loop
          Get_Line (File, Buf, Last);
          Ubuf := To_Unbounded_String (Buf);
-         if Last > 4 and
-            Ada.Strings.Unbounded.Count (Ubuf, "localhost") = 0 then
+         if Last > 4
+           and Ada.Strings.Unbounded.Count (Ubuf, "localhost") = 0
+         then
             Ubuf := To_Unbounded_String (Slice (Ubuf, 1, Last));
             if Index (Ubuf, ".") /= 0 then
                if Index (Ubuf, "" & ASCII.HT) /= 0 then
@@ -398,12 +399,9 @@ package body Test_Parameters is
             end if;
          end if;
       end loop;
-      Close (File);
-      return "127.0.0.1";  --   Localhost
    end Valid_Internet_Address;
 
-   function Valid_Internet_Name return POSIX.POSIX_String
-   is
+   function Valid_Internet_Name return POSIX.POSIX_String is
       File : File_Type;
       Buf  : String (1 .. 128);
       Last : Integer;
@@ -425,8 +423,9 @@ package body Test_Parameters is
       loop
          Get_Line (File, Buf, Last);
          Ubuf := To_Unbounded_String (Buf);
-         if Last > 4 and
-            Ada.Strings.Unbounded.Count (Ubuf, "localhost") = 0 then
+         if Last > 4
+           and then Ada.Strings.Unbounded.Count (Ubuf, "localhost") = 0
+         then
             Ubuf := To_Unbounded_String (Slice (Ubuf, 1, Last));
             if Index (Ubuf, ".") /= 0 then
                Temp := To_Unbounded_String
@@ -438,8 +437,6 @@ package body Test_Parameters is
             end if;
          end if;
       end loop;
-      Close (File);
-      return "localhost";  --   Localhost
    end Valid_Internet_Name;
 
    function Continue_Generates_Signal return Boolean is

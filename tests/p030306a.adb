@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1998      Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -84,8 +85,8 @@ begin
       Assert (Is_Member (Mask, Sig), "A002: p030306a");
    end if;
    for I in Signal loop
-      if I /= Sig and then I /= SIGNULL and then
-         not Is_Reserved_Signal (I) then
+      if I /= Sig and then I /= SIGNULL and then not Is_Reserved_Signal (I)
+      then
          Assert (not Is_Member (Mask, I), "A003: p030306a " & Image (I));
       end if;
    end loop;
@@ -95,14 +96,14 @@ begin
    case Child_Action'Val (Child) is
    when Delay_Then_Exit =>
       --  Delay long enough for the parent to notice we are here.
-      delay 2*LDU;
+      delay 2 * LDU;
    when Block_And_Await =>
       --  Wait for Sig, with just Sig blocked;
       --  expect to receive signal and then exit normally.
       Add_Signal (Mask, Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
       Comment ("child: waiting for " & Image (Sig));
-      Try_Await_Signal (Sig, Mask, 2*LDU, No, "A004: p030306a");
+      Try_Await_Signal (Sig, Mask, 2 * LDU, No, "A004: p030306a");
    when Block_And_Await_With_Info =>
       --  Wait for Sig, with just Sig blocked;
       --  expect to receive signal with info and then exit normally.
@@ -111,7 +112,7 @@ begin
       Comment ("child: waiting for " & Image (Sig));
       begin
          Enable_Queueing (Sig);
-         Info := Try_Await_Signal (Sig, Mask, 2*LDU, No, "A005: p030306a");
+         Info := Try_Await_Signal (Sig, Mask, 2 * LDU, No, "A005: p030306a");
          Comment ("child: received " & Image (Sig) & " (OK)");
          Assert (Get_Signal (Info) = Sig, "A006: p030306a");
          Assert (Get_Source (Info) = From_Queue_Signal, "A007: p030306a");
@@ -132,7 +133,7 @@ begin
       Comment ("child: waiting for " & Image (Sig));
       begin
          Enable_Queueing (Sig);
-         Info := Try_Await_Signal (Sig, Mask, 2*LDU, No, "A011: p030306a");
+         Info := Try_Await_Signal (Sig, Mask, 2 * LDU, No, "A011: p030306a");
          Comment ("child: received " & Image (Sig) & " (OK)");
          Assert (Get_Source (Info) = From_Send_Signal, "A012: p030306a");
       exception
@@ -157,7 +158,7 @@ begin
       Unignore_Signal (Sig);
       Add_Signal (Mask, Sig);
       Set_Blocked_Signals (Mask, Old_Mask);
-      Try_Await_Signal (Sig, Mask, 2*LDU, No, "A016: p030306a");
+      Try_Await_Signal (Sig, Mask, 2 * LDU, No, "A016: p030306a");
    when Unblock_And_Unignore =>
       --  Delay, with all signals unblocked;
       --  expect to receive signal and perform default action.

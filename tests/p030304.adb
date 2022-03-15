@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -125,7 +126,8 @@ begin
          for Sig in Signal loop
             if not Cannot_Be_Blocked (Sig)
               and then not Is_Member (Set, Sig)
-              and then not Signal_Mask_Is_Process_Wide then
+              and then not Signal_Mask_Is_Process_Wide
+            then
                Add_Signal (Not_Initially_Masked, Sig);
                Fail ("A003: " & Image (Sig) & " not initially blocked");
             end if;
@@ -143,6 +145,7 @@ begin
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
+         pragma Unreferenced (Sig);
       begin
          --  New_Mask is initially empty.
          Set_Blocked_Signals (New_Mask, Old_Mask);
@@ -188,7 +191,8 @@ begin
         or else Action_Cannot_Be_Set (Sig)
         or else Is_Member (Not_Initially_Masked, Sig)
         or else Fails_Blocking_Test (Sig)
-        or else Is_Reserved_Signal (Sig) then
+        or else Is_Reserved_Signal (Sig)
+      then
          Do_Not_Test (Sig) := True;
       end if;
    end loop;
@@ -213,7 +217,7 @@ begin
             The_Sig : Signal;
             New_Mask,
             Old_Mask : Signal_Set;
-            Timeout : constant Timespec := To_Timespec (5*DU);
+            Timeout : constant Timespec := To_Timespec (5 * DU);
          begin
             if not Do_Not_Test (Sig) then
                Add_Signal (New_Mask, Sig);
@@ -374,7 +378,8 @@ begin
          if Default_Action (Sig) /= Termination
            or else Action_Cannot_Be_Set (Sig)
            or else Is_Member (Not_Initially_Masked, Sig)
-           or else Is_Reserved_Signal (Sig) then
+           or else Is_Reserved_Signal (Sig)
+         then
             Do_Not_Test (Sig) := True;
          end if;
       end loop;
@@ -403,7 +408,7 @@ begin
       procedure Test_Signal (Sig : Signal) is
          The_Sig : Signal;
          Mask : Signal_Set;
-         Timeout : constant Timespec := To_Timespec (5*DU);
+         Timeout : constant Timespec := To_Timespec (5 * DU);
 
          task T;
          task body T is
@@ -452,9 +457,9 @@ begin
       procedure Test_Signal (Sig : Signal) is
 
          Mask : Signal_Set;
-         Timeout : constant Timespec := To_Timespec (5*DU);
+         Timeout : constant Timespec := To_Timespec (5 * DU);
          Info : Signal_Info;
-         I : Integer := 999;
+         I : Signal_Scalar := 999;
 
          task T;
          task body T is
@@ -511,8 +516,6 @@ begin
    declare
       task T;
       task body T is
-         Timeout : constant Timespec := To_Timespec (3*DU);
-         Set : Signal_Set;
          Buffer : POSIX_String (1 .. 3);
          Last : IO_Count;
       begin

@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -56,7 +57,6 @@ with POSIX,
 procedure p030100 is
 
    use POSIX,
-       POSIX_Files,
        POSIX_Process_Environment,
        POSIX_Process_Identification,
        POSIX_Process_Primitives,
@@ -292,7 +292,6 @@ begin
    end;
 
    ---------------------------------------------------------------------
-
 
    Test ("Termination_Status type [3.1.4]");
    declare
@@ -826,7 +825,6 @@ begin
       exception
       when E : others => Unexpected_Exception (E, "A141");
       end;
-
 
       ------------------------------------------------------------------
 

@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1997-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -195,8 +196,7 @@ package body POSIX_Report is
          Program_Name_Length := Program_Name'Length;
       end if;
       Program_Name (1 .. Program_Name_Length) :=
-        Label (Program_Name'First ..
-          Program_Name'First + Program_Name_Length - 1);
+        Label (Label'First .. Label'First + Program_Name_Length - 1);
    exception when E : others => Fatal_Exception (E, "in Header");
    end Header;
 
@@ -223,8 +223,10 @@ package body POSIX_Report is
    procedure Assert (Condition : Boolean; Message : String) is
    begin
       if not Condition then
-         if Message = "" then Fail ("assert");
-         else Fail ("assert [" & Message & "]");
+         if Message = "" then
+            Fail ("assert");
+         else
+            Fail ("assert [" & Message & "]");
          end if;
       end if;
    end Assert;
@@ -280,8 +282,10 @@ package body POSIX_Report is
                & " [expected " & POSIX.Image (EC) & "]"
                & ":  " & Message);
          end if;
-      elsif Exception_Message (E) /= "" and then
-        Exception_Message (E) /= POSIX.Image (EC) then
+
+      elsif Exception_Message (E) /= ""
+         and then Exception_Message (E) /= POSIX.Image (EC)
+      then
          if Message = "" then
             Fail ("incorrect Exception_Message: "
                & Exception_Message (E));
@@ -305,7 +309,9 @@ package body POSIX_Report is
 
    procedure Comment (Msg : String) is
    begin
-      if Verbose then Put_Line ("       -- " & Msg); Flush;
+      if Verbose then
+         Put_Line ("       -- " & Msg);
+         Flush;
       end if;
    end Comment;
 
@@ -370,133 +376,152 @@ package body POSIX_Report is
             if False in Memory_Locking_Support then
                return Memory_Locking_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Memory_Range_Locking_Option =>
          if True in Memory_Range_Locking_Support then
             if False in Memory_Range_Locking_Support then
                return Memory_Range_Locking_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Memory_Protection_Option =>
          if True in Memory_Protection_Support then
             if False in Memory_Protection_Support then
                return Memory_Protection_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Message_Queues_Option =>
          if True in Message_Queues_Support then
             if False in Message_Queues_Support then
                return Message_Queues_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Mutex_Priority_Ceiling_Option =>
          if True in Mutex_Priority_Ceiling_Support then
             if False in Mutex_Priority_Ceiling_Support then
                return Mutex_Priority_Ceiling_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Mutex_Priority_Inheritance_Option =>
          if True in Mutex_Priority_Inheritance_Support then
             if False in Mutex_Priority_Inheritance_Support then
                return Mutex_Priority_Inheritance_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Mutex_Option =>
          if True in Mutexes_Support then
             if False in Mutexes_Support then
                return Mutexes_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Prioritized_IO_Option =>
          if True in Prioritized_IO_Support then
             if False in Prioritized_IO_Support then
                return Prioritized_IO_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Priority_Process_Scheduling_Option =>
          if True in Priority_Process_Scheduling_Support then
             if False in Priority_Process_Scheduling_Support then
                return Priority_Process_Scheduling_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Priority_Task_Scheduling_Option =>
          if True in Priority_Task_Scheduling_Support then
             if False in Priority_Task_Scheduling_Support then
                return Priority_Task_Scheduling_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Process_Shared_Option =>
          if True in Process_Shared_Support then
             if False in Process_Shared_Support then
                return Process_Shared_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Realtime_Signals_Option =>
          if True in Realtime_Signals_Support then
             if False in Realtime_Signals_Support then
                return Realtime_Signals_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Job_Control_Option =>
          if True in POSIX.Job_Control_Support then
             if False in POSIX.Job_Control_Support then
                return Job_Control_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Saved_IDs_Option =>
          if True in POSIX.Saved_IDs_Support then
             if False in POSIX.Saved_IDs_Support then
                return Saved_IDs_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Semaphores_Option =>
          if True in Semaphores_Support then
             if False in Semaphores_Support then
                return Semaphores_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Shared_Memory_Objects_Option =>
          if True in Shared_Memory_Objects_Support then
             if False in Shared_Memory_Objects_Support then
                return Shared_Memory_Objects_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Signal_Entries_Option =>
          if True in Signal_Entries_Support then
             if False in Signal_Entries_Support then
                return True;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Synchronized_IO_Option =>
          if True in Synchronized_IO_Support then
             if False in Synchronized_IO_Support then
                return Synchronized_IO_Is_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       when Timers_Option =>
          if True in Timers_Support then
             if False in Timers_Support then
                return Timers_Are_Supported;
             end if;
-         else return False;
+         else
+            return False;
          end if;
       end case;
       return True;
@@ -516,7 +541,9 @@ package body POSIX_Report is
          Nonsupport (Option) := True;
          for I in Nonsupport'Range loop
             if Nonsupport (I) then
-               Put ("**** Nonsupport of "&POSIX_Option'Image (I)&" detected.");
+               Put
+                 ("**** Nonsupport of " & POSIX_Option'Image (I)
+                  & " detected.");
                New_Line;
             end if;
          end loop;
@@ -548,9 +575,11 @@ package body POSIX_Report is
       E        : Ada.Exceptions.Exception_Occurrence;
       Message  : String) is
    begin
-      if (Is_Supported (Option_1) and then
-         Is_Supported (Option_2)) or else
-         POSIX.Get_Error_Code /= Expected then Fail (E, Message);
+      if (Is_Supported (Option_1)
+          and then Is_Supported (Option_2))
+         or else POSIX.Get_Error_Code /= Expected
+      then
+         Fail (E, Message);
       else
          if not Is_Supported (Option_1) then
             Nonsupport_Message (Option_1, Message);
@@ -599,7 +628,9 @@ package body POSIX_Report is
       Option    : POSIX_Option;
       Expected  : POSIX.Error_Code;
       E         : Ada.Exceptions.Exception_Occurrence;
-      Message   : String) is
+      Message   : String)
+   is
+      pragma Unreferenced (Privilege);
       Error : constant POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
       if Error = Operation_Not_Permitted then
@@ -620,7 +651,9 @@ package body POSIX_Report is
    procedure Privileged
      (Privilege : POSIX_Privilege;
       E         : Ada.Exceptions.Exception_Occurrence;
-      Message : String) is
+      Message : String)
+   is
+      pragma Unreferenced (Privilege);
       Error : constant POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
       if Error = Operation_Not_Permitted then
@@ -629,8 +662,9 @@ package body POSIX_Report is
          --  mechanism for determining whether we have appropriate
          --  privilege for various operations.  For now, we assume that
          --  appropriate privilege is equivalent to having root user-id.
-         if (Uid_To_Integer
-           (POSIX_Process_Identification.Get_Effective_User_ID) = 0) then
+         if Uid_To_Integer
+             (POSIX_Process_Identification.Get_Effective_User_ID) = 0
+         then
             Fail (E, Message & " - user ID zero has insufficient privilege!");
          else
             Fail (E, Message & " - insufficient privilege");
@@ -647,7 +681,9 @@ package body POSIX_Report is
       Expected_If_Not_Supported : POSIX.Error_Code;
       Expected_If_Supported : POSIX.Error_Code;
       E         : Ada.Exceptions.Exception_Occurrence;
-      Message   : String) is
+      Message   : String)
+   is
+      pragma Unreferenced (Privilege);
       Error : constant POSIX.Error_Code := POSIX.Get_Error_Code;
    begin
       if Error = Operation_Not_Permitted then
@@ -656,8 +692,9 @@ package body POSIX_Report is
          --  mechanism for determining whether we have appropriate
          --  privilege for various operations.  For now, we assume that
          --  appropriate privilege is equivalent to having root user-id.
-         if (Uid_To_Integer
-           (POSIX_Process_Identification.Get_Effective_User_ID) = 0) then
+         if Uid_To_Integer
+             (POSIX_Process_Identification.Get_Effective_User_ID) = 0
+         then
             Fail (E, Message & " - user ID zero has insufficient privilege!");
          else
             Fail (E, Message & " - insufficient privilege");
@@ -670,6 +707,7 @@ package body POSIX_Report is
    end Privileged;
 
    procedure Increment_Error_Count (Number : Integer) is
+      pragma Unreferenced (Number);
    begin
       Error_Count := Error_Count + 1;
    end Increment_Error_Count;
@@ -699,21 +737,23 @@ package body POSIX_Report is
          if Error_Count > 0 and Child = 0 then
             Put ("==== Failed"); Put (Natural'Image (Error_Count));
             Put (" test");
-            if Error_Count /= 1 then Put ("s."); end if;
+            if Error_Count /= 1 then
+               Put ("s.");
+            end if;
             New_Line;
          end if;
       end if;
       for I in Nonsupport'Range loop
          if Nonsupport (I) then
-            Put ("**** Nonsupport of "&POSIX_Option'Image (I)&" detected.");
+            Put
+              ("**** Nonsupport of " & POSIX_Option'Image (I) & " detected.");
             New_Line;
          end if;
       end loop;
       Flush;
       if Child /= 0 then
          --  Report number of errors back to parent process.
-         if Error_Count >=
-            Natural (Failed_Creation_Exit) then
+         if Error_Count >= Natural (Failed_Creation_Exit) then
             Put ("==== Child error count overflowed");
             Error_Count := Natural (Failed_Creation_Exit) - 1;
          end if;
@@ -734,7 +774,8 @@ package body POSIX_Report is
    begin
       if Message /= "" then
          Fail ("[" & Message & "] fatal exception " & Exception_Name (E));
-      else Fail ("fatal exception " & Exception_Name (E));
+      else
+         Fail ("fatal exception " & Exception_Name (E));
       end if;
       if Exception_Message (E) /= "" and then Verbose then
          Put_Line ("       -- Exception message = "
@@ -748,8 +789,10 @@ package body POSIX_Report is
    procedure Pass_Through_Verbosity
      (Args : in out POSIX.POSIX_String_List) is
    begin
-      if Verbose then Append (Args, "-v");
-      elsif Terse then Append (Args, "-t");
+      if Verbose then
+         Append (Args, "-v");
+      elsif Terse then
+         Append (Args, "-t");
       end if;
    end Pass_Through_Verbosity;
 
@@ -793,8 +836,9 @@ package body POSIX_Report is
             Assert (False, Message & ": unhandled exception (42)");
          elsif E = Normal_Exit then
             Assert (False, Message & ": normal exit (0)");
-         else Assert (False, Message & ": exit status ="
-           & Exit_Status'Image (E));
+         else
+            Assert
+              (False, Message & ": exit status =" & Exit_Status'Image (E));
          end if;
       end if;
       declare
@@ -822,11 +866,14 @@ package body POSIX_Report is
 
 begin
    for I in 1 .. Argument_Count loop
-      if Argument (I) = "-v" then Verbose := True;
-      elsif Argument (I) = "-t" then Terse := True;
-      elsif Argument (I)'Length >= 6 and then
-        Argument (I)(Argument (I)'First .. Argument (I)'First + 5)
-          = "-child" then
+      if Argument (I) = "-v" then
+         Verbose := True;
+      elsif Argument (I) = "-t" then
+         Terse := True;
+      elsif Argument (I)'Length >= 6
+        and then Argument (I)(Argument (I)'First .. Argument (I)'First + 5)
+        = "-child"
+      then
          --  Treat this argument as value of Child.
          --  Default value is 1.
          declare
@@ -845,8 +892,10 @@ begin
             while J <= Arg'Last and then Arg (J) = ' ' loop
                J := J + 1;
             end loop;
-            if J /= Arg'Last + 1 or Tmp = 0 then Child := 1;
-            else Child := Tmp;
+            if J /= Arg'Last + 1 or Tmp = 0 then
+               Child := 1;
+            else
+               Child := Tmp;
             end if;
          exception when others =>
             Fail ("bad command-line argument");

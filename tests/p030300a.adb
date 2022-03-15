@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -52,8 +53,6 @@ package body p030300a is
 
    --  Reserved_Signals contains the signals that are reserved.
 
-   Reserved_Signals : Signal_Set;
-
    function Arg_Sig return Signal is
    begin
       for I in 1 .. Argument_Count loop
@@ -76,8 +75,10 @@ package body p030300a is
                while J <= Arg'Last and then Arg (J) = ' ' loop
                   J := J + 1;
                end loop;
-               if J /= Arg'Last + 1 then return 1;
-               else return Signal (Tmp);
+               if J /= Arg'Last + 1 then
+                  return 1;
+               else
+                  return Signal (Tmp);
                end if;
             exception when others =>
                Fail ("bad command-line argument");
@@ -92,7 +93,8 @@ package body p030300a is
    procedure Clear_Signal (Sig : Signal; Msg : String) is
       Set, Old_Set : Signal_Set;
    begin
-      if Sig = SIGNULL then return;
+      if Sig = SIGNULL then
+         return;
       end if;
       Add_Signal (Set, Sig);
       Ignore_Signal (Sig);
@@ -155,8 +157,9 @@ package body p030300a is
       when E2 : others =>
          Unexpected_Exception (E2, Msg & "(d)");
       end;
-      if Default_Action (Sig) in Ignore .. Stop and then
-        not Is_Ignored (Sig) then
+      if Default_Action (Sig) in Ignore .. Stop
+        and then not Is_Ignored (Sig)
+      then
          if Try_Install_Empty_Handler (Sig) then
             Comment ("Installed empty handler for " & Image (Sig));
             Installed_Empty_Handler := True;
@@ -216,8 +219,9 @@ package body p030300a is
       when E2 : others =>
          Unexpected_Exception (E2, Msg & "(d)");
       end;
-      if Default_Action (Sig) in Ignore .. Stop and then
-        not Is_Ignored (Sig) then
+      if Default_Action (Sig) in Ignore .. Stop
+        and then not Is_Ignored (Sig)
+      then
          if Try_Install_Empty_Handler (Sig) then
             Comment ("Installed empty handler for " & Image (Sig));
             Installed_Empty_Handler := True;
@@ -258,9 +262,7 @@ package body p030300a is
       raise Local_Failure;
    end Try_Await_Signal;
 
-
 begin
-
    Add_All_Signals (All_Signal_Mask);
 
    for Sig in Realtime_Signal loop
@@ -271,5 +273,4 @@ begin
       Cannot_Be_Blocked (Sig) :=
         Is_Reserved_Signal (Sig) or Sig = SIGKILL or Sig = SIGSTOP;
    end loop;
-
 end p030300a;

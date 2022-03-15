@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -294,7 +295,8 @@ begin
       Assert (not Do_Not_Test (Sig), "A019");
       if Action_Cannot_Be_Set (Sig)
         or else Is_Reserved_Signal (Sig)
-        or else Default_Action (Sig) = Unspecified then
+        or else Default_Action (Sig) = Unspecified
+      then
          Do_Not_Test (Sig) := True;
       end if;
    end loop;

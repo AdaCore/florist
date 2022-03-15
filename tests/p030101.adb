@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -62,9 +63,6 @@ procedure p030101 is
    --  Cases to be tested by child processes:
 
    Normal_Completion : constant := 1;
-   Normal_Completion_With_Ada_Status : constant := 2;
-   Unhandled_Exception : constant := 3;
-   POSIX_Exit_Process : constant := 4;
 
    Child_Pathname : constant POSIX_String := "./bin/p030101b";
 

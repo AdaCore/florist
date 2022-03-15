@@ -11,7 +11,7 @@ MASTERDIR=/part1/florist/tests
 PAVT_VERSION=pavt-1.4.1
 # The following definitions are for using the default installed GNAT
 # runtime system.
-GNATMAKEFLAGS1 = -I../floristlib -L../floristlib
+GNATMAKEFLAGS1 = -I../libsrc -I../libsrc/threads -I../gensrc -aL../lib
 #
 GNATMAKEFLAGS2= -cargs -gnatay -gnatwue -largs -lflorist
 GNATMAKEFLAGS2a= -cargs -largs -lflorist
@@ -259,7 +259,7 @@ SPECIAL_TESTS=\
 tests: $(TESTS) $(SPECIAL_TESTS)
 #
 p020400:  p020400.ads p020400.adb
-p021000:  p021000.ads p021000.adb 
+p021000:  p021000.ads p021000.adb
 p030100:  p030100.ads p030100.adb p030100b
 p030100b: p030100b.ads p030100b.adb
 p030101:  p030101.ads p030101.adb
@@ -395,14 +395,14 @@ p990011:  p990011.ads p990011.adb\
 testit: testit.adb
 test_parameters.adb: test_parameters.gpb
 $(TESTS) testit:  posix_report.ads posix_report.adb\
-  ../floristlib/libflorist.a test_parameters.ads test_parameters.adb
+  ../lib/libflorist.a test_parameters.adb
 	gnatmake  $(GNATMAKEFLAGS1) $@ $(GNATMAKEFLAGS2)
 #
 # Due to zealousness of the "-gnaty" style-checker,
 # the following tests need to be compiled without "-gnaty".
 #
 $(SPECIAL_TESTS):  posix_report.ads posix_report.adb\
-  ../floristlib/libflorist.a test_parameters.ads test_parameters.adb
+  ../lib/libflorist.a test_parameters.adb
 	gnatmake  $(GNATMAKEFLAGS1) $@ $(GNATMAKEFLAGS2a)
 #
 # Make a separate directory in which to run the tests,

@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -44,21 +45,26 @@
 
 with POSIX_Signals,
      POSIX_Timers,
+     POSIX.C,
      System,
      Test_Parameters,
      Unchecked_Conversion;
 
 package p030300a is
 
+   pragma Elaborate_Body;
+
    use POSIX_Signals,
        POSIX_Timers,
-       System,
        Test_Parameters;
 
+   type Signal_Scalar is mod
+     2 ** (POSIX.C.sigval_byte_size * System.Storage_Unit);
+
    function "+" is
-      new Unchecked_Conversion (Integer, Signal_Data);
+      new Unchecked_Conversion (Signal_Scalar, Signal_Data);
    function "+" is
-      new Unchecked_Conversion (Signal_Data, Integer);
+      new Unchecked_Conversion (Signal_Data, Signal_Scalar);
    function "+" is
       new Unchecked_Conversion (System.Address, Signal_Data);
    function "+" is

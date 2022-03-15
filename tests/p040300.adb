@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -151,11 +152,13 @@ begin
          end loop;
       end Check_Vals;
 
-      procedure Print_Val (Name : POSIX_String; Value : POSIX_String;
-         Quit : in out Boolean);
+      procedure Print_Val
+        (Name : POSIX_String; Value : POSIX_String; Quit : in out Boolean);
 
-      procedure Print_Val (Name : POSIX_String; Value : POSIX_String;
-         Quit : in out Boolean) is
+      procedure Print_Val
+        (Name : POSIX_String; Value : POSIX_String; Quit : in out Boolean)
+      is
+         pragma Unreferenced (Quit);
       begin
          Comment (To_String  (Name) & "=" & To_String (Value));
          Assert (Name'First = 1, "A012");
@@ -239,10 +242,12 @@ begin
       Comment ("iterator on environment");
       declare
          Found : Boolean := False;
-         procedure Check_Abcdefg  (Name : POSIX_String; Value : POSIX_String;
-             Quit : in out Boolean);
-         procedure Check_Abcdefg  (Name : POSIX_String; Value : POSIX_String;
-             Quit : in out Boolean) is
+         procedure Check_Abcdefg
+           (Name : POSIX_String; Value : POSIX_String; Quit : in out Boolean);
+         procedure Check_Abcdefg
+           (Name : POSIX_String; Value : POSIX_String; Quit : in out Boolean)
+         is
+            pragma Unreferenced (Value);
          begin
             if Found then
                --  Quit didn't work

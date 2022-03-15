@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -51,6 +52,7 @@ with Ada.Streams,
      Ada_Task_Identification,
      POSIX,
      POSIX_Asynchronous_IO,
+     POSIX.C,
      POSIX_Files,
      POSIX_IO,
      POSIX_Message_Queues,
@@ -61,6 +63,7 @@ with Ada.Streams,
      POSIX_Signals,
      POSIX_Timers,
      p030300a,
+     System,
      Test_Parameters,
      Unchecked_Conversion;
 
@@ -81,10 +84,12 @@ procedure p030301 is
        p030300a,
        Test_Parameters;
 
+   type Signal_Scalar is mod 2 ** (C.sigval_byte_size * System.Storage_Unit);
+
    function To_Signal_Data is
-     new Unchecked_Conversion (Integer, Signal_Data);
+     new Unchecked_Conversion (Signal_Scalar, Signal_Data);
    function To_Integer is
-     new Unchecked_Conversion (Signal_Data, Integer);
+     new Unchecked_Conversion (Signal_Data, Signal_Scalar);
 
    Old_Mask : Signal_Set;
 
@@ -372,7 +377,6 @@ begin
    when E : others => Unexpected_Exception (E, "A026");
    end;
 
-
    ---------------------------------------------------------------------
 
    Test ("Await_Signal with info [3.3.16]");
@@ -438,7 +442,6 @@ begin
       task body Blocked_Task is
          Buf_1 : POSIX_String (1 .. 4);
          Last : IO_Count;
-         MMM : String (1 .. 1);
       begin
 
          accept Get_ID (ID : out Task_Id) do
@@ -486,7 +489,7 @@ begin
          Sig_Info := Await_Signal (New_Mask);
 
          Assert (Get_Data (Sig_Info) = Sig_D, "A039: signal data = "
-           & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+           & Signal_Scalar'Image (To_Integer (Get_Data (Sig_Info))));
 
          Try_Disable_Queueing (Signals (I));
          Unblock_Signals (New_Mask, New_Mask);
@@ -581,7 +584,7 @@ begin
            & Signal'Image (Get_Signal (Sig_Info)));
 
          Assert (Get_Data (Sig_Info) = Sig_D, "A048: signal data = "
-           & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+           & Signal_Scalar'Image (To_Integer (Get_Data (Sig_Info))));
 
          Try_Disable_Queueing (Sig);
 
@@ -714,7 +717,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A055: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Signal_Scalar'Image (To_Integer (Get_Data (Sig_Info))));
       Assert (not Is_Member (Pending_Signals, Signals (2)), "A056");
       Assert (Is_Member (Pending_Signals, Signals (3)), "A057");
 
@@ -731,7 +734,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A061: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Signal_Scalar'Image (To_Integer (Get_Data (Sig_Info))));
       Assert (not Is_Member (Pending_Signals, Signals (2)), "A062");
 
       Count := 1;
@@ -826,7 +829,7 @@ begin
         & Signal'Image (Get_Signal (Sig_Info)));
 
       Assert (Get_Data (Sig_Info) = Sig_D, "A071: signal data = "
-        & Integer'Image (To_Integer (Get_Data (Sig_Info))));
+        & Signal_Scalar'Image (To_Integer (Get_Data (Sig_Info))));
 
       Count := 1;
       while Is_Member (Pending_Signals, Signals (3))

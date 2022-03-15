@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -105,7 +106,8 @@ begin
          for Sig in Signal loop
             if not Cannot_Be_Blocked (Sig)
               and then not Is_Member (Set, Sig)
-              and then not Signal_Mask_Is_Process_Wide then
+              and then not Signal_Mask_Is_Process_Wide
+            then
                Add_Signal (Not_Initially_Masked, Sig);
                Fail ("A001: " & Image (Sig) & " not initially blocked");
             end if;
@@ -123,6 +125,7 @@ begin
 
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
+         pragma Unreferenced (Sig);
       begin
          --  New_Mask is initially empty.
          Set_Blocked_Signals (New_Mask, Old_Mask);
@@ -167,7 +170,8 @@ begin
       if Default_Action (Sig) /= Termination
         or else Action_Cannot_Be_Set (Sig)
         or else Is_Member (Not_Initially_Masked, Sig)
-        or else Is_Reserved_Signal (Sig) then
+        or else Is_Reserved_Signal (Sig)
+      then
          Do_Not_Test (Sig) := True;
       end if;
    end loop;
@@ -339,7 +343,7 @@ begin
                end select;
                --  Then arrange for signal to arrive before the accept.
                accept E1;
-               delay 2*DU;
+               delay 2 * DU;
                select
                   accept E2;
                or delay DU;
@@ -384,8 +388,6 @@ begin
    declare
       task T;
       task body T is
-         Timeout : constant Timespec := To_Timespec (3*DU);
-         Set : Signal_Set;
          Buffer : POSIX_String (1 .. 3);
          Last : IO_Count;
       begin
@@ -400,7 +402,7 @@ begin
       when E : others => Unexpected_Exception (E, "A024");
       end T;
    begin
-      delay 3*DU;
+      delay 3 * DU;
       Comment ("interrupting task");
       Interrupt_Task (T'Identity);
    exception

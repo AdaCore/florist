@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -97,8 +98,6 @@ begin
                loop
                   delay 10.0;
                end loop;
-               --  Fail because parent did not kill child
-               Assert (False, "A004: P030100b: not killed");
             end if;
          else
             --  Check environment variable

@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -53,7 +54,7 @@ with POSIX_Process_Identification,
      POSIX_Unsafe_Process_Primitives,
      POSIX_Report;
 
-procedure p030200 is
+procedure P030200 is
 
    use POSIX_Process_Identification,
        POSIX_Process_Primitives,
@@ -108,4 +109,4 @@ begin
    Done;
 
 exception when E : others => Fatal_Exception (E, "A002");
-end p030200;
+end P030200;
