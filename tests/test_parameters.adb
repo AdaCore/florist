@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1997-1999 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 2000-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -96,8 +97,10 @@ package body Test_Parameters is
    function Invalid_MQ_Name
      (N : Positive) return POSIX_String is
    begin
-      if N = 1 then return "(#@!$%^~??||++";
-      else return "~!@#$%^&*()_++_}{{.//";
+      if N = 1 then
+         return "(#@!$%^~??||++";
+      else
+         return "~!@#$%^&*()_++_}{{.//";
       end if;
    end Invalid_MQ_Name;
 
@@ -111,8 +114,10 @@ package body Test_Parameters is
    function Invalid_Shared_Memory_Object_Name
      (N : Positive) return POSIX_String is
    begin
-      if N = 1 then return "(#@!$%^~??||++";
-      else return "~!@#$%^&*()_++_}{{.//";
+      if N = 1 then
+         return "(#@!$%^~??||++";
+      else
+         return "~!@#$%^&*()_++_}{{.//";
       end if;
    end Invalid_Shared_Memory_Object_Name;
 
@@ -165,20 +170,20 @@ package body Test_Parameters is
       when SIGSTOP | SIGTSTP | SIGTTIN | SIGTTOU => return Stop;
       when SIGHUP  | SIGINT  | SIGKILL | SIGPIPE |
         SIGQUIT | SIGTERM | SIGUSR1 | SIGUSR2 => return Termination;
-#     if SunOS then
-      when 19  -- SIGPWR
-         | 20  -- SIGWINCH
-         | 21  -- SIGURG
-         | 32  -- SIGWAITING
-         | 33  -- SIGLWP
-         | 34  -- SIGFREEZE
-         | 35  -- SIGTHAW
-         | 36  -- SIGCANCEL
-           => return Ignore;
-      when others => return Termination;
-#     else
+--! #     if SunOS then
+--!       when 19  -- SIGPWR
+--!          | 20  -- SIGWINCH
+--!          | 21  -- SIGURG
+--!          | 32  -- SIGWAITING
+--!          | 33  -- SIGLWP
+--!          | 34  -- SIGFREEZE
+--!          | 35  -- SIGTHAW
+--!          | 36  -- SIGCANCEL
+--!            => return Ignore;
+--!       when others => return Termination;
+--! #     else
       when others => return Unspecified;
-#     end if;
+--! #     end if;
       end case;
    end Default_Action;
 
@@ -190,24 +195,24 @@ package body Test_Parameters is
       when SIGILL  | SIGABRT | SIGFPE  | SIGBUS |
            SIGSEGV | SIGALRM
          => return True;
-#     if Linux then
+--! #     if Linux then
       --  Additional reserved signals for GNAT with Leroy Linux threads
       when SIGUSR1 | SIGUSR2 | SIGINT
         |  5 --  SIGTRAP
         | 26 --  SIGVTALRM
         | 31 --  SIGUNUSED
          => return True;
-#     elsif SunOS then
---  The following are correct values for gnat 3.12
---  and Solaris 2.7.  They may need modification for other
---  configurations.
-      when 5   --  SIGTRAP
-        | 29   --  SIGPROF
-        | 32   --  SIGWAITING
-        | 33   --  SIGLWP
-        | 36   --  SIGCANCEL
-         => return True;
-#     end if;
+--! #     elsif SunOS then
+--! --  The following are correct values for gnat 3.12
+--! --  and Solaris 2.7.  They may need modification for other
+--! --  configurations.
+--!       when 5   --  SIGTRAP
+--!         | 29   --  SIGPROF
+--!         | 32   --  SIGWAITING
+--!         | 33   --  SIGLWP
+--!         | 36   --  SIGCANCEL
+--!          => return True;
+--! #     end if;
       when others => return False;
       end case;
    end Is_Reserved_Signal;
@@ -220,26 +225,26 @@ package body Test_Parameters is
       when SIGILL  | SIGABRT | SIGFPE  | SIGKILL | SIGBUS |
            SIGSEGV | SIGALRM | SIGSTOP | SIGNULL
          => return True;
-#     if HAVE_Leroy_Threads then
-      --  Additional reserved signals for GNAT with Leroy Linux threads
-      when SIGUSR1 | SIGUSR2 | SIGINT
-        |  5 --  SIGTRAP
-        | 26 --  SIGVTALRM
-        | 31 --  SIGUNUSED
-         => return True;
-#     elsif SunOS then
-      --  Additional reserved signals for GNAT with Solaris 2.6
-      --  The following are correct values for gnat 3.12
-      --  and Solaris 2.7.  They may need modification for other
-      --  configurations.
-      when
-           5   --  SIGTRAP    -- not named in POSIX.5
-        | 29   --  SIGPROF    -- not named in POSIX.5
-        | 32   --  SIGWAITING -- not named in POSIX.5
-        | 33   --  SIGLWP     -- not named in POSIX.5
-        | 36   --  SIGCANCEL  -- not named in POSIX.5
-         => return True;
-#     end if;
+--! #     if HAVE_Leroy_Threads then
+--!   --  Additional reserved signals for GNAT with Leroy Linux threads
+--!   when SIGUSR1 | SIGUSR2 | SIGINT
+--!     |  5 --  SIGTRAP
+--!     | 26 --  SIGVTALRM
+--!     | 31 --  SIGUNUSED
+--!      => return True;
+--! #     elsif SunOS then
+--!       --  Additional reserved signals for GNAT with Solaris 2.6
+--!       --  The following are correct values for gnat 3.12
+--!       --  and Solaris 2.7.  They may need modification for other
+--!       --  configurations.
+--!       when
+--!            5   --  SIGTRAP    -- not named in POSIX.5
+--!         | 29   --  SIGPROF    -- not named in POSIX.5
+--!         | 32   --  SIGWAITING -- not named in POSIX.5
+--!         | 33   --  SIGLWP     -- not named in POSIX.5
+--!         | 36   --  SIGCANCEL  -- not named in POSIX.5
+--!          => return True;
+--! #     end if;
       when others => return False;
       end case;
    end Action_Cannot_Be_Set;
@@ -252,16 +257,16 @@ package body Test_Parameters is
       when SIGCHLD | SIGIO | SIGURG | SIGCONT
         | SIGSTOP | SIGTSTP | SIGTTIN | SIGTTOU
          => return True;
-#     if SunOS then
-      when
-          19   --  SIGPWR
-        | 20   --  SIGWINCH
-        | 32   --  SIGWAITING
-        | 33   --  SIGLWP
-        | 34   --  SIGFREEZE
-        | 35   --  SIGTHAW
-         => return True;
-#     end if;
+--! #     if SunOS then
+--!       when
+--!           19   --  SIGPWR
+--!         | 20   --  SIGWINCH
+--!         | 32   --  SIGWAITING
+--!         | 33   --  SIGLWP
+--!         | 34   --  SIGFREEZE
+--!         | 35   --  SIGTHAW
+--!          => return True;
+--! #     end if;
       when others => return False;
       end case;
    end Default_Is_Ignore;
@@ -288,33 +293,35 @@ package body Test_Parameters is
    function Invalid_Semaphore_Name
      (N : Positive) return POSIX_String is
    begin
-      if N = 1 then return "(#@!$%^~??||++";
-      else return "~!@#$%^&*()_++_}{{.//";
+      if N = 1 then
+         return "(#@!$%^~??||++";
+      else
+         return "~!@#$%^&*()_++_}{{.//";
       end if;
    end Invalid_Semaphore_Name;
 
    function Delay_Unit return Duration is
    begin
-#     if Linux then
+--! #     if Linux then
       --  For DOS & Linux on PC
       return 0.1;
-#     elsif SunOS then
-      return 0.02;
-#     else
-      return 0.02;
-#     end if;
+--! #     elsif SunOS then
+--!       return 0.02;
+--! #     else
+--!       return 0.02;
+--! #     end if;
    end Delay_Unit;
 
    function New_Process_Startup return Duration is
    begin
-#     if Linux then
+--! #     if Linux then
       --  For DOS & Linux on PC
       return 0.5;
-#     elsif SunOS then
-      return 0.5;
-#     else
-      return 0.02;
-#     end if;
+--! #     elsif SunOS then
+--!       return 0.5;
+--! #     else
+--!       return 0.02;
+--! #     end if;
    end New_Process_Startup;
 
    function Short_Watchdog_Timeout return Duration is

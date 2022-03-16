@@ -9,6 +9,7 @@
 --                                                                          --
 --  Copyright (c) 1995-1998 Florida  State  University  (FSU).  All Rights  --
 --  Reserved.                                                               --
+--                     Copyright (C) 1999-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it and/or modify it under  --
 --  terms of the  GNU  General  Public  License  as published by the  Free  --
@@ -85,8 +86,6 @@ procedure p030300 is
    Old_Mask : Signal_Set;
 
 begin
-
-
    Header ("p030300");
 
    ----------------------------------------------------------------------
@@ -155,13 +154,13 @@ begin
    begin
       Set := Blocked_Signals;
       for Sig in Signal loop
-         if Sig /= SIGNULL
-           and then Is_Member (Set, Sig) then
+         if Sig /= SIGNULL and then Is_Member (Set, Sig) then
             Comment ("WARNING: " & Image (Sig) & " blocked in env. task");
          end if;
       end loop;
    exception
-   when E1 : others => Unexpected_Exception (E1, "A007");
+      when E1 : others =>
+         Unexpected_Exception (E1, "A007");
    end;
 
    ---------------------------------------------------------------------
@@ -692,14 +691,17 @@ begin
       Set_Blocked_Signals (Mask1, Mask2);
       Set_Blocked_Signals (Mask2, Mask3);
       for Sig in Signal loop
-         Comment (Boolean'Image (Is_Reserved_Signal (Sig)) & ' ' & 
-                  Boolean'Image (Is_Member (Mask1, Sig)) & ' ' &
-                  Boolean'Image (Is_Member (Mask2, Sig)) & ' ' &
-                  Boolean'Image (Is_Member (Mask3, Sig)) & ' ' &
-                  Image (Sig));
+         Comment
+           (Boolean'Image (Is_Reserved_Signal (Sig))
+            & ' ' & Boolean'Image (Is_Member (Mask1, Sig))
+            & ' ' & Boolean'Image (Is_Member (Mask2, Sig))
+            & ' ' & Boolean'Image (Is_Member (Mask3, Sig))
+            & ' ' & Image (Sig));
+
          if not Is_Reserved_Signal (Sig) then
-            Assert (Is_Member (Mask1, Sig) = Is_Member (Mask3, Sig),
-              "A141: " & Image (Sig));
+            Assert
+              (Is_Member (Mask1, Sig) = Is_Member (Mask3, Sig),
+               "A141: " & Image (Sig));
          end if;
       end loop;
 
@@ -771,13 +773,15 @@ begin
 
          if Action_Cannot_Be_Set (Sig) then
             begin
-               if Is_Ignored (Sig) then null;
+               if Is_Ignored (Sig) then
+                  null;
                end if;
                Expect_Exception ("A145: " & Image (Sig));
             exception
-            when E1 : POSIX_Error =>
-               Assert (Get_Error_Code = Invalid_Argument,
-                 "A146: " & Image (Sig) & " " & Image (Get_Error_Code));
+               when E1 : POSIX_Error =>
+                  Assert
+                    (Get_Error_Code = Invalid_Argument,
+                     "A146: " & Image (Sig) & " " & Image (Get_Error_Code));
             end;
             begin
                Ignore_Signal (Sig);
@@ -981,8 +985,9 @@ begin
       end loop;
       for Sig in Signal loop
          begin
-            if not Action_Cannot_Be_Set (Sig) and then
-              not Fails_Blocking_Test (Sig) then
+            if not Action_Cannot_Be_Set (Sig)
+              and then not Fails_Blocking_Test (Sig)
+            then
                Test_Signal_2 (Sig);
             end if;
          exception
@@ -1076,7 +1081,7 @@ begin
    declare
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
-         Int_Data : constant Integer := 10;
+         Int_Data : constant Signal_Scalar := 10;
          Sig_E    : Signal_Event;
          Sig_D    : Signal_Data := +Int_Data;
          Sig_N    : Notification := Signal_Notification;
@@ -1103,7 +1108,7 @@ begin
    --  Standard.Integer, and POSIX_Timers.Timer_ID. [3.3.12]
 
    declare
-      I : Integer := 999;
+      I : Signal_Scalar := 999;
       A : System.Address := I'Address;
       S : Signal_Data;
    begin
@@ -1200,12 +1205,12 @@ begin
    Test ("Control Signal Queueing [3.3.14]");
 
    declare
-      N : constant Integer :=
-          POSIX_Limits.Portable_Queued_Signals_Maximum;
-      subtype Test_Range is Integer range 700 .. 700 + N - 1;
+      N : constant Signal_Scalar :=
+          Signal_Scalar (POSIX_Limits.Portable_Queued_Signals_Maximum);
+      subtype Test_Range is Signal_Scalar range 700 .. 700 + N - 1;
       procedure Test_Signal (Sig : Signal);
       procedure Test_Signal (Sig : Signal) is
-         Timeout : Duration := 2*DU;
+         Timeout : Duration := 2 * DU;
          Info : Signal_Info;
          Set : Signal_Set;
          Installed_Empty_Handler : Boolean := False;
@@ -1226,7 +1231,7 @@ begin
          end if;
          for I in Test_Range loop
                Comment ("Queue_Signal " & Image (Sig) & " :"
-                 & Integer'Image (I));
+                 & Signal_Scalar'Image (I));
                Queue_Signal (Get_Process_ID, Sig, +I);
          end loop;
 
@@ -1263,9 +1268,9 @@ begin
                  "A207: " & Image (Sig) & ' '
                  & Signal_Source'Image (Get_Source (Info)));
                Assert (Get_Data (Info) = +I, "A208: " & Image (Sig) & ' '
-                 & Integer'Image (+Get_Data (Info)));
+                 & Signal_Scalar'Image (+Get_Data (Info)));
                Comment ("Get_Data (Info) = "
-                 & Integer'Image (+Get_Data (Info)));
+                 & Signal_Scalar'Image (+Get_Data (Info)));
             end loop;
          exception
          when Local_Failure => null;
@@ -1279,7 +1284,7 @@ begin
          --  Either way, we should get at least one of the signals.
          for I in Test_Range loop
             Comment ("Queue_Signal " & Image (Sig) & " :"
-              & Integer'Image (I));
+              & Signal_Scalar'Image (I));
             Queue_Signal (Get_Process_ID, Sig, +I);
          end loop;
          for I in Test_Range loop
@@ -1291,7 +1296,7 @@ begin
                else
                   Info := Try_Await_Signal (Sig, Set, Timeout, Maybe, "A212");
                end if;
-               Comment ("received signal: " & Integer'Image (I));
+               Comment ("received signal: " & Signal_Scalar'Image (I));
                Assert (Get_Signal (Info) = Sig, "A213");
                Assert (Get_Source (Info) = From_Queue_Signal
                  or Get_Source (Info) = From_Timer, "A214");
@@ -1319,7 +1324,8 @@ begin
    begin
       for Sig in 1 .. Signal'Last loop
          if not Fails_Blocking_Test (Sig)
-           and then not (Default_Action (Sig) in Ignore .. Stop) then
+           and then Default_Action (Sig) not in Ignore .. Stop
+         then
             Test_Signal (Sig);
             --  Clear out any signals possibly left if test failed.
             Clear_Signal (Sig, "A218");
@@ -1330,10 +1336,11 @@ begin
          end if;
       end loop;
    exception
-   when E1 : POSIX_Error =>
-      Optional (Realtime_Signals_Option,
-        Operation_Not_Supported, E1, "A220");
-   when E2 : others => Unexpected_Exception (E2, "A221");
+      when E1 : POSIX_Error =>
+         Optional
+           (Realtime_Signals_Option, Operation_Not_Supported, E1, "A220");
+      when E2 : others =>
+         Unexpected_Exception (E2, "A221");
    end;
 
    Unblock_Signals (All_Signal_Mask, Old_Mask);
@@ -1454,12 +1461,14 @@ begin
          Send_Signal (Uninitialized_Process_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable process?");
       exception
-      when E1 : POSIX_Error =>
-         if Get_Error_Code = Operation_Not_Permitted then
-            Comment ("UNLIKELY: garbage ID is real process?");
-         else Check_Error_Code (No_Such_Process, "A241");
-         end if;
-      when E : others => Unexpected_Exception (E, "A242");
+         when E1 : POSIX_Error =>
+            if Get_Error_Code = Operation_Not_Permitted then
+               Comment ("UNLIKELY: garbage ID is real process?");
+            else
+               Check_Error_Code (No_Such_Process, "A241");
+            end if;
+         when E : others =>
+            Unexpected_Exception (E, "A242");
       end;
 
       --  This setup is not 100% reliable.  With finite probability,
@@ -1472,12 +1481,14 @@ begin
          Send_Signal (Uninitialized_Group_ID, Signal_Null);
          Comment ("UNLIKELY: garbage ID is killable group?");
       exception
-      when E1 : POSIX_Error =>
-         if Get_Error_Code = Operation_Not_Permitted then
-            Comment ("UNLIKELY: garbage ID is real group?");
-         else Check_Error_Code (No_Such_Process, "A243");
-         end if;
-      when E : others => Unexpected_Exception (E, "A244");
+         when E1 : POSIX_Error =>
+            if Get_Error_Code = Operation_Not_Permitted then
+               Comment ("UNLIKELY: garbage ID is real group?");
+            else
+               Check_Error_Code (No_Such_Process, "A243");
+            end if;
+         when E : others =>
+            Unexpected_Exception (E, "A244");
       end;
 
    exception

@@ -13,7 +13,7 @@ PAVT_VERSION=pavt-1.4.1
 # runtime system.
 GNATMAKEFLAGS1 = -I../libsrc -I../libsrc/threads -I../gensrc -aL../lib
 #
-GNATMAKEFLAGS2= -cargs -gnatay -gnatwue -largs -lflorist
+GNATMAKEFLAGS2= -cargs -gnatay -gnatwu -largs -lflorist
 GNATMAKEFLAGS2a= -cargs -largs -lflorist
 GNATPREPFLAGS = -c -r
 TOOLS =\
@@ -28,7 +28,7 @@ TEST_SOURCES = \
  posix_report.ads\
  posix_report.adb\
  test_parameters.ads\
- test_parameters.gpb\
+ test_parameters.adb\
  p020400.adb\
  p020400.ads\
  p021000.adb\
@@ -248,11 +248,7 @@ SPECIAL_TESTS=\
  p990090\
  p990011
 #
-.SUFFIXES: .gps .gpb .ads .adb .o .c
-.gps.ads:
-	gnatprep $< $@ ../gnatprep.config $(GNATPREPFLAGS)
-.gpb.adb:
-	gnatprep $< $@ ../gnatprep.config $(GNATPREPFLAGS)
+.SUFFIXES: .o .c
 .c.o:
 	gcc -c -g $<
 #
@@ -393,7 +389,7 @@ p990011:  p990011.ads p990011.adb\
   p990002c.ads p990002c.adb\
   p990003a.ads p990003a.adb
 testit: testit.adb
-test_parameters.adb: test_parameters.gpb
+
 $(TESTS) testit:  posix_report.ads posix_report.adb\
   ../lib/libflorist.a test_parameters.adb
 	gnatmake  $(GNATMAKEFLAGS1) $@ $(GNATMAKEFLAGS2)
