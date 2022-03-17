@@ -7,7 +7,7 @@
 --                                  S p e c                                 --
 --                                                                          --
 --             Copyright (C) 1996-1997 Florida State University             --
---                     Copyright (C) 1998-2010, AdaCore                     --
+--                     Copyright (C) 1998-2022, AdaCore                     --
 --                                                                          --
 --  This file is a component of FLORIST, an  implementation of an  Ada API  --
 --  for the POSIX OS services, for use with  the  GNAT  Ada  compiler  and  --
@@ -67,6 +67,9 @@ package POSIX.IO is
    File_Synchronized        : constant Open_Option_Set;
    Data_Synchronized        : constant Open_Option_Set;
    Read_Synchronized        : constant Open_Option_Set;
+   Close_On_Exec            : constant Open_Option_Set;
+   Directory                : constant Open_Option_Set;
+   No_Follow                : constant Open_Option_Set;
 
    --  Operations to open or close file descriptors
 
@@ -252,6 +255,12 @@ private
      := Open_Option_Set (Option_Set'(Option => POSIX.C.O_DSYNC));
    Read_Synchronized        : constant Open_Option_Set
      := Open_Option_Set (Option_Set'(Option => POSIX.C.O_RSYNC));
+   Close_On_Exec : constant Open_Option_Set
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_CLOEXEC));
+   Directory : constant Open_Option_Set
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_DIRECTORY));
+   No_Follow : constant Open_Option_Set
+     := Open_Option_Set (Option_Set'(Option => POSIX.C.O_NOFOLLOW));
 
    --  P1003.5c/D4 additions
 
