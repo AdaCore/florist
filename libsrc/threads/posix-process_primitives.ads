@@ -49,6 +49,8 @@ package POSIX.Process_Primitives is
 
    type Process_Template is limited private;
 
+   type Procedure_Access is access procedure;
+
    procedure Open_Template (Template : in out Process_Template);
 
    procedure Close_Template (Template : in out Process_Template);
@@ -88,7 +90,7 @@ package POSIX.Process_Primitives is
       Pathname         : POSIX.Pathname;
       Template         : Process_Template;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null);
+      On_Child_Failure : Procedure_Access  := null);
    --  On_Child_Failure, if not null, is an access to a procedure which is
    --  called when an error is detected inside the child during the child
    --  process's creation (e.g. a failure to "exec"). This function can then be
@@ -105,7 +107,7 @@ package POSIX.Process_Primitives is
       Template         : Process_Template;
       Env_List         : Process_Environment.Environment;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null);
+      On_Child_Failure : Procedure_Access  := null);
    --  On_Child_Failure: Same as in Start_Process procedure above.
 
    procedure Start_Process_Search
@@ -113,7 +115,7 @@ package POSIX.Process_Primitives is
       Filename         : POSIX.Filename;
       Template         : Process_Template;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null);
+      On_Child_Failure : Procedure_Access  := null);
    --  On_Child_Failure: Same as in Start_Process procedure above.
 
    procedure Start_Process_Search
@@ -122,7 +124,7 @@ package POSIX.Process_Primitives is
       Template         : Process_Template;
       Env_List         : Process_Environment.Environment;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null);
+      On_Child_Failure : Procedure_Access  := null);
    --  On_Child_Failure: Same as in Start_Process procedure above.
 
    --  Process Exit

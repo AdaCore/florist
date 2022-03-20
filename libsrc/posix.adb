@@ -488,8 +488,8 @@ package body POSIX is
    -------------------------
 
    procedure Print_Error_Message is
-      procedure perror (Ignore : System.Address := System.Null_Address)
-        with Import, Convention => C, External_Name => XTI.perror_LINKNAME;
+      procedure perror (Ignore : System.Address := System.Null_Address);
+      pragma Import (C, perror, XTI.perror_LINKNAME);
    begin
       if C.XTI.HAVE_perror then
          perror;
@@ -497,9 +497,10 @@ package body POSIX is
          declare
             Text : constant String := Image (Get_Error_Code) & ASCII.LF;
             procedure write
-              (fildes : int; buf : System.Address; nbyte  : size_t)
-              with Import, Convention => C, External_Name => C.write_LINKNAME;
-            --  Unable to use POSIX.IO because of cyclic dependencies
+              (fildes : int; buf : System.Address; nbyte  : size_t);
+            pragma Import (C, write, write_LINKNAME);
+            --  Unable to use Write and Standard_Error from POSIX.IO directly
+            --  because of cyclic dependencies.
          begin
             write (2, Text'Address, Text'Length);
          end;

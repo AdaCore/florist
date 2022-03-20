@@ -30,7 +30,7 @@ library project Florist is
 
    package Compiler is
 
-      Ada_Flags  := ("-O2", "-gnatp");
+      Ada_Flags  := ("-O2", "-gnatp", "-gnat95");
       GNAT_Flags := Ada_Flags & ("-gnatg");
 
       case Build is

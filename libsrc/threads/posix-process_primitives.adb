@@ -458,7 +458,7 @@ package body POSIX.Process_Primitives is
       Pathname         : POSIX.Pathname;
       Template         : Process_Template;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null)
+      On_Child_Failure : Procedure_Access  := null)
    is
       pid : pid_t;
       Result : int;
@@ -506,7 +506,7 @@ package body POSIX.Process_Primitives is
       Template         : Process_Template;
       Env_List         : Process_Environment.Environment;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null)
+      On_Child_Failure : Procedure_Access  := null)
    is
       pid : pid_t;
       Result : int;
@@ -549,7 +549,7 @@ package body POSIX.Process_Primitives is
       Filename         : POSIX.Filename;
       Template         : Process_Template;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null)
+      On_Child_Failure : Procedure_Access  := null)
    is
       pid : pid_t;
       Result : int;
@@ -587,7 +587,7 @@ package body POSIX.Process_Primitives is
       Template         : Process_Template;
       Env_List         : Process_Environment.Environment;
       Arg_List         : POSIX_String_List := Empty_String_List;
-      On_Child_Failure : access procedure  := null)
+      On_Child_Failure : Procedure_Access  := null)
    is
       pid : pid_t;
       Filename_With_NUL : POSIX_String := Filename & NUL;
