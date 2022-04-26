@@ -1,4 +1,5 @@
 FLORIST:
+========
 
 This directory contains the components of FLORIST, an
 implementation of the IEEE Standards 1003.5: 1992, IEEE STD
@@ -6,17 +7,37 @@ implementation of the IEEE Standards 1003.5: 1992, IEEE STD
 the POSIX Ada Bindings.
 
 NORMAL INSTALLATION:
+====================
 
 Follow the steps described in the INSTALL file.
 
 COMPILING YOUR PROGRAMS WITH FLORIST:
+=====================================
 
-To compile your own programs with Florist, you will need to
-add a "with florist" in your project file. florist.gpr can be found
-under prefix/lib/gnat is also sufficient.
+The recommended approach for linking your application with Florist
+is to import Florist's project from your application's project file
+using GPRbuild's project management features, by adding the following
+"with" statement:
 
-Alternatively, to use Florist without project files, you can also
-do something like:
+    with "florist.gpr".
 
-$ gnatmake -I/prefix/floristlib main -largs -lflorist
+See section 2.3.1 of the GPRbuild and GPR Companion Tools User's Guide
+for more information on how to configure gprbuild to find Florist's
+project file, or where to install florist so as to allow gprbuild to
+find it automatically.
 
+The Florist library's project file, florist.gpr, that should be used
+to import the project is found at:
+
+    <install-prefix>/share/gpr/florist.gpr
+
+Alternatively, to use Florist without GPRbuild's project management
+features, you will need to tell the compiler the location where
+florist is installed, and also tell the linker to link with florist;
+for example:
+
+    $ gnatmake -I/<install-prefix>/floristlib main -largs -lflorist
+
+Where <install-prefix> is the path supplied as the --prefix
+command line argument to the configure command in the INSTALL
+procedure or /usr/local when omitted.
