@@ -41,18 +41,18 @@ with POSIX.C,
      System,
      System.Secondary_Stack,
      System.Soft_Links,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Unsafe_Process_Primitives is
 
    use POSIX.C,
        POSIX.Implementation;
 
-   function To_Process_ID is new Unchecked_Conversion
+   function To_Process_ID is new Ada.Unchecked_Conversion
      (pid_t, POSIX.Process_Identification.Process_ID);
-   function To_String_List_Ptr is new Unchecked_Conversion
+   function To_String_List_Ptr is new Ada.Unchecked_Conversion
      (POSIX_String_List, String_List_Ptr);
-   function To_String_List_Ptr is new Unchecked_Conversion
+   function To_String_List_Ptr is new Ada.Unchecked_Conversion
      (POSIX.Process_Environment.Environment, String_List_Ptr);
 
    -------------------------

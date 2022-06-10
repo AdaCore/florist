@@ -55,7 +55,7 @@ with POSIX.Implementation,
      Interfaces.C_Streams,
      System.File_Control_Block,
      System.File_IO,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Supplement_to_Ada_IO is
 
@@ -109,7 +109,7 @@ package body POSIX.Supplement_to_Ada_IO is
 
    procedure Flush_Sequential_IO (File : File_Type) is
       function To_SFT is new
-        Unchecked_Conversion (File_Type, System_File_Type);
+        Ada.Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
       Ret : int;
@@ -123,7 +123,7 @@ package body POSIX.Supplement_to_Ada_IO is
 
    procedure Flush_Direct_IO (File : File_Type) is
       function To_SFT is new
-        Unchecked_Conversion (File_Type, System_File_Type);
+        Ada.Unchecked_Conversion (File_Type, System_File_Type);
 
       F   : System_File_Type;
       Ret : int;

@@ -38,7 +38,7 @@
 
 with POSIX.C,
      System.Interrupt_Management,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package POSIX.Implementation is
    pragma Elaborate_Body;
 
@@ -370,8 +370,8 @@ package POSIX.Implementation is
    NS_per_S : constant := 10#1#E9;
    MS_per_S : constant := 10#1#E6;
    type D_Int is mod 2 ** (Duration'Size);
-   function To_D_Int is new Unchecked_Conversion (Duration, D_Int);
-   function To_Duration is new Unchecked_Conversion (D_Int, Duration);
+   function To_D_Int is new Ada.Unchecked_Conversion (Duration, D_Int);
+   function To_Duration is new Ada.Unchecked_Conversion (D_Int, Duration);
    Duration_Delta_Assertion : constant :=
      Boolean'Pos (Boolean'Pred (Duration'Small = 0.000_000_001));
 

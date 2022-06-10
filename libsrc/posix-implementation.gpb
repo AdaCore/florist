@@ -228,7 +228,7 @@ package body POSIX.Implementation is
          subtype Substring is String (1 .. Integer (strlen (Str)));
          type Substring_Ptr is access Substring;
          pragma Warnings (Off);
-         function char_ptr_to_pssptr is new Unchecked_Conversion
+         function char_ptr_to_pssptr is new Ada.Unchecked_Conversion
            (char_ptr, Substring_Ptr);
          pragma Warnings (On);
       begin
@@ -254,7 +254,7 @@ package body POSIX.Implementation is
 
    type Big_POSIX_String_Ptr is access all POSIX_String (Positive'Range);
 
-   function From_Address is new Unchecked_Conversion
+   function From_Address is new Ada.Unchecked_Conversion
      (System.Address, Big_POSIX_String_Ptr);
 
    procedure Nulterminate

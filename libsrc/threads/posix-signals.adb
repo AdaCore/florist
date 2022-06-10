@@ -84,7 +84,7 @@ with POSIX.Implementation,
      System.Tasking,
      System.Interrupts,
      System.Task_Primitives.Operations,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Signals is
 
@@ -272,16 +272,17 @@ package body POSIX.Signals is
    --  Local Subprograms --
    ------------------------
 
-   function To_pid_t is new Unchecked_Conversion
+   function To_pid_t is new Ada.Unchecked_Conversion
      (POSIX.Process_Identification.Process_ID, pid_t);
-   function To_pid_t is new Unchecked_Conversion
+   function To_pid_t is new Ada.Unchecked_Conversion
      (POSIX.Process_Identification.Process_Group_ID, pid_t);
 
-   function Convert_Ids is new Unchecked_Conversion
+   function Convert_Ids is new Ada.Unchecked_Conversion
      (Ada.Task_Identification.Task_Id, System.Tasking.Task_Id);
 
-   function To_Signal_Data is new Unchecked_Conversion (sigval, Signal_Data);
-   function To_sigval is new Unchecked_Conversion (Signal_Data, sigval);
+   function To_Signal_Data is new Ada.Unchecked_Conversion
+     (sigval, Signal_Data);
+   function To_sigval is new Ada.Unchecked_Conversion (Signal_Data, sigval);
 
    function sigismember (set : sigset_t_ptr; sig : int) return int;
    pragma Import (C, sigismember, sigismember_LINKNAME);
