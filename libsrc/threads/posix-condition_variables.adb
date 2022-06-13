@@ -36,9 +36,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation;
-
-with Ada.Unchecked_Deallocation;
+with Ada.Unchecked_Deallocation,
+     POSIX.Implementation;
 
 package body POSIX.Condition_Variables is
 

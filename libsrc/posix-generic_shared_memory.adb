@@ -59,12 +59,12 @@
 --  In some cases we may be able to convince ourselves that no exception
 --  is possible, but there is still the possibility of Storage_Error.
 
-with POSIX.Implementation,
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
      POSIX.Memory_Range_Locking,
      POSIX.Shared_Memory_Objects,
      System,
-     System.Storage_Elements,
-     Ada.Unchecked_Conversion;
+     System.Storage_Elements;
 
 package body POSIX.Generic_Shared_Memory is
 

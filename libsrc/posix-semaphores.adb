@@ -36,9 +36,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation,
-     POSIX.Permissions.Implementation,
-     Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
+     POSIX.Permissions.Implementation;
 
 package body POSIX.Semaphores is
 

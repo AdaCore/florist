@@ -36,10 +36,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
+with Ada.Unchecked_Conversion,
+     POSIX.C,
      POSIX.Implementation,
-     POSIX.Permissions.Implementation,
-     Ada.Unchecked_Conversion;
+     POSIX.Permissions.Implementation;
 
 package body POSIX.Shared_Memory_Objects is
 

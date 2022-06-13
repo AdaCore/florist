@@ -36,10 +36,10 @@
 
 with Ada.Finalization,
      Ada.Streams,
+     Ada.Unchecked_Conversion,
      POSIX.C,
      POSIX.Implementation,
-     System,
-     Ada.Unchecked_Conversion;
+     System;
 package body Sockets.Unix is
 
    use POSIX,

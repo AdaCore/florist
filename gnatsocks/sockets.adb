@@ -36,11 +36,11 @@
 
 with Ada.Text_IO,
      Ada.Streams,
+     Ada.Unchecked_Conversion,
      POSIX,
      POSIX.C,
      POSIX.Implementation,
-     System,
-     Ada.Unchecked_Conversion;
+     System;
 package body Sockets is
 
    use Ada.Text_IO,

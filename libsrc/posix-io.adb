@@ -42,10 +42,11 @@
 --  of the system calls within them?  This would be a lot more overhead.
 
 with Ada.IO_Exceptions,
+     Ada.Unchecked_Conversion,
      System.Storage_Elements,
      POSIX.Implementation,
-     POSIX.Permissions.Implementation,
-     Ada.Unchecked_Conversion;
+     POSIX.Permissions.Implementation;
+
 package body POSIX.IO is
 
    use POSIX.C,

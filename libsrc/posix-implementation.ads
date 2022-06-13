@@ -36,9 +36,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
-     System.Interrupt_Management,
-     Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion,
+     POSIX.C,
+     System.Interrupt_Management;
+
 package POSIX.Implementation is
    pragma Elaborate_Body;
 

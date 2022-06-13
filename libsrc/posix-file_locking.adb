@@ -36,9 +36,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
-     POSIX.Implementation,
-     Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion,
+     POSIX.C,
+     POSIX.Implementation;
 
 package body POSIX.File_Locking is
 

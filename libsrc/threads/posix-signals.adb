@@ -80,11 +80,11 @@
 --  of adding other direct calls without careful analysis of how they
 --  might interact with what the GNAT runtime system is doing.
 
-with POSIX.Implementation,
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
      System.Tasking,
      System.Interrupts,
-     System.Task_Primitives.Operations,
-     Ada.Unchecked_Conversion;
+     System.Task_Primitives.Operations;
 
 package body POSIX.Signals is
 

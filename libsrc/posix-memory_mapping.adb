@@ -36,8 +36,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation,
-     Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation;
 
 package body POSIX.Memory_Mapping is
 

@@ -37,10 +37,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams,
+     Ada.Unchecked_Conversion,
      POSIX.Implementation,
      POSIX.Permissions.Implementation,
-     System,
-     Ada.Unchecked_Conversion;
+     System;
 
 package body POSIX.Message_Queues is
 

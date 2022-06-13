@@ -37,9 +37,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Command_Line,
+     Ada.Unchecked_Deallocation,
      POSIX.C,
-     POSIX.Implementation,
-     Ada.Unchecked_Deallocation;
+     POSIX.Implementation;
 
 package body POSIX.Process_Environment is
 

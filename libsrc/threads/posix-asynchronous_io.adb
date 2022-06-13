@@ -37,10 +37,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams,
-     System,
-     POSIX.Implementation,
      Ada.Unchecked_Conversion,
-     Ada.Unchecked_Deallocation;
+     Ada.Unchecked_Deallocation,
+     System,
+     POSIX.Implementation;
 
 package body POSIX.Asynchronous_IO is
 

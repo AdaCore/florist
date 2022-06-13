@@ -36,10 +36,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation,
-     POSIX.Unsafe_Process_Primitives,
-     Ada.Unchecked_Conversion,
-     Ada.Unchecked_Deallocation;
+with Ada.Unchecked_Conversion,
+     Ada.Unchecked_Deallocation,
+     POSIX.Implementation,
+     POSIX.Unsafe_Process_Primitives;
 
 package body POSIX.Process_Primitives is
 

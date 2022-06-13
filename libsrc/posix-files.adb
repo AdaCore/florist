@@ -36,10 +36,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation,
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
      POSIX.File_Status,
-     POSIX.Permissions.Implementation,
-     Ada.Unchecked_Conversion;
+     POSIX.Permissions.Implementation;
+
 package body POSIX.Files is
 
    use POSIX.C,

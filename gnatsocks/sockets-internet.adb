@@ -35,11 +35,11 @@
 --  [$Revision$]
 
 with Ada.Streams,
+     Ada.Unchecked_Conversion,
      POSIX,
      POSIX.C,
      POSIX.Implementation,
-     System,
-     Ada.Unchecked_Conversion;
+     System;
 package body Sockets.Internet is
 
    use POSIX,

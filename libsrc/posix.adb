@@ -35,11 +35,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
+with Ada.Unchecked_Conversion,
+     Ada.Unchecked_Deallocation,
+     POSIX.C,
      POSIX.Implementation,
-     System,
-     Ada.Unchecked_Conversion,
-     Ada.Unchecked_Deallocation;
+     System;
 
 pragma Elaborate (POSIX.C);
 pragma Elaborate (POSIX.Implementation);

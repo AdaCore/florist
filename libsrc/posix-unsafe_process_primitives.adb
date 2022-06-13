@@ -36,12 +36,12 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.C,
+with Ada.Unchecked_Conversion,
+     POSIX.C,
      POSIX.Implementation,
      System,
      System.Secondary_Stack,
-     System.Soft_Links,
-     Ada.Unchecked_Conversion;
+     System.Soft_Links;
 
 package body POSIX.Unsafe_Process_Primitives is
 

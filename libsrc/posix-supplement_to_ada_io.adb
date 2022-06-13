@@ -51,11 +51,11 @@
 --  The modifications we need to make to those packages will
 --  need coordination with ACT.
 
-with POSIX.Implementation,
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
      Interfaces.C_Streams,
      System.File_Control_Block,
-     System.File_IO,
-     Ada.Unchecked_Conversion;
+     System.File_IO;
 
 package body POSIX.Supplement_to_Ada_IO is
 

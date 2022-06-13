@@ -36,9 +36,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with POSIX.Implementation,
-     POSIX.Process_Identification,
-     Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion,
+     POSIX.Implementation,
+     POSIX.Process_Identification;
 
 package body POSIX.Process_Scheduling is
 
