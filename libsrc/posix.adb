@@ -38,8 +38,8 @@
 with POSIX.C,
      POSIX.Implementation,
      System,
-     Unchecked_Conversion,
-     Unchecked_Deallocation;
+     Ada.Unchecked_Conversion,
+     Ada.Unchecked_Deallocation;
 
 pragma Elaborate (POSIX.C);
 pragma Elaborate (POSIX.Implementation);
@@ -60,9 +60,9 @@ package body POSIX is
    type Big_Stream_Element_Array_Ptr is access all
      Stream_Element_Array (Stream_Element_Offset);
 
-   function From_Address is new Unchecked_Conversion
+   function From_Address is new Ada.Unchecked_Conversion
      (System.Address, Big_POSIX_String_Ptr);
-   function From_Address is new Unchecked_Conversion
+   function From_Address is new Ada.Unchecked_Conversion
      (System.Address, Big_Stream_Element_Array_Ptr);
 
    -----------------------
@@ -247,10 +247,10 @@ package body POSIX is
    ------------------
 
    procedure Free is
-     new Unchecked_Deallocation (POSIX_String, POSIX_String_Ptr);
+     new Ada.Unchecked_Deallocation (POSIX_String, POSIX_String_Ptr);
 
    procedure Free is
-     new Unchecked_Deallocation (String_List, POSIX_String_List);
+     new Ada.Unchecked_Deallocation (String_List, POSIX_String_List);
 
    procedure Make_Empty (List : in out POSIX_String_List) is
    begin

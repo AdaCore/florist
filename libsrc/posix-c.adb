@@ -73,7 +73,7 @@ package body POSIX.C is
            (1 .. Integer (strlen (Str)));
          type POSIX_Substring_Ptr is access POSIX_Substring;
          pragma Warnings (Off);
-         function char_ptr_to_pssptr is new Unchecked_Conversion
+         function char_ptr_to_pssptr is new Ada.Unchecked_Conversion
            (char_ptr, POSIX_Substring_Ptr);
          pragma Warnings (On);
       begin

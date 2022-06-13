@@ -37,18 +37,18 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.User_Database is
 
    use POSIX.C;
    use POSIX.Implementation;
 
-   function To_uid_t is new Unchecked_Conversion
+   function To_uid_t is new Ada.Unchecked_Conversion
       (POSIX_Process_Identification.User_ID, uid_t);
-   function To_User_ID is new Unchecked_Conversion
+   function To_User_ID is new Ada.Unchecked_Conversion
       (uid_t, POSIX_Process_Identification.User_ID);
-   function To_Group_ID is new Unchecked_Conversion
+   function To_Group_ID is new Ada.Unchecked_Conversion
       (gid_t, POSIX_Process_Identification.Group_ID);
 
    --------------------

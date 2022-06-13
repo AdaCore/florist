@@ -34,22 +34,22 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Calendar;
+with Ada.Calendar;
 package POSIX.Calendar is
 
    --  Time information
 
    type POSIX_Time is private;
    function Clock return POSIX_Time;
-   function To_Time (Date : POSIX_Time) return Standard.Calendar.Time;
-   function To_POSIX_Time (Date : Standard.Calendar.Time) return POSIX_Time;
+   function To_Time (Date : POSIX_Time) return Ada.Calendar.Time;
+   function To_POSIX_Time (Date : Ada.Calendar.Time) return POSIX_Time;
 
    --  operations on POSIX_Time
 
-   subtype Year_Number    is Standard.Calendar.Year_Number;
-   subtype Month_Number   is Standard.Calendar.Month_Number;
-   subtype Day_Number     is Standard.Calendar.Day_Number;
-   subtype Day_Duration   is Standard.Calendar.Day_Duration;
+   subtype Year_Number  is Ada.Calendar.Year_Number;
+   subtype Month_Number is Ada.Calendar.Month_Number;
+   subtype Day_Number   is Ada.Calendar.Day_Number;
+   subtype Day_Duration is Ada.Calendar.Day_Duration;
    function Year (Date : POSIX_Time) return Year_Number;
    function Month (Date : POSIX_Time) return Month_Number;
    function Day (Date : POSIX_Time) return Day_Number;
@@ -74,11 +74,11 @@ package POSIX.Calendar is
    function ">"  (L, R : POSIX_Time) return Boolean;
    function ">=" (L, R : POSIX_Time) return Boolean;
 
-   Time_Error : exception renames Standard.Calendar.Time_Error;
+   Time_Error : exception renames Ada.Calendar.Time_Error;
 
    function To_POSIX_Time (Date : POSIX.Timespec) return POSIX_Time;
    function To_Timespec (Date : POSIX_Time) return POSIX.Timespec;
 
 private
-   type POSIX_Time is new Standard.Calendar.Time;
+   type POSIX_Time is new Ada.Calendar.Time;
 end POSIX.Calendar;

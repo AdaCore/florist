@@ -45,15 +45,15 @@ with Ada.IO_Exceptions,
      System.Storage_Elements,
      POSIX.Implementation,
      POSIX.Permissions.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package body POSIX.IO is
 
    use POSIX.C,
        POSIX.Implementation,
        POSIX.Permissions.Implementation;
 
-   function To_int is new Unchecked_Conversion (Bits, int);
-   function To_Bits is new Unchecked_Conversion (int, Bits);
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
+   function To_Bits is new Ada.Unchecked_Conversion (int, Bits);
 
    C_File_Mode : constant array (File_Mode) of Bits :=
      (Read_Only  => O_RDONLY,

@@ -37,15 +37,15 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Timers is
 
    use POSIX.C;
    use POSIX.Implementation;
 
-   function To_int is new Unchecked_Conversion (Bits, int);
-   function To_Struct_Sigevent is new Unchecked_Conversion
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
+   function To_Struct_Sigevent is new Ada.Unchecked_Conversion
      (POSIX.Signals.Signal_Event, POSIX.C.struct_sigevent);
 
    Zero_Timespec : aliased constant struct_timespec := (0, 0);

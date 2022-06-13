@@ -38,7 +38,7 @@
 
 with POSIX.Implementation,
      POSIX.Permissions.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Semaphores is
 
@@ -46,9 +46,9 @@ package body POSIX.Semaphores is
        POSIX.Implementation,
        POSIX.Permissions.Implementation;
 
-   function To_int is new Unchecked_Conversion (Bits, int);
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
    function To_int is
-     new Unchecked_Conversion (Semaphore_Descriptor, ptr_as_int);
+     new Ada.Unchecked_Conversion (Semaphore_Descriptor, ptr_as_int);
 
    procedure Check_And_Restore_Signals
      (Result : Semaphore_Descriptor;

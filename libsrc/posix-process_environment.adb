@@ -39,7 +39,7 @@
 with Ada.Command_Line,
      POSIX.C,
      POSIX.Implementation,
-     Unchecked_Deallocation;
+     Ada.Unchecked_Deallocation;
 
 package body POSIX.Process_Environment is
 
@@ -51,11 +51,11 @@ package body POSIX.Process_Environment is
    type var_char_ptr_ptr is access all char_ptr;
    pragma Warnings (Off);
    function To_Variable is
-      new Unchecked_Conversion (char_ptr_ptr, var_char_ptr_ptr);
+      new Ada.Unchecked_Conversion (char_ptr_ptr, var_char_ptr_ptr);
    pragma Warnings (On);
 
    procedure Free is
-     new Unchecked_Deallocation (POSIX_String, POSIX_String_Ptr);
+     new Ada.Unchecked_Deallocation (POSIX_String, POSIX_String_Ptr);
 
    ---------------------------------------
    --  Interfaced C String Subprograms  --

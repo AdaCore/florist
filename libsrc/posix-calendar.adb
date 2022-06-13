@@ -40,13 +40,13 @@
 --  POSIX.Files.Set_File_Times, but this seems obsolete now with modern
 --  file systems, and having a fine grain precision is more important anyway.
 
-with Unchecked_Conversion;
+with Ada.Unchecked_Conversion;
 
 package body POSIX.Calendar is
 
-   package AC renames Standard.Calendar;
+   package AC renames Ada.Calendar;
 
-   use Standard.Calendar;
+   use Ada.Calendar;
 
    POSIX_Epoch : constant Duration :=
      AC.Time_Of (Year => 2150, Month => 1, Day => 1) -
@@ -59,10 +59,10 @@ package body POSIX.Calendar is
    --  change between GNAT versions.
 
    function Duration_To_POSIX_Time is new
-     Unchecked_Conversion (Duration, POSIX_Time);
+     Ada.Unchecked_Conversion (Duration, POSIX_Time);
 
    function POSIX_Time_To_Duration is new
-     Unchecked_Conversion (POSIX_Time, Duration);
+     Ada.Unchecked_Conversion (POSIX_Time, Duration);
 
    pragma Warnings (On);
 

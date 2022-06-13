@@ -64,7 +64,7 @@ with POSIX.Implementation,
      POSIX.Shared_Memory_Objects,
      System,
      System.Storage_Elements,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Generic_Shared_Memory is
 
@@ -76,7 +76,7 @@ package body POSIX.Generic_Shared_Memory is
      Object_Type'Max_Size_In_Storage_Elements;
    type Private_Ptr is access all Object_Type;
    function To_Shared_Access is
-     new Unchecked_Conversion (Private_Ptr, Shared_Access);
+     new Ada.Unchecked_Conversion (Private_Ptr, Shared_Access);
 
    --  One instantiation of this package can be used to open
    --  several shared memory objects, with different file descriptors.

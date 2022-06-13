@@ -264,7 +264,7 @@ void (*DUMMYFPTR) ();
    generate an unchecked conversion FUNC from FROM to TO.
  */
 #define gen_unchckd_conv(FUNC,FROM,TO)\
- ifprintf(fp, "   function %s is new Unchecked_Conversion (%s, %s);\n",\
+ ifprintf(fp, "   function %s is new Ada.Unchecked_Conversion (%s, %s);\n",\
           FUNC, FROM, TO);
 
 /* gen_renaming
@@ -4331,7 +4331,7 @@ void create_c() {
 
   gheader("POSIX.C", FSU_Header);
   ifprintf(fp,"with System; use System;\n");
-  ifprintf(fp,"with Unchecked_Conversion;\n");
+  ifprintf(fp,"with Ada.Unchecked_Conversion;\n");
   ifprintf(fp,"package POSIX.C is\n");
   ifprintf(fp,"   pragma Elaborate_Body;\n");
 

@@ -38,7 +38,7 @@
 
 with POSIX.Implementation,
      POSIX.Permissions.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.File_Status is
 
@@ -48,16 +48,16 @@ package body POSIX.File_Status is
    use POSIX.Permissions.Implementation;
 
    function To_User_ID is
-    new Unchecked_Conversion (uid_t, POSIX.Process_Identification.User_ID);
+    new Ada.Unchecked_Conversion (uid_t, POSIX.Process_Identification.User_ID);
 
-   function To_Group_ID is
-     new Unchecked_Conversion (gid_t, POSIX.Process_Identification.Group_ID);
+   function To_Group_ID is new Ada.Unchecked_Conversion
+     (gid_t, POSIX.Process_Identification.Group_ID);
 
    pragma Warnings (Off);
    --  Disable warning that the representation of Time values may
    --  change between GNAT versions.
 
-   function Duration_To_POSIX_Time is new Unchecked_Conversion
+   function Duration_To_POSIX_Time is new Ada.Unchecked_Conversion
      (Duration, POSIX_Time);
 
    pragma Warnings (On);

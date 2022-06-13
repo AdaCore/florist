@@ -38,7 +38,7 @@
 
 with POSIX.Implementation,
      POSIX.Process_Identification,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Process_Scheduling is
 
@@ -75,8 +75,8 @@ package body POSIX.Process_Scheduling is
       param : sched_param_ptr) return int;
    pragma Import (C, sched_setparam, sched_setparam_LINKNAME);
 
-   function To_pid_t is
-     new Unchecked_Conversion (POSIX.Process_Identification.Process_ID, pid_t);
+   function To_pid_t is new Ada.Unchecked_Conversion
+     (POSIX.Process_Identification.Process_ID, pid_t);
 
    procedure Set_Scheduling_Parameters
      (Process    : POSIX_Process_Identification.Process_ID;

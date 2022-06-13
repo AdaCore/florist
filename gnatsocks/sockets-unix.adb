@@ -39,7 +39,7 @@ with Ada.Finalization,
      POSIX.C,
      POSIX.Implementation,
      System,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package body Sockets.Unix is
 
    use POSIX,
@@ -55,9 +55,9 @@ package body Sockets.Unix is
       pragma Import (C, getsockname, getsockname_LINKNAME);
    --  returns the current name for a socket
 
-   function "+" is new Unchecked_Conversion
+   function "+" is new Ada.Unchecked_Conversion
      (sockaddr_un_ptr, sockaddr_var_ptr);
-   function "+" is new Unchecked_Conversion
+   function "+" is new Ada.Unchecked_Conversion
      (sockaddr_un_ptr, sockaddr_ptr);
 
    function Get_Address
@@ -75,7 +75,7 @@ package body Sockets.Unix is
    type String_Ptr is access all String;
    function New_Address (Path : String) return Unix_Socket_Address is
       addr : struct_sockaddr_un;
-      function sptr_to_psptr is new Unchecked_Conversion
+      function sptr_to_psptr is new Ada.Unchecked_Conversion
          (String_Ptr, POSIX_String_Ptr);
    begin
       if Path'Length > addr.sun_path'Length - 1 then

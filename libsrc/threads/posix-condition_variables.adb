@@ -38,7 +38,7 @@
 
 with POSIX.Implementation;
 
-with Unchecked_Deallocation;
+with Ada.Unchecked_Deallocation;
 
 package body POSIX.Condition_Variables is
 
@@ -46,10 +46,10 @@ package body POSIX.Condition_Variables is
    use POSIX.Implementation;
 
    procedure Free is new
-     Unchecked_Deallocation (pthread_condattr_t, Attributes_Descriptor);
+     Ada.Unchecked_Deallocation (pthread_condattr_t, Attributes_Descriptor);
 
    procedure Free is new
-     Unchecked_Deallocation (pthread_cond_t, Condition_Descriptor);
+     Ada.Unchecked_Deallocation (pthread_cond_t, Condition_Descriptor);
 
    ----------------
    -- Initialize --

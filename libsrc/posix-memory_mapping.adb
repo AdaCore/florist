@@ -37,7 +37,7 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Memory_Mapping is
 
@@ -45,7 +45,7 @@ package body POSIX.Memory_Mapping is
    use System;
 
    function To_Address is
-     new Unchecked_Conversion (ptr_as_int, System.Address);
+     new Ada.Unchecked_Conversion (ptr_as_int, System.Address);
 
    Zero_Address : constant System.Address := To_Address (0);
    Failure      : constant System.Address := To_Address (MAP_FAILED);

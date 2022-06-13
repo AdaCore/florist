@@ -37,7 +37,7 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Terminal_Functions is
 
@@ -615,7 +615,7 @@ package body POSIX.Terminal_Functions is
    function tcgetpgrp (fd : int) return pid_t;
    pragma Import (C, tcgetpgrp, tcgetpgrp_LINKNAME);
 
-   function To_Process_Group_ID is new Unchecked_Conversion
+   function To_Process_Group_ID is new Ada.Unchecked_Conversion
      (pid_t, POSIX.Process_Identification.Process_Group_ID);
 
    function Get_Process_Group_ID
@@ -637,7 +637,7 @@ package body POSIX.Terminal_Functions is
    function tcsetpgrp (fd : int; pgrp : pid_t) return int;
    pragma Import (C, tcsetpgrp, tcsetpgrp_LINKNAME);
 
-   function To_pid_t is new Unchecked_Conversion
+   function To_pid_t is new Ada.Unchecked_Conversion
      (POSIX.Process_Identification.Process_Group_ID, pid_t);
 
    procedure Set_Process_Group_ID

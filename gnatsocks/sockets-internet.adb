@@ -39,7 +39,7 @@ with Ada.Streams,
      POSIX.C,
      POSIX.Implementation,
      System,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package body Sockets.Internet is
 
    use POSIX,
@@ -153,7 +153,7 @@ package body Sockets.Internet is
       return Left.C.s_addr = Right.C.s_addr;
    end "=";
 
-   function cptr_to_sia is new Unchecked_Conversion
+   function cptr_to_sia is new Ada.Unchecked_Conversion
      (char_ptr, in_addr_ptr);
 
    function Get_AddrByName (Host : String) return Internet_Address is
@@ -178,7 +178,7 @@ package body Sockets.Internet is
       buffer : POSIX_String (1 .. 1024);
       error_code : aliased int;
       p : hostent_ptr;
-      function "+" is new Unchecked_Conversion
+      function "+" is new Ada.Unchecked_Conversion
         (in_addr_ptr, char_ptr);
    begin
       p := gethostbyaddr_r
@@ -194,7 +194,7 @@ package body Sockets.Internet is
    end Get_HostByAddr;
 
    function Local_Host return Internet_Address is
-      function "+" is new Unchecked_Conversion
+      function "+" is new Ada.Unchecked_Conversion
         (System.Address, char_var_ptr);
    begin
       if Local_Hostname (Local_Hostname'First) = Character'Val (0) then
@@ -252,7 +252,7 @@ package body Sockets.Internet is
      (Sock : in Socket'Class) return Internet_Socket_Address is
       addr : aliased struct_sockaddr_in;
       addrlen : aliased int := addr'Size / char'Size;
-      function "+" is new Unchecked_Conversion
+      function "+" is new Ada.Unchecked_Conversion
         (sockaddr_in_var_ptr, sockaddr_var_ptr);
    begin
       Check (getsockname (Sock.fd, +addr'Unchecked_Access,
@@ -308,7 +308,7 @@ package body Sockets.Internet is
      (Sock : Stream_Socket) return Internet_Socket_Address is
       addr : aliased struct_sockaddr_in;
       addrlen : aliased int := addr'Size / char'Size;
-      function "+" is new Unchecked_Conversion
+      function "+" is new Ada.Unchecked_Conversion
         (sockaddr_in_var_ptr, sockaddr_var_ptr);
    begin
       Check (getpeername
@@ -321,7 +321,7 @@ package body Sockets.Internet is
 
    function Address
      (Addr : Internet_Socket_Address) return sockaddr_ptr is
-      function "+" is new Unchecked_Conversion
+      function "+" is new Ada.Unchecked_Conversion
         (sockaddr_in_ptr, sockaddr_ptr);
    begin
       return +Addr.in_addr'Unchecked_Access;

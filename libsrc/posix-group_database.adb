@@ -37,16 +37,16 @@
 ------------------------------------------------------------------------------
 
 with POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Group_Database is
 
    use POSIX.C,
        POSIX.Implementation;
 
-   function To_gid is new Unchecked_Conversion
+   function To_gid is new Ada.Unchecked_Conversion
       (POSIX.Process_Identification.Group_ID, gid_t);
-   function To_Group_ID is new Unchecked_Conversion
+   function To_Group_ID is new Ada.Unchecked_Conversion
       (gid_t, POSIX.Process_Identification.Group_ID);
 
    --  Operations to get information from a Group_Database_Item

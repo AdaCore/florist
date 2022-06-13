@@ -38,8 +38,8 @@
 
 with POSIX.Implementation,
      POSIX.Unsafe_Process_Primitives,
-     Unchecked_Conversion,
-     Unchecked_Deallocation;
+     Ada.Unchecked_Conversion,
+     Ada.Unchecked_Deallocation;
 
 package body POSIX.Process_Primitives is
 
@@ -57,23 +57,23 @@ package body POSIX.Process_Primitives is
    --  Unchecked Conversions  --
    -----------------------------
 
-   function To_int is new Unchecked_Conversion (Bits, int);
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
 
    function To_String_List_Ptr is
-     new Unchecked_Conversion (POSIX_String_List, String_List_Ptr);
+     new Ada.Unchecked_Conversion (POSIX_String_List, String_List_Ptr);
    function To_String_List_Ptr is
-     new Unchecked_Conversion
+     new Ada.Unchecked_Conversion
      (POSIX.Process_Environment.Environment, String_List_Ptr);
 
    function To_Process_ID is new
-      Unchecked_Conversion (pid_t, Process_ID);
+      Ada.Unchecked_Conversion (pid_t, Process_ID);
    function To_pid_t is new
-      Unchecked_Conversion (Process_Group_ID, pid_t);
+      Ada.Unchecked_Conversion (Process_Group_ID, pid_t);
    function To_pid_t is new
-      Unchecked_Conversion (Process_ID, pid_t);
+      Ada.Unchecked_Conversion (Process_ID, pid_t);
 
    procedure Free is new
-      Unchecked_Deallocation (FD_Set_Element, FD_Set_Ptr);
+      Ada.Unchecked_Deallocation (FD_Set_Element, FD_Set_Ptr);
 
    -------------------------
    --  Local Subprograms  --

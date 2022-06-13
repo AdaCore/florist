@@ -38,15 +38,15 @@
 
 with POSIX.C,
      POSIX.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.File_Locking is
 
    use POSIX.C,
        POSIX.Implementation;
 
-   function To_Process_ID is
-     new Unchecked_Conversion (pid_t, POSIX.Process_Identification.Process_ID);
+   function To_Process_ID is new Ada.Unchecked_Conversion
+     (pid_t, POSIX.Process_Identification.Process_ID);
 
    C_Lock_Type : constant array (Lock_Kind) of short :=
      (Read_Lock => F_RDLCK,

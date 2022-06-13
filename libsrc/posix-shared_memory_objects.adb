@@ -39,7 +39,7 @@
 with POSIX.C,
      POSIX.Implementation,
      POSIX.Permissions.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Shared_Memory_Objects is
 
@@ -47,7 +47,7 @@ package body POSIX.Shared_Memory_Objects is
    use POSIX.Implementation;
    use POSIX.Permissions.Implementation;
 
-   function To_int is new Unchecked_Conversion (Bits, int);
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
 
    C_File_Mode : constant array (POSIX.IO.File_Mode) of Bits :=
      (POSIX.IO.Read_Only  => O_RDONLY,

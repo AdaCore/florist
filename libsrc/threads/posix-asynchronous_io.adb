@@ -39,8 +39,8 @@
 with Ada.Streams,
      System,
      POSIX.Implementation,
-     Unchecked_Conversion,
-     Unchecked_Deallocation;
+     Ada.Unchecked_Conversion,
+     Ada.Unchecked_Deallocation;
 
 package body POSIX.Asynchronous_IO is
 
@@ -63,7 +63,7 @@ package body POSIX.Asynchronous_IO is
    function aio_error (AD : AIO_Descriptor) return Error_Code;
    pragma Import (C, aio_error, aio_error_LINKNAME);
    procedure Free is
-     new Unchecked_Deallocation (Aiocb_Wrapper, AIO_Descriptor);
+     new Ada.Unchecked_Deallocation (Aiocb_Wrapper, AIO_Descriptor);
 
    --  ????? Change POSIX.5b?
    --  This operation is very difficult to use correctly, since
@@ -200,8 +200,8 @@ package body POSIX.Asynchronous_IO is
    --  Get_Event  --
    -----------------
 
-   function To_Signal_Event is
-     new Unchecked_Conversion (struct_sigevent, POSIX.Signals.Signal_Event);
+   function To_Signal_Event is new Ada.Unchecked_Conversion
+     (struct_sigevent, POSIX.Signals.Signal_Event);
 
    function Get_Event (AD : AIO_Descriptor)
      return POSIX.Signals.Signal_Event is
@@ -214,8 +214,8 @@ package body POSIX.Asynchronous_IO is
    --  Set_Event  --
    -----------------
 
-   function To_struct_sigevent is
-     new Unchecked_Conversion (POSIX.Signals.Signal_Event, struct_sigevent);
+   function To_struct_sigevent is new Ada.Unchecked_Conversion
+     (POSIX.Signals.Signal_Event, struct_sigevent);
 
    procedure Set_Event
      (AD    : AIO_Descriptor;

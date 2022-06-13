@@ -39,7 +39,7 @@
 with POSIX.Implementation,
      POSIX.File_Status,
      POSIX.Permissions.Implementation,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package body POSIX.Files is
 
    use POSIX.C,
@@ -54,7 +54,7 @@ package body POSIX.Files is
    --  change between GNAT versions.
 
    function To_D_Int is
-     new Unchecked_Conversion (POSIX.Calendar.POSIX_Time, D_Int);
+     new Ada.Unchecked_Conversion (POSIX.Calendar.POSIX_Time, D_Int);
 
    function To_time_t (Time : POSIX.Calendar.POSIX_Time) return time_t;
 
@@ -380,9 +380,9 @@ package body POSIX.Files is
       group : gid_t) return int;
    pragma Import (C, chown, chown_LINKNAME);
 
-   function To_uid_t is new Unchecked_Conversion
+   function To_uid_t is new Ada.Unchecked_Conversion
      (POSIX.Process_Identification.User_ID, uid_t);
-   function To_gid_t is new Unchecked_Conversion
+   function To_gid_t is new Ada.Unchecked_Conversion
      (POSIX.Process_Identification.Group_ID, gid_t);
 
    procedure Change_Owner_And_Group

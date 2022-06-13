@@ -46,7 +46,7 @@
    --  do, at best finalization will not work correctly. At worst, you
    --  will crash the entire process.
 
-   --  2) DO NOT instantiate and use Unchecked_Deallocation for the type
+   --  2) DO NOT instantiate and use Ada.Unchecked_Deallocation for the type
    --  Shared_Access belonging to an instantiation of this package.  If
    --  you do, you are likely to end up corrupting the heap, and possibly
    --  crashing the entire process.

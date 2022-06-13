@@ -40,7 +40,7 @@ with Ada.Streams,
      POSIX.Implementation,
      POSIX.Permissions.Implementation,
      System,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 
 package body POSIX.Message_Queues is
 
@@ -49,8 +49,8 @@ package body POSIX.Message_Queues is
    use POSIX.Implementation;
    use POSIX.Permissions.Implementation;
 
-   function To_int is new Unchecked_Conversion (Bits, int);
-   function To_Bits is new Unchecked_Conversion (int, Bits);
+   function To_int is new Ada.Unchecked_Conversion (Bits, int);
+   function To_Bits is new Ada.Unchecked_Conversion (int, Bits);
    C_File_Mode : constant array (POSIX.IO.File_Mode) of Bits :=
      (POSIX.IO.Read_Only  => O_RDONLY,
       POSIX.IO.Write_Only => O_WRONLY,
@@ -344,7 +344,7 @@ package body POSIX.Message_Queues is
 
       type Message_Ptr is access all Message_Type;
       function To_Message_Ptr is
-        new Unchecked_Conversion (System.Address, Message_Ptr);
+        new Ada.Unchecked_Conversion (System.Address, Message_Ptr);
 
       procedure Receive
         (MQ             : Message_Queue_Descriptor;

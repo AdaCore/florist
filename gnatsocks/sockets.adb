@@ -40,7 +40,7 @@ with Ada.Text_IO,
      POSIX.C,
      POSIX.Implementation,
      System,
-     Unchecked_Conversion;
+     Ada.Unchecked_Conversion;
 package body Sockets is
 
    use Ada.Text_IO,
@@ -217,7 +217,7 @@ package body Sockets is
       use type Ada.Streams.Stream_Element_Offset;
       Tmp : ssize_t;
       function "+" is new
-        Unchecked_Conversion (System.Address, char_ptr);
+        Ada.Unchecked_Conversion (System.Address, char_ptr);
    begin
       Tmp := read (Stream.sock.fd, Item'Address, size_t (Item'Length));
       Check (int (Tmp));
@@ -243,7 +243,7 @@ package body Sockets is
       (Stream : in out Output_Stream;
        Item   : in Ada.Streams.Stream_Element_Array) is
       function "+" is new
-        Unchecked_Conversion (System.Address, char_ptr);
+        Ada.Unchecked_Conversion (System.Address, char_ptr);
    begin
       Check (int (write (Stream.sock.fd, +Item'Address,
         size_t (Item'Length))));
