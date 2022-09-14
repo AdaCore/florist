@@ -6,7 +6,6 @@
 .POSIX:
 
 VERSION=7.3.0w
-FLORIST_VERSION=$(VERSION)
 GNATPREPFLAGS = -c -r
 GCCFLAGS = -O2
 TARGET=@host_alias@
@@ -20,13 +19,9 @@ ifeq ($(TARGET),powerpc-elinos-linux)
 TARGET_RUNNER=run-cross --target=ppc-elinos,5.1,qemu
 endif
 
-# How to invoke ranlib.
-RANLIB = ranlib
-
 # configure substitutions
 CC = @CC@
 LIBS = @LIBS@
-DEPS = @DEPS@
 SIGNALS_GENERATED = @SIGNALS_GENERATED@
 PREFIX = @prefix@
 ENABLE_SHARED = @ENABLE_SHARED@
