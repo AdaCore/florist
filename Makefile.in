@@ -8,7 +8,10 @@
 VERSION=7.3.0w
 FLORIST_VERSION=$(VERSION)
 GNATPREPFLAGS = -c -r
-GCCFLAGS = -O2
+ADAFLAGS = @ADAFLAGS@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
 TARGET=@host_alias@
 
 ifneq ($(TARGET),)
@@ -32,13 +35,17 @@ PREFIX = @prefix@
 ENABLE_SHARED = @ENABLE_SHARED@
 
 PROJECT_FLAGS = @BUILD_TYPE_OPTION@ @THREADS_OPTION@ @RTS_OPTION@ \
+                $(foreach v,ADAFLAGS CFLAGS CPPFLAGS LDFLAGS LIBS\
+                           ,'-X$(v)=$($(v))') \
                 $(TARGET_OPTION)
 # Scenario variables and RTS selection must be passed consistently to
 # project-aware tools gprbuild, gprinstall, and gprclean.
+# *FLAGS usually only influence gprbuild, but stay on the safe side.
+# For example gprinstall may copy LIBS into the installed project.
 
 GNATPREP = $(TARGET_PREFIX)gnatprep
 GPRBUILD = gprbuild
-GPRBUILD_FLAGS = $(GCCFLAGS) $(PROJECT_FLAGS)
+GPRBUILD_FLAGS = $(PROJECT_FLAGS)
 
 GENDIR = gensrc
 GENDIR_ON_TARGET=$(GENDIR)
@@ -108,12 +115,12 @@ configure: configure.in aclocal.m4
 # If you are unlucky, it will require fixes to c-posix.c.
 #
 c-posix: c-posix.c confsrc/config.h confsrc/pconfig.h
-	$(CC) $(GCCFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -DGENDIR="\"$(GENDIR_ON_TARGET)\"" -o c-posix c-posix.c $(LIBS)
+	$(CC) -O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -DVERSION="\"$(VERSION)\"" -DLIBS="\"$(LIBS)\"" -DGENDIR="\"$(GENDIR_ON_TARGET)\"" -o c-posix c-posix.c $(LIBS)
 #
 # Program c-posix-signals generates another Ada package spec.
 #
 c-posix-signals: c-posix-signals.c
-	$(CC) $(GCCFLAGS) -DGENDIR="\"$(GENDIR_ON_TARGET)\"" -o c-posix-signals c-posix-signals.c $(LIBS)
+	$(CC) -O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -DGENDIR="\"$(GENDIR_ON_TARGET)\"" -o c-posix-signals c-posix-signals.c $(LIBS)
 #
 # generate Ada source files using "c-posix" program
 #
@@ -140,7 +147,7 @@ $(GENDIR)/%.ads: libsrc/%.gps gnatprep.config
 $(GENDIR)/%.adb: libsrc/%.gpb gnatprep.config
 	mkdir -p `dirname $@` && $(GNATPREP) $< $@ gnatprep.config $(GNATPREPFLAGS)
 .c.o:
-	$(CC) -c $(GCCFLAGS) $<
+	$(CC) -c -O2 $(CFLAGS) $(CPPFLAGS) $<
 
 #
 # ------------------------------------
