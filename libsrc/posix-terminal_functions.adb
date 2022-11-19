@@ -190,6 +190,7 @@ package body POSIX.Terminal_Functions is
       Perform_Output_Processing => OPOST,
       --  Control_Modes
       Ignore_Modem_Status => CLOCAL,
+      CRTSCTS_Hardware_Flow_Control => CRTSCTS,
       Enable_Receiver => CREAD,
       Send_Two_Stop_Bits => CSTOPB,
       Hang_Up_On_Last_Close => HUPCL,

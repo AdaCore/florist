@@ -69,7 +69,7 @@ package POSIX.Terminal_Functions is
       --  Subtype Output_Modes :
        Perform_Output_Processing,
       --  Subtype Control_Modes :
-       Ignore_Modem_Status, Enable_Receiver, Send_Two_Stop_Bits,
+       Ignore_Modem_Status, CRTSCTS_Hardware_Flow_Control, Enable_Receiver, Send_Two_Stop_Bits,
        Hang_Up_On_Last_Close, Parity_Enable, Odd_Parity,
       --  Subtype Local_Modes:
        Echo, Echo_Erase, Echo_Kill, Echo_LF, Canonical_Input,
