@@ -265,7 +265,7 @@ package body p030300a is
 begin
    Add_All_Signals (All_Signal_Mask);
 
-   for Sig in Realtime_Signal loop
+   for Sig in Realtime_Signal'RANGE loop
       Required_Default_Action (Sig) := Termination;
    end loop;
 
