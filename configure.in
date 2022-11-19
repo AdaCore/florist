@@ -91,8 +91,84 @@ UNAME_SYSTEM=`(uname -s) 2>/dev/null`
 UNAME_VERSION=`(uname -v) 2>/dev/null`
 
 echo ${UNAME_SYSTEM} ${UNAME_MACHINE} ${UNAME_RELEASE} ${UNAME_VERSION}
-echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
-cp ./configs/pconfig.Linux ./pconfig.h.in;
+case ${UNAME_SYSTEM} in
+ HP-UX)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   case ${UNAME_RELEASE} in
+     B.10.*)
+           echo "making Config"
+           cp ./configs/pconfig.HP-UX10.x ./pconfig.h.in;
+           ;;
+     B.11.*)
+           echo "making Config"
+           # getenv might be called during propagation, and modifies errno.
+           safe_errno=False
+           cp ./configs/pconfig.HP-UX11.00 ./pconfig.h.in;
+           ;;
+     *) echo "Unexpected HP-UX release; using default."
+           cp ./configs/pconfig.Default ./pconfig.h.in;
+           ;;
+   esac;
+   ;;
+ SunOS)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   case ${UNAME_RELEASE} in
+     5.1[0-9]) cp ./configs/pconfig.SunOS5.10 ./pconfig.h.in ;;
+     *) cp ./configs/pconfig.SunOS5.6 ./pconfig.h.in ;;
+   esac
+   ;;
+ Linux)
+# .... need to add cases here for different thread and C libraries
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   cp ./configs/pconfig.Linux ./pconfig.h.in;
+   ;;
+ OSF1)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   case `gcc -dumpmachine` in
+      *-*-osf4.0[bc])
+	cp ./configs/pconfig.OSF1-4.0b ./pconfig.h.in;
+	;;
+      *-*-osf4.0[d-z] | *-*-osf4.[1-9]* | *-*-osf5* )
+	cp ./configs/pconfig.OSF1 ./pconfig.h.in;
+	;;
+   esac
+   ;;
+ IRIX*)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   cp ./configs/pconfig.IRIX6.x ./pconfig.h.in;
+   ;;
+ AIX)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_VERSION};
+   case `gcc -dumpmachine` in
+      *-*-aix4*)
+        cp ./configs/pconfig.AIX4.1 ./pconfig.h.in;
+	;;
+      *-*-aix[567]*)
+	cp ./configs/pconfig.AIX5.x ./pconfig.h.in;
+	;;
+   esac
+   ;;
+ UnixWare)
+   echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+   cp ./configs/pconfig.UnixWare ./pconfig.h.in;
+   ;;
+ LynxOS)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.LynxOS ./pconfig.h.in;
+    ;;
+ FreeBSD)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.FreeBSD ./pconfig.h.in;
+    ;;
+ Darwin)
+    echo "Using Configuration for" ${UNAME_SYSTEM} ${UNAME_RELEASE};
+    cp ./configs/pconfig.Darwin ./pconfig.h.in;
+    ;;
+ *)
+   echo "No Configuration for ${UNAME_SYSTEM}. Using default.";
+   cp ./configs/pconfig.Default ./pconfig.h.in;
+   ;;
+esac;
 
 if test "x$safe_errno" = "xTrue" ; then
   safe_errno_msg="safe"
