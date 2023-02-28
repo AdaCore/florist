@@ -923,8 +923,8 @@ package body POSIX.Signals is
 
    function Has_Data (Source : Signal_Source) return Boolean is
    begin
-      return (Source = From_Queue_Signal) or (Source = From_Async_IO)
-         or (Source = From_Message_Queue) or (Source = From_Timer);
+      return Source = From_Queue_Signal or Source = From_Async_IO
+         or Source = From_Message_Queue or Source = From_Timer;
    end Has_Data;
 
    ----------------
