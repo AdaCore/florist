@@ -407,7 +407,7 @@ package body POSIX is
 
    function "<=" (Left, Right : Option_Set) return Boolean is
    begin
-      return (((not Bits (unsigned (Right.Option)))) and
+      return (not Bits (unsigned (Right.Option)) and
         Bits (unsigned (Left.Option))) = 0;
    end "<=";
 
