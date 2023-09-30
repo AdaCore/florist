@@ -115,8 +115,17 @@ package POSIX.Signals is
    Signal_Out_Of_Band_Data,
    SIGURG                     : constant Signal := POSIX.C.SIGURG;
 
+   pragma Warnings (Off, "null range");
+   --  This is for MacOS/BSD support, since SIGRTMAX &
+   --  SIGRTMIN are not present on the platform.  This forms
+   --  a null range, which is acceptable for a non-present feature.
+   --  Due to some compilation arguments, warnings treated as errors,
+   --  means this was a critical stop.
+
    subtype Realtime_Signal is Signal range
      Signal (POSIX.C.SIGRTMIN) .. POSIX.C.SIGRTMAX;
+
+   pragma Warnings (On, "null range");
 
    --  Signal sets
 

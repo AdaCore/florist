@@ -4540,6 +4540,14 @@ void create_c() {
 #else
   GDFLT("CLOCAL", 0);
 #endif
+
+#ifdef CRTSCTS
+ GCST("CRTSCTS", CRTSCTS);
+#else
+  GDFLT("CRTSCTS", 0);
+#endif
+
+
 #ifdef CLOCK_REALTIME
   /* Generate the value of CLOCK_REALTIME with a cast to int,
      as the GCST uses printf's %d to print it. Otherwise, if

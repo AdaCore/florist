@@ -200,7 +200,7 @@ package body Test_Parameters is
       when SIGUSR1 | SIGUSR2 | SIGINT
         |  5 --  SIGTRAP
         | 26 --  SIGVTALRM
-        | 31 --  SIGUNUSED
+--      | 31 --  SIGUNUSED  -- SIGUSR2 IS 31, there is no real SIGUNUSED, was only for backwards compat.
          => return True;
 --! #     elsif SunOS then
 --! --  The following are correct values for gnat 3.12
