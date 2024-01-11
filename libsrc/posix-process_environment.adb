@@ -792,7 +792,13 @@ package body POSIX.Process_Environment is
          begin
             if I /= 0 then
                Str (I) := NUL;
-               Action (Str (1 .. I - 1), Str (I + 1 .. Str'Last), Quit);
+               declare
+                  Value : constant POSIX_String (1 .. Str'Last - I) :=
+                    Str (I + 1 .. Str'Last);
+                  --  contortion needed so index range starts with 1
+               begin
+                  Action (Str (1 .. I - 1), Value, Quit);
+               end;
             end if;
          end;
          exit when Quit;
