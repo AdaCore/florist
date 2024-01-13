@@ -254,14 +254,14 @@ AC_DEFUN(AC_POSIX_COMP_OVERLAY,
 AC_MSG_CHECKING(for struct $1 component $2 overlaying $3)
 AC_CACHE_VAL(ac_cv_comp_$2,
 AC_TRY_RUN([#include "confsrc/pconfig.h"
-main()
+int main(void)
 {
   struct $1 x;
   if (&x.$2 == &x.$3) {
     fprintf(stderr,"$2 overlays $3...");
-    exit (1);
+    return 1;
   } else {
-    exit (0);
+    return 0;
   }
 }], eval "ac_cv_comp_$2=yes",
 eval "ac_cv_comp_$2=no", eval "ac_cv_comp_$2=nu"))dnl
