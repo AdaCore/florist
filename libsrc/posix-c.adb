@@ -69,15 +69,11 @@ package body POSIX.C is
          return "";
       end if;
       declare
-         subtype POSIX_Substring is POSIX.POSIX_String
-           (1 .. Integer (strlen (Str)));
-         type POSIX_Substring_Ptr is access POSIX_Substring;
-         pragma Warnings (Off);
-         function char_ptr_to_pssptr is new Ada.Unchecked_Conversion
-           (char_ptr, POSIX_Substring_Ptr);
-         pragma Warnings (On);
+         Result : constant POSIX.POSIX_String (1 .. Integer (strlen (Str)));
+         for Result'Address use Str.all'Address;
+         pragma Import (Ada, Result);
       begin
-         return char_ptr_to_pssptr (Str).all;
+         return Result;
       end;
    end Form_POSIX_String;
 
