@@ -180,7 +180,7 @@ AC_CHECK_LIB(aio, aio_read)
 AC_CHECK_LIB(posix4, clock_gettime,,
 AC_CHECK_LIB(rt, clock_gettime))
 
-AC_CHECK_LIB(nsl, gethostbyname)
+AC_SEARCH_LIBS(gethostbyname, nsl)
 
 AC_CHECK_LIB(nsl, t_bind,,
 AC_CHECK_LIB(nsl_s, t_bind))
