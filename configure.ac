@@ -5,7 +5,8 @@
 # for HAVE_... to config.h.in.
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
-AC_INIT(libsrc/posix.adb)
+AC_INIT
+AC_CONFIG_SRCDIR([libsrc/posix.adb])
 [echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
 AC_CONFIG_HEADER(confsrc/config.h)
@@ -49,7 +50,7 @@ AS_HELP_STRING([--with-build-type=X], [Set build type (Production/Debug)]),
 [
  case "x$with_build_type" in
   xyes|xno)
-     AC_ERROR([invalid build type]) ;;
+     AC_MSG_ERROR(invalid build type) ;;
   *) AC_MSG_RESULT($with_build_type)
      BUILD_TYPE_OPTION="-XBuild=$with_build_type" ;;
  esac
@@ -63,7 +64,7 @@ AS_HELP_STRING([--with-rts=X], [Set RTS]),
 [
  case "x$with_rts" in
   xyes|xno)
-     AC_ERROR([invalid RTS]) ;;
+     AC_MSG_ERROR(invalid RTS) ;;
   *) AC_MSG_RESULT($with_rts)
      RTS_OPTION="--RTS=$with_rts" ;;
  esac
@@ -180,7 +181,7 @@ AC_CHECK_LIB(aio, aio_read)
 AC_CHECK_LIB(posix4, clock_gettime,,
 AC_CHECK_LIB(rt, clock_gettime))
 
-AC_CHECK_LIB(nsl, gethostbyname)
+AC_SEARCH_LIBS(gethostbyname, nsl)
 
 AC_CHECK_LIB(nsl, t_bind,,
 AC_CHECK_LIB(nsl_s, t_bind))
@@ -570,4 +571,6 @@ AC_POSIX_FUNCS(\
  __posix_ttyname_r\
 )
 
-AC_OUTPUT(Makefile, [test -z "$CONFIG_HEADERS" || date > stamp-h])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_COMMANDS([default],[test -z "$CONFIG_HEADERS" || date > stamp-h],[])
+AC_OUTPUT
