@@ -1897,6 +1897,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
 echo See file "configure.log" for results of this step.
 # specifies some well-known file in the configured directory
 ac_config_headers="$ac_config_headers confsrc/config.h"
@@ -2818,6 +2819,7 @@ echo "HAVE_Safe_Errno := $safe_errno" >> gnatprep.config;
 #  pthread.h must follow sched.h, since
 #  pthread.h redefines symbols in sched.h;
 #  the effect is to detect the problem and drop pthread.h
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3004,18 +3006,10 @@ else
 #include <$ac_hdr>
 _ACEOF
 if ac_fn_c_try_cpp "$LINENO"; then :
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include "confsrc/pconfig.h"
 #include <$ac_hdr>
-int
-main ()
-{
-
-  ;
-  return 0;
-}
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   eval "ac_cv_header_$ac_safe=yes"
@@ -3083,13 +3077,6 @@ if ac_fn_c_try_cpp "$LINENO"; then :
 /* end confdefs.h.  */
 #include "confsrc/pconfig.h"
 #include <$ac_hdr>
-int
-main ()
-{
-
-  ;
-  return 0;
-}
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   eval "ac_cv_header_$ac_safe=yes"
@@ -3134,13 +3121,6 @@ if ac_fn_c_try_cpp "$LINENO"; then :
 /* end confdefs.h.  */
 #include "confsrc/pconfig.h"
 #include <xti.h>
-int
-main ()
-{
-
-  ;
-  return 0;
-}
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   eval "ac_cv_header_$ac_safe=yes"
@@ -3183,13 +3163,6 @@ if ac_fn_c_try_cpp "$LINENO"; then :
 /* end confdefs.h.  */
 #include "confsrc/pconfig.h"
 #include <tli.h>
-int
-main ()
-{
-
-  ;
-  return 0;
-}
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   eval "ac_cv_header_$ac_safe=yes"

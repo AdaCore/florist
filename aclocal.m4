@@ -12,12 +12,10 @@ ac_old_cflags=$CFLAGS
 ac_safe=`echo "$1" | tr './\055' '___'`
 AC_MSG_CHECKING([for $1])
 AC_CACHE_VAL(ac_cv_header_$ac_safe,
-[AC_TRY_CPP([#include <$1>], 
-AC_TRY_COMPILE([#include "confsrc/pconfig.h"
-#include <$1>],,
+[AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <$1>]])],[AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include "confsrc/pconfig.h"
+#include <$1>]])],
 eval "ac_cv_header_$ac_safe=yes",
-eval "ac_cv_header_$ac_safe=no"),
-eval "ac_cv_header_$ac_safe=no")])dnl
+eval "ac_cv_header_$ac_safe=no")],[eval "ac_cv_header_$ac_safe=no"])])dnl
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   AC_MSG_RESULT(yes)
   echo "#include <$1>" >> confsrc/pconfig.h
@@ -68,10 +66,8 @@ TLI := True" >> gnatprep.config;],
 TLI := False" >> gnatprep.config;],
 ))
 
-AC_TRY_COMPILE([#include "confsrc/pconfig.h"],
-[  struct msghdr hdr;
-   hdr.msg_controllen = 0;],
-[echo "Socket interface looks like BSD 4.4";
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "confsrc/pconfig.h"]], [[  struct msghdr hdr;
+   hdr.msg_controllen = 0;]])],[echo "Socket interface looks like BSD 4.4";
 
  # Put BSD flag in gnatprep.config
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
@@ -82,8 +78,7 @@ AC_TRY_COMPILE([#include "confsrc/pconfig.h"],
  if (grep _BSD4_4_ confsrc/pconfig.h >/dev/null 2>&1); then true;
  else
    echo "#define _BSD4_4_" >> confsrc/pconfig.h;
- fi;],
-[echo "Socket interface Looks like BSD 4.3";
+ fi;],[echo "Socket interface Looks like BSD 4.3";
  if (grep BSD4_3 gnatprep.config >/dev/null 2>&1); then true;
  else
     (echo "--  set BSD4_3 to False if using 4.4 style socket msghdr";
@@ -182,9 +177,8 @@ AC_DEFUN(AC_POSIX_STRUCT,
 [AC_REQUIRE([AC_POSIX_HEADERS])dnl
 AC_MSG_CHECKING(for struct $1)
 AC_CACHE_VAL(ac_cv_struct_$1,
-[AC_TRY_COMPILE([#include "confsrc/pconfig.h"
-struct $1 x;],,eval "ac_cv_struct_$1=yes",
- eval "ac_cv_struct_$1=no")])dnl
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "confsrc/pconfig.h"
+struct $1 x;]], [[]])],[eval "ac_cv_struct_$1=yes"],[eval "ac_cv_struct_$1=no"])])dnl
 if eval "test \"`echo '$ac_cv_struct_'$1`\" = yes"; then
   AC_DEFINE_UNQUOTED(HAVE_struct_$1)
   AC_MSG_RESULT(yes)
@@ -233,10 +227,8 @@ AC_DEFUN(AC_POSIX_COMP,
 [AC_REQUIRE([AC_POSIX_HEADERS])dnl
 AC_MSG_CHECKING(for struct $1 component $2)
 AC_CACHE_VAL(ac_cv_comp_$2,
-[AC_TRY_COMPILE([#include "confsrc/pconfig.h"
-struct $1 x;],
-[x.$2 = x.$2;], eval "ac_cv_comp_$2=yes",
-eval "ac_cv_comp_$2=no")])dnl
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "confsrc/pconfig.h"
+struct $1 x;]], [[x.$2 = x.$2;]])],[eval "ac_cv_comp_$2=yes"],[eval "ac_cv_comp_$2=no"])])dnl
 if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
   AC_DEFINE_UNQUOTED(HAVE_component_$2)
   AC_MSG_RESULT(yes)
@@ -253,7 +245,7 @@ AC_DEFUN(AC_POSIX_COMP_OVERLAY,
 [AC_REQUIRE([AC_POSIX_HEADERS])dnl
 AC_MSG_CHECKING(for struct $1 component $2 overlaying $3)
 AC_CACHE_VAL(ac_cv_comp_$2,
-AC_TRY_RUN([#include "confsrc/pconfig.h"
+AC_RUN_IFELSE([AC_LANG_SOURCE([#include "confsrc/pconfig.h"
 main()
 {
   struct $1 x;
@@ -263,7 +255,7 @@ main()
   } else {
     exit (0);
   }
-}], eval "ac_cv_comp_$2=yes",
+}])], eval "ac_cv_comp_$2=yes",
 eval "ac_cv_comp_$2=no", eval "ac_cv_comp_$2=nu"))dnl
 if eval "test \"`echo '$ac_cv_comp_'$2`\" = yes"; then
   AC_DEFINE_UNQUOTED(HAVE_component_$2)
