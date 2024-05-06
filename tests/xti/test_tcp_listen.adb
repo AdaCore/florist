@@ -15,7 +15,7 @@ procedure Test_TCP_Listen is
    end record;
    Test_Buffer : aliased Test_Buffer_Type;
 
-   function To_Buffer_Pointer is new POSIX.XTI.To_Buffer_Pointer 
+   function To_Buffer_Pointer is new POSIX.XTI.To_Buffer_Pointer
 	  (Test_Buffer_Type);
    function To_Buffer_Pointer is new POSIX.XTI.To_Buffer_Pointer
           (POSIX.Octet);
@@ -111,7 +111,7 @@ begin
    else
       Text_IO.Put_Line ("NOT Supported");
    end if;
-   
+
    Text_IO.Put ("   SEDU is ");
    if (POSIX.XTI.SEDU_Is_Supported (Comm_Provider_Info) = True) then
       Text_IO.Put ("Supported,");
@@ -131,7 +131,7 @@ begin
    else
       Text_IO.Put_Line ("NOT Supported");
    end if;
-   
+
    Text_IO.Put ("   Connect Data is ");
    if (POSIX.XTI.Connect_Data_Is_Valid (Comm_Provider_Info) = True) then
       Text_IO.Put_Line ("Valid, Max Size is ");
@@ -313,13 +313,13 @@ begin
    --  Test wrap message first
    --
 
-   POSIX.XTI.Receive 
+   POSIX.XTI.Receive
 	     (Connected_Endpoint,
               To_Buffer_Pointer (Test_Buffer'Access),
               POSIX.IO_Count (Test_Buffer'Size / POSIX.Octet'Size),
               Bytes,
               Flags);
- 
+
    --  Send it back
    POSIX.XTI.Send (Connected_Endpoint,
                    To_Buffer_Pointer (Test_Buffer'Access),

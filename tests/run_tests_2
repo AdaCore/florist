@@ -1,7 +1,7 @@
 #!/bin/sh
 # run all the tests that can reasonably run in a batch
 # that need special privileges on Solaris 2.7.
-# 
+#
 # FLAGS determines the degree of verbosity of the output.
 # Setting it to "-t" give the tersest form of output.
 FLAGS="-t"

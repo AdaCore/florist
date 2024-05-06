@@ -30,7 +30,7 @@ begin
 
    Set_Internet_Address (Peer_Name, Loopback_Internet_Address);
    Set_Internet_Port (Peer_Name, 2000);
-   
+
    Buffer1 := POSIX.To_Stream_Element_Array
       ("This is a UDP/IP socket with  ");
    Buffer2 := POSIX.To_Stream_Element_Array

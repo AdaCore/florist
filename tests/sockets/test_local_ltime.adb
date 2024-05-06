@@ -28,7 +28,7 @@ begin
    Put_Line ("Waiting for Data...");
    Accepting_Socket := Accept_Connection (Listening_Socket);
    loop
-      Receive (Accepting_Socket, Buffer (Buffer'First)'Address, 
+      Receive (Accepting_Socket, Buffer (Buffer'First)'Address,
 	       Buffer'Length, Last);
       Count := Count + Integer(Last);
       exit when Last = 0;

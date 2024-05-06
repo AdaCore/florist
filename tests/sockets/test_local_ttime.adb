@@ -27,7 +27,7 @@ begin
    Put (LOOPS*BUFSIZE);
    Put_Line (" bytes...");
    for I in 1 .. LOOPS loop
-      Send (Talking_Socket, Buffer (Buffer'First)'Address, 
+      Send (Talking_Socket, Buffer (Buffer'First)'Address,
 	    Buffer'Length, Last);
    end loop;
    Put_Line ("...Close the connection");

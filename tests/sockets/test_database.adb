@@ -30,7 +30,7 @@ Procedure Test_Database is
       Net_IO.Put (Temp, Get_Network_Number (Net_Info));
       Comment ("...Network Number: " & Temp);
       declare
-         procedure Print_Alias 
+         procedure Print_Alias
            (Name: in     POSIX_String;
             Quit: in out Boolean) is
          begin
@@ -38,7 +38,7 @@ Procedure Test_Database is
                Put (To_String(Name) & " ");
             end if;
          end Print_Alias;
-         procedure Print_Every_Alias is new 
+         procedure Print_Every_Alias is new
                       For_Every_Network_Alias(Print_Alias);
       begin
          if Verbose then
@@ -50,7 +50,7 @@ Procedure Test_Database is
          end if;
       end;
    end Display_Network_Info;
-   
+
    Procedure Display_Protocol_Info (Pro_Info: Protocol_Information) is
       Temp: String (1 .. 5);
       package Pro_IO is new Ada.Text_IO.Integer_IO (Protocol_Number);
@@ -64,7 +64,7 @@ Procedure Test_Database is
       Pro_IO.Put (Temp, Get_Protocol_Number (Pro_Info));
       Comment ("...Protocol Number: " & Temp);
       declare
-         procedure Print_Alias 
+         procedure Print_Alias
            (Name: in     POSIX_String;
             Quit: in out Boolean) is
          begin
@@ -83,11 +83,11 @@ Procedure Test_Database is
          end if;
       end;
    end Display_Protocol_Info;
-   
+
    Net_Info: Network_Information;
    Pro_Info: Protocol_Information;
 
-   Storage : POSIX.Sockets.Internet.Database_Array_Pointer := 
+   Storage : POSIX.Sockets.Internet.Database_Array_Pointer :=
                        new POSIX.Sockets.Internet.Database_Array (0 .. 1023);
 begin
 
@@ -103,12 +103,12 @@ begin
    Comment ("Get Network Information by Name");
    Net_Info := Get_Network_Information_By_Name ("loopback", Storage);
    Display_Network_Info (Net_Info);
-   
+
    Comment ("Get Network Information by Address");
-   Net_Info := Get_Network_Information_By_Address 
+   Net_Info := Get_Network_Information_By_Address
                           (127, Internet_Protocol, Storage);
    Display_Network_Info (Net_Info);
-   
+
    Comment ("Try a non-existent network");
    Net_Info := Get_Network_Information_By_Name ("garbage", Storage);
    Display_Network_Info (Net_Info);
@@ -129,11 +129,11 @@ begin
    Display_Protocol_Info (Pro_Info);
    Pro_Info := Get_Protocol_Information_By_Name ("udp", Storage);
    Display_Protocol_Info (Pro_Info);
-   
+
    Comment ("Get Protocol Information by Number");
    Pro_Info := Get_Protocol_Information_By_Number (1, Storage);
    Display_Protocol_Info (Pro_Info);
-   
+
    Comment ("Try a non-existent protocol");
    Pro_Info := Get_Protocol_Information_By_Name ("garbage", Storage);
    Display_Protocol_Info (Pro_Info);

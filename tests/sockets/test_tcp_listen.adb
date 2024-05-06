@@ -79,7 +79,7 @@ begin
 
    Comment ("Receive data from the connection until it stops sending");
    loop
-      Receive (Accepting_Socket, Buffer (Buffer'First)'Address, 
+      Receive (Accepting_Socket, Buffer (Buffer'First)'Address,
 	       POSIX.IO_Count (Buffer'Length), Last);
       exit when Last = 0;
       Comment ("Received:" &

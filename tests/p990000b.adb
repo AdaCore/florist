@@ -93,7 +93,7 @@ package body p990000b is
       Start_Time,
       Stop_Time : aliased Time;
       Next_Request_Time : aliased Job_Time_Array;
-   end record;   
+   end record;
 
    FD : File_Descriptor;
 
@@ -126,7 +126,7 @@ package body p990000b is
          Protection => Allow_Read + Allow_Write,
          Mapping => Map_Shared,
          File => FD,
-         Offset => 0);   
+         Offset => 0);
 
    end Address_For_Data_Area;
 

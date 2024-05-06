@@ -41,7 +41,7 @@ begin
                Buffer'Length, Last);
       exit when Buffer (1) = 64;
       Comment ("Received:" & POSIX.To_String
-               (To_POSIX_String (Buffer (1 .. 
+               (To_POSIX_String (Buffer (1 ..
 			Ada.Streams.Stream_Element_Offset (Last)))));
    end loop;
 
@@ -51,7 +51,7 @@ begin
 	       Buffer'Length, Last, Callers_Name);
       exit when Buffer (1) = 64;
       Comment ("Received:" & POSIX.To_String
-               (To_POSIX_String (Buffer (1 .. 
+               (To_POSIX_String (Buffer (1 ..
 			Ada.Streams.Stream_Element_Offset (Last)))));
       Comment ("  (from):" & POSIX.To_String
               (Internet_Address_To_String (Get_Internet_Address

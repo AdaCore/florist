@@ -1,6 +1,6 @@
 #!/bin/sh
 # run all the tests that can reasonably run in a batch
-# 
+#
 # FLAGS determines the degree of verbosity of the output.
 # Setting it to "-t" give the tersest form of output.
 FLAGS="-t"
@@ -57,7 +57,7 @@ $RUN ../p090200 ${FLAGS} >> run_tests_1.log 2>&1
 # p070200 requires Standard_Error to be a terminal device
 # and (apparently) cannot be run in background without hanging
 # on attempt to set terminal characteristics "after output"
-# or "after input and output".  
+# or "after input and output".
 $RUN ../p070200 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p090100 ${FLAGS} >> run_tests_1.log 2>&1
 $RUN ../p090200 ${FLAGS} >> run_tests_1.log 2>&1

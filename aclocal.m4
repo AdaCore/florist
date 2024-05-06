@@ -97,7 +97,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "confsrc/pconfig.h"]], [[  struct 
 else
  if [ -f /usr/include/sys/tiuser.h ]; then
    echo "Have only TLI, will use that in place of XTI";
-   if (grep _TLI_ confsrc/pconfig.h >/dev/null 2>&1); then true; 
+   if (grep _TLI_ confsrc/pconfig.h >/dev/null 2>&1); then true;
    else
      echo "#define _TLI_" >> confsrc/pconfig.h;
      echo "#include <sys/tiuser.h>" >> confsrc/pconfig.h;

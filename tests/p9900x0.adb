@@ -119,7 +119,7 @@ package body P9900x0 is
          Data.Start_Calendar_Time := Calendar.Clock;
          Data.Start_Real_Time := Ada.Real_Time.Clock;
          if Needs_Clock_Realtime then
-            Data.Start_Timespec := 
+            Data.Start_Timespec :=
               POSIX_Timers.Get_Time (POSIX_Timers.Clock_Realtime);
          end if;
          Initialize_Scheduling (Data);
@@ -132,7 +132,7 @@ package body P9900x0 is
          Data.Start_Calendar_Time := Calendar.Clock;
          Data.Start_Real_Time := Ada.Real_Time.Clock;
          if Needs_Clock_Realtime then
-            Data.Start_Timespec := 
+            Data.Start_Timespec :=
               POSIX_Timers.Get_Time (POSIX_Timers.Clock_Realtime);
          end if;
          Initialize_Scheduling (Data);

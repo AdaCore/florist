@@ -34,7 +34,7 @@ begin
    end loop;
    Put ("...Received ");
    Put (Count);
-   Put_Line (" characters"); 
+   Put_Line (" characters");
    Done;
    exception when E : others => Fail (E);
 end Test_TCP_Ltime;

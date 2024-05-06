@@ -12,7 +12,7 @@ Procedure Test_UDP_Options is
    UDP_Socket:  File_Descriptor;
    Socket_Name: Internet_Socket_Address;
    Err:         Error_Code := No_Error;
-   
+
    procedure Option_Status (on_off:Socket_Option) is
    begin
       if on_off = Enabled then
@@ -21,7 +21,7 @@ Procedure Test_UDP_Options is
          if Verbose then Put_Line ("Disabled"); end if;
       end if;
    end;
-   
+
    procedure Option_Status (op_val:Natural) is
    begin
       if Verbose then Put (op_val); New_Line; end if;
@@ -42,9 +42,9 @@ Procedure Test_UDP_Options is
          Option_Status (Get_Header_Included (Socket));
          exception when POSIX_Error => Put_Line (Image(Get_Error_Code));
       end;
-         
+
    end;
-   
+
 begin
 
    ---------------------------
@@ -59,7 +59,7 @@ begin
    Set_Internet_Port (Socket_Name, 2000);
    Bind (UDP_Socket, Socket_Name);
    Display_Socket_Options (UDP_Socket);
-   
+
    Comment ("Test Set Options...");
    Set_Receive_Destination_Address (UDP_Socket, Enabled);
    Set_Header_Included (UDP_Socket, Enabled);
