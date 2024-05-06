@@ -110,17 +110,6 @@ dnl AC_CHECK_FUNC(getaddrinfo, [], [])
 
 ])dnl
 
-dnl AC_POSIX_LIBS(LIBRARY..., FUNCTION
-dnl    [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-AC_DEFUN(AC_POSIX_LIBS,
-[for ac_lib in $1
-do
-   AC_POSIX_LIB($ac_lib,$2,ac_lib_success="yes",ac_lib_success="no")
-   if [[ "$ac_lib_success" = "yes" ]]
-   then break;
-   fi
-done])
-
 dnl AC_POSIX_TYPE(TYPE-NAME)
 AC_DEFUN(AC_POSIX_TYPE,
 [AC_REQUIRE([AC_POSIX_HEADERS])dnl
