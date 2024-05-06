@@ -9,7 +9,7 @@ AC_INIT
 AC_CONFIG_SRCDIR([libsrc/posix.adb])
 [echo See file "configure.log" for results of this step.]
 # specifies some well-known file in the configured directory
-AC_CONFIG_HEADER(confsrc/config.h)
+AC_CONFIG_HEADERS([confsrc/config.h])
 AC_PROG_CC
 
 rm -f pconfig.h
