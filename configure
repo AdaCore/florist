@@ -4252,14 +4252,13 @@ fi
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for aio_read in -laio" >&5
-printf %s "checking for aio_read in -laio... " >&6; }
-if test ${ac_cv_lib_aio_aio_read+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing aio_read" >&5
+printf %s "checking for library containing aio_read... " >&6; }
+if test ${ac_cv_search_aio_read+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-laio  $LIBS"
+  e) ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4281,37 +4280,52 @@ return aio_read ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"
+for ac_lib in '' aio
+do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_aio_aio_read=yes
-else case e in #(
-  e) ac_cv_lib_aio_aio_read=no ;;
-esac
+  ac_cv_search_aio_read=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
+    conftest$ac_exeext
+  if test ${ac_cv_search_aio_read+y}
+then :
+  break
+fi
+done
+if test ${ac_cv_search_aio_read+y}
+then :
+
+else case e in #(
+  e) ac_cv_search_aio_read=no ;;
 esac
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_aio_aio_read" >&5
-printf "%s\n" "$ac_cv_lib_aio_aio_read" >&6; }
-if test "x$ac_cv_lib_aio_aio_read" = xyes
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_aio_read" >&5
+printf "%s\n" "$ac_cv_search_aio_read" >&6; }
+ac_res=$ac_cv_search_aio_read
+if test "$ac_res" != no
 then :
-  printf "%s\n" "#define HAVE_LIBAIO 1" >>confdefs.h
-
-  LIBS="-laio $LIBS"
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lposix4" >&5
-printf %s "checking for clock_gettime in -lposix4... " >&6; }
-if test ${ac_cv_lib_posix4_clock_gettime+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing clock_gettime" >&5
+printf %s "checking for library containing clock_gettime... " >&6; }
+if test ${ac_cv_search_clock_gettime+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lposix4  $LIBS"
+  e) ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4333,81 +4347,44 @@ return clock_gettime ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"
+for ac_lib in '' posix4 rt
+do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_posix4_clock_gettime=yes
-else case e in #(
-  e) ac_cv_lib_posix4_clock_gettime=no ;;
-esac
+  ac_cv_search_clock_gettime=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_posix4_clock_gettime" >&5
-printf "%s\n" "$ac_cv_lib_posix4_clock_gettime" >&6; }
-if test "x$ac_cv_lib_posix4_clock_gettime" = xyes
+    conftest$ac_exeext
+  if test ${ac_cv_search_clock_gettime+y}
 then :
-  printf "%s\n" "#define HAVE_LIBPOSIX4 1" >>confdefs.h
-
-  LIBS="-lposix4 $LIBS"
+  break
+fi
+done
+if test ${ac_cv_search_clock_gettime+y}
+then :
 
 else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
-printf %s "checking for clock_gettime in -lrt... " >&6; }
-if test ${ac_cv_lib_rt_clock_gettime+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lrt  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.
-   The 'extern "C"' is for builds by C++ compilers;
-   although this is not generally supported in C code supporting it here
-   has little cost and some practical benefit (sr 110532).  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char clock_gettime (void);
-int
-main (void)
-{
-return clock_gettime ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_rt_clock_gettime=yes
-else case e in #(
-  e) ac_cv_lib_rt_clock_gettime=no ;;
+  e) ac_cv_search_clock_gettime=no ;;
 esac
 fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS ;;
 esac
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_clock_gettime" >&5
-printf "%s\n" "$ac_cv_lib_rt_clock_gettime" >&6; }
-if test "x$ac_cv_lib_rt_clock_gettime" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_clock_gettime" >&5
+printf "%s\n" "$ac_cv_search_clock_gettime" >&6; }
+ac_res=$ac_cv_search_clock_gettime
+if test "$ac_res" != no
 then :
-  printf "%s\n" "#define HAVE_LIBRT 1" >>confdefs.h
-
-  LIBS="-lrt $LIBS"
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
- ;;
-esac
-fi
-
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gethostbyname" >&5
 printf %s "checking for library containing gethostbyname... " >&6; }
@@ -4476,15 +4453,13 @@ then :
 
 fi
 
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl" >&5
-printf %s "checking for t_bind in -lnsl... " >&6; }
-if test ${ac_cv_lib_nsl_t_bind+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing t_bind" >&5
+printf %s "checking for library containing t_bind... " >&6; }
+if test ${ac_cv_search_t_bind+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lnsl  $LIBS"
+  e) ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4506,90 +4481,52 @@ return t_bind ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"
+for ac_lib in '' nsl nsl_s
+do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_nsl_t_bind=yes
-else case e in #(
-  e) ac_cv_lib_nsl_t_bind=no ;;
-esac
+  ac_cv_search_t_bind=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_t_bind" >&5
-printf "%s\n" "$ac_cv_lib_nsl_t_bind" >&6; }
-if test "x$ac_cv_lib_nsl_t_bind" = xyes
+    conftest$ac_exeext
+  if test ${ac_cv_search_t_bind+y}
 then :
-  printf "%s\n" "#define HAVE_LIBNSL 1" >>confdefs.h
-
-  LIBS="-lnsl $LIBS"
+  break
+fi
+done
+if test ${ac_cv_search_t_bind+y}
+then :
 
 else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl_s" >&5
-printf %s "checking for t_bind in -lnsl_s... " >&6; }
-if test ${ac_cv_lib_nsl_s_t_bind+y}
+  e) ac_cv_search_t_bind=no ;;
+esac
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_t_bind" >&5
+printf "%s\n" "$ac_cv_search_t_bind" >&6; }
+ac_res=$ac_cv_search_t_bind
+if test "$ac_res" != no
+then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing accept" >&5
+printf %s "checking for library containing accept... " >&6; }
+if test ${ac_cv_search_accept+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lnsl_s  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.
-   The 'extern "C"' is for builds by C++ compilers;
-   although this is not generally supported in C code supporting it here
-   has little cost and some practical benefit (sr 110532).  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char t_bind (void);
-int
-main (void)
-{
-return t_bind ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_nsl_s_t_bind=yes
-else case e in #(
-  e) ac_cv_lib_nsl_s_t_bind=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_s_t_bind" >&5
-printf "%s\n" "$ac_cv_lib_nsl_s_t_bind" >&6; }
-if test "x$ac_cv_lib_nsl_s_t_bind" = xyes
-then :
-  printf "%s\n" "#define HAVE_LIBNSL_S 1" >>confdefs.h
-
-  LIBS="-lnsl_s $LIBS"
-
-fi
- ;;
-esac
-fi
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for accept in -lsocket" >&5
-printf %s "checking for accept in -lsocket... " >&6; }
-if test ${ac_cv_lib_socket_accept+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsocket  $LIBS"
+  e) ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4611,37 +4548,52 @@ return accept ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"
+for ac_lib in '' socket
+do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_socket_accept=yes
-else case e in #(
-  e) ac_cv_lib_socket_accept=no ;;
-esac
+  ac_cv_search_accept=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
+    conftest$ac_exeext
+  if test ${ac_cv_search_accept+y}
+then :
+  break
+fi
+done
+if test ${ac_cv_search_accept+y}
+then :
+
+else case e in #(
+  e) ac_cv_search_accept=no ;;
 esac
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_socket_accept" >&5
-printf "%s\n" "$ac_cv_lib_socket_accept" >&6; }
-if test "x$ac_cv_lib_socket_accept" = xyes
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_accept" >&5
+printf "%s\n" "$ac_cv_search_accept" >&6; }
+ac_res=$ac_cv_search_accept
+if test "$ac_res" != no
 then :
-  printf "%s\n" "#define HAVE_LIBSOCKET 1" >>confdefs.h
-
-  LIBS="-lsocket $LIBS"
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for h_errno in -lresolv" >&5
-printf %s "checking for h_errno in -lresolv... " >&6; }
-if test ${ac_cv_lib_resolv_h_errno+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing h_errno" >&5
+printf %s "checking for library containing h_errno... " >&6; }
+if test ${ac_cv_search_h_errno+y}
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lresolv  $LIBS"
+  e) ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4663,25 +4615,42 @@ return h_errno ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"
+for ac_lib in '' resolv
+do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_resolv_h_errno=yes
-else case e in #(
-  e) ac_cv_lib_resolv_h_errno=no ;;
-esac
+  ac_cv_search_h_errno=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
+    conftest$ac_exeext
+  if test ${ac_cv_search_h_errno+y}
+then :
+  break
+fi
+done
+if test ${ac_cv_search_h_errno+y}
+then :
+
+else case e in #(
+  e) ac_cv_search_h_errno=no ;;
 esac
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_resolv_h_errno" >&5
-printf "%s\n" "$ac_cv_lib_resolv_h_errno" >&6; }
-if test "x$ac_cv_lib_resolv_h_errno" = xyes
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_h_errno" >&5
+printf "%s\n" "$ac_cv_search_h_errno" >&6; }
+ac_res=$ac_cv_search_h_errno
+if test "$ac_res" != no
 then :
-  printf "%s\n" "#define HAVE_LIBRESOLV 1" >>confdefs.h
-
-  LIBS="-lresolv $LIBS"
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
