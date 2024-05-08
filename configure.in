@@ -175,19 +175,12 @@ if test "x$use_pthread" = "xyes" ; then
 fi
 
 
-AC_CHECK_LIB(aio, aio_read)
-
-AC_CHECK_LIB(posix4, clock_gettime,,
-AC_CHECK_LIB(rt, clock_gettime))
-
-AC_CHECK_LIB(nsl, gethostbyname)
-
-AC_CHECK_LIB(nsl, t_bind,,
-AC_CHECK_LIB(nsl_s, t_bind))
-
-AC_CHECK_LIB(socket, accept)
-
-AC_CHECK_LIB(resolv, h_errno)
+AC_SEARCH_LIBS(aio_read, aio)
+AC_SEARCH_LIBS(clock_gettime, [posix4 rt])
+AC_SEARCH_LIBS(gethostbyname, nsl)
+AC_SEARCH_LIBS(t_bind, [nsl nsl_s])
+AC_SEARCH_LIBS(accept, socket)
+AC_SEARCH_LIBS(h_errno, resolv)
 
 echo "Using LIBS=${LIBS}"
 AC_SUBST(LIBS)
