@@ -620,7 +620,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -695,7 +694,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -948,15 +946,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1094,7 +1083,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1247,7 +1236,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -3607,13 +3595,12 @@ fi
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for aio_read in -laio" >&5
-$as_echo_n "checking for aio_read in -laio... " >&6; }
-if ${ac_cv_lib_aio_aio_read+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing aio_read" >&5
+$as_echo_n "checking for library containing aio_read... " >&6; }
+if ${ac_cv_search_aio_read+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-laio  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3632,34 +3619,44 @@ return aio_read ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_aio_aio_read=yes
-else
-  ac_cv_lib_aio_aio_read=no
+for ac_lib in '' aio; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_aio_read=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_aio_read+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_aio_aio_read" >&5
-$as_echo "$ac_cv_lib_aio_aio_read" >&6; }
-if test "x$ac_cv_lib_aio_aio_read" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBAIO 1
-_ACEOF
+done
+if ${ac_cv_search_aio_read+:} false; then :
 
-  LIBS="-laio $LIBS"
+else
+  ac_cv_search_aio_read=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_aio_read" >&5
+$as_echo "$ac_cv_search_aio_read" >&6; }
+ac_res=$ac_cv_search_aio_read
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lposix4" >&5
-$as_echo_n "checking for clock_gettime in -lposix4... " >&6; }
-if ${ac_cv_lib_posix4_clock_gettime+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing clock_gettime" >&5
+$as_echo_n "checking for library containing clock_gettime... " >&6; }
+if ${ac_cv_search_clock_gettime+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lposix4  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3678,80 +3675,44 @@ return clock_gettime ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_posix4_clock_gettime=yes
-else
-  ac_cv_lib_posix4_clock_gettime=no
+for ac_lib in '' posix4 rt; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_clock_gettime=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_clock_gettime+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_posix4_clock_gettime" >&5
-$as_echo "$ac_cv_lib_posix4_clock_gettime" >&6; }
-if test "x$ac_cv_lib_posix4_clock_gettime" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBPOSIX4 1
-_ACEOF
-
-  LIBS="-lposix4 $LIBS"
+done
+if ${ac_cv_search_clock_gettime+:} false; then :
 
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
-$as_echo_n "checking for clock_gettime in -lrt... " >&6; }
-if ${ac_cv_lib_rt_clock_gettime+:} false; then :
+  ac_cv_search_clock_gettime=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_clock_gettime" >&5
+$as_echo "$ac_cv_search_clock_gettime" >&6; }
+ac_res=$ac_cv_search_clock_gettime
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing gethostbyname" >&5
+$as_echo_n "checking for library containing gethostbyname... " >&6; }
+if ${ac_cv_search_gethostbyname+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lrt  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char clock_gettime ();
-int
-main ()
-{
-return clock_gettime ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_rt_clock_gettime=yes
-else
-  ac_cv_lib_rt_clock_gettime=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_clock_gettime" >&5
-$as_echo "$ac_cv_lib_rt_clock_gettime" >&6; }
-if test "x$ac_cv_lib_rt_clock_gettime" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRT 1
-_ACEOF
-
-  LIBS="-lrt $LIBS"
-
-fi
-
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gethostbyname in -lnsl" >&5
-$as_echo_n "checking for gethostbyname in -lnsl... " >&6; }
-if ${ac_cv_lib_nsl_gethostbyname+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lnsl  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3770,34 +3731,44 @@ return gethostbyname ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_nsl_gethostbyname=yes
-else
-  ac_cv_lib_nsl_gethostbyname=no
+for ac_lib in '' nsl; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_gethostbyname=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_gethostbyname+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_gethostbyname" >&5
-$as_echo "$ac_cv_lib_nsl_gethostbyname" >&6; }
-if test "x$ac_cv_lib_nsl_gethostbyname" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBNSL 1
-_ACEOF
+done
+if ${ac_cv_search_gethostbyname+:} false; then :
 
-  LIBS="-lnsl $LIBS"
+else
+  ac_cv_search_gethostbyname=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_gethostbyname" >&5
+$as_echo "$ac_cv_search_gethostbyname" >&6; }
+ac_res=$ac_cv_search_gethostbyname
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl" >&5
-$as_echo_n "checking for t_bind in -lnsl... " >&6; }
-if ${ac_cv_lib_nsl_t_bind+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing t_bind" >&5
+$as_echo_n "checking for library containing t_bind... " >&6; }
+if ${ac_cv_search_t_bind+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lnsl  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3816,80 +3787,44 @@ return t_bind ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_nsl_t_bind=yes
-else
-  ac_cv_lib_nsl_t_bind=no
+for ac_lib in '' nsl nsl_s; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_t_bind=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_t_bind+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_t_bind" >&5
-$as_echo "$ac_cv_lib_nsl_t_bind" >&6; }
-if test "x$ac_cv_lib_nsl_t_bind" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBNSL 1
-_ACEOF
-
-  LIBS="-lnsl $LIBS"
+done
+if ${ac_cv_search_t_bind+:} false; then :
 
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for t_bind in -lnsl_s" >&5
-$as_echo_n "checking for t_bind in -lnsl_s... " >&6; }
-if ${ac_cv_lib_nsl_s_t_bind+:} false; then :
+  ac_cv_search_t_bind=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_t_bind" >&5
+$as_echo "$ac_cv_search_t_bind" >&6; }
+ac_res=$ac_cv_search_t_bind
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing accept" >&5
+$as_echo_n "checking for library containing accept... " >&6; }
+if ${ac_cv_search_accept+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lnsl_s  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char t_bind ();
-int
-main ()
-{
-return t_bind ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_nsl_s_t_bind=yes
-else
-  ac_cv_lib_nsl_s_t_bind=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_s_t_bind" >&5
-$as_echo "$ac_cv_lib_nsl_s_t_bind" >&6; }
-if test "x$ac_cv_lib_nsl_s_t_bind" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBNSL_S 1
-_ACEOF
-
-  LIBS="-lnsl_s $LIBS"
-
-fi
-
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for accept in -lsocket" >&5
-$as_echo_n "checking for accept in -lsocket... " >&6; }
-if ${ac_cv_lib_socket_accept+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsocket  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3908,34 +3843,44 @@ return accept ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_socket_accept=yes
-else
-  ac_cv_lib_socket_accept=no
+for ac_lib in '' socket; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_accept=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_accept+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_socket_accept" >&5
-$as_echo "$ac_cv_lib_socket_accept" >&6; }
-if test "x$ac_cv_lib_socket_accept" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSOCKET 1
-_ACEOF
+done
+if ${ac_cv_search_accept+:} false; then :
 
-  LIBS="-lsocket $LIBS"
+else
+  ac_cv_search_accept=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_accept" >&5
+$as_echo "$ac_cv_search_accept" >&6; }
+ac_res=$ac_cv_search_accept
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for h_errno in -lresolv" >&5
-$as_echo_n "checking for h_errno in -lresolv... " >&6; }
-if ${ac_cv_lib_resolv_h_errno+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing h_errno" >&5
+$as_echo_n "checking for library containing h_errno... " >&6; }
+if ${ac_cv_search_h_errno+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lresolv  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3954,23 +3899,35 @@ return h_errno ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_resolv_h_errno=yes
-else
-  ac_cv_lib_resolv_h_errno=no
+for ac_lib in '' resolv; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_h_errno=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_h_errno+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_resolv_h_errno" >&5
-$as_echo "$ac_cv_lib_resolv_h_errno" >&6; }
-if test "x$ac_cv_lib_resolv_h_errno" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRESOLV 1
-_ACEOF
+done
+if ${ac_cv_search_h_errno+:} false; then :
 
-  LIBS="-lresolv $LIBS"
+else
+  ac_cv_search_h_errno=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_h_errno" >&5
+$as_echo "$ac_cv_search_h_errno" >&6; }
+ac_res=$ac_cv_search_h_errno
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
 
