@@ -93,7 +93,7 @@ package Sockets is
       Count : Natural := 0);
    --  creates a server socket on the specified port
    --  with the specified backlog count
-   
+
    procedure Accept_Connection
      (Server : Server_Socket;
       Stream : in out Stream_Socket'Class;

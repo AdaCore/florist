@@ -12,7 +12,7 @@ with Text_IO;
 
 procedure Test_Addrinfo is
 
-   procedure Print_Item 
+   procedure Print_Item
      (Info: in     Socket_Address_Information;
       Quit: in out Boolean) is
       Name:  constant POSIX_String    := Get_Canonical_Name (Info);
@@ -27,7 +27,7 @@ procedure Test_Addrinfo is
                   Addr: constant Internet_Socket_Address := Get_Address (Info);
                   In_Addr: constant Internet_Address :=
 				 Get_Internet_Address (Addr);
-                  Dot_Address: constant POSIX_String := 
+                  Dot_Address: constant POSIX_String :=
                      Internet_Address_To_String (In_Addr);
                   begin
                      Put_Line ("      addr=" & To_String (Dot_Address));
@@ -48,13 +48,13 @@ procedure Test_Addrinfo is
                Put_Line ("...Socket type: Sequenced Packet Socket");
             when Others =>
                Put_Line ("...Socket type: Unknown");
-         end case;         
+         end case;
          Put ("...Protocol Number: ");
          Put (integer(Get_Protocol_Number (Info))); New_line;
       end if;
    end Print_Item;
    procedure Print_Every_Item is new POSIX.Sockets.For_Every_Item (Print_Item);
-      
+
    Addr_Info: Socket_Address_Information;
    Request_Info: Socket_Address_Information;
 
@@ -67,7 +67,7 @@ begin
       Name => "129.190.223.103",
       Service => "");
    Print_Every_Item (Addr_Info);
-   
+
    Comment ("Again, with some hints in the request parameter");
    Set_Flags (Request_Info, Canonical_Name+Use_For_Binding);
    Set_Family (Request_Info, Internet_Protocol);
@@ -79,15 +79,15 @@ begin
       Request => Request_Info);
    Comment ("Completed Get_Socket_Address_Information");
    Print_Every_Item (Addr_Info);
-   
+
    Comment ("Get Socket Address Information by Service");
    Addr_Info := Get_Socket_Address_Information (
       Name => "",
       Service => "telnet");
    Print_Every_Item (Addr_Info);
-   
+
    Done;
-   
+
    -- exception when POSIX_Error => Put_Line (Image(Get_Error_Code));
    exception when E : others => Fail (E);
 

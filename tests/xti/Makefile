@@ -10,7 +10,7 @@ TEST_FILES=\
 TESTS=\
  test_tcp_listen\
  test_tcp_connect
-   
+
 all: $(TESTS)
 
 tcp: test_tcp_listen test_tcp_connect

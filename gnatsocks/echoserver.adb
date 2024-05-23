@@ -58,7 +58,7 @@ begin
    loop
      declare
        str : string := readln;
-     begin 
+     begin
        exit when str (1..3) = "BYE";
        writeln ("Echo: """ & str & '"');
      end;

@@ -32,7 +32,7 @@ environment:
 
 The Makefile depends on the "make" utility, how to call the Ada
 compiler, and where the sources and library files associated with
-the implementation of POSIX.5b are installed.  
+the implementation of POSIX.5b are installed.
 
 The Makefile in this directory is designed to work with the Gnu
 "make" utility.  (It will probably work with other "make"

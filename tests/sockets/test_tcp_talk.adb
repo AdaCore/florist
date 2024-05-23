@@ -47,8 +47,8 @@ begin
    if not Is_Internet_Address (To_POSIX_String (Argument (Arg_Host))) then
       Text_IO.Put_Line ("Bad Internet Address");
    end if;
-      
-   Test_Address := String_To_Internet_Address ( 
+
+   Test_Address := String_To_Internet_Address (
 	    To_POSIX_String (Argument (Arg_Host)));
 
    Set_Internet_Address (
@@ -61,7 +61,7 @@ begin
    Port_IO.Put (Port_Num);
    Text_IO.Put (" IP ");
 --   Text_IO.Put (To_String (Internet_Address_To_String (Test_Address)));
-   Text_IO.Put (To_String (Internet_Address_To_String 
+   Text_IO.Put (To_String (Internet_Address_To_String
 			   (Get_Internet_Address (Socket_Name))));
    Text_IO.New_Line;
    Set_Internet_Port (Socket_Name, Port_Num);
@@ -75,7 +75,7 @@ begin
    Test_Address := Get_Internet_Address (Test_Name);
    Put ("  ===>Test_TCP_Talk: Connecting on (");
    declare
-      Dot_Address: constant POSIX_String := 
+      Dot_Address: constant POSIX_String :=
          Internet_Address_To_String (Test_Address);
    begin
       Put (To_String (Dot_Address));
@@ -90,7 +90,7 @@ begin
    Test_Address := Get_Internet_Address (Test_Name);
    Put ("  ===>Test_TCP_Talk: Connecting from (");
    declare
-      Dot_Address: constant POSIX_String := 
+      Dot_Address: constant POSIX_String :=
          Internet_Address_To_String (Test_Address);
    begin
       Put (To_String (Dot_Address));

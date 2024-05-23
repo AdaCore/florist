@@ -46,7 +46,7 @@ PACKAGE BODY TABLE IS
 
   function  Value
     (Key   : in Key_String) return Value_String is
-  begin 
+  begin
     for I in The_Table'First .. Last_Entry loop
        if The_Table(I).Key = Key then return The_Table(I).Value;
        end if;

@@ -97,7 +97,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "confsrc/pconfig.h"]], [[  struct 
 else
  if [ -f /usr/include/sys/tiuser.h ]; then
    echo "Have only TLI, will use that in place of XTI";
-   if (grep _TLI_ confsrc/pconfig.h >/dev/null 2>&1); then true; 
+   if (grep _TLI_ confsrc/pconfig.h >/dev/null 2>&1); then true;
    else
      echo "#define _TLI_" >> confsrc/pconfig.h;
      echo "#include <sys/tiuser.h>" >> confsrc/pconfig.h;
@@ -109,17 +109,6 @@ dnl For some reason the line below cannot be removed???
 dnl AC_CHECK_FUNC(getaddrinfo, [], [])
 
 ])dnl
-
-dnl AC_POSIX_LIBS(LIBRARY..., FUNCTION
-dnl    [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-AC_DEFUN(AC_POSIX_LIBS,
-[for ac_lib in $1
-do
-   AC_POSIX_LIB($ac_lib,$2,ac_lib_success="yes",ac_lib_success="no")
-   if [[ "$ac_lib_success" = "yes" ]]
-   then break;
-   fi
-done])
 
 dnl AC_POSIX_TYPE(TYPE-NAME)
 AC_DEFUN(AC_POSIX_TYPE,

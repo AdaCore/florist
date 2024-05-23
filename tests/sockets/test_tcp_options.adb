@@ -12,7 +12,7 @@ Procedure Test_TCP_Options is
    TCP_Socket:  File_Descriptor;
    Socket_Name: Internet_Socket_Address;
    Err:         Error_Code := No_Error;
-   
+
    procedure Option_Status (on_off:Socket_Option) is
    begin
       if on_off = Enabled then
@@ -21,7 +21,7 @@ Procedure Test_TCP_Options is
          if Verbose then Put_Line ("Disabled"); end if;
       end if;
    end;
-   
+
    procedure Option_Status (op_val:Natural) is
    begin
       if Verbose then Put (op_val); New_Line; end if;
@@ -62,14 +62,14 @@ Procedure Test_TCP_Options is
          Option_Status (Get_Socket_Reuse_Addresses (Socket));
          exception when POSIX_Error => Put_Line (Image(Get_Error_Code));
       end;
-      
+
       -- Then, the ones with other data types
       begin
          if Verbose then Put ("  ...Linger_Time: "); end if;
          Option_Status (Get_Socket_Linger_Time (Socket));
          exception when POSIX_Error => Put_Line (Image(Get_Error_Code));
       end;
-     
+
       -- Then, all the Enabled/Disabled options at TCP level
 
       begin
@@ -95,9 +95,9 @@ Procedure Test_TCP_Options is
          Option_Status (Get_Header_Included (Socket));
          exception when POSIX_Error => Put_Line (Image(Get_Error_Code));
       end;
-         
+
    end;
-   
+
 begin
 
    ---------------------------
@@ -112,7 +112,7 @@ begin
    Set_Internet_Port (Socket_Name, 0);
    Bind (TCP_Socket, Socket_Name);
    Display_Socket_Options (TCP_Socket);
-   
+
    Comment ("Test Set Options...");
    Set_Socket_Broadcast (TCP_Socket, Enabled);
    Set_Socket_Routing (TCP_Socket, Enabled);

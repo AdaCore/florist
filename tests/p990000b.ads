@@ -92,7 +92,7 @@ package p990000b is
    --  periods of jobs are set in the body of this package
 
    Missed_Deadlines : Boolean_Ptr;
-   --  ???? 
+   --  ????
    --  Need to do something to insure atomic access to object.
 
    Computation_Load,

@@ -92,7 +92,7 @@ package Sockets is
       Count : Natural := 0);
    --  creates a server socket on the specified port
    --  with the specified backlog count
-   
+
    procedure Accept_Connection
      (Server : Server_Socket;
       Stream : in out Stream_Socket'Class;
@@ -117,7 +117,7 @@ package Sockets is
 --  or sendto/recfrom), and whether to allow bind for sending.
 --  Note that INADDR_ANY can be used for bind, to let system choose
 --  the local IP address, for bind
-   
+
 private
 
    function Address

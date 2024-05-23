@@ -267,7 +267,7 @@ AC_POSIX_TYPES(\
  siginfo_t\
  sigset_t\
  sigval\
- socklen_t \
+ socklen_t\
  speed_t\
  suseconds_t\
  tcflag_t\

@@ -6,11 +6,11 @@
 #define _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 1
 
-/* 
+/*
    Work around header file problems:
 
-   These should be addressed by the configure script, but 
-   for the time being the following directives explicitly 
+   These should be addressed by the configure script, but
+   for the time being the following directives explicitly
    include and tag undetected but available declarations.
 */
 
@@ -19,7 +19,7 @@
 #define sa_family_t unsigned char
 #define HAVE_sa_family_t 1
 
-/* Required for AF_UNIX domain sockets: The sockaddr_un 
+/* Required for AF_UNIX domain sockets: The sockaddr_un
    structure is not defined in or included by socket.h. */
 
 #include <un.h>
@@ -42,13 +42,13 @@
 
 
 
-/* 
+/*
    The LynxOS BSD interfaces are closer to version 4.4
    than to 4.3.
 */
 
 #ifdef  _BSD4_3_
-#undef  _BSD4_3_ 
+#undef  _BSD4_3_
 #endif  /* _BSD4_3_ */
 
 
@@ -57,11 +57,11 @@
 #endif  /* _BSD4_4_ */
 
 
-/* 
+/*
    Work around for SIGTHREADKILL issues:
 
-   LynxOS reserves signal 24 (aka SIGUDEF24) to the user 
-   space-portion of the pthreads implementation. 
+   LynxOS reserves signal 24 (aka SIGUDEF24) to the user
+   space-portion of the pthreads implementation.
 */
 
 #define LYNX_SIGTHREADKILL_HACK
