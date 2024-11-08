@@ -177,6 +177,7 @@ fi
 
 
 AC_SEARCH_LIBS(aio_read, aio)
+AC_SEARCH_LIBS(shm_open, rt)
 AC_SEARCH_LIBS(clock_gettime, [posix4 rt])
 AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(t_bind, [nsl nsl_s])
