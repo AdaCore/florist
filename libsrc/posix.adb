@@ -389,7 +389,7 @@ package body POSIX is
    function "-" (L, R : Option_Set) return Option_Set is
    begin
       return (Option =>
-        Bits (unsigned (L.Option) and not (unsigned (R.Option))));
+        Bits (unsigned (L.Option) and not unsigned (R.Option)));
    end "-";
 
    ---------
