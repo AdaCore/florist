@@ -759,7 +759,7 @@ package body POSIX.Process_Environment is
             if J /= 0 then
                if J < L then
                   declare
-                     Value : constant POSIX_String (1 .. L - (J + 1));
+                     Value : POSIX_String (1 .. L - (J + 1));
                      for Value'Address use
                        Env.List (I)(J + 1 .. L - 1)'Address;
                      pragma Import (Ada, Value);
@@ -795,7 +795,7 @@ package body POSIX.Process_Environment is
             if I /= 0 then
                Str (I) := NUL;
                declare
-                  Value : constant POSIX_String (1 .. Str'Last - I);
+                  Value : POSIX_String (1 .. Str'Last - I);
                   for Value'Address use Str (I + 1 .. Str'Last)'Address;
                   pragma Import (Ada, Value);
                   --  contortion needed so index range starts with 1
