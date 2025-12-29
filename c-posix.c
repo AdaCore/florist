@@ -53,6 +53,12 @@
 
  */
 
+#ifdef __APPLE__
+  #define _DARWIN_C_SOURCE
+  #define HAVE_struct_ip_opts
+  //#include <sys/socket.h>
+#endif
+
 #include "confsrc/pconfig.h"
 #include <ctype.h>
 #include <errno.h>
@@ -5205,10 +5211,8 @@ void create_c() {
        is reserved by the Ada runtime system.
  */
 
-#if defined(__APPLE__)
-# define BADSIG 0
-#else
-# define BADSIG (-1)
+#if !defined(__APPLE__)
+  # define BADSIG (-1)
 #endif
 {sigset_t set;
   int sig;
