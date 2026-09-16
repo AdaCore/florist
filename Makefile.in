@@ -165,7 +165,7 @@ install: install-static
 endif
 
 floristlib-%: force
-	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -XLIBRARY_TYPE=$* -Pflorist
+	$(GPRBUILD) -p $(GPRBUILD_FLAGS) -XLIBRARY_TYPE=$* -Pflorist -largs -v
 
 # -----------------------------------
 # Maintenance targets
