@@ -941,31 +941,35 @@ struct termios {
   GT3
 
 #ifdef HAVE_suseconds_t
+void g_suseconds_t(){gsitp("suseconds_t", sizeof(suseconds_t));}
 #else
-#ifdef HAVE_struct_timeval
-struct timeval struct_timeval_temp;
-typedef __typeof__ (struct_timeval_temp.tv_usec) suseconds_t;
-#else
-typedef int suseconds_t;
-#endif
+void g_suseconds_t(){gdflsitp("suseconds_t");}
 #endif
 
+// POSIX once said that the type of the tv_usec field in the timeval
+// struct is a long, but now says suseconds_t.  Both types exist and
+// differ on ARM 32 bits with GNU libc and _TIME_BITS=64.
 #ifdef HAVE_struct_timeval
+  struct timeval struct_timeval_temp;
+  typedef __typeof__ (struct_timeval_temp.tv_usec) timeval_tv_usec_t;
   GT1(timeval, 1)
 #else
+# ifdef HAVE_suseconds_t
+    typedef suseconds_t timeval_tv_usec_t;
+# else
+    typedef long timeval_tv_usec_t;
+# endif
 struct timeval {
     time_t tv_sec;
-    suseconds_t tv_usec;
+    timeval_tv_usec_t tv_usec;
   };
   GT1(timeval, 0)
 #endif
   GT2(tv_sec, time_t)
-  GT2(tv_usec, suseconds_t)
+  GT2(tv_usec, timeval_tv_usec_t)
   GT3
 
-struct timeval struct_timeval_dummy;
-void g_suseconds_t()
- {gsitp("suseconds_t", sizeof(struct_timeval_dummy.tv_usec));}
+void g_timeval_tv_usec_t(){gsitp("timeval_tv_usec_t", sizeof(timeval_tv_usec_t));}
 
 #ifdef HAVE_struct_iovec
   GT1(iovec, 1)
@@ -980,18 +984,25 @@ struct iovec {
   GT2(iov_len, size_t)
   GT3
 
+// timespec.tv_usec is usually a long, but not on x32.
 #ifdef HAVE_struct_timespec
+  struct timespec struct_timespec_temp;
+  typedef __typeof__ (struct_timespec_temp.tv_nsec) timespec_tv_nsec_t;
   GT1(timespec, 1)
 #else
-struct timespec {
+   typedef long timespec_tv_nsec_t;
+  struct timespec {
     time_t tv_sec;
-    long   tv_nsec;
+    timespec_tv_nsec_t tv_nsec;
   };
   GT1(timespec, 0)
 #endif
   GT2(tv_sec,time_t)
-  GT2(tv_nsec,long)
+  GT2(tv_nsec,timespec_tv_nsec_t)
   GT3
+
+void g_timespec_tv_nsec_t()
+ {gsitp("timespec_tv_nsec_t", sizeof(timespec_tv_nsec_t));}
 
 #ifdef HAVE_struct_itimerspec
   GT1(itimerspec, 1)
@@ -5954,6 +5965,8 @@ void create_c() {
   g_uid_t();
   g_mode_t();
   g_suseconds_t();
+  g_timeval_tv_usec_t();
+  g_timespec_tv_nsec_t();
   g_ssize_t();
   g_DIR();
   g_ino_t();
