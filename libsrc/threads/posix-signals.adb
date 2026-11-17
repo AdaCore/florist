@@ -1057,7 +1057,7 @@ package body POSIX.Signals is
       Check_Awaitable (Set);
       Split (Timeout, S, NS);
       c_timeout.tv_sec := time_t (S);
-      c_timeout.tv_nsec := long (NS);
+      c_timeout.tv_nsec := timespec_tv_nsec_t (NS);
       Check (sigtimedwait
         (Set.C'Unchecked_Access,
          Info'Unchecked_Access,

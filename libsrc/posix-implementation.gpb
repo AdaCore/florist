@@ -399,7 +399,7 @@ package body POSIX.Implementation is
          F := F + 1.0;
       end if;
       return struct_timespec'(tv_sec => S,
-        tv_nsec => long (Long_Long_Integer (F * NS_per_S)));
+        tv_nsec => timespec_tv_nsec_t (Long_Long_Integer (F * NS_per_S)));
    end To_Struct_Timespec;
 
    function To_Struct_Timespec (T : Timespec) return struct_timespec is
@@ -452,7 +452,7 @@ package body POSIX.Implementation is
          F := F + 1.0;
       end if;
       return struct_timeval'(tv_sec => S,
-        tv_usec => suseconds_t (Long_Long_Integer (F * MS_per_S)));
+        tv_usec => timeval_tv_usec_t (Long_Long_Integer (F * MS_per_S)));
    end To_Struct_Timeval;
 
 end POSIX.Implementation;
